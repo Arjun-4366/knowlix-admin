@@ -42,6 +42,7 @@ export default function VisionMissionEditor() {
           <div className="space-y-1.5">
             <Label>Text</Label>
             <Textarea value={form.visionText} onChange={set("visionText")} rows={5} />
+          </div>
           <div className="space-y-1.5">
             <Label>Vision Media</Label>
             <MediaUpload
@@ -64,6 +65,7 @@ export default function VisionMissionEditor() {
           <div className="space-y-1.5">
             <Label>Text</Label>
             <Textarea value={form.missionText} onChange={set("missionText")} rows={5} />
+          </div>
           <div className="space-y-1.5">
             <Label>Mission Media</Label>
             <MediaUpload
