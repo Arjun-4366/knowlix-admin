@@ -6,45 +6,27 @@ export default function VisionMissionEditor() {
   return (
     <div className="grid grid-cols-2 gap-5">
       <SectionCard title="Vision">
-        <div className="space-y-4">
-          <div className="space-y-1.5">
-            <Label>Title</Label>
-            <Input value={form.visionTitle} onChange={set("visionTitle")} />
-          </div>
-          <div className="space-y-1.5">
-            <Label>Text</Label>
-            <Textarea value={form.visionText} onChange={set("visionText")} rows={5} />
-          </div>
-          <div className="space-y-1.5">
-            <Label>Vision Media</Label>
-            <MediaUpload
-              value={form.visionMedia}
-              onChange={(url) => setForm((f) => ({ ...f, visionMedia: url }))}
-              ratio="video"
-              accept="image/*,video/*"
-            />
+        <div className="space-y-3">
+          <p className="text-sm font-semibold text-gray-700">Our Vision</p>
+          <p className="text-sm text-gray-600 leading-relaxed">
+            To make world-class, personalised education accessible to every child in India and beyond,
+            regardless of location or background.
+          </p>
+          <div className="mt-2 rounded-lg border border-amber-100 bg-amber-50 px-4 py-3 text-xs text-amber-700">
+            This content is managed by the development team and cannot be edited here.
           </div>
         </div>
       </SectionCard>
 
       <SectionCard title="Mission">
-        <div className="space-y-4">
-          <div className="space-y-1.5">
-            <Label>Title</Label>
-            <Input value={form.missionTitle} onChange={set("missionTitle")} />
-          </div>
-          <div className="space-y-1.5">
-            <Label>Text</Label>
-            <Textarea value={form.missionText} onChange={set("missionText")} rows={5} />
-          </div>
-          <div className="space-y-1.5">
-            <Label>Mission Media</Label>
-            <MediaUpload
-              value={form.missionMedia}
-              onChange={(url) => setForm((f) => ({ ...f, missionMedia: url }))}
-              ratio="video"
-              accept="image/*,video/*"
-            />
+        <div className="space-y-3">
+          <p className="text-sm font-semibold text-gray-700">Our Mission</p>
+          <p className="text-sm text-gray-600 leading-relaxed">
+            To provide structured, mentor-led online education that genuinely improves academic outcomes
+            through small batches, daily accountability, and a nurturing learning environment.
+          </p>
+          <div className="mt-2 rounded-lg border border-amber-100 bg-amber-50 px-4 py-3 text-xs text-amber-700">
+            This content is managed by the development team and cannot be edited here.
           </div>
         </div>
       </SectionCard>
