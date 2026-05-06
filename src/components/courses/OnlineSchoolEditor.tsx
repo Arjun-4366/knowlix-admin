@@ -4,15 +4,15 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Trash2, Plus } from "lucide-react";
+import { Trash2, Plus, Save } from "lucide-react";
 import SectionCard from "@/components/shared/SectionCard";
-import FormActions from "@/components/shared/FormActions";
 import MediaUpload from "@/components/shared/MediaUpload";
 
 const initial = {
   name: "Online School",
   tagline: "Full-curriculum schooling from KG to Grade 12",
-  description: "A complete online schooling experience with live daily classes, recorded sessions, exams, report cards, and certification — all from the comfort of home.",
+  description:
+    "A complete online schooling experience with live daily classes, recorded sessions, exams, report cards, and certification — all from the comfort of home.",
   grades: "KG – 12",
   batchSize: "1-on-1 or max 4 per class",
   schedule: "Monday – Saturday",
@@ -56,6 +56,7 @@ export default function OnlineSchoolEditor() {
 
   return (
     <div className="space-y-5">
+      {/* ── Program Overview ── */}
       <SectionCard title="Program Overview">
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
@@ -82,34 +83,43 @@ export default function OnlineSchoolEditor() {
             />
           </div>
         </div>
-        <FormActions onSave={save} saving={saving} />
       </SectionCard>
 
+      {/* ── Program Details ── */}
       <SectionCard title="Program Details">
         <div className="grid grid-cols-3 gap-4">
-          {([
-            ["grades", "Grades Covered"],
-            ["batchSize", "Batch Size"],
-            ["schedule", "Schedule"],
-            ["duration", "Session Duration"],
-            ["students", "Students Enrolled"],
-            ["rating", "Rating"],
-          ] as [keyof typeof initial, string][]).map(([key, label]) => (
+          {(
+            [
+              ["grades", "Grades Covered"],
+              ["batchSize", "Batch Size"],
+              ["schedule", "Schedule"],
+              ["duration", "Session Duration"],
+              ["students", "Students Enrolled"],
+              ["rating", "Rating"],
+            ] as [keyof typeof initial, string][]
+          ).map(([key, label]) => (
             <div key={key} className="space-y-1.5">
               <Label>{label}</Label>
               <Input value={form[key] as string} onChange={set(key)} />
             </div>
           ))}
         </div>
-        <FormActions onSave={save} saving={saving} />
       </SectionCard>
 
+      {/* ── Program Features ── */}
       <SectionCard title="Program Features" description="Bullet points listed on the course card">
         <div className="space-y-2">
           {form.features.map((ft, i) => (
             <div key={i} className="flex gap-2">
-              <Input value={ft} onChange={(e) => updateFeature(i, e.target.value)} placeholder={`Feature ${i + 1}`} />
-              <button onClick={() => removeFeature(i)} className="text-red-400 hover:text-red-600 flex-shrink-0">
+              <Input
+                value={ft}
+                onChange={(e) => updateFeature(i, e.target.value)}
+                placeholder={`Feature ${i + 1}`}
+              />
+              <button
+                onClick={() => removeFeature(i)}
+                className="text-red-400 hover:text-red-600 flex-shrink-0"
+              >
                 <Trash2 className="w-4 h-4" />
               </button>
             </div>
@@ -121,8 +131,20 @@ export default function OnlineSchoolEditor() {
             <Plus className="w-4 h-4" /> Add Feature
           </button>
         </div>
-        <FormActions onSave={save} saving={saving} />
       </SectionCard>
+
+      {/* ── Single primary Save ── */}
+      <div className="flex justify-end">
+        <button
+          onClick={save}
+          disabled={saving}
+          className="flex items-center gap-2 px-6 py-2.5 text-white text-sm font-semibold rounded-lg transition-colors disabled:opacity-60"
+          style={{ background: saving ? "#15803d" : "var(--brand-green)" }}
+        >
+          <Save className="w-4 h-4" />
+          {saving ? "Saving…" : "Save Online School"}
+        </button>
+      </div>
     </div>
   );
 }

@@ -1,79 +1,43 @@
 "use client";
 
-import { useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import SectionCard from "@/components/shared/SectionCard";
-import FormActions from "@/components/shared/FormActions";
-import MediaUpload from "@/components/shared/MediaUpload";
-
-const initial = {
-  name: "Arjun Mehta",
-  role: "Founder & CEO",
-  experience: "12+ years in education",
-  quote: "Every child is capable of excellence. Our job is to create the environment where that excellence can naturally emerge.",
-  bio: "Arjun founded Knowlix after witnessing firsthand how the lack of personalised attention was holding brilliant students back. With a background in education technology and a passion for child development, he built Knowlix to bridge this gap.",
-  credentials: "B.Tech IIT Mumbai | M.Ed Educational Leadership | Former Head of Curriculum, EduFirst India",
-  founderImage: "",
-};
 
 export default function FounderEditor() {
-  const [form, setForm] = useState(initial);
-  const [saving, setSaving] = useState(false);
-
-  const set = (key: keyof typeof initial) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
-    setForm((f) => ({ ...f, [key]: e.target.value }));
-
-  const save = async () => {
-    setSaving(true);
-    await new Promise((r) => setTimeout(r, 800));
-    setSaving(false);
-    alert("Founder Message saved!");
-  };
-
   return (
     <SectionCard title="Founder Message" description="Displayed on the About page">
-      <div className="space-y-4">
-        <div className="grid grid-cols-3 gap-4">
-          <div className="space-y-1.5">
-            <Label>Name</Label>
-            <Input value={form.name} onChange={set("name")} />
-          </div>
-          <div className="space-y-1.5">
-            <Label>Role / Title</Label>
-            <Input value={form.role} onChange={set("role")} />
-          </div>
-          <div className="space-y-1.5">
-            <Label>Experience</Label>
-            <Input value={form.experience} onChange={set("experience")} placeholder="e.g. 12+ years in education" />
-          </div>
+      <div className="flex gap-6">
+        {/* Avatar placeholder */}
+        <div className="flex-shrink-0 w-24 h-24 rounded-full bg-gray-100 border-2 border-gray-200 flex items-center justify-center">
+          <span className="text-3xl">👤</span>
         </div>
-        <div className="space-y-1.5">
-          <Label>Quote</Label>
-          <Textarea value={form.quote} onChange={set("quote")} rows={3} placeholder="Founder's featured quote" />
-        </div>
-        <div className="space-y-1.5">
-          <Label>Bio</Label>
-          <Textarea value={form.bio} onChange={set("bio")} rows={4} />
-        </div>
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-1.5">
-            <Label>Credentials</Label>
-            <Input value={form.credentials} onChange={set("credentials")} placeholder="Degrees, past roles, etc." />
+
+        <div className="flex-1 space-y-3">
+          <div>
+            <p className="text-base font-semibold text-gray-800">Arjun Mehta</p>
+            <p className="text-sm text-green-700 font-medium">Founder &amp; CEO</p>
+            <p className="text-xs text-gray-400">12+ years in education</p>
           </div>
-          <div className="space-y-1.5">
-            <Label>Founder Image</Label>
-            <MediaUpload
-              value={form.founderImage}
-              onChange={(url) => setForm(f => ({ ...f, founderImage: url }))}
-              ratio="portrait"
-              accept="image/*"
-            />
-          </div>
+
+          <blockquote className="border-l-4 border-green-400 pl-4 italic text-sm text-gray-600 leading-relaxed">
+            "Every child is capable of excellence. Our job is to create the environment where that
+            excellence can naturally emerge."
+          </blockquote>
+
+          <p className="text-sm text-gray-600 leading-relaxed">
+            Arjun founded Knowlix after witnessing firsthand how the lack of personalised attention was
+            holding brilliant students back. With a background in education technology and a passion for
+            child development, he built Knowlix to bridge this gap.
+          </p>
+
+          <p className="text-xs text-gray-400">
+            B.Tech IIT Mumbai &nbsp;·&nbsp; M.Ed Educational Leadership &nbsp;·&nbsp; Former Head of Curriculum, EduFirst India
+          </p>
         </div>
       </div>
-      <FormActions onSave={save} saving={saving} />
+
+      <div className="mt-4 rounded-lg border border-amber-100 bg-amber-50 px-4 py-3 text-xs text-amber-700">
+        This content is managed by the development team and cannot be edited here.
+      </div>
     </SectionCard>
   );
 }

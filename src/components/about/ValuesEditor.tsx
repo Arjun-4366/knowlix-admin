@@ -8,15 +8,15 @@ import { Trash2, Plus } from "lucide-react";
 import SectionCard from "@/components/shared/SectionCard";
 import FormActions from "@/components/shared/FormActions";
 
-type Value = { icon: string; title: string; description: string };
+type Value = { title: string; description: string };
 
 const initial: Value[] = [
-  { icon: "🌱", title: "Growth", description: "We believe every child can grow academically and personally with the right guidance." },
-  { icon: "❤️", title: "Empathy", description: "We approach every student with understanding, patience, and genuine care." },
-  { icon: "⭐", title: "Excellence", description: "We hold ourselves to the highest standards in teaching quality and student outcomes." },
-  { icon: "🤝", title: "Community", description: "We build a supportive community of students, mentors, and parents working together." },
-  { icon: "💡", title: "Innovation", description: "We continuously improve our methods using technology and the latest educational research." },
-  { icon: "🛡️", title: "Integrity", description: "We are transparent, honest, and accountable to every family that trusts us." },
+  { title: "Growth", description: "We believe every child can grow academically and personally with the right guidance." },
+  { title: "Empathy", description: "We approach every student with understanding, patience, and genuine care." },
+  { title: "Excellence", description: "We hold ourselves to the highest standards in teaching quality and student outcomes." },
+  { title: "Community", description: "We build a supportive community of students, mentors, and parents working together." },
+  { title: "Innovation", description: "We continuously improve our methods using technology and the latest educational research." },
+  { title: "Integrity", description: "We are transparent, honest, and accountable to every family that trusts us." },
 ];
 
 export default function ValuesEditor() {
@@ -28,7 +28,7 @@ export default function ValuesEditor() {
 
   const remove = (i: number) => setValues((prev) => prev.filter((_, idx) => idx !== i));
 
-  const add = () => setValues((prev) => [...prev, { icon: "", title: "", description: "" }]);
+  const add = () => setValues((prev) => [...prev, { title: "", description: "" }]);
 
   const save = async () => {
     setSaving(true);
@@ -48,15 +48,9 @@ export default function ValuesEditor() {
                 <Trash2 className="w-4 h-4" />
               </button>
             </div>
-            <div className="grid grid-cols-5 gap-2">
-              <div className="space-y-1.5">
-                <Label>Icon</Label>
-                <Input value={v.icon} onChange={(e) => update(i, "icon", e.target.value)} />
-              </div>
-              <div className="col-span-4 space-y-1.5">
-                <Label>Title</Label>
-                <Input value={v.title} onChange={(e) => update(i, "title", e.target.value)} />
-              </div>
+            <div className="space-y-1.5">
+              <Label>Title</Label>
+              <Input value={v.title} onChange={(e) => update(i, "title", e.target.value)} />
             </div>
             <div className="space-y-1.5">
               <Label>Description</Label>

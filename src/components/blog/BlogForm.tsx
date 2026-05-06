@@ -25,7 +25,6 @@ const empty = {
   readTime: "",
   imageUrl: "",
   featured: false,
-  published: false,
 };
 
 export default function BlogForm({ onBack }: Props) {
@@ -96,15 +95,9 @@ export default function BlogForm({ onBack }: Props) {
             <Label>Content</Label>
             <Textarea value={form.content} onChange={set("content")} rows={12} placeholder="Full article content…" />
           </div>
-          <div className="flex items-center gap-8 pt-2">
-            <div className="flex items-center gap-2">
-              <Switch checked={form.featured} onCheckedChange={(v) => setForm((f) => ({ ...f, featured: v }))} />
-              <Label>Featured post</Label>
-            </div>
-            <div className="flex items-center gap-2">
-              <Switch checked={form.published} onCheckedChange={(v) => setForm((f) => ({ ...f, published: v }))} />
-              <Label>Publish immediately</Label>
-            </div>
+          <div className="flex items-center gap-4 pt-2">
+            <Switch checked={form.featured} onCheckedChange={(v) => setForm((f) => ({ ...f, featured: v }))} />
+            <Label>Featured post</Label>
           </div>
         </div>
 

@@ -15,7 +15,7 @@ export default function HomePageAdmin() {
         <TabsList className="mb-6 flex gap-1 bg-white border border-gray-200 rounded-xl p-1 w-fit">
           {["hero", "stats", "why-parents", "testimonials", "faq", "cta"].map((tab) => (
             <TabsTrigger key={tab} value={tab} className="rounded-lg text-sm capitalize data-[state=active]:text-white px-3 py-1.5 data-[state=active]:shadow-none" style={{ "--tw-data-active-bg": "var(--brand-green)" } as React.CSSProperties}>
-              {tab === "why-parents" ? "Why Parents" : tab === "cta" ? "Final CTA" : tab.charAt(0).toUpperCase() + tab.slice(1)}
+              {tab === "why-parents" ? "Why Parents" : tab === "cta" ? "Final CTA" : tab === "testimonials" ? "Reviews" : tab.charAt(0).toUpperCase() + tab.slice(1)}
             </TabsTrigger>
           ))}
         </TabsList>

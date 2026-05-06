@@ -6,13 +6,13 @@ import { Label } from "@/components/ui/label";
 import SectionCard from "@/components/shared/SectionCard";
 import FormActions from "@/components/shared/FormActions";
 
-type Stat = { value: string; label: string; icon: string };
+type Stat = { value: string; label: string; subtext: string };
 
 const initial: Stat[] = [
-  { value: "445+", label: "Students Enrolled", icon: "👨‍🎓" },
-  { value: "33+", label: "Expert Mentors", icon: "👩‍🏫" },
-  { value: "4.9", label: "Average Rating", icon: "⭐" },
-  { value: "98%", label: "Satisfaction Rate", icon: "🏆" },
+  { value: "445+", label: "Students Enrolled", subtext: "and growing every month" },
+  { value: "33+", label: "Expert Mentors", subtext: "across all subjects" },
+  { value: "4.9", label: "Average Rating", subtext: "from verified parents" },
+  { value: "98%", label: "Satisfaction Rate", subtext: "in post-session surveys" },
 ];
 
 export default function StatsEditor() {
@@ -36,16 +36,26 @@ export default function StatsEditor() {
           <div key={i} className="p-4 rounded-lg border border-gray-100 bg-gray-50 space-y-3">
             <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Metric {i + 1}</p>
             <div className="space-y-1.5">
-              <Label>Icon (emoji)</Label>
-              <Input value={stat.icon} onChange={(e) => update(i, "icon", e.target.value)} className="w-24" />
-            </div>
-            <div className="space-y-1.5">
               <Label>Value</Label>
               <Input value={stat.value} onChange={(e) => update(i, "value", e.target.value)} placeholder="e.g. 445+" />
             </div>
             <div className="space-y-1.5">
               <Label>Label</Label>
               <Input value={stat.label} onChange={(e) => update(i, "label", e.target.value)} placeholder="e.g. Students Enrolled" />
+            </div>
+            <div className="space-y-1.5">
+              <Label>
+                Subtext{" "}
+                <span className="text-gray-400 font-normal">
+                  ({stat.subtext.length}/40)
+                </span>
+              </Label>
+              <Input
+                value={stat.subtext}
+                onChange={(e) => update(i, "subtext", e.target.value.slice(0, 40))}
+                placeholder="Short supporting text (max 40 chars)"
+                maxLength={40}
+              />
             </div>
           </div>
         ))}

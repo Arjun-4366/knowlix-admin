@@ -37,7 +37,11 @@ export default function MediaUpload({
 
   useEffect(() => {
     setPreview(value);
-    setIsVideo(value.match(/\.(mp4|webm|ogg)$/i) !== null || value.includes("video"));
+    // blob: URLs come from local file selections — isVideo is already set
+    // correctly by handleFile, so don't override it here.
+    if (!value.startsWith("blob:")) {
+      setIsVideo(value.match(/\.(mp4|webm|ogg)$/i) !== null || value.includes("video"));
+    }
   }, [value]);
 
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {

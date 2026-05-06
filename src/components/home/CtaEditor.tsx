@@ -35,31 +35,35 @@ export default function CtaEditor() {
 
   return (
     <div className="space-y-5">
-      <SectionCard title="CTA Content" description="Final call-to-action section at the bottom of the home page">
+      {/* ── Main CTA copy ── */}
+      <SectionCard
+        title="CTA Content"
+        description="Bottom-of-page banner that drives visitors to book a demo"
+      >
         <div className="space-y-4">
           <div className="space-y-1.5">
             <Label>Heading</Label>
-            <Input value={form.heading} onChange={set("heading")} />
+            <Input value={form.heading} onChange={set("heading")} placeholder="Main CTA headline" />
           </div>
           <div className="space-y-1.5">
             <Label>Subheading</Label>
-            <Textarea value={form.subheading} onChange={set("subheading")} rows={2} />
+            <Textarea value={form.subheading} onChange={set("subheading")} rows={2} placeholder="Supporting sentence below the heading" />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <Label>Button Label</Label>
-              <Input value={form.btnText} onChange={set("btnText")} />
+              <Input value={form.btnText} onChange={set("btnText")} placeholder="e.g. Book a Free Demo" />
             </div>
             <div className="space-y-1.5">
               <Label>Button Link</Label>
-              <Input value={form.btnLink} onChange={set("btnLink")} />
+              <Input value={form.btnLink} onChange={set("btnLink")} placeholder="/contact" />
             </div>
           </div>
           <div className="space-y-1.5">
             <Label>Background Image</Label>
             <MediaUpload
               value={form.bgImage}
-              onChange={(url) => setForm(f => ({ ...f, bgImage: url }))}
+              onChange={(url) => setForm((f) => ({ ...f, bgImage: url }))}
               ratio="video"
               accept="image/*"
             />
@@ -68,12 +72,16 @@ export default function CtaEditor() {
         <FormActions onSave={save} saving={saving} />
       </SectionCard>
 
-      <SectionCard title="Trust Indicators" description="Small trust badges shown below the CTA button">
+      {/* ── Trust badges ── */}
+      <SectionCard
+        title="Trust Badges"
+        description="Three short reassurances shown below the CTA button (e.g. 'No credit card required')"
+      >
         <div className="grid grid-cols-3 gap-4">
           {(["trust1", "trust2", "trust3"] as (keyof typeof initial)[]).map((key, i) => (
             <div key={i} className="space-y-1.5">
-              <Label>Trust Badge {i + 1}</Label>
-              <Input value={form[key]} onChange={set(key)} />
+              <Label>Badge {i + 1}</Label>
+              <Input value={form[key]} onChange={set(key)} placeholder="Short trust line" />
             </div>
           ))}
         </div>

@@ -1,13 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Trash2, Plus } from "lucide-react";
 import SectionCard from "@/components/shared/SectionCard";
 import FormActions from "@/components/shared/FormActions";
 import MediaUpload from "@/components/shared/MediaUpload";
+import { Input } from "../ui/input";
 
 type Milestone = { year: string; title: string; description: string };
 
@@ -19,8 +19,6 @@ const initial: Milestone[] = [
 ];
 
 export default function StoryEditor() {
-  const [heading, setHeading] = useState("Our Story");
-  const [intro, setIntro] = useState("From a small idea to transforming hundreds of young minds across India.");
   const [sectionMedia, setSectionMedia] = useState("");
   const [milestones, setMilestones] = useState<Milestone[]>(initial);
   const [saving, setSaving] = useState(false);
@@ -41,19 +39,9 @@ export default function StoryEditor() {
 
   return (
     <div className="space-y-5">
-      <SectionCard title="Section Intro">
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-1.5">
-            <Label>Heading</Label>
-            <Input value={heading} onChange={(e) => setHeading(e.target.value)} />
-          </div>
-          <div className="space-y-1.5">
-            <Label>Intro Text</Label>
-            <Input value={intro} onChange={(e) => setIntro(e.target.value)} />
-          </div>
-        </div>
-        <div className="mt-4 space-y-1.5">
-          <Label>Section Media (Image or Video)</Label>
+      <SectionCard title="Section Media">
+        <div className="space-y-1.5">
+          <Label>Image or Video</Label>
           <MediaUpload
             value={sectionMedia}
             onChange={setSectionMedia}
