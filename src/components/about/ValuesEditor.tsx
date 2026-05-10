@@ -1,71 +1,153 @@
 "use client";
 
-import { useState } from "react";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Trash2, Plus } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import SectionCard from "@/components/shared/SectionCard";
 import FormActions from "@/components/shared/FormActions";
+import { IAboutPayload, IAboutHighlight } from "@/types/about";
+import { useCreateAbout } from "@/querys/aboutQuery";
+import { toast } from "react-hot-toast";
+import * as LucideIcons from "lucide-react";
 
-type Value = { title: string; description: string };
-
-const initial: Value[] = [
-  { title: "Growth", description: "We believe every child can grow academically and personally with the right guidance." },
-  { title: "Empathy", description: "We approach every student with understanding, patience, and genuine care." },
-  { title: "Excellence", description: "We hold ourselves to the highest standards in teaching quality and student outcomes." },
-  { title: "Community", description: "We build a supportive community of students, mentors, and parents working together." },
-  { title: "Innovation", description: "We continuously improve our methods using technology and the latest educational research." },
-  { title: "Integrity", description: "We are transparent, honest, and accountable to every family that trusts us." },
+const AVAILABLE_ICONS = [
+  "GraduationCap", "Users", "User", "Award", "Clock", "Target", "ShieldCheck", "MessageCircle",
+  "BookOpen", "Heart", "Star", "Zap", "ChartNoAxesColumn", "CheckCircle2", "Globe",
+  "Smile", "Cpu", "Briefcase", "Search", "PenTool", "Laptop",
+  "Trophy", "Rocket", "Lightbulb", "Brain", "MessageSquare", "Phone",
+  "Calendar", "Clock3", "MapPin", "Flag", "Flame", "Gem",
+  "Layers", "Layout", "MousePointer2", "PieChart", "Shield", "ZapOff"
 ];
 
-export default function ValuesEditor() {
-  const [values, setValues] = useState<Value[]>(initial);
-  const [saving, setSaving] = useState(false);
+const EMPTY_HIGHLIGHT: IAboutHighlight = { icon: "Star", title: "", subtitle: "" };
 
-  const update = (i: number, field: keyof Value, value: string) =>
-    setValues((prev) => prev.map((v, idx) => (idx === i ? { ...v, [field]: value } : v)));
+interface Props {
+  form: IAboutPayload;
+  setForm: React.Dispatch<React.SetStateAction<IAboutPayload>>;
+}
 
-  const remove = (i: number) => setValues((prev) => prev.filter((_, idx) => idx !== i));
+export default function ValuesEditor({ form, setForm }: Props) {
+  const { mutateAsync: saveAbout, isPending } = useCreateAbout();
 
-  const add = () => setValues((prev) => [...prev, { title: "", description: "" }]);
+  const highlights: IAboutHighlight[] = Array.isArray(form.aboutHighlights)
+    ? form.aboutHighlights
+    : [];
+
+  const update = (i: number, field: keyof IAboutHighlight, value: string) => {
+    const updated = highlights.map((h, idx) =>
+      idx === i ? { ...h, [field]: value } : h
+    );
+    setForm((prev) => ({ ...prev, aboutHighlights: updated }));
+  };
+
+  const remove = (i: number) => {
+    setForm((prev) => ({
+      ...prev,
+      aboutHighlights: highlights.filter((_, idx) => idx !== i),
+    }));
+  };
+
+  const add = () => {
+    setForm((prev) => ({
+      ...prev,
+      aboutHighlights: [...highlights, { ...EMPTY_HIGHLIGHT }],
+    }));
+  };
 
   const save = async () => {
-    setSaving(true);
-    await new Promise((r) => setTimeout(r, 800));
-    setSaving(false);
-    alert("Core Values saved!");
+    try {
+      await saveAbout({ ...form, aboutHighlights: highlights });
+      toast.success("Highlights saved successfully");
+    } catch {
+      toast.error("Failed to save highlights");
+    }
   };
 
   return (
-    <SectionCard title="Core Values" description="Values displayed on the About page">
-      <div className="grid grid-cols-2 gap-4">
-        {values.map((v, i) => (
-          <div key={i} className="p-4 rounded-lg border border-gray-100 bg-gray-50 space-y-3">
-            <div className="flex items-center justify-between">
-              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Value {i + 1}</p>
-              <button onClick={() => remove(i)} className="text-red-400 hover:text-red-600 transition-colors">
-                <Trash2 className="w-4 h-4" />
-              </button>
+    <SectionCard title="About Highlights" description="Key highlights displayed on the About page">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-4">
+        {highlights.map((h, i) => {
+          const IconComponent = (LucideIcons as any)[h.icon] || LucideIcons.HelpCircle;
+          return (
+            <div key={i} className="p-5 rounded-xl border border-gray-100 bg-gray-50/50 space-y-4 hover:border-green-200 transition-colors">
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
+                  Highlight {i + 1}
+                </p>
+                <div className="flex items-center gap-2">
+                  <div className="p-2 bg-white rounded-lg shadow-sm border border-gray-100">
+                    <IconComponent className="w-5 h-5 text-green-600" />
+                  </div>
+                  <button
+                    onClick={() => remove(i)}
+                    className="p-1.5 text-gray-300 hover:text-red-500 transition-colors"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <div className="space-y-1.5">
+                  <Label>Title</Label>
+                  <Input
+                    value={h.title}
+                    onChange={(e) => update(i, "title", e.target.value)}
+                    placeholder="e.g. Expert Mentors"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label>Select Icon</Label>
+                  <Select value={h.icon} onValueChange={(val) => update(i, "icon", val)}>
+                    <SelectTrigger className="bg-white">
+                      <SelectValue placeholder="Select an icon" />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-60">
+                      {AVAILABLE_ICONS.map((iconName) => {
+                        const IconItem = (LucideIcons as any)[iconName];
+                        return (
+                          <SelectItem key={iconName} value={iconName}>
+                            <div className="flex items-center gap-2">
+                              <IconItem className="w-4 h-4" />
+                              <span>{iconName}</span>
+                            </div>
+                          </SelectItem>
+                        );
+                      })}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label>Subtitle</Label>
+                  <Input
+                    value={h.subtitle}
+                    onChange={(e) => update(i, "subtitle", e.target.value)}
+                    placeholder="e.g. Guiding students since 2015"
+                  />
+                </div>
+              </div>
             </div>
-            <div className="space-y-1.5">
-              <Label>Title</Label>
-              <Input value={v.title} onChange={(e) => update(i, "title", e.target.value)} />
-            </div>
-            <div className="space-y-1.5">
-              <Label>Description</Label>
-              <Textarea value={v.description} onChange={(e) => update(i, "description", e.target.value)} rows={2} />
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
+
+      {highlights.length === 0 && (
+        <p className="text-center text-gray-400 italic text-sm py-6 border-2 border-dashed border-gray-100 rounded-xl mb-4">
+          No highlights yet — click "Add Highlight" to create one.
+        </p>
+      )}
+
       <button
         onClick={add}
-        className="w-full flex items-center justify-center gap-2 py-3 mt-3 border-2 border-dashed border-gray-200 rounded-lg text-sm text-gray-400 hover:border-green-300 hover:text-green-600 transition-colors"
+        className="w-full flex items-center justify-center gap-2 py-3 border-2 border-dashed border-gray-200 rounded-xl text-sm text-gray-400 hover:border-green-300 hover:text-green-600 transition-colors mb-4"
       >
-        <Plus className="w-4 h-4" /> Add Value
+        <Plus className="w-4 h-4" /> Add Highlight
       </button>
-      <FormActions onSave={save} saving={saving} />
+
+      <FormActions onSave={save} saving={isPending} />
     </SectionCard>
   );
 }

@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { Upload, X, ImageIcon } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import Image from "next/image";
 
 type Ratio = "square" | "video" | "4/3" | "portrait";
 
@@ -57,8 +58,13 @@ export default function ImageUpload({ label, value = "", onChange, ratio = "vide
       >
         {preview ? (
           <>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={preview} alt="Preview" className="w-full h-full object-cover" />
+            <Image 
+              src={preview} 
+              alt="Preview" 
+              fill 
+              className="object-cover" 
+              unoptimized={preview.startsWith("blob:") || preview.startsWith("data:")}
+            />
             {/* Hover overlay */}
             <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
               <button

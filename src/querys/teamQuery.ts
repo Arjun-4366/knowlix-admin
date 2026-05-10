@@ -1,0 +1,35 @@
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { getTeam, createTeamMember, deleteTeamMember } from "@/services/team";
+import { ITeamMember } from "@/types/team";
+import { toast } from "react-hot-toast";
+
+export const useGetTeam = () => {
+  return useQuery({
+    queryKey: ["team"],
+    queryFn: getTeam,
+  });
+};
+
+export const useCreateTeamMember = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: ITeamMember) => createTeamMember(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["team"] });
+    },
+  });
+};
+
+export const useDeleteTeamMember = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => deleteTeamMember(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["team"] });
+      toast.success("Member removed from team");
+    },
+    onError: () => {
+      toast.error("Failed to remove team member");
+    },
+  });
+};

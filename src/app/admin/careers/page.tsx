@@ -5,7 +5,7 @@ import ApplicationsList from "@/components/careers/ApplicationsList";
 
 export default function CareersPageAdmin() {
   return (
-    <div className="max-w-5xl">
+    <div className="max-w-6xl">
       <PageHeader title="Careers" description="Manage open positions and review applications" />
       <Tabs defaultValue="positions">
         <TabsList className="mb-6 flex gap-1 bg-white border border-gray-200 rounded-xl p-1 w-fit">

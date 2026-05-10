@@ -1,32 +1,61 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { GraduationCap, Eye, EyeOff, Lock, Mail } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useLogin } from "@/querys/authQuery";
+import toast from "react-hot-toast";
+
+import { z } from "zod";
+
+const loginSchema = z.object({
+  email: z.string().email("Please enter a valid email address."),
+  password: z.string().min(1, "Please enter your password."),
+});
 
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const { mutate: login, isPending } = useLogin();
+
+  // If already authenticated, go straight to dashboard
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const token = localStorage.getItem("token");
+      if (token) {
+        router.replace("/admin/dashboard");
+      }
+    }
+  }, [router]);
 
   const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setError("");
 
-    if (!email || !password) {
-      setError("Please enter your email and password.");
+    const result = loginSchema.safeParse({ email, password });
+    if (!result.success) {
+      toast.error(result.error.issues[0].message);
       return;
     }
 
-    setLoading(true);
-    await new Promise((r) => setTimeout(r, 800));
-    setLoading(false);
-    router.push("/admin/dashboard");
+    login(
+      { email, password },
+      {
+        onSuccess: (data) => {
+          localStorage.setItem("token", data.token);
+          toast.success("Login successful!");
+          router.push("/admin/dashboard");
+        },
+        onError: (error: any) => {
+          toast.error(
+            error.response?.data?.error || error.message || "Login failed!",
+          );
+        },
+      },
+    );
   };
 
   return (
@@ -63,7 +92,9 @@ export default function LoginPage() {
             >
               Knowlix Admin
             </h1>
-            <p className="text-sm text-gray-500 mt-1">Sign in to manage your website</p>
+            <p className="text-sm text-gray-500 mt-1">
+              Sign in to manage your website
+            </p>
           </div>
 
           {/* Form */}
@@ -102,24 +133,24 @@ export default function LoginPage() {
                   onClick={() => setShowPassword((v) => !v)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                 >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  {showPassword ? (
+                    <EyeOff className="w-4 h-4" />
+                  ) : (
+                    <Eye className="w-4 h-4" />
+                  )}
                 </button>
               </div>
             </div>
 
-            {error && (
-              <p className="text-xs text-red-500 bg-red-50 border border-red-100 rounded-lg px-3 py-2">
-                {error}
-              </p>
-            )}
-
             <button
               type="submit"
-              disabled={loading}
+              disabled={isPending}
               className="w-full py-2.5 text-white text-sm font-semibold rounded-lg transition-all disabled:opacity-70 mt-2"
-              style={{ background: loading ? "var(--brand-mid)" : "var(--brand-green)" }}
+              style={{
+                background: isPending ? "var(--brand-mid)" : "var(--brand-green)",
+              }}
             >
-              {loading ? "Signing in…" : "Sign In"}
+              {isPending ? "Signing in…" : "Sign In"}
             </button>
           </form>
 

@@ -1,23 +1,55 @@
+"use client";
+
+import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PageHeader from "@/components/shared/PageHeader";
 import LeadershipEditor from "@/components/team/LeadershipEditor";
 import MentorsManager from "@/components/team/MentorsManager";
+import { useGetTeam } from "@/querys/teamQuery";
+import Loader from "@/components/shared/Loader";
 
 export default function TeamPageAdmin() {
+  const { data: teamData, isLoading } = useGetTeam();
+  const [activeTab, setActiveTab] = useState("Leadership");
+
+  if (isLoading) return <Loader text="Fetching Team Members..." />;
+
+  const groupedData = teamData?.data || {
+    Leadership: [],
+    Advisory: [],
+    "Core Team": [],
+    Mentor: [],
+  };
+
   return (
     <div className="max-w-5xl">
-      <PageHeader title="Team" description="Manage leadership and mentor profiles" />
-      <Tabs defaultValue="leadership">
+      <PageHeader title="Team Management" description="Manage profiles across Leadership, Advisory, Core Team, and Mentors" />
+      
+      <Tabs defaultValue="Leadership" onValueChange={(v) => setActiveTab(v)}>
         <TabsList className="mb-6 flex gap-1 bg-white border border-gray-200 rounded-xl p-1 w-fit">
-          <TabsTrigger value="leadership" className="rounded-lg text-sm px-3 py-1.5 data-[state=active]:shadow-none data-[state=active]:text-white">
-            Leadership
-          </TabsTrigger>
-          <TabsTrigger value="mentors" className="rounded-lg text-sm px-3 py-1.5 data-[state=active]:shadow-none data-[state=active]:text-white">
-            Mentors
-          </TabsTrigger>
+          {["Leadership", "Advisory", "Core Team", "Mentor"].map((tab) => (
+            <TabsTrigger 
+              key={tab} 
+              value={tab} 
+              className="rounded-lg text-sm px-3 py-1.5 data-[state=active]:shadow-none data-[state=active]:text-white data-[state=active]:bg-[#16a34a]"
+            >
+              {tab}
+            </TabsTrigger>
+          ))}
         </TabsList>
-        <TabsContent value="leadership"><LeadershipEditor /></TabsContent>
-        <TabsContent value="mentors"><MentorsManager /></TabsContent>
+
+        <TabsContent value="Leadership">
+          <LeadershipEditor initialMembers={groupedData.Leadership} category="Leadership" />
+        </TabsContent>
+        <TabsContent value="Advisory">
+          <LeadershipEditor initialMembers={groupedData.Advisory} category="Advisory" />
+        </TabsContent>
+        <TabsContent value="Core Team">
+          <LeadershipEditor initialMembers={groupedData["Core Team"]} category="Core Team" />
+        </TabsContent>
+        <TabsContent value="Mentor">
+          <MentorsManager initialMembers={groupedData.Mentor} />
+        </TabsContent>
       </Tabs>
     </div>
   );

@@ -3,17 +3,17 @@
 import { useRef, useState, useEffect } from "react";
 import { Upload, X, FileVideo, ImageIcon } from "lucide-react";
 import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
+import Image from "next/image";
 
 type Ratio = "square" | "video" | "4/3" | "portrait";
 
 interface Props {
   label?: string;
-  value?: string;
-  onChange: (url: string) => void;
+  value?: string | File;
+  onChange: (value: string | File) => void;
   ratio?: Ratio;
   className?: string;
-  accept?: "image/*" | "video/*" | "image/*,video/*";
+  accept?: string;
 }
 
 const ratioStyle: Record<Ratio, string> = {
@@ -25,40 +25,38 @@ const ratioStyle: Record<Ratio, string> = {
 
 export default function MediaUpload({
   label,
-  value = "",
+  value,
   onChange,
   ratio = "video",
   className = "",
   accept = "image/*,video/*",
 }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
-  const [preview, setPreview] = useState(value);
+  const [preview, setPreview] = useState<string>("");
   const [isVideo, setIsVideo] = useState(false);
 
   useEffect(() => {
-    setPreview(value);
-    // blob: URLs come from local file selections — isVideo is already set
-    // correctly by handleFile, so don't override it here.
-    if (!value.startsWith("blob:")) {
+    if (value instanceof File) {
+      const url = URL.createObjectURL(value);
+      setPreview(url);
+      setIsVideo(value.type.startsWith("video/"));
+      return () => URL.revokeObjectURL(url);
+    } else if (typeof value === "string") {
+      setPreview(value);
       setIsVideo(value.match(/\.(mp4|webm|ogg)$/i) !== null || value.includes("video"));
+    } else {
+      setPreview("");
+      setIsVideo(false);
     }
   }, [value]);
 
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const url = URL.createObjectURL(file);
-    setPreview(url);
-    setIsVideo(file.type.startsWith("video/"));
-    onChange(url);
+    onChange(file);
   };
 
-  const handleUrl = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    setPreview(val);
-    setIsVideo(val.match(/\.(mp4|webm|ogg)$/i) !== null || val.includes("video"));
-    onChange(val);
-  };
+
 
   const clear = () => {
     setPreview("");
@@ -84,8 +82,13 @@ export default function MediaUpload({
             {isVideo ? (
               <video src={preview} controls className="w-full h-full object-cover" />
             ) : (
-              /* eslint-disable-next-line @next/next/no-img-element */
-              <img src={preview} alt="Preview" className="w-full h-full object-cover" />
+              <Image 
+                src={preview} 
+                alt="Preview" 
+                fill 
+                className="object-cover" 
+                unoptimized={preview.startsWith("blob:") || preview.startsWith("data:")}
+              />
             )}
             {/* Hover overlay */}
             <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 pointer-events-none group-hover:pointer-events-auto">
@@ -118,7 +121,9 @@ export default function MediaUpload({
             </div>
             <div className="text-center">
               <p className="text-xs font-semibold">Click to upload</p>
-              <p className="text-xs text-gray-400 mt-0.5">Images or Videos — up to 50 MB</p>
+              <p className="text-xs text-gray-400 mt-0.5">
+                {accept.includes("video") ? "Images or Videos" : "Images only"} — up to 50 MB
+              </p>
             </div>
           </div>
         )}
@@ -126,23 +131,6 @@ export default function MediaUpload({
 
       {/* Hidden file input */}
       <input ref={inputRef} type="file" accept={accept} onChange={handleFile} className="hidden" />
-
-      {/* URL input + upload button */}
-      <div className="flex gap-2">
-        <Input
-          value={preview.startsWith("blob:") ? "" : preview}
-          onChange={handleUrl}
-          placeholder="Or paste media URL…"
-          className="text-xs h-8"
-        />
-        <button
-          type="button"
-          onClick={() => inputRef.current?.click()}
-          className="flex-shrink-0 flex items-center gap-1.5 px-3 h-8 text-xs font-medium text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors whitespace-nowrap"
-        >
-          <Upload className="w-3.5 h-3.5" /> Upload file
-        </button>
-      </div>
     </div>
   );
 }

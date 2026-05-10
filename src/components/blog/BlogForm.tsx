@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -9,37 +9,51 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ArrowLeft, Save } from "lucide-react";
 import SectionCard from "@/components/shared/SectionCard";
 import MediaUpload from "@/components/shared/MediaUpload";
+import { IBlog, BlogCategory } from "@/types/blog";
+import { useCreateBlog } from "@/querys/blogQuery";
+import { ButtonLoader } from "@/components/shared/Loader";
+import { toast } from "react-hot-toast";
 
-const categories = ["Parenting Tips", "Study Techniques", "Online Learning", "Exam Strategies"];
+const categories: BlogCategory[] = ["Collaborations", "Talks", "Trainings", "Workshops", "Partnerships"];
 
 interface Props {
   onBack: () => void;
+  initialData?: IBlog | null;
 }
 
-const empty = {
+const empty: IBlog = {
   title: "",
-  category: "Parenting Tips",
-  excerpt: "",
-  content: "",
+  category: "Collaborations",
+  description: "",
   date: new Date().toISOString().split("T")[0],
   readTime: "",
-  imageUrl: "",
-  featured: false,
+  image: "",
+  isFeatured: false,
 };
 
-export default function BlogForm({ onBack }: Props) {
-  const [form, setForm] = useState(empty);
-  const [saving, setSaving] = useState(false);
+export default function BlogForm({ onBack, initialData }: Props) {
+  const [form, setForm] = useState<IBlog>(initialData || empty);
+  const { mutateAsync: savePost, isPending: saving } = useCreateBlog();
 
-  const set = (key: keyof typeof empty) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
-    setForm((f) => ({ ...f, [key]: e.target.value }));
+  useEffect(() => {
+    if (initialData) {
+      setForm(initialData);
+    }
+  }, [initialData]);
+
+  const update = (key: keyof IBlog, value: any) =>
+    setForm((f) => ({ ...f, [key]: value }));
 
   const save = async () => {
-    setSaving(true);
-    await new Promise((r) => setTimeout(r, 800));
-    setSaving(false);
-    alert("Post saved!");
-    onBack();
+    try {
+      if (!form.title.trim()) return toast.error("Title is required");
+      
+      await savePost(form);
+      toast.success(form.id ? "Blog post updated" : "Blog post created");
+      onBack();
+    } catch (error) {
+      toast.error("Failed to save blog post");
+    }
   };
 
   return (
@@ -53,67 +67,78 @@ export default function BlogForm({ onBack }: Props) {
         </button>
       </div>
 
-      <SectionCard title="Post Details">
-        <div className="space-y-4">
-          <div className="space-y-1.5">
-            <Label>Title</Label>
-            <Input value={form.title} onChange={set("title")} placeholder="Post title…" />
+      <SectionCard title={form.id ? "Edit Post" : "New Blog Post"}>
+        <div className="space-y-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <div className="space-y-1.5">
+                <Label>Title</Label>
+                <Input value={form.title} onChange={(e) => update("title", e.target.value)} placeholder="Enter post title…" />
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <Label>Category</Label>
+                  <Select value={form.category} onValueChange={(v) => update("category", v)}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {categories.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1.5">
+                  <Label>Publish Date</Label>
+                  <Input type="date" value={form.date} onChange={(e) => update("date", e.target.value)} />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <Label>Read Time</Label>
+                  <Input value={form.readTime} onChange={(e) => update("readTime", e.target.value)} placeholder="e.g. 5 min read" />
+                </div>
+                <div className="flex items-center gap-4 pt-8">
+                  <Switch checked={form.isFeatured} onCheckedChange={(v) => update("isFeatured", v)} />
+                  <Label className="cursor-pointer">Featured post</Label>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label>Cover Image Upload</Label>
+              <MediaUpload
+                value={form.image}
+                onChange={(file) => update("image", file)}
+                ratio="video"
+                accept="image/*"
+              />
+            </div>
           </div>
-          <div className="grid grid-cols-3 gap-4">
-            <div className="space-y-1.5">
-              <Label>Category</Label>
-              <Select value={form.category} onValueChange={(v) => setForm((f) => ({ ...f, category: v }))}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {categories.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-1.5">
-              <Label>Publish Date</Label>
-              <Input type="date" value={form.date} onChange={set("date")} />
-            </div>
-            <div className="space-y-1.5">
-              <Label>Read Time</Label>
-              <Input value={form.readTime} onChange={set("readTime")} placeholder="e.g. 5 min" />
-            </div>
-          </div>
+
           <div className="space-y-1.5">
-            <Label>Cover Image Upload</Label>
-            <MediaUpload
-              value={form.imageUrl}
-              onChange={(url) => setForm(f => ({ ...f, imageUrl: url }))}
-              ratio="video"
-              accept="image/*"
+            <Label>Content / Description</Label>
+            <Textarea 
+              value={form.description} 
+              onChange={(e) => update("description", e.target.value)} 
+              rows={12} 
+              placeholder="Write the full article content here…" 
             />
-          </div>
-          <div className="space-y-1.5">
-            <Label>Excerpt</Label>
-            <Textarea value={form.excerpt} onChange={set("excerpt")} rows={2} placeholder="Short summary shown in the blog listing…" />
-          </div>
-          <div className="space-y-1.5">
-            <Label>Content</Label>
-            <Textarea value={form.content} onChange={set("content")} rows={12} placeholder="Full article content…" />
-          </div>
-          <div className="flex items-center gap-4 pt-2">
-            <Switch checked={form.featured} onCheckedChange={(v) => setForm((f) => ({ ...f, featured: v }))} />
-            <Label>Featured post</Label>
           </div>
         </div>
 
-        <div className="flex items-center gap-3 pt-5 mt-5 border-t border-gray-100">
+        <div className="flex items-center gap-3 pt-6 mt-6 border-t border-gray-100">
           <button
             onClick={save}
             disabled={saving}
-            className="flex items-center gap-2 px-4 py-2 text-white text-sm font-semibold rounded-lg transition-colors disabled:opacity-60"
+            className="flex items-center gap-2 px-8 py-2.5 text-white text-sm font-bold rounded-xl transition-all disabled:opacity-60 active:scale-95 shadow-sm hover:shadow-md"
             style={{ background: "var(--brand-green)" }}
           >
-            <Save className="w-3.5 h-3.5" />
-            {saving ? "Saving…" : "Save Post"}
+            {saving ? <ButtonLoader /> : <Save className="w-4 h-4" />}
+            {saving ? "Saving…" : "Publish Post"}
           </button>
           <button
             onClick={onBack}
-            className="px-4 py-2 text-sm font-medium text-gray-500 rounded-lg hover:bg-gray-100 transition-colors"
+            className="px-6 py-2.5 text-sm font-bold text-gray-500 rounded-xl hover:bg-gray-100 transition-all active:scale-95"
           >
             Cancel
           </button>

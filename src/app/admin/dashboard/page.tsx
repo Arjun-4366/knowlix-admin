@@ -1,3 +1,5 @@
+"use client"
+import { useGetAbout } from "@/querys/aboutQuery";
 import { MessageSquare, FileText, Users, Briefcase, Clock } from "lucide-react";
 import Link from "next/link";
 
@@ -28,6 +30,7 @@ const recentEnquiries = [
 ];
 
 export default function DashboardPage() {
+
   return (
     <div className="space-y-6 max-w-6xl">
       {/* Greeting */}

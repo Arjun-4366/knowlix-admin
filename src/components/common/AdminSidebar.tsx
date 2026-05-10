@@ -6,7 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard, Home, Info, BookOpen, FileText,
   Users, ImageIcon, Briefcase, MessageSquare, Settings,
-  ChevronDown, GraduationCap,
+  ChevronDown, GraduationCap, Star
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -23,13 +23,14 @@ const nav: NavItem[] = [
   { name: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
   { name: "Home Page", href: "/admin/home", icon: Home },
   { name: "About", href: "/admin/about", icon: Info },
-  { name: "Courses", href: "/admin/courses", icon: BookOpen },
+  { name: "Programs", href: "/admin/programs", icon: GraduationCap },
   { name: "Blog", href: "/admin/blog", icon: FileText },
   { name: "Team", href: "/admin/team", icon: Users },
+  { name: "Reviews", href: "/admin/reviews", icon: Star },
   { name: "Gallery", href: "/admin/gallery", icon: ImageIcon },
   { name: "Careers", href: "/admin/careers", icon: Briefcase },
-  { name: "Enquiries", href: "/admin/enquiries", icon: MessageSquare, badge: "12" },
-  { name: "Settings", href: "/admin/settings", icon: Settings },
+  { name: "Enquiries", href: "/admin/enquiries", icon: MessageSquare},
+  // { name: "Settings", href: "/admin/settings", icon: Settings },
 ];
 
 interface Props {

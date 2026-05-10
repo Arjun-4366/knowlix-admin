@@ -73,15 +73,7 @@ export default function OnlineSchoolEditor() {
             <Label>Description</Label>
             <Textarea value={form.description} onChange={set("description")} rows={3} />
           </div>
-          <div className="space-y-1.5">
-            <Label>Program Image / Video</Label>
-            <MediaUpload
-              value={sectionMedia}
-              onChange={setSectionMedia}
-              ratio="video"
-              accept="image/*,video/*"
-            />
-          </div>
+          
         </div>
       </SectionCard>
 

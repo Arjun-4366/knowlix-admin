@@ -1,132 +1,165 @@
-"use client";
-
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Trash2, Plus, X } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import SectionCard from "@/components/shared/SectionCard";
 import FormActions from "@/components/shared/FormActions";
 import MediaUpload from "@/components/shared/MediaUpload";
+import { ITeamMember } from "@/types/team";
+import { useCreateTeamMember, useDeleteTeamMember } from "@/querys/teamQuery";
+import { useConfirmation } from "@/context/ConfirmationContext";
+import { toast } from "react-hot-toast";
 
-type Mentor = { name: string; subject: string; grades: string; experience: string; bio: string; avatar: string };
+interface Props {
+  initialMembers: ITeamMember[];
+}
 
-const initial: Mentor[] = [
-  { name: "Kavitha Nair", subject: "Mathematics", grades: "8–12", experience: "8 years", bio: "Specialises in board exam preparation with a focus on conceptual clarity and problem-solving shortcuts.", avatar: "" },
-  { name: "Rohit Sharma", subject: "Physics", grades: "9–12", experience: "6 years", bio: "IIT graduate passionate about making physics intuitive through real-world analogies and experiments.", avatar: "" },
-  { name: "Deepa Iyer", subject: "Chemistry", grades: "8–12", experience: "10 years", bio: "Expert in organic chemistry with a track record of helping students crack JEE and NEET.", avatar: "" },
-  { name: "Amit Singh", subject: "English", grades: "KG–10", experience: "7 years", bio: "Specialises in building reading comprehension and creative writing skills from an early age.", avatar: "" },
-  { name: "Preethi Raj", subject: "Biology", grades: "9–12", experience: "9 years", bio: "NEET specialist with deep expertise in human anatomy, genetics, and ecology.", avatar: "" },
-  { name: "Vikram Nair", subject: "Coding", grades: "4–12", experience: "5 years", bio: "Full-stack developer turned educator. Makes coding fun with project-based learning and real apps.", avatar: "" },
-  { name: "Sunita Gupta", subject: "Social Studies", grades: "6–10", experience: "11 years", bio: "Makes history and geography come alive through storytelling and visual learning techniques.", avatar: "" },
-  { name: "Arun Kumar", subject: "Science", grades: "6–8", experience: "7 years", bio: "Integrated science teacher focused on hands-on experiments and curiosity-driven learning.", avatar: "" },
-];
+export default function MentorsManager({ initialMembers }: Props) {
+  const [members, setMembers] = useState<ITeamMember[]>(initialMembers);
+  const { mutateAsync: saveMember, isPending: saving } = useCreateTeamMember();
+  const { mutateAsync: deleteMember } = useDeleteTeamMember();
+  const { confirm } = useConfirmation();
 
-export default function MentorsManager() {
-  const [mentors, setMentors] = useState<Mentor[]>(initial);
-  const [editing, setEditing] = useState<number | null>(null);
-  const [saving, setSaving] = useState(false);
+  useEffect(() => {
+    setMembers(initialMembers);
+  }, [initialMembers]);
 
-  const update = (i: number, field: keyof Mentor, value: string) =>
-    setMentors((prev) => prev.map((m, idx) => (idx === i ? { ...m, [field]: value } : m)));
-
-  const remove = (i: number) => {
-    setMentors((prev) => prev.filter((_, idx) => idx !== i));
-    if (editing === i) setEditing(null);
-  };
+  const update = (i: number, field: keyof ITeamMember, value: any) =>
+    setMembers((prev) => prev.map((m, idx) => (idx === i ? { ...m, [field]: value } : m)));
 
   const add = () => {
-    setMentors((prev) => [...prev, { name: "", subject: "", grades: "", experience: "", bio: "", avatar: "" }]);
-    setEditing(mentors.length);
+    setMembers((prev) => [
+      ...prev,
+      { name: "", role: "Mentor", description: "", image: "", category: "Mentor", tags: [] },
+    ]);
   };
 
-  const save = async () => {
-    setSaving(true);
-    await new Promise((r) => setTimeout(r, 800));
-    setSaving(false);
-    alert("Mentors saved!");
+  const remove = (id: string | undefined, index: number) => {
+    if (!id) {
+      setMembers((prev) => prev.filter((_, idx) => idx !== index));
+      return;
+    }
+
+    confirm({
+      title: "Delete Mentor",
+      message: "Are you sure you want to remove this mentor? This action cannot be undone.",
+      confirmText: "Remove",
+      variant: "danger",
+      onConfirm: async () => {
+        try {
+          await deleteMember(id);
+        } catch (error) {
+          console.error(error);
+        }
+      },
+    });
+  };
+
+  const saveAll = async () => {
+    try {
+      const validMembers = members.filter(m => m.name.trim());
+      for (const m of validMembers) {
+        await saveMember(m);
+      }
+      toast.success("Mentors updated successfully!");
+    } catch (error) {
+      toast.error("Failed to save mentors");
+    }
   };
 
   return (
-    <SectionCard title="Mentors" description={`${mentors.length} mentors`}>
-      <div className="space-y-2 mb-4">
-        {mentors.map((m, i) => (
-          <div key={i}>
-            <div
-              className="flex items-center justify-between p-3 rounded-lg border border-gray-200 hover:border-green-200 cursor-pointer transition-colors"
-              style={editing === i ? { borderColor: "var(--brand-green)", background: "#f0fdf4" } : {}}
-              onClick={() => setEditing(editing === i ? null : i)}
-            >
-              <div className="flex items-center gap-3">
-                <div
-                  className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0 bg-cover bg-center overflow-hidden"
-                  style={{
-                    background: m.avatar ? `url(${m.avatar}) center/cover` : "var(--brand-green)"
-                  }}
-                >
-                  {!m.avatar && (m.name ? m.name[0] : "?")}
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-800">{m.name || "Unnamed Mentor"}</p>
-                  <p className="text-xs text-gray-400">{m.subject} · {m.grades} · {m.experience}</p>
-                </div>
-              </div>
-              <button
-                onClick={(e) => { e.stopPropagation(); remove(i); }}
-                className="text-red-400 hover:text-red-600 transition-colors p-1"
+    <div className="space-y-6">
+      {members.map((m, i) => (
+        <SectionCard 
+          key={i} 
+          title={m.name || `Mentor Profile ${i + 1}`}
+          description={m.tags[0] || "Subject not specified"}
+        >
+          <div className="space-y-4">
+            <div className="flex justify-end -mt-10 mb-2">
+              <button 
+                onClick={() => remove(m.id, i)}
+                className="text-red-400 hover:text-red-600 p-2 rounded-lg hover:bg-red-50 transition-all"
               >
-                <Trash2 className="w-4 h-4" />
+                <Trash2 className="w-5 h-5" />
               </button>
             </div>
 
-            {editing === i && (
-              <div className="mt-2 p-4 rounded-lg border border-green-200 bg-green-50 space-y-3">
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-1.5">
-                    <Label>Name</Label>
-                    <Input value={m.name} onChange={(e) => update(i, "name", e.target.value)} />
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label>Subject</Label>
-                    <Input value={m.subject} onChange={(e) => update(i, "subject", e.target.value)} />
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label>Grades</Label>
-                    <Input value={m.grades} onChange={(e) => update(i, "grades", e.target.value)} placeholder="e.g. 8–12" />
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label>Experience</Label>
-                    <Input value={m.experience} onChange={(e) => update(i, "experience", e.target.value)} placeholder="e.g. 6 years" />
-                  </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <div className="space-y-1.5">
+                  <Label>Full Name</Label>
+                  <Input 
+                    value={m.name} 
+                    onChange={(e) => update(i, "name", e.target.value)} 
+                    placeholder="e.g. Kavitha Nair"
+                  />
                 </div>
                 <div className="space-y-1.5">
-                  <Label>Avatar Image</Label>
+                  <Label>Subject / Specialty</Label>
+                  <Input 
+                    value={m.tags[0] || ""} 
+                    onChange={(e) => {
+                      const newTags = [...m.tags];
+                      newTags[0] = e.target.value;
+                      update(i, "tags", newTags);
+                    }} 
+                    placeholder="e.g. Mathematics"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label>Short Bio</Label>
+                  <Textarea 
+                    value={m.description} 
+                    onChange={(e) => update(i, "description", e.target.value)} 
+                    rows={4} 
+                    placeholder="Describe their teaching style and expertise..."
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div className="space-y-1.5">
+                  <Label>Profile Picture</Label>
                   <MediaUpload
-                    value={m.avatar}
-                    onChange={(url) => update(i, "avatar", url)}
+                    value={m.image}
+                    onChange={(file) => update(i, "image", file)}
                     ratio="square"
-                    className="w-32"
                     accept="image/*"
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label>Bio</Label>
-                  <Textarea value={m.bio} onChange={(e) => update(i, "bio", e.target.value)} rows={2} />
+                  <Label>Other Details (Grades, Experience, etc.)</Label>
+                  <Input 
+                    value={m.tags.slice(1).join(", ")} 
+                    onChange={(e) => {
+                      const otherTags = e.target.value.split(",").map(s => s.trim()).filter(Boolean);
+                      update(i, "tags", [m.tags[0] || "", ...otherTags]);
+                    }} 
+                    placeholder="e.g. Grade 8–12, 8+ Years Exp"
+                  />
                 </div>
               </div>
-            )}
+            </div>
           </div>
-        ))}
-      </div>
+        </SectionCard>
+      ))}
+
+      {members.length === 0 && (
+        <div className="text-center py-12 bg-gray-50 border-2 border-dashed border-gray-100 rounded-2xl">
+          <p className="text-sm text-gray-400 italic">No mentors added yet.</p>
+        </div>
+      )}
 
       <button
         onClick={add}
-        className="w-full flex items-center justify-center gap-2 py-3 border-2 border-dashed border-gray-200 rounded-lg text-sm text-gray-400 hover:border-green-300 hover:text-green-600 transition-colors"
+        className="w-full flex items-center justify-center gap-2 py-4 border-2 border-dashed border-gray-200 rounded-xl text-sm font-bold text-gray-400 hover:border-green-200 hover:text-green-600 hover:bg-green-50/30 transition-all"
       >
-        <Plus className="w-4 h-4" /> Add Mentor
+        <Plus className="w-5 h-5" /> Add New Mentor
       </button>
 
-      <FormActions onSave={save} saving={saving} />
-    </SectionCard>
+      <FormActions onSave={saveAll} saving={saving} label="Save All Mentors" />
+    </div>
   );
 }

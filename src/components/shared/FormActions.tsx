@@ -1,6 +1,7 @@
 "use client";
 
 import { Save } from "lucide-react";
+import { ButtonLoader } from "./Loader";
 
 interface Props {
   onSave?: () => void;
@@ -14,10 +15,10 @@ export default function FormActions({ onSave, saving, label = "Save Changes" }: 
       <button
         onClick={onSave}
         disabled={saving}
-        className="flex items-center gap-2 px-4 py-2 text-white text-sm font-semibold rounded-lg transition-colors disabled:opacity-60 cursor-pointer"
+        className="flex items-center gap-2 px-6 py-2.5 text-white text-sm font-bold rounded-xl transition-all disabled:opacity-60 cursor-pointer active:scale-95 shadow-sm hover:shadow-md"
         style={{ background: saving ? "#15803d" : "var(--brand-green)" }}
       >
-        <Save className="w-3.5 h-3.5" />
+        {saving ? <ButtonLoader /> : <Save className="w-4 h-4" />}
         {saving ? "Saving…" : label}
       </button>
     </div>

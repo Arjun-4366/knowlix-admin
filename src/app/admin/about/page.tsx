@@ -1,14 +1,54 @@
+"use client"
+import { useEffect, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PageHeader from "@/components/shared/PageHeader";
 import StoryEditor from "@/components/about/StoryEditor";
 import ValuesEditor from "@/components/about/ValuesEditor";
+import { useGetAbout } from "@/querys/aboutQuery";
+import { IAboutPayload } from "@/types/about";
+import Loader from "@/components/shared/Loader";
 
 const tabs = [
   { value: "story", label: "Our Story" },
   { value: "values", label: "Core Values" },
 ];
 
+const DEFAULT_ABOUT: IAboutPayload = {
+  mainPageTag: "",
+  mainPageTitle: "",
+  mainPageSubtitle: "",
+  stats: [],
+  results: [],
+  whyChooseKnowlix: [],
+  yearBaseJourney: [],
+  aboutHighlights: [],
+};
+
 export default function AboutPageAdmin() {
+  const { data: aboutData, isLoading } = useGetAbout();
+  const [form, setForm] = useState<IAboutPayload>(DEFAULT_ABOUT);
+
+  useEffect(() => {
+    if (aboutData) {
+      const sanitized = { ...aboutData };
+      if (sanitized.yearBaseJourney) {
+        sanitized.yearBaseJourney = sanitized.yearBaseJourney.map((j: any) => ({
+          ...j,
+          description: Array.isArray(j.description) 
+            ? j.description 
+            : typeof j.description === "string" && j.description 
+              ? [j.description] 
+              : [],
+        }));
+      }
+      setForm(sanitized);
+    }
+  }, [aboutData]);
+
+  if (isLoading) {
+    return <Loader text="Fetching About Page Data..." />;
+  }
+
   return (
     <div className="max-w-5xl">
       <PageHeader
@@ -32,12 +72,12 @@ export default function AboutPageAdmin() {
             </TabsTrigger>
           ))}
         </TabsList>
-        <TabsContent value="story">
-          <StoryEditor />
+        <TabsContent value="story" forceMount className="data-[state=inactive]:hidden">
+          <StoryEditor form={form} setForm={setForm} />
         </TabsContent>
 
-        <TabsContent value="values">
-          <ValuesEditor />
+        <TabsContent value="values" forceMount className="data-[state=inactive]:hidden">
+          <ValuesEditor form={form} setForm={setForm} />
         </TabsContent>
       </Tabs>
     </div>

@@ -1,66 +1,79 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import SectionCard from "@/components/shared/SectionCard";
 import FormActions from "@/components/shared/FormActions";
+import { IAboutPayload, IAboutStat, IAboutResult } from "@/types/about";
+import { useCreateAbout } from "@/querys/aboutQuery";
+import { toast } from "react-hot-toast";
 
-type Stat = { value: string; label: string; subtext: string };
+interface StatsEditorProps {
+  form: IAboutPayload;
+  setForm: React.Dispatch<React.SetStateAction<IAboutPayload | null>>;
+}
 
-const initial: Stat[] = [
-  { value: "445+", label: "Students Enrolled", subtext: "and growing every month" },
-  { value: "33+", label: "Expert Mentors", subtext: "across all subjects" },
-  { value: "4.9", label: "Average Rating", subtext: "from verified parents" },
-  { value: "98%", label: "Satisfaction Rate", subtext: "in post-session surveys" },
-];
+export default function StatsEditor({ form, setForm }: StatsEditorProps) {
+  const { mutateAsync: createAbout, isPending: saving } = useCreateAbout();
 
-export default function StatsEditor() {
-  const [stats, setStats] = useState<Stat[]>(initial);
-  const [saving, setSaving] = useState(false);
-
-  const update = (i: number, field: keyof Stat, value: string) =>
-    setStats((prev) => prev.map((s, idx) => (idx === i ? { ...s, [field]: value } : s)));
+  const updateResult = (i: number, field: keyof IAboutResult, value: string) => {
+    const newResults = [...form.results];
+    if (!newResults[i]) {
+      newResults[i] = { value: "", title: "", description: "" };
+    }
+    newResults[i] = { ...newResults[i], [field]: value };
+    setForm((f) => (f ? { ...f, results: newResults } : f));
+  };
 
   const save = async () => {
-    setSaving(true);
-    await new Promise((r) => setTimeout(r, 800));
-    setSaving(false);
-    alert("Stats saved!");
+    try {
+      await createAbout(form);
+      toast.success("Results updated successfully!");
+    } catch (error) {
+      toast.error("Failed to update results");
+    }
   };
 
   return (
-    <SectionCard title="Trust Bar Stats" description="4 metrics shown in the trust bar below the hero section">
-      <div className="grid grid-cols-2 gap-4">
-        {stats.map((stat, i) => (
-          <div key={i} className="p-4 rounded-lg border border-gray-100 bg-gray-50 space-y-3">
-            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Metric {i + 1}</p>
-            <div className="space-y-1.5">
-              <Label>Value</Label>
-              <Input value={stat.value} onChange={(e) => update(i, "value", e.target.value)} placeholder="e.g. 445+" />
-            </div>
-            <div className="space-y-1.5">
-              <Label>Label</Label>
-              <Input value={stat.label} onChange={(e) => update(i, "label", e.target.value)} placeholder="e.g. Students Enrolled" />
-            </div>
-            <div className="space-y-1.5">
-              <Label>
-                Subtext{" "}
-                <span className="text-gray-400 font-normal">
-                  ({stat.subtext.length}/40)
-                </span>
-              </Label>
-              <Input
-                value={stat.subtext}
-                onChange={(e) => update(i, "subtext", e.target.value.slice(0, 40))}
-                placeholder="Short supporting text (max 40 chars)"
-                maxLength={40}
-              />
-            </div>
-          </div>
-        ))}
-      </div>
-      <FormActions onSave={save} saving={saving} />
-    </SectionCard>
+    <div className="space-y-6">
+      <SectionCard title="Learning Outcomes (Results)" description="Metrics highlighting the success rate and scope">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {[0, 1, 2,3,4,5].map((i) => {
+            const result = form.results[i] || { value: "", title: "", description: "" };
+            return (
+              <div key={i} className="p-4 rounded-lg border border-gray-100 bg-gray-50 space-y-3">
+                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Result {i + 1}</p>
+                <div className="space-y-1.5">
+                  <Label>Value</Label>
+                  <Input 
+                    value={result.value} 
+                    onChange={(e) => updateResult(i, "value", e.target.value)} 
+                    placeholder="e.g. 98%" 
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label>Title</Label>
+                  <Input 
+                    value={result.title} 
+                    onChange={(e) => updateResult(i, "title", e.target.value)} 
+                    placeholder="e.g. Satisfaction Rate" 
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label>Description</Label>
+                  <Input 
+                    value={result.description} 
+                    onChange={(e) => updateResult(i, "description", e.target.value)} 
+                    placeholder="Supporting text" 
+                  />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        <FormActions onSave={save} saving={saving} />
+      </SectionCard>
+    </div>
   );
 }

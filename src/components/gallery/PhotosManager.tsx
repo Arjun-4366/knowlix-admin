@@ -1,101 +1,152 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Trash2, Plus, ImageIcon } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { Trash2, Plus, Tag, Image as ImageIcon2 } from "lucide-react";
 import SectionCard from "@/components/shared/SectionCard";
 import FormActions from "@/components/shared/FormActions";
 import MediaUpload from "@/components/shared/MediaUpload";
+import { IGalleryItem } from "@/types/gallery";
+import { useAddGalleryItem, useDeleteGalleryItem } from "@/querys/galleryQuery";
+import { useConfirmation } from "@/context/ConfirmationContext";
+import { toast } from "react-hot-toast";
 
-type Photo = { url: string; caption: string; alt: string; category: string };
+interface PhotosManagerProps {
+  initialData: IGalleryItem[];
+}
 
-const initial: Photo[] = [
-  { url: "/gallery/class1.jpg", caption: "Live math class in session", alt: "Students in online math class", category: "Classes" },
-  { url: "/gallery/class2.jpg", caption: "Science experiment demo", alt: "Science demonstration class", category: "Classes" },
-  { url: "/gallery/activity1.jpg", caption: "Annual quiz competition", alt: "Students in quiz competition", category: "Activities" },
-  { url: "/gallery/activity2.jpg", caption: "Art and creativity session", alt: "Art session for students", category: "Activities" },
-  { url: "/gallery/event1.jpg", caption: "Knowlix Annual Day 2024", alt: "Annual day celebration", category: "Events" },
-  { url: "/gallery/event2.jpg", caption: "Parent-Teacher Meet", alt: "Parent teacher interaction", category: "Events" },
-  { url: "/gallery/class3.jpg", caption: "Coding bootcamp for beginners", alt: "Coding class for students", category: "Classes" },
-  { url: "/gallery/event3.jpg", caption: "Student achievement awards", alt: "Award ceremony for students", category: "Events" },
-];
+export default function PhotosManager({ initialData }: PhotosManagerProps) {
+  const { mutateAsync: addItem, isPending: adding } = useAddGalleryItem();
+  const { mutateAsync: deleteItem } = useDeleteGalleryItem();
+  const { confirm } = useConfirmation();
 
-const categories = ["Classes", "Activities", "Events"];
+  const [items, setItems] = useState<IGalleryItem[]>(initialData);
 
-export default function PhotosManager() {
-  const [photos, setPhotos] = useState<Photo[]>(initial);
-  const [saving, setSaving] = useState(false);
+  useEffect(() => {
+    setItems(initialData);
+  }, [initialData]);
 
-  const update = (i: number, field: keyof Photo, value: string) =>
-    setPhotos((prev) => prev.map((p, idx) => (idx === i ? { ...p, [field]: value } : p)));
+  const update = (i: number, field: keyof IGalleryItem, value: any) =>
+    setItems((prev) => prev.map((p, idx) => (idx === i ? { ...p, [field]: value } : p)));
 
-  const remove = (i: number) => setPhotos((prev) => prev.filter((_, idx) => idx !== i));
+  const handleAdd = () => {
+    setItems((prev) => [
+      ...prev,
+      { mediaUrl: "", mediaType: "image", tag: "", description: "" },
+    ]);
+  };
 
-  const add = () => setPhotos((prev) => [...prev, { url: "", caption: "", alt: "", category: "Classes" }]);
+  const handleDelete = (id: string | undefined, index: number) => {
+    if (!id) {
+      setItems((prev) => prev.filter((_, idx) => idx !== index));
+      return;
+    }
 
-  const save = async () => {
-    setSaving(true);
-    await new Promise((r) => setTimeout(r, 800));
-    setSaving(false);
-    alert("Photos saved!");
+    confirm({
+      title: "Remove Photo",
+      message: "Are you sure you want to delete this image? It will be removed from the public website.",
+      confirmText: "Remove",
+      variant: "danger",
+      onConfirm: async () => {
+        try {
+          await deleteItem(id);
+        } catch (error) {
+          console.error(error);
+        }
+      },
+    });
+  };
+
+  const handleSave = async () => {
+    try {
+      const newItems = items.filter(item => !item.id && (item.mediaUrl instanceof File || item.tag));
+      if (newItems.length === 0) {
+        toast.error("No new photos to save");
+        return;
+      }
+
+      for (const item of newItems) {
+        await addItem(item);
+      }
+      toast.success("Photos updated successfully!");
+    } catch (error) {
+      toast.error("Failed to save photos");
+    }
   };
 
   return (
-    <SectionCard title="Photo Gallery" description={`${photos.length} photos`}>
-      <div className="grid grid-cols-2 gap-4">
-        {photos.map((photo, i) => (
-          <div key={i} className="p-4 rounded-lg border border-gray-100 bg-gray-50 space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="w-10 h-10 rounded-lg bg-gray-200 flex items-center justify-center">
-                  <ImageIcon className="w-5 h-5 text-gray-400" />
-                </div>
-                <span className="text-xs font-medium text-gray-500 truncate max-w-[120px]">{photo.url || "No image"}</span>
-              </div>
-              <button onClick={() => remove(i)} className="text-red-400 hover:text-red-600 transition-colors">
+    <SectionCard title="Photo Collection" description={`${items.length} items currently published`}>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+        {items.map((item, i) => (
+          <div key={i} className="group relative bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col">
+            <div className="aspect-video relative bg-gray-50 border-b border-gray-100">
+              <MediaUpload
+                value={item.mediaUrl}
+                onChange={(file) => update(i, "mediaUrl", file)}
+                ratio="video"
+                accept="image/*"
+                className="w-full h-full"
+              />
+              <button 
+                onClick={() => handleDelete(item.id, i)}
+                className="absolute top-3 right-3 p-2 bg-white/90 backdrop-blur-sm text-red-500 rounded-xl opacity-0 group-hover:opacity-100 transition-all shadow-sm hover:bg-red-50"
+              >
                 <Trash2 className="w-4 h-4" />
               </button>
             </div>
-            <div className="space-y-1.5">
-              <Label>Image Upload</Label>
-              <MediaUpload
-                value={photo.url}
-                onChange={(url) => update(i, "url", url)}
-                ratio="video"
-                accept="image/*"
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-2">
+            
+            <div className="p-4 space-y-3 flex-1 flex flex-col">
               <div className="space-y-1.5">
-                <Label>Caption</Label>
-                <Input value={photo.caption} onChange={(e) => update(i, "caption", e.target.value)} />
+                <div className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">
+                  <Tag className="w-3 h-3 text-green-500" /> Event / Category
+                </div>
+                <Input 
+                  value={item.tag} 
+                  onChange={(e) => update(i, "tag", e.target.value)} 
+                  placeholder="e.g. Science Fair 2024" 
+                  className="h-9 text-xs rounded-lg border-gray-100"
+                />
               </div>
-              <div className="space-y-1.5">
-                <Label>Category</Label>
-                <Select value={photo.category} onValueChange={(v) => update(i, "category", v)}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {categories.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-                  </SelectContent>
-                </Select>
+
+              <div className="space-y-1.5 flex-1 flex flex-col">
+                <div className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">
+                  <ImageIcon2 className="w-3 h-3 text-green-500" /> Description
+                </div>
+                <Textarea 
+                  value={item.description} 
+                  onChange={(e) => update(i, "description", e.target.value)} 
+                  placeholder="Short description of the moment..." 
+                  rows={2}
+                  className="text-xs rounded-lg border-gray-100 resize-none flex-1"
+                />
               </div>
             </div>
-            <div className="space-y-1.5">
-              <Label>Alt Text</Label>
-              <Input value={photo.alt} onChange={(e) => update(i, "alt", e.target.value)} placeholder="Describe the image" />
-            </div>
+
+            {!item.id && (
+              <div className="absolute top-3 left-3 px-2 py-1 bg-green-500 text-white text-[9px] font-black uppercase rounded-lg shadow-sm">
+                New
+              </div>
+            )}
           </div>
         ))}
+
+        {items.length === 0 && (
+          <div className="col-span-full text-center py-20 bg-gray-50/50 border-2 border-dashed border-gray-100 rounded-3xl">
+            <p className="text-gray-400 font-medium italic">No photos in the gallery yet.</p>
+          </div>
+        )}
       </div>
+
       <button
-        onClick={add}
-        className="w-full flex items-center justify-center gap-2 py-3 mt-3 border-2 border-dashed border-gray-200 rounded-lg text-sm text-gray-400 hover:border-green-300 hover:text-green-600 transition-colors"
+        onClick={handleAdd}
+        className="w-full flex items-center justify-center gap-2 py-4 border-2 border-dashed border-gray-200 rounded-2xl text-sm font-bold text-gray-400 hover:border-green-200 hover:text-green-600 hover:bg-green-50/30 transition-all mb-4"
       >
-        <Plus className="w-4 h-4" /> Add Photo
+        <Plus className="w-5 h-5" /> Add New Photo
       </button>
-      <FormActions onSave={save} saving={saving} />
+
+      <FormActions onSave={handleSave} saving={adding} label="Publish Photos" />
     </SectionCard>
   );
 }

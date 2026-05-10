@@ -1,102 +1,163 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Trash2, Plus, PlayCircle } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { Trash2, Plus, Tag, PlayCircle, Video as VideoIcon } from "lucide-react";
 import SectionCard from "@/components/shared/SectionCard";
 import FormActions from "@/components/shared/FormActions";
 import MediaUpload from "@/components/shared/MediaUpload";
+import { IGalleryItem } from "@/types/gallery";
+import { useAddGalleryItem, useDeleteGalleryItem } from "@/querys/galleryQuery";
+import { useConfirmation } from "@/context/ConfirmationContext";
+import { toast } from "react-hot-toast";
 
-type Video = { title: string; thumbnailUrl: string; videoUrl: string; type: string };
+interface VideosManagerProps {
+  initialData: IGalleryItem[];
+}
 
-const initial: Video[] = [
-  { title: "Free Demo Class — Grade 8 Mathematics", thumbnailUrl: "/videos/thumb1.jpg", videoUrl: "https://youtube.com/watch?v=xxx", type: "Demo Class" },
-  { title: "Parent Review — Priya Sharma, Mumbai", thumbnailUrl: "/videos/thumb2.jpg", videoUrl: "https://youtube.com/watch?v=xxx", type: "Parent Review" },
-  { title: "Student Success Story — Grade 10 Toppers", thumbnailUrl: "/videos/thumb3.jpg", videoUrl: "https://youtube.com/watch?v=xxx", type: "Student Success" },
-  { title: "Inside a Live Knowlix Class", thumbnailUrl: "/videos/thumb4.jpg", videoUrl: "https://youtube.com/watch?v=xxx", type: "Demo Class" },
-];
+export default function VideosManager({ initialData }: VideosManagerProps) {
+  const { mutateAsync: addItem, isPending: adding } = useAddGalleryItem();
+  const { mutateAsync: deleteItem } = useDeleteGalleryItem();
+  const { confirm } = useConfirmation();
 
-const videoTypes = ["Demo Class", "Parent Review", "Student Success", "Event Highlight"];
+  const [items, setItems] = useState<IGalleryItem[]>(initialData);
 
-export default function VideosManager() {
-  const [videos, setVideos] = useState<Video[]>(initial);
-  const [saving, setSaving] = useState(false);
+  useEffect(() => {
+    setItems(initialData);
+  }, [initialData]);
 
-  const update = (i: number, field: keyof Video, value: string) =>
-    setVideos((prev) => prev.map((v, idx) => (idx === i ? { ...v, [field]: value } : v)));
+  const update = (i: number, field: keyof IGalleryItem, value: any) =>
+    setItems((prev) => prev.map((p, idx) => (idx === i ? { ...p, [field]: value } : p)));
 
-  const remove = (i: number) => setVideos((prev) => prev.filter((_, idx) => idx !== i));
+  const handleAdd = () => {
+    setItems((prev) => [
+      ...prev,
+      { mediaUrl: "", mediaType: "video", tag: "", description: "" },
+    ]);
+  };
 
-  const add = () => setVideos((prev) => [...prev, { title: "", thumbnailUrl: "", videoUrl: "", type: "Demo Class" }]);
+  const handleDelete = (id: string | undefined, index: number) => {
+    if (!id) {
+      setItems((prev) => prev.filter((_, idx) => idx !== index));
+      return;
+    }
 
-  const save = async () => {
-    setSaving(true);
-    await new Promise((r) => setTimeout(r, 800));
-    setSaving(false);
-    alert("Videos saved!");
+    confirm({
+      title: "Remove Video",
+      message: "Are you sure you want to delete this video? It will be removed from the public website.",
+      confirmText: "Remove",
+      variant: "danger",
+      onConfirm: async () => {
+        try {
+          await deleteItem(id);
+        } catch (error) {
+          console.error(error);
+        }
+      },
+    });
+  };
+
+  const handleSave = async () => {
+    try {
+      const newItems = items.filter(item => !item.id && (item.mediaUrl instanceof File || item.tag));
+      if (newItems.length === 0) {
+        toast.error("No new videos to save");
+        return;
+      }
+
+      for (const item of newItems) {
+        await addItem(item);
+      }
+      toast.success("Videos updated successfully!");
+    } catch (error) {
+      toast.error("Failed to save videos");
+    }
   };
 
   return (
-    <SectionCard title="Videos" description={`${videos.length} videos`}>
-      <div className="space-y-3">
-        {videos.map((v, i) => (
-          <div key={i} className="p-4 rounded-lg border border-gray-100 bg-gray-50 space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <PlayCircle className="w-5 h-5 text-gray-400" />
-                <p className="text-sm font-medium text-gray-700 truncate max-w-[300px]">{v.title || `Video ${i + 1}`}</p>
+    <SectionCard title="Video Collection" description={`${items.length} videos currently published`}>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+        {items.map((item, i) => (
+          <div key={i} className="group relative bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col">
+            <div className="aspect-video relative bg-gray-50 border-b border-gray-100 flex items-center justify-center">
+              {typeof item.mediaUrl === "string" && item.mediaUrl ? (
+                <video 
+                  src={item.mediaUrl} 
+                  className="w-full h-full object-cover"
+                  controls={false}
+                />
+              ) : (
+                <MediaUpload
+                  value={item.mediaUrl}
+                  onChange={(file) => update(i, "mediaUrl", file)}
+                  ratio="video"
+                  accept="video/*"
+                  className="w-full h-full"
+                />
+              )}
+              <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                <PlayCircle className="w-10 h-10 text-white" />
               </div>
-              <button onClick={() => remove(i)} className="text-red-400 hover:text-red-600 transition-colors">
+              <button 
+                onClick={() => handleDelete(item.id, i)}
+                className="absolute top-3 right-3 p-2 bg-white/90 backdrop-blur-sm text-red-500 rounded-xl opacity-0 group-hover:opacity-100 transition-all shadow-sm hover:bg-red-50"
+              >
                 <Trash2 className="w-4 h-4" />
               </button>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            
+            <div className="p-4 space-y-3 flex-1 flex flex-col">
               <div className="space-y-1.5">
-                <Label>Title</Label>
-                <Input value={v.title} onChange={(e) => update(i, "title", e.target.value)} />
-              </div>
-              <div className="space-y-1.5">
-                <Label>Type</Label>
-                <Select value={v.type} onValueChange={(val) => update(i, "type", val)}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {videoTypes.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="col-span-2 grid grid-cols-2 gap-3">
-                <div className="space-y-1.5">
-                  <Label>Thumbnail Image</Label>
-                  <MediaUpload
-                    value={v.thumbnailUrl}
-                    onChange={(url) => update(i, "thumbnailUrl", url)}
-                    ratio="video"
-                    accept="image/*"
-                  />
+                <div className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">
+                  <Tag className="w-3 h-3 text-blue-500" /> Video Tag / Category
                 </div>
-                <div className="space-y-1.5">
-                  <Label>Video File</Label>
-                  <MediaUpload
-                    value={v.videoUrl}
-                    onChange={(url) => update(i, "videoUrl", url)}
-                    ratio="video"
-                    accept="video/*"
-                  />
+                <Input 
+                  value={item.tag} 
+                  onChange={(e) => update(i, "tag", e.target.value)} 
+                  placeholder="e.g. Demo Class" 
+                  className="h-9 text-xs rounded-lg border-gray-100"
+                />
+              </div>
+
+              <div className="space-y-1.5 flex-1 flex flex-col">
+                <div className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">
+                  <VideoIcon className="w-3 h-3 text-blue-500" /> Description
                 </div>
+                <Textarea 
+                  value={item.description} 
+                  onChange={(e) => update(i, "description", e.target.value)} 
+                  placeholder="Short description..." 
+                  rows={2}
+                  className="text-xs rounded-lg border-gray-100 resize-none flex-1"
+                />
               </div>
             </div>
+
+            {!item.id && (
+              <div className="absolute top-3 left-3 px-2 py-1 bg-blue-500 text-white text-[9px] font-black uppercase rounded-lg shadow-sm">
+                New
+              </div>
+            )}
           </div>
         ))}
-        <button
-          onClick={add}
-          className="w-full flex items-center justify-center gap-2 py-3 border-2 border-dashed border-gray-200 rounded-lg text-sm text-gray-400 hover:border-green-300 hover:text-green-600 transition-colors"
-        >
-          <Plus className="w-4 h-4" /> Add Video
-        </button>
+
+        {items.length === 0 && (
+          <div className="col-span-full text-center py-20 bg-gray-50/50 border-2 border-dashed border-gray-100 rounded-3xl">
+            <p className="text-gray-400 font-medium italic">No videos in the gallery yet.</p>
+          </div>
+        )}
       </div>
-      <FormActions onSave={save} saving={saving} />
+
+      <button
+        onClick={handleAdd}
+        className="w-full flex items-center justify-center gap-2 py-4 border-2 border-dashed border-gray-200 rounded-2xl text-sm font-bold text-gray-400 hover:border-blue-200 hover:text-blue-600 hover:bg-blue-50/30 transition-all mb-4"
+      >
+        <Plus className="w-5 h-5" /> Add New Video
+      </button>
+
+      <FormActions onSave={handleSave} saving={adding} label="Publish Videos" />
     </SectionCard>
   );
 }
