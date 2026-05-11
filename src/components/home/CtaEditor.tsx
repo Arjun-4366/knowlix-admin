@@ -8,7 +8,10 @@ import SectionCard from "@/components/shared/SectionCard";
 import FormActions from "@/components/shared/FormActions";
 import MediaUpload from "@/components/shared/MediaUpload";
 
-const initial = {
+const initial: {
+  heading: string; subheading: string; btnText: string; btnLink: string;
+  trust1: string; trust2: string; trust3: string; bgImage: string | File;
+} = {
   heading: "Ready to Transform Your Child's Learning Journey?",
   subheading: "Join 445+ students who are already experiencing the Knowlix difference.",
   btnText: "Book a Free Demo Class",
@@ -78,7 +81,7 @@ export default function CtaEditor() {
         description="Three short reassurances shown below the CTA button (e.g. 'No credit card required')"
       >
         <div className="grid grid-cols-3 gap-4">
-          {(["trust1", "trust2", "trust3"] as (keyof typeof initial)[]).map((key, i) => (
+          {(["trust1", "trust2", "trust3"] as ("trust1" | "trust2" | "trust3")[]).map((key, i) => (
             <div key={i} className="space-y-1.5">
               <Label>Badge {i + 1}</Label>
               <Input value={form[key]} onChange={set(key)} placeholder="Short trust line" />

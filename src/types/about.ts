@@ -28,6 +28,14 @@ export interface IAboutHighlight {
   subtitle: string;
 }
 
+export interface ISocialMediaLinks {
+  instagram?: string;
+  facebook?: string;
+  twitter?: string;
+  linkedin?: string;
+  youtube?: string;
+}
+
 export interface IAboutPayload {
   id?: string;
   mainPageFeatureImage?: string | File;
@@ -39,4 +47,5 @@ export interface IAboutPayload {
   whyChooseKnowlix: IWhyChooseKnowlix[];
   yearBaseJourney: IYearBaseJourney[];
   aboutHighlights?: IAboutHighlight[];
+  socialMediaLinks?: ISocialMediaLinks;
 }

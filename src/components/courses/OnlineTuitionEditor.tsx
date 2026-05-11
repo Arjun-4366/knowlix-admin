@@ -9,7 +9,7 @@ import SectionCard from "@/components/shared/SectionCard";
 import FormActions from "@/components/shared/FormActions";
 import MediaUpload from "@/components/shared/MediaUpload";
 
-type Subject = { name: string; description: string; grades: string; students: string; rating: string; image: string };
+type Subject = { name: string; description: string; grades: string; students: string; rating: string; image: string | File };
 
 const initial: Subject[] = [
   { name: "Mathematics", description: "From basic arithmetic to advanced calculus — building strong foundations.", grades: "KG–12", students: "120+", rating: "4.9", image: "" },
@@ -26,7 +26,7 @@ export default function OnlineTuitionEditor() {
   const [subjects, setSubjects] = useState<Subject[]>(initial);
   const [saving, setSaving] = useState(false);
 
-  const update = (i: number, field: keyof Subject, value: string) =>
+  const update = (i: number, field: keyof Subject, value: string | File) =>
     setSubjects((prev) => prev.map((s, idx) => (idx === i ? { ...s, [field]: value } : s)));
 
   const remove = (i: number) => setSubjects((prev) => prev.filter((_, idx) => idx !== i));

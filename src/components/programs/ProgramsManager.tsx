@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Pencil, Trash2, Star, Users, GraduationCap, X, PlusCircle } from "lucide-react";
+import { Plus, Pencil, Trash2, Star, Users, X, PlusCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -46,17 +46,30 @@ export default function ProgramsManager() {
 
   const openModal = (program: IProgram | null = null) => {
     setSelectedProgram(
-      program || {
-        type: "online",
-        image: "",
-        tag: "",
-        rating: 5,
-        studentsEnrolled: 0,
-        title: "",
-        grade: "",
-        description: "",
-        features: [],
-      }
+      program
+        ? {
+            ...program,
+            rating: Number.isFinite(program.rating) ? program.rating : 5,
+            studentsEnrolled: Number.isFinite(program.studentsEnrolled) ? program.studentsEnrolled : 0,
+            features: (() => {
+              if (Array.isArray(program.features)) return program.features;
+              if (typeof program.features === "string") {
+                try { const p = JSON.parse(program.features); return Array.isArray(p) ? p : []; } catch { return []; }
+              }
+              return [];
+            })(),
+          }
+        : {
+            type: "online",
+            image: "",
+            tag: "",
+            rating: 5,
+            studentsEnrolled: 0,
+            title: "",
+            grade: "",
+            description: "",
+            features: [],
+          }
     );
     setIsModalOpen(true);
   };
@@ -110,7 +123,7 @@ export default function ProgramsManager() {
     if (!selectedProgram) return;
     setSelectedProgram({
       ...selectedProgram,
-      features: [...selectedProgram.features, ""],
+      features: [...selectedProgram?.features, ""],
     });
   };
 
@@ -138,64 +151,12 @@ export default function ProgramsManager() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {programs.map((p) => (
-          <div key={p.id} className="group bg-white rounded-2xl border border-gray-100 overflow-hidden hover:border-green-100 hover:shadow-xl hover:shadow-green-500/5 transition-all flex flex-col">
-            <div className="aspect-video relative bg-gray-100">
-              {typeof p.image === "string" && p.image ? (
-                <Image 
-                  src={p.image} 
-                  alt={p.title} 
-                  fill 
-                  className="object-cover group-hover:scale-105 transition-transform duration-500" 
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-gray-300 italic text-xs">
-                  No Cover Image
-                </div>
-              )}
-              <div className="absolute top-3 left-3 px-2 py-1 bg-black/50 backdrop-blur-md text-white text-[10px] font-bold rounded-lg shadow-sm uppercase tracking-wider">
-                {p.type}
-              </div>
-              {p.tag && (
-                <div className="absolute top-3 right-3 px-2 py-1 bg-amber-400 text-white text-[10px] font-bold rounded-lg shadow-sm uppercase tracking-wider">
-                  {p.tag}
-                </div>
-              )}
-            </div>
-
-            <div className="p-5 flex-1 flex flex-col">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{p.grade}</span>
-                <div className="flex items-center gap-1 text-amber-500 font-bold text-xs">
-                  <Star className="w-3 h-3 fill-current" /> {p.rating}
-                </div>
-              </div>
-              <h4 className="font-bold text-gray-800 leading-tight mb-3 group-hover:text-green-700 transition-colors">
-                {p.title}
-              </h4>
-              <p className="text-xs text-gray-500 line-clamp-2 mb-4 leading-relaxed">
-                {p.description}
-              </p>
-
-              <div className="flex items-center gap-3 mt-auto pt-4 border-t border-gray-50 text-[10px] text-gray-400 font-medium">
-                <span className="flex items-center gap-1"><Users className="w-3.5 h-3.5 text-green-500" /> {p.studentsEnrolled} Students</span>
-              </div>
-
-              <div className="flex items-center justify-end gap-2 mt-4 pt-4 border-t border-gray-50">
-                <button
-                  onClick={() => openModal(p)}
-                  className="p-1.5 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-md transition-all"
-                >
-                  <Pencil className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => p.id && handleDelete(p.id)}
-                  className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-all"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-          </div>
+          <ProgramCard
+            key={p.id}
+            program={p}
+            onEdit={() => openModal(p)}
+            onDelete={() => p.id && handleDelete(p.id)}
+          />
         ))}
       </div>
 
@@ -261,19 +222,19 @@ export default function ProgramsManager() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <Label>Rating (0.0 - 5.0)</Label>
-                  <Input 
+                  <Input
                     type="number"
                     step="0.1"
-                    value={selectedProgram.rating} 
-                    onChange={(e) => setSelectedProgram({ ...selectedProgram, rating: parseFloat(e.target.value) })} 
+                    value={Number.isFinite(selectedProgram.rating) ? selectedProgram.rating : ""}
+                    onChange={(e) => setSelectedProgram({ ...selectedProgram, rating: parseFloat(e.target.value) || 0 })}
                   />
                 </div>
                 <div className="space-y-1.5">
                   <Label>Students Enrolled</Label>
-                  <Input 
+                  <Input
                     type="number"
-                    value={selectedProgram.studentsEnrolled} 
-                    onChange={(e) => setSelectedProgram({ ...selectedProgram, studentsEnrolled: parseInt(e.target.value) })} 
+                    value={Number.isFinite(selectedProgram.studentsEnrolled) ? selectedProgram.studentsEnrolled : ""}
+                    onChange={(e) => setSelectedProgram({ ...selectedProgram, studentsEnrolled: parseInt(e.target.value) || 0 })}
                   />
                 </div>
               </div>
@@ -310,7 +271,7 @@ export default function ProgramsManager() {
                   </button>
                 </div>
                 <div className="space-y-2">
-                  {selectedProgram.features.map((feature, idx) => (
+                  {selectedProgram?.features?.map((feature, idx) => (
                     <div key={idx} className="flex gap-2">
                       <Input 
                         value={feature} 
@@ -326,7 +287,7 @@ export default function ProgramsManager() {
                       </button>
                     </div>
                   ))}
-                  {selectedProgram.features.length === 0 && (
+                  {selectedProgram?.features?.length === 0 && (
                     <p className="text-xs text-gray-400 italic py-2 text-center border border-dashed border-gray-100 rounded-xl">No features added yet.</p>
                   )}
                 </div>
@@ -352,5 +313,80 @@ export default function ProgramsManager() {
         </div>
       )}
     </SectionCard>
+  );
+}
+
+function ProgramCard({
+  program: p,
+  onEdit,
+  onDelete,
+}: {
+  program: IProgram & { id?: string };
+  onEdit: () => void;
+  onDelete: () => void;
+}) {
+  const [imgError, setImgError] = useState(false);
+  const hasImage = typeof p.image === "string" && p.image && !imgError;
+
+  return (
+    <div className="group bg-white rounded-2xl border border-gray-100 overflow-hidden hover:border-green-100 hover:shadow-xl hover:shadow-green-500/5 transition-all flex flex-col">
+      <div className="aspect-video relative bg-gray-100">
+        {hasImage ? (
+          <Image
+            src={p.image as string}
+            alt={p.title}
+            fill
+            className="object-cover group-hover:scale-105 transition-transform duration-500"
+            onError={() => setImgError(true)}
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-gray-300 italic text-xs">
+            No Cover Image
+          </div>
+        )}
+        <div className="absolute top-3 left-3 px-2 py-1 bg-black/50 backdrop-blur-md text-white text-[10px] font-bold rounded-lg shadow-sm uppercase tracking-wider">
+          {p.type}
+        </div>
+        {p.tag && (
+          <div className="absolute top-3 right-3 px-2 py-1 bg-amber-400 text-white text-[10px] font-bold rounded-lg shadow-sm uppercase tracking-wider">
+            {p.tag}
+          </div>
+        )}
+      </div>
+
+      <div className="p-5 flex-1 flex flex-col">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{p.grade}</span>
+          <div className="flex items-center gap-1 text-amber-500 font-bold text-xs">
+            <Star className="w-3 h-3 fill-current" /> {p.rating}
+          </div>
+        </div>
+        <h4 className="font-bold text-gray-800 leading-tight mb-3 group-hover:text-green-700 transition-colors">
+          {p.title}
+        </h4>
+        <p className="text-xs text-gray-500 line-clamp-2 mb-4 leading-relaxed">{p.description}</p>
+
+        <div className="flex items-center gap-3 mt-auto pt-4 border-t border-gray-50 text-[10px] text-gray-400 font-medium">
+          <span className="flex items-center gap-1">
+            <Users className="w-3.5 h-3.5 text-green-500" /> {p.studentsEnrolled} Students
+          </span>
+        </div>
+
+        <div className="flex items-center justify-end gap-2 mt-4 pt-4 border-t border-gray-50">
+          <button
+            onClick={onEdit}
+            className="p-1.5 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-md transition-all"
+          >
+            <Pencil className="w-4 h-4" />
+          </button>
+          <button
+            onClick={onDelete}
+            className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-all"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }

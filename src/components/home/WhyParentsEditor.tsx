@@ -34,7 +34,7 @@ import {
 
 interface WhyParentsEditorProps {
   form: IAboutPayload;
-  setForm: React.Dispatch<React.SetStateAction<IAboutPayload | null>>;
+  setForm: React.Dispatch<React.SetStateAction<IAboutPayload>>;
 }
 
 export default function WhyParentsEditor({ form, setForm }: WhyParentsEditorProps) {

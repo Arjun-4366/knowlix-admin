@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -13,7 +12,7 @@ import { toast } from "react-hot-toast";
 
 interface HeroEditorProps {
   form: IAboutPayload;
-  setForm: React.Dispatch<React.SetStateAction<IAboutPayload | null>>;
+  setForm: React.Dispatch<React.SetStateAction<IAboutPayload>>;
 }
 
 export default function HeroEditor({ form, setForm }: HeroEditorProps) {
@@ -43,8 +42,6 @@ export default function HeroEditor({ form, setForm }: HeroEditorProps) {
         formData.append("results", JSON.stringify(form.results));
         formData.append("whyChooseKnowlix", JSON.stringify(form.whyChooseKnowlix));
         formData.append("yearBaseJourney", JSON.stringify(form.yearBaseJourney));
-        formData.append("socialMediaLinks", JSON.stringify(form.socialMediaLinks));
-        
         const response = await createAbout(formData as any);
         toast.success("Hero section and image updated successfully!");
         

@@ -1,17 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import SectionCard from "@/components/shared/SectionCard";
 import FormActions from "@/components/shared/FormActions";
-import { IAboutPayload, IAboutStat, IAboutResult } from "@/types/about";
+import { IAboutPayload, IAboutResult } from "@/types/about";
 import { useCreateAbout } from "@/querys/aboutQuery";
 import { toast } from "react-hot-toast";
 
 interface StatsEditorProps {
   form: IAboutPayload;
-  setForm: React.Dispatch<React.SetStateAction<IAboutPayload | null>>;
+  setForm: React.Dispatch<React.SetStateAction<IAboutPayload>>;
 }
 
 export default function StatsEditor({ form, setForm }: StatsEditorProps) {
