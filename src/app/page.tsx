@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { GraduationCap, Eye, EyeOff, Lock, Mail } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useLogin } from "@/querys/authQuery";
 import toast from "react-hot-toast";
+import AuthGuard from "@/components/auth/AuthGuard";
 
 import { z } from "zod";
 
@@ -21,16 +22,6 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const { mutate: login, isPending } = useLogin();
-
-  // If already authenticated, go straight to dashboard
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const token = localStorage.getItem("token");
-      if (token) {
-        router.replace("/admin/dashboard");
-      }
-    }
-  }, [router]);
 
   const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -59,6 +50,7 @@ export default function LoginPage() {
   };
 
   return (
+    <AuthGuard>
     <div
       className="min-h-screen flex items-center justify-center p-4"
       style={{ background: "var(--brand-bg)" }}
@@ -167,5 +159,6 @@ export default function LoginPage() {
         </p>
       </div>
     </div>
+    </AuthGuard>
   );
 }
