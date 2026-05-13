@@ -85,13 +85,6 @@ export default function AdminNavbar({ collapsed, onToggle }: Props) {
           <ExternalLink className="w-3.5 h-3.5" />
           View Site
         </Link>
-        <button className="relative p-2 rounded-lg hover:bg-gray-50 text-gray-400 transition-colors">
-          <Bell className="w-4 h-4" />
-          <span
-            className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full"
-            style={{ background: "var(--brand-green)" }}
-          />
-        </button>
         <button
           onClick={handleLogout}
           className="p-2 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors"

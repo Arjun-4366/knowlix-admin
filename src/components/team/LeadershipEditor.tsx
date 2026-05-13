@@ -7,7 +7,7 @@ import SectionCard from "@/components/shared/SectionCard";
 import FormActions from "@/components/shared/FormActions";
 import MediaUpload from "@/components/shared/MediaUpload";
 import { ITeamMember, TeamCategory } from "@/types/team";
-import { useCreateTeamMember, useDeleteTeamMember } from "@/querys/teamQuery";
+import { useCreateTeamMember, useUpdateTeamMember, useDeleteTeamMember } from "@/querys/teamQuery";
 import { useConfirmation } from "@/context/ConfirmationContext";
 import { toast } from "react-hot-toast";
 
@@ -18,9 +18,12 @@ interface Props {
 
 export default function LeadershipEditor({ initialMembers, category }: Props) {
   const [members, setMembers] = useState<ITeamMember[]>(initialMembers);
-  const { mutateAsync: saveMember, isPending: saving } = useCreateTeamMember();
+  const { mutateAsync: createMember, isPending: creating } = useCreateTeamMember();
+  const { mutateAsync: updateMember, isPending: updating } = useUpdateTeamMember();
   const { mutateAsync: deleteMember } = useDeleteTeamMember();
   const { confirm } = useConfirmation();
+
+  const saving = creating || updating;
 
   useEffect(() => {
     setMembers(initialMembers);
@@ -61,7 +64,11 @@ export default function LeadershipEditor({ initialMembers, category }: Props) {
     try {
       const validMembers = members.filter(m => m.name.trim());
       for (const m of validMembers) {
-        await saveMember(m);
+        if (m.id) {
+          await updateMember({ id: m.id, data: m });
+        } else {
+          await createMember(m);
+        }
       }
       toast.success(`${category} updated successfully!`);
     } catch (error) {
@@ -122,7 +129,7 @@ export default function LeadershipEditor({ initialMembers, category }: Props) {
                   <MediaUpload
                     value={m.image}
                     onChange={(file) => update(i, "image", file)}
-                    ratio="portrait"
+                    ratio="square"
                     accept="image/*"
                   />
                 </div>

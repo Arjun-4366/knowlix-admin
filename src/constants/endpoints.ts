@@ -24,6 +24,7 @@ export const ENDPOINTS = {
   // team
   TEAM_FETCH: `${API_BASE_URL}/team/fetch`,
   TEAM_CREATE: `${API_BASE_URL}/team/create`,
+  TEAM_UPDATE: `${API_BASE_URL}/team/update`,
   TEAM_DELETE: `${API_BASE_URL}/team/delete`,
 
   // careers
@@ -41,6 +42,7 @@ export const ENDPOINTS = {
   // blogs
   BLOGS_FETCH: `${API_BASE_URL}/blogs/fetch`,
   BLOGS_CREATE: `${API_BASE_URL}/blogs/create`,
+  BLOGS_UPDATE: `${API_BASE_URL}/blogs/update`,
   BLOGS_DELETE: `${API_BASE_URL}/blogs/delete`,
 
   // gallery

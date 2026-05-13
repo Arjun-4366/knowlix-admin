@@ -52,8 +52,10 @@ export default function PhotosManager({ initialData }: PhotosManagerProps) {
       onConfirm: async () => {
         try {
           await deleteItem(id);
+          toast.success("Photo removed successfully");
         } catch (error) {
           console.error(error);
+          toast.error("Failed to remove photo");
         }
       },
     });

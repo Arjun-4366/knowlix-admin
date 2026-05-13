@@ -10,7 +10,7 @@ import { ArrowLeft, Save } from "lucide-react";
 import SectionCard from "@/components/shared/SectionCard";
 import MediaUpload from "@/components/shared/MediaUpload";
 import { IBlog, BlogCategory } from "@/types/blog";
-import { useCreateBlog } from "@/querys/blogQuery";
+import { useCreateBlog, useUpdateBlog } from "@/querys/blogQuery";
 import { ButtonLoader } from "@/components/shared/Loader";
 import { toast } from "react-hot-toast";
 
@@ -33,7 +33,10 @@ const empty: IBlog = {
 
 export default function BlogForm({ onBack, initialData }: Props) {
   const [form, setForm] = useState<IBlog>(initialData || empty);
-  const { mutateAsync: savePost, isPending: saving } = useCreateBlog();
+  const { mutateAsync: createPost, isPending: creating } = useCreateBlog();
+  const { mutateAsync: updatePost, isPending: updating } = useUpdateBlog();
+
+  const saving = creating || updating;
 
   useEffect(() => {
     if (initialData) {
@@ -48,7 +51,12 @@ export default function BlogForm({ onBack, initialData }: Props) {
     try {
       if (!form.title.trim()) return toast.error("Title is required");
       
-      await savePost(form);
+      if (form.id) {
+        await updatePost(form);
+      } else {
+        await createPost(form);
+      }
+      
       toast.success(form.id ? "Blog post updated" : "Blog post created");
       onBack();
     } catch (error) {

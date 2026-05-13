@@ -16,10 +16,6 @@ export const useAddGalleryItem = () => {
     mutationFn: (data: IGalleryItem) => addGalleryItem(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["gallery"] });
-      toast.success("Gallery item added successfully");
-    },
-    onError: () => {
-      toast.error("Failed to add gallery item");
     },
   });
 };
@@ -30,10 +26,6 @@ export const useDeleteGalleryItem = () => {
     mutationFn: (id: string) => deleteGalleryItem(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["gallery"] });
-      toast.success("Gallery item removed");
-    },
-    onError: () => {
-      toast.error("Failed to delete gallery item");
     },
   });
 };

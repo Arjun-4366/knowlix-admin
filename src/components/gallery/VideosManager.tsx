@@ -52,8 +52,10 @@ export default function VideosManager({ initialData }: VideosManagerProps) {
       onConfirm: async () => {
         try {
           await deleteItem(id);
+          toast.success("Video removed successfully");
         } catch (error) {
           console.error(error);
+          toast.error("Failed to remove video");
         }
       },
     });
