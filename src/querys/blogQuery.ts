@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { getBlogs, createBlog, deleteBlog } from "@/services/blogs";
+import { getBlogs, createBlog, updateBlog, deleteBlog } from "@/services/blogs";
 import { IBlog } from "@/types/blog";
 import { toast } from "react-hot-toast";
 
@@ -14,6 +14,16 @@ export const useCreateBlog = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (data: IBlog) => createBlog(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["blogs"] });
+    },
+  });
+};
+
+export const useUpdateBlog = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: IBlog) => updateBlog(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["blogs"] });
     },

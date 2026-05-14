@@ -4,7 +4,6 @@ import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PageHeader from "@/components/shared/PageHeader";
 import LeadershipEditor from "@/components/team/LeadershipEditor";
-import MentorsManager from "@/components/team/MentorsManager";
 import { useGetTeam } from "@/querys/teamQuery";
 import Loader from "@/components/shared/Loader";
 
@@ -48,7 +47,7 @@ export default function TeamPageAdmin() {
           <LeadershipEditor initialMembers={groupedData["Core Team"]} category="Core Team" />
         </TabsContent>
         <TabsContent value="Mentor">
-          <MentorsManager initialMembers={groupedData.Mentor} />
+          <LeadershipEditor initialMembers={groupedData.Mentor} category="Mentor" />
         </TabsContent>
       </Tabs>
     </div>
