@@ -1,24 +1,15 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { Bell, LogOut, ExternalLink, PanelLeftClose, PanelLeftOpen } from "lucide-react";
-import { usePathname } from "next/navigation";
-import Link from "next/link";
+import { useRouter, usePathname } from "next/navigation";
+import { Bell, LogOut, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { useConfirmation } from "@/context/ConfirmationContext";
 
 const pageTitles: Record<string, { title: string; section?: string }> = {
-  "/admin/dashboard": { title: "Dashboard" },
-  "/admin/website/home":      { title: "Home Page" },
-  "/admin/website/about":     { title: "About" },
-  "/admin/website/programs":  { title: "Programs & Courses" },
-  "/admin/website/blog":      { title: "Blog" },
-  "/admin/website/team":      { title: "Team" },
-  "/admin/website/gallery":   { title: "Gallery" },
-  "/admin/website/careers":   { title: "Careers" },
-  "/admin/website/enquiries": { title: "Enquiries" },
-  "/admin/website/reviews":   { title: "Reviews" },
-  "/admin/website/settings":  { title: "Settings" },
+  "/tutor/dashboard":  { title: "Dashboard" },
+  "/tutor/students":   { title: "My Students" },
+  "/tutor/attendance": { title: "Attendance" },
+  "/tutor/assessment": { title: "Assessment" },
+  "/tutor/reports":    { title: "Progress Reports" },
 };
 
 interface Props {
@@ -26,16 +17,16 @@ interface Props {
   onToggle: () => void;
 }
 
-export default function AdminNavbar({ collapsed, onToggle }: Props) {
+export default function TutorNavbar({ collapsed, onToggle }: Props) {
   const pathname = usePathname();
-  const router   = useRouter();
+  const router = useRouter();
   const { confirm } = useConfirmation();
-  const meta = pageTitles[pathname] ?? { title: "Admin" };
+  const meta = pageTitles[pathname] ?? { title: "Tutor" };
 
   const handleLogout = () => {
     confirm({
       title: "Sign Out",
-      message: "Are you sure you want to sign out? Any unsaved changes will be lost.",
+      message: "Are you sure you want to sign out?",
       confirmText: "Sign Out",
       variant: "danger",
       onConfirm: async () => {
@@ -61,7 +52,6 @@ export default function AdminNavbar({ collapsed, onToggle }: Props) {
           )}
         </button>
 
-        {/* Page title */}
         {meta.section && (
           <>
             <span className="text-gray-300 text-sm">/</span>
@@ -77,14 +67,12 @@ export default function AdminNavbar({ collapsed, onToggle }: Props) {
       </div>
 
       <div className="flex items-center gap-1">
-        <Link
-          href="/"
-          target="_blank"
-          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-500 rounded-lg hover:bg-gray-50 hover:text-gray-700 transition-colors"
+        <button
+          className="p-2 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors relative"
+          title="Notifications"
         >
-          <ExternalLink className="w-3.5 h-3.5" />
-          View Site
-        </Link>
+          <Bell className="w-4 h-4" />
+        </button>
         <button
           onClick={handleLogout}
           className="p-2 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors"

@@ -2,11 +2,15 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import {
-  LayoutDashboard, Home, Info, BookOpen, FileText,
-  Users, ImageIcon, Briefcase, MessageSquare, Settings,
-  ChevronDown, GraduationCap, Star, Globe
+  LayoutDashboard,
+  Users,
+  GraduationCap,
+  ChevronDown,
+  ClipboardCheck,
+  FileCheck,
+  TrendingUp,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -20,32 +24,18 @@ type NavItem = {
 };
 
 const nav: NavItem[] = [
-  { name: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
-  { name: "Students", href: "/admin/students", icon: Users },
-  { name: "Tutors", href: "/admin/tutor", icon: GraduationCap },
-  {
-    name: "Website",
-    icon: Globe,
-    children: [
-      { name: "Home Page", href: "/admin/website/home" },
-      { name: "About", href: "/admin/website/about" },
-      { name: "Programs", href: "/admin/website/programs" },
-      { name: "Blog", href: "/admin/website/blog" },
-      { name: "Team", href: "/admin/website/team" },
-      { name: "Reviews", href: "/admin/website/reviews" },
-      { name: "Gallery", href: "/admin/website/gallery" },
-      { name: "Careers", href: "/admin/website/careers" },
-      { name: "Enquiries", href: "/admin/website/enquiries" },
-      // { name: "Settings", href: "/admin/website/settings" },
-    ],
-  },
+  { name: "Dashboard", href: "/tutor/dashboard", icon: LayoutDashboard },
+  { name: "My Students", href: "/tutor/students", icon: Users },
+  { name: "Attendance", href: "/tutor/attendance", icon: ClipboardCheck },
+  { name: "Assessment", href: "/tutor/assessment", icon: FileCheck },
+  { name: "Progress Reports", href: "/tutor/reports", icon: TrendingUp },
 ];
 
 interface Props {
   collapsed: boolean;
 }
 
-export default function AdminSidebar({ collapsed }: Props) {
+export default function TutorSidebar({ collapsed }: Props) {
   const pathname = usePathname();
   const [openDropdowns, setOpenDropdowns] = useState<Record<string, boolean>>(() => {
     const initial: Record<string, boolean> = {};
@@ -100,12 +90,13 @@ export default function AdminSidebar({ collapsed }: Props) {
           }}
         >
           <p className="text-white font-bold text-sm leading-none font-heading">Knowlix</p>
-          <p className="text-white/45 text-xs mt-0.5">Admin Panel</p>
+          <p className="text-white/45 text-xs mt-0.5">Tutor Panel</p>
         </div>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 py-4 space-y-0.5 overflow-y-auto overflow-x-hidden"
+      <nav
+        className="flex-1 py-4 space-y-0.5 overflow-y-auto overflow-x-hidden"
         style={{ padding: collapsed ? "16px 8px" : "16px 12px", transition: "padding 300ms ease" }}
       >
         {nav.map((item) => {
@@ -115,7 +106,6 @@ export default function AdminSidebar({ collapsed }: Props) {
 
           if (hasChildren) {
             const isChildActive = item.children?.some((child) => pathname === child.href);
-
             return (
               <div key={item.name} className="flex flex-col">
                 <button
@@ -129,7 +119,7 @@ export default function AdminSidebar({ collapsed }: Props) {
                     padding: collapsed ? "10px 0" : "10px 12px",
                     justifyContent: collapsed ? "center" : "flex-start",
                     gap: collapsed ? 0 : "12px",
-                    transition: "background 150ms ease, padding 300ms ease, justify-content 300ms ease",
+                    transition: "background 150ms ease, padding 300ms ease",
                   }}
                 >
                   <Icon className="w-4 h-4 flex-shrink-0" />
@@ -152,18 +142,13 @@ export default function AdminSidebar({ collapsed }: Props) {
                     />
                   )}
                 </button>
-
-                {/* Submenu with animation */}
                 <div
                   className={cn(
                     "overflow-hidden transition-all duration-300 ease-in-out",
                     isOpen && !collapsed ? "max-h-[500px] opacity-100 mt-0.5" : "max-h-0 opacity-0"
                   )}
                 >
-                  <div
-                    className="pl-5 pr-1 py-1 flex flex-col space-y-0.5 border-l border-white/10"
-                    style={{ marginLeft: "1.25rem" }}
-                  >
+                  <div className="pl-5 pr-1 py-1 flex flex-col space-y-0.5 border-l border-white/10" style={{ marginLeft: "1.25rem" }}>
                     {item.children?.map((child) => {
                       const isChildSelected = pathname === child.href;
                       return (
@@ -189,7 +174,7 @@ export default function AdminSidebar({ collapsed }: Props) {
 
           const isActive =
             pathname === item.href ||
-            (item.href !== "/admin/dashboard" && pathname.startsWith(item.href!));
+            (item.href !== "/tutor/dashboard" && pathname.startsWith(item.href!));
 
           return (
             <Link
@@ -205,7 +190,7 @@ export default function AdminSidebar({ collapsed }: Props) {
                 padding: collapsed ? "10px 0" : "10px 12px",
                 justifyContent: collapsed ? "center" : "flex-start",
                 gap: collapsed ? 0 : "12px",
-                transition: "background 150ms ease, padding 300ms ease, justify-content 300ms ease",
+                transition: "background 150ms ease, padding 300ms ease",
               }}
             >
               <Icon className="w-4 h-4 flex-shrink-0" />
@@ -247,7 +232,7 @@ export default function AdminSidebar({ collapsed }: Props) {
             className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0"
             style={{ background: "var(--brand-green)" }}
           >
-            A
+            T
           </div>
           <div
             className="overflow-hidden"
@@ -258,8 +243,8 @@ export default function AdminSidebar({ collapsed }: Props) {
               whiteSpace: "nowrap",
             }}
           >
-            <p className="text-white text-xs font-semibold">Admin</p>
-            <p className="text-white/45 text-xs">admin@knowlix.in</p>
+            <p className="text-white text-xs font-semibold">Tutor</p>
+            <p className="text-white/45 text-xs">tutor@knowlix.in</p>
           </div>
         </div>
       </div>
