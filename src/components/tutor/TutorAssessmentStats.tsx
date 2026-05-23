@@ -74,11 +74,7 @@ export default function TutorAssessmentStats({
         value={activeAssignments}
         icon={<FileText className="w-6 h-6 text-[var(--brand-green)]" />}
         badgeText="Assigned"
-        badgeClassName="bg-[var(--brand-light-green)] text-[var(--brand-mid)] border-[var(--brand-light)]/20"
-        gradientClass="from-[var(--brand-green)] to-[var(--brand-light)]"
-        iconBgClass="bg-[var(--brand-light-green)]"
         footerText="Currently open for submissions"
-        footerClassName="text-slate-400"
       />
 
       <DashboardStatCard
@@ -86,11 +82,7 @@ export default function TutorAssessmentStats({
         value={pendingExams}
         icon={<CheckSquare className="w-6 h-6 text-[var(--brand-green)]" />}
         badgeText="Upcoming"
-        badgeClassName="bg-[var(--brand-light-green)] text-[var(--brand-mid)] border-[var(--brand-light)]/20"
-        gradientClass="from-[var(--brand-green)] to-[var(--brand-light)]"
-        iconBgClass="bg-[var(--brand-light-green)]"
         footerText="Tests scheduled to be conducted"
-        footerClassName="text-slate-400"
       />
 
       <DashboardStatCard
@@ -98,11 +90,7 @@ export default function TutorAssessmentStats({
         value={totalEvaluations}
         icon={<FileCheck className="w-6 h-6 text-[var(--brand-green)]" />}
         badgeText="Total"
-        badgeClassName="bg-[var(--brand-light-green)] text-[var(--brand-mid)] border-[var(--brand-light)]/20"
-        gradientClass="from-[var(--brand-green)] to-[var(--brand-light)]"
-        iconBgClass="bg-[var(--brand-light-green)]"
         footerText="Tasks marked and graded"
-        footerClassName="text-slate-400"
       />
 
       <DashboardStatCard
@@ -110,12 +98,9 @@ export default function TutorAssessmentStats({
         value={`${avgScore}%`}
         icon={<Percent className="w-6 h-6 text-[var(--brand-green)]" />}
         badgeText="Performance"
-        badgeClassName="bg-[var(--brand-light-green)] text-[var(--brand-mid)] border-[var(--brand-light)]/20"
-        gradientClass="from-[var(--brand-green)] to-[var(--brand-light)]"
-        iconBgClass="bg-[var(--brand-light-green)]"
         footerText="Average grade across evaluations"
-        footerClassName="text-slate-400"
       />
     </div>
   );
 }
+

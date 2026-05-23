@@ -1,4 +1,9 @@
-import { ReactNode } from "react";
+import {
+  cloneElement,
+  isValidElement,
+  ReactElement,
+  ReactNode,
+} from "react";
 import { ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -7,12 +12,8 @@ interface DashboardStatCardProps {
   value: string | number;
   icon: ReactNode;
   badgeText?: string;
-  badgeClassName?: string;
-  gradientClass: string; // e.g. "from-teal-500 to-emerald-500"
-  iconBgClass: string; // e.g. "bg-teal-50 text-teal-600"
   footerText?: string;
   footerLink?: boolean;
-  footerClassName?: string;
   onClick?: () => void;
 }
 
@@ -21,16 +22,21 @@ export default function DashboardStatCard({
   value,
   icon,
   badgeText,
-  badgeClassName,
-  gradientClass,
-  iconBgClass,
   footerText,
   footerLink = false,
-  footerClassName,
   onClick,
 }: DashboardStatCardProps) {
   const isClickable = !!onClick;
   const Component = isClickable ? "button" : "div";
+  const normalizedIcon = isValidElement<{ className?: string }>(icon)
+    ? cloneElement(icon as ReactElement<{ className?: string }>, {
+        className: cn(icon.props.className, "text-[var(--brand-green)]"),
+      })
+    : icon;
+  const footerToneClass =
+    isClickable && footerLink
+      ? "text-[var(--brand-green)] font-semibold"
+      : "text-slate-450 font-semibold";
 
   return (
     <Component
@@ -41,21 +47,19 @@ export default function DashboardStatCard({
       )}
     >
       {/* Top Accent Gradient Border */}
-      <div className={cn("absolute top-0 left-0 w-full h-1 bg-gradient-to-r", gradientClass)} />
+      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[var(--brand-green)] to-[var(--brand-light)]" />
       
       <div className="flex items-center justify-between mb-4">
-        <div className={cn(
-          "w-12 h-12 rounded-xl flex items-center justify-center transition-transform duration-300",
-          iconBgClass,
-          isClickable && "group-hover:scale-110"
-        )}>
-          {icon}
+        <div
+          className={cn(
+            "w-12 h-12 rounded-xl flex items-center justify-center bg-[var(--brand-light-green)] text-[var(--brand-green)] transition-transform duration-300",
+            isClickable && "group-hover:scale-110"
+          )}
+        >
+          {normalizedIcon}
         </div>
         {badgeText && (
-          <span className={cn(
-            "text-xs font-semibold px-2.5 py-1 rounded-full border",
-            badgeClassName
-          )}>
+          <span className="text-xs font-semibold px-2.5 py-1 rounded-full border bg-[var(--brand-light-green)] text-[var(--brand-mid)] border-[var(--brand-light)]/20">
             {badgeText}
           </span>
         )}
@@ -66,11 +70,13 @@ export default function DashboardStatCard({
         <p className="text-sm font-semibold text-slate-650 mt-1">{label}</p>
         
         {footerText && (
-          <p className={cn(
-            "text-xs mt-3 flex items-center gap-1 transition-transform",
-            footerClassName,
-            isClickable && footerLink && "group-hover:translate-x-1"
-          )}>
+          <p
+            className={cn(
+              "text-xs mt-3 flex items-center gap-1 transition-transform",
+              footerToneClass,
+              isClickable && footerLink && "group-hover:translate-x-1"
+            )}
+          >
             {footerText}
             {isClickable && footerLink && <ChevronRight className="w-3 h-3" />}
           </p>

@@ -21,11 +21,7 @@ export default function TutorStats({
         value={totalTutors}
         icon={<GraduationCap className="w-6 h-6 text-[var(--brand-green)]" />}
         badgeText="All Time"
-        badgeClassName="bg-[var(--brand-light-green)] text-[var(--brand-mid)] border-[var(--brand-light)]/20"
-        gradientClass="from-[var(--brand-green)] to-[var(--brand-light)]"
-        iconBgClass="bg-[var(--brand-light-green)]"
         footerText="Complete staff directory"
-        footerClassName="text-slate-400"
       />
 
       <DashboardStatCard
@@ -33,11 +29,7 @@ export default function TutorStats({
         value={activeCount}
         icon={<UserCheck className="w-6 h-6 text-[var(--brand-green)]" />}
         badgeText="Approved"
-        badgeClassName="bg-[var(--brand-light-green)] text-[var(--brand-mid)] border-[var(--brand-light)]/20"
-        gradientClass="from-[var(--brand-green)] to-[var(--brand-light)]"
-        iconBgClass="bg-[var(--brand-light-green)]"
         footerText="Assigned to active sessions"
-        footerClassName="text-slate-400"
       />
 
       <DashboardStatCard
@@ -45,11 +37,7 @@ export default function TutorStats({
         value={pendingCount}
         icon={<Clock className="w-6 h-6 text-[var(--brand-green)]" />}
         badgeText="Recruitment"
-        badgeClassName="bg-[var(--brand-light-green)] text-[var(--brand-mid)] border-[var(--brand-light)]/20"
-        gradientClass="from-[var(--brand-green)] to-[var(--brand-light)]"
-        iconBgClass="bg-[var(--brand-light-green)]"
         footerText="Needs HR screening"
-        footerClassName="text-slate-400"
       />
 
       <DashboardStatCard
@@ -57,12 +45,9 @@ export default function TutorStats({
         value={`${companyAverage} / 5.0`}
         icon={<Star className="w-6 h-6 text-[var(--brand-green)]" />}
         badgeText="Performance"
-        badgeClassName="bg-[var(--brand-light-green)] text-[var(--brand-mid)] border-[var(--brand-light)]/20"
-        gradientClass="from-[var(--brand-green)] to-[var(--brand-light)]"
-        iconBgClass="bg-[var(--brand-light-green)]"
         footerText="Overall tutor index"
-        footerClassName="text-slate-400"
       />
     </div>
   );
 }
+

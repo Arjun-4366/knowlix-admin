@@ -95,12 +95,8 @@ export default function TutorDashboard() {
           value={myStudents.length}
           icon={<Users className="w-6 h-6 text-[var(--brand-green)]" />}
           badgeText="Assigned"
-          badgeClassName="bg-[var(--brand-light-green)] text-[var(--brand-mid)] border-[var(--brand-light)]/20"
-          gradientClass="from-[var(--brand-green)] to-[var(--brand-light)]"
-          iconBgClass="bg-[var(--brand-light-green)]"
           footerText="View complete student list"
           footerLink
-          footerClassName="text-[var(--brand-green)] font-semibold"
           onClick={() => router.push("/tutor/students")}
         />
         <DashboardStatCard
@@ -108,33 +104,21 @@ export default function TutorDashboard() {
           value={myStudents.length * 3}
           icon={<BookOpen className="w-6 h-6 text-[var(--brand-green)]" />}
           badgeText="Active"
-          badgeClassName="bg-[var(--brand-light-green)] text-[var(--brand-mid)] border-[var(--brand-light)]/20"
-          gradientClass="from-[var(--brand-green)] to-[var(--brand-light)]"
-          iconBgClass="bg-[var(--brand-light-green)]"
           footerText="Across all students"
-          footerClassName="text-slate-400"
         />
         <DashboardStatCard
           label={`Sessions (${sessionPeriod.charAt(0).toUpperCase() + sessionPeriod.slice(1)})`}
           value={sessions.total}
           icon={<Clock className="w-6 h-6 text-[var(--brand-green)]" />}
           badgeText={`${sessions.hours}h`}
-          badgeClassName="bg-[var(--brand-light-green)] text-[var(--brand-mid)] border-[var(--brand-light)]/20"
-          gradientClass="from-[var(--brand-green)] to-[var(--brand-light)]"
-          iconBgClass="bg-[var(--brand-light-green)]"
           footerText={`${sessions.completed} completed · ${sessions.pending} pending`}
-          footerClassName="text-slate-400"
         />
         <DashboardStatCard
           label={`Earnings (${sessionPeriod.charAt(0).toUpperCase() + sessionPeriod.slice(1)})`}
           value={earnings.total}
           icon={<DollarSign className="w-6 h-6 text-[var(--brand-green)]" />}
           badgeText={earnings.perSession}
-          badgeClassName="bg-[var(--brand-light-green)] text-[var(--brand-mid)] border-[var(--brand-light)]/20"
-          gradientClass="from-[var(--brand-green)] to-[var(--brand-light)]"
-          iconBgClass="bg-[var(--brand-light-green)]"
           footerText={`${earnings.sessions} sessions · ${earnings.perSession} / session`}
-          footerClassName="text-slate-400"
         />
       </div>
 
@@ -442,3 +426,4 @@ export default function TutorDashboard() {
     </div>
   );
 }
+

@@ -60,11 +60,7 @@ export default function TutorReportStats({ reports, students }: TutorReportStats
         value={totalReports}
         icon={<FileSpreadsheet className="w-6 h-6 text-[var(--brand-green)]" />}
         badgeText="All Time"
-        badgeClassName="bg-[var(--brand-light-green)] text-[var(--brand-mid)] border-[var(--brand-light)]/20"
-        gradientClass="from-[var(--brand-green)] to-[var(--brand-light)]"
-        iconBgClass="bg-[var(--brand-light-green)]"
         footerText="Reports successfully stored"
-        footerClassName="text-slate-400"
       />
 
       <DashboardStatCard
@@ -72,11 +68,7 @@ export default function TutorReportStats({ reports, students }: TutorReportStats
         value={topClassPerformance}
         icon={<Award className="w-6 h-6 text-[var(--brand-green)]" />}
         badgeText="Academic Quality"
-        badgeClassName="bg-[var(--brand-light-green)] text-[var(--brand-mid)] border-[var(--brand-light)]/20"
-        gradientClass="from-[var(--brand-green)] to-[var(--brand-light)]"
-        iconBgClass="bg-[var(--brand-light-green)]"
         footerText="Percentage of A/A+ reports"
-        footerClassName="text-slate-400"
       />
 
       <DashboardStatCard
@@ -84,11 +76,7 @@ export default function TutorReportStats({ reports, students }: TutorReportStats
         value={`${avgAttendance}%`}
         icon={<Calendar className="w-6 h-6 text-[var(--brand-green)]" />}
         badgeText="Avg Presence"
-        badgeClassName="bg-[var(--brand-light-green)] text-[var(--brand-mid)] border-[var(--brand-light)]/20"
-        gradientClass="from-[var(--brand-green)] to-[var(--brand-light)]"
-        iconBgClass="bg-[var(--brand-light-green)]"
         footerText="Average presence in active reports"
-        footerClassName="text-slate-400"
       />
 
       <DashboardStatCard
@@ -96,12 +84,9 @@ export default function TutorReportStats({ reports, students }: TutorReportStats
         value={pendingReviewsCount}
         icon={<AlertCircle className="w-6 h-6 text-amber-600" />}
         badgeText="Needs Report"
-        badgeClassName="bg-amber-50 text-amber-700 border-amber-200"
-        gradientClass="from-amber-500 to-amber-300"
-        iconBgClass="bg-amber-50"
         footerText="Students without active reports"
-        footerClassName="text-slate-400"
       />
     </div>
   );
 }
+

@@ -56,11 +56,7 @@ export default function TutorAttendanceStats({ logs }: TutorAttendanceStatsProps
         value={`${attendanceRate}%`}
         icon={<Award className="w-6 h-6 text-[var(--brand-green)]" />}
         badgeText="Avg Rate"
-        badgeClassName="bg-[var(--brand-light-green)] text-[var(--brand-mid)] border-[var(--brand-light)]/20"
-        gradientClass="from-[var(--brand-green)] to-[var(--brand-light)]"
-        iconBgClass="bg-[var(--brand-light-green)]"
         footerText="Average presence rate across classes"
-        footerClassName="text-slate-400"
       />
 
       <DashboardStatCard
@@ -68,11 +64,7 @@ export default function TutorAttendanceStats({ logs }: TutorAttendanceStatsProps
         value={totalLogs}
         icon={<CalendarRange className="w-6 h-6 text-[var(--brand-green)]" />}
         badgeText="Total"
-        badgeClassName="bg-[var(--brand-light-green)] text-[var(--brand-mid)] border-[var(--brand-light)]/20"
-        gradientClass="from-[var(--brand-green)] to-[var(--brand-light)]"
-        iconBgClass="bg-[var(--brand-light-green)]"
         footerText="Total sessions with marked attendance"
-        footerClassName="text-slate-400"
       />
 
       <DashboardStatCard
@@ -80,11 +72,7 @@ export default function TutorAttendanceStats({ logs }: TutorAttendanceStatsProps
         value={presentCount}
         icon={<CheckCircle2 className="w-6 h-6 text-[var(--brand-green)]" />}
         badgeText="On Time"
-        badgeClassName="bg-[var(--brand-light-green)] text-[var(--brand-mid)] border-[var(--brand-light)]/20"
-        gradientClass="from-[var(--brand-green)] to-[var(--brand-light)]"
-        iconBgClass="bg-[var(--brand-light-green)]"
         footerText="Students marked as present"
-        footerClassName="text-slate-400"
       />
 
       <DashboardStatCard
@@ -92,12 +80,9 @@ export default function TutorAttendanceStats({ logs }: TutorAttendanceStatsProps
         value={lateCount + absentCount}
         icon={<AlertTriangle className="w-6 h-6 text-amber-600" />}
         badgeText={`${absentCount} Absent · ${lateCount} Late`}
-        badgeClassName="bg-amber-50 text-amber-700 border-amber-200"
-        gradientClass="from-amber-500 to-amber-300"
-        iconBgClass="bg-amber-100"
         footerText="Need attention or makeup support"
-        footerClassName="text-slate-400"
       />
     </div>
   );
 }
+

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Search } from "lucide-react";
 import { cn } from "@/lib/utils";
-import DashboardHeader from "../shared/DashboardHeader";
+import DashboardHeader from "@/components/dashboard/shared/DashboardHeader";
 
 // Dummy Students Data
 const dummyStudents = [
@@ -66,7 +66,7 @@ export default function AdminStudentDirectory({ onBack }: AdminStudentDirectoryP
               {filteredStudents.length > 0 ? (
                 filteredStudents.map((student) => (
                   <tr key={student.id} className="hover:bg-slate-50/60 transition-colors">
-                    <td className="px-6 py-4 text-sm font-semibold text-slate-500">{student.id}</td>
+                    <td className="px-6 py-4 text-sm font-semibold text-slate-550">{student.id}</td>
                     <td className="px-6 py-4 text-sm font-semibold text-slate-800">{student.name}</td>
                     <td className="px-6 py-4 text-sm text-slate-600">{student.grade}</td>
                     <td className="px-6 py-4 text-sm text-slate-600">{student.course}</td>

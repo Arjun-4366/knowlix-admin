@@ -24,11 +24,7 @@ export default function TutorStudentStats({ students }: TutorStudentStatsProps) 
         value={totalAssigned}
         icon={<Users className="w-6 h-6 text-[var(--brand-green)]" />}
         badgeText="Assigned"
-        badgeClassName="bg-[var(--brand-light-green)] text-[var(--brand-mid)] border-[var(--brand-light)]/20"
-        gradientClass="from-[var(--brand-green)] to-[var(--brand-light)]"
-        iconBgClass="bg-[var(--brand-light-green)]"
         footerText="Enrolled under your tutelage"
-        footerClassName="text-slate-400"
       />
 
       <DashboardStatCard
@@ -36,11 +32,7 @@ export default function TutorStudentStats({ students }: TutorStudentStatsProps) 
         value={approvedCount}
         icon={<CheckCircle2 className="w-6 h-6 text-[var(--brand-green)]" />}
         badgeText="Active"
-        badgeClassName="bg-[var(--brand-light-green)] text-[var(--brand-mid)] border-[var(--brand-light)]/20"
-        gradientClass="from-[var(--brand-green)] to-[var(--brand-light)]"
-        iconBgClass="bg-[var(--brand-light-green)]"
         footerText="Ready for regular classes"
-        footerClassName="text-slate-400"
       />
 
       <DashboardStatCard
@@ -48,11 +40,7 @@ export default function TutorStudentStats({ students }: TutorStudentStatsProps) 
         value={pendingCount}
         icon={<Clock className="w-6 h-6 text-[var(--brand-green)]" />}
         badgeText="In Progress"
-        badgeClassName="bg-[var(--brand-light-green)] text-[var(--brand-mid)] border-[var(--brand-light)]/20"
-        gradientClass="from-[var(--brand-green)] to-[var(--brand-light)]"
-        iconBgClass="bg-[var(--brand-light-green)]"
         footerText="Under review by admin"
-        footerClassName="text-slate-400"
       />
 
       <DashboardStatCard
@@ -60,12 +48,9 @@ export default function TutorStudentStats({ students }: TutorStudentStatsProps) 
         value={totalAssigned * 2}
         icon={<Calendar className="w-6 h-6 text-[var(--brand-green)]" />}
         badgeText="This Week"
-        badgeClassName="bg-[var(--brand-light-green)] text-[var(--brand-mid)] border-[var(--brand-light)]/20"
-        gradientClass="from-[var(--brand-green)] to-[var(--brand-light)]"
-        iconBgClass="bg-[var(--brand-light-green)]"
         footerText="Calculated recurring slots"
-        footerClassName="text-slate-400"
       />
     </div>
   );
 }
+

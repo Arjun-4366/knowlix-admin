@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Search } from "lucide-react";
 import { cn } from "@/lib/utils";
-import DashboardHeader from "../shared/DashboardHeader";
+import DashboardHeader from "@/components/dashboard/shared/DashboardHeader";
 
 // Dummy Tutors Data
 const dummyTutors = [
@@ -66,8 +66,8 @@ export default function AdminTutorDirectory({ onBack }: AdminTutorDirectoryProps
               {filteredTutors.length > 0 ? (
                 filteredTutors.map((tutor) => (
                   <tr key={tutor.id} className="hover:bg-slate-50/60 transition-colors">
-                    <td className="px-6 py-4 text-sm font-semibold text-slate-500">{tutor.id}</td>
-                    <td className="px-6 py-4 text-sm font-semibold text-slate-800">{tutor.name}</td>
+                    <td className="px-6 py-4 text-sm font-semibold text-slate-550">{tutor.id}</td>
+                    <td className="px-6 py-4 text-sm font-semibold text-slate-808">{tutor.name}</td>
                     <td className="px-6 py-4 text-sm text-slate-600">{tutor.subject}</td>
                     <td className="px-6 py-4 text-sm text-slate-500">{tutor.experience}</td>
                     <td className="px-6 py-4 text-sm text-slate-700 text-center font-medium">{tutor.activeStudents}</td>

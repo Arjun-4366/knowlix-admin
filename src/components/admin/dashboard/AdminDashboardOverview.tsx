@@ -2,7 +2,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { GraduationCap, Users, DollarSign, Clock, Check, X, Star, BarChart3, MessageSquare } from "lucide-react";
-import DashboardStatCard from "../shared/DashboardStatCard";
+import DashboardStatCard from "@/components/dashboard/shared/DashboardStatCard";
 import { cn } from "@/lib/utils";
 
 // Dummy data inside component
@@ -94,7 +94,7 @@ export default function AdminDashboardOverview({ onViewChange }: AdminDashboardO
     <div className="space-y-8 max-w-6xl relative">
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed top-4 right-4 z-50 bg-[var(--brand-dark)] text-white border border-[var(--brand-light)] px-4 py-3 rounded-xl shadow-lg flex items-center gap-2 animate-in fade-in slide-in-from-top-4 duration-300">
+        <div className="fixed top-4 right-4 z-50 bg-[var(--brand-dark)] text-white border border-[var(--brand-light)]/25 px-4 py-3 rounded-xl shadow-lg flex items-center gap-2 animate-in fade-in slide-in-from-top-4 duration-300">
           <div className="w-5 h-5 rounded-full bg-[var(--brand-green)] flex items-center justify-center flex-shrink-0">
             <Check className="w-3.5 h-3.5 text-white" />
           </div>
@@ -117,12 +117,8 @@ export default function AdminDashboardOverview({ onViewChange }: AdminDashboardO
           value="48"
           icon={<GraduationCap className="w-6 h-6 text-[var(--brand-green)]" />}
           badgeText="Active"
-          badgeClassName="bg-[var(--brand-light-green)] text-[var(--brand-mid)] border-[var(--brand-light)]/20"
-          gradientClass="from-[var(--brand-green)] to-[var(--brand-light)]"
-          iconBgClass="bg-[var(--brand-light-green)]"
           footerText="View complete list"
           footerLink={true}
-          footerClassName="text-[var(--brand-green)] font-semibold"
           onClick={() => onViewChange("tutors")}
         />
 
@@ -131,12 +127,8 @@ export default function AdminDashboardOverview({ onViewChange }: AdminDashboardO
           value="350"
           icon={<Users className="w-6 h-6 text-[var(--brand-green)]" />}
           badgeText="Enrolled"
-          badgeClassName="bg-[var(--brand-light-green)] text-[var(--brand-mid)] border-[var(--brand-light)]/20"
-          gradientClass="from-[var(--brand-green)] to-[var(--brand-light)]"
-          iconBgClass="bg-[var(--brand-light-green)]"
           footerText="View complete list"
           footerLink={true}
-          footerClassName="text-[var(--brand-green)] font-semibold"
           onClick={() => router.push("/admin/students")}
         />
 
@@ -145,11 +137,7 @@ export default function AdminDashboardOverview({ onViewChange }: AdminDashboardO
           value="₹12,45,000"
           icon={<DollarSign className="w-6 h-6 text-[var(--brand-green)]" />}
           badgeText="This Month"
-          badgeClassName="bg-[var(--brand-light-green)] text-[var(--brand-mid)] border-[var(--brand-light)]/20"
-          gradientClass="from-[var(--brand-green)] to-[var(--brand-light)]"
-          iconBgClass="bg-[var(--brand-light-green)]"
           footerText="Updated 2h ago"
-          footerClassName="text-slate-400"
         />
 
         <DashboardStatCard
@@ -157,12 +145,8 @@ export default function AdminDashboardOverview({ onViewChange }: AdminDashboardO
           value="18"
           icon={<Clock className="w-6 h-6 text-[var(--brand-green)]" />}
           badgeText="Today"
-          badgeClassName="bg-[var(--brand-light-green)] text-[var(--brand-mid)] border-[var(--brand-light)]/20"
-          gradientClass="from-[var(--brand-green)] to-[var(--brand-light)]"
-          iconBgClass="bg-[var(--brand-light-green)]"
           footerText="View today's details"
           footerLink={true}
-          footerClassName="text-[var(--brand-green)] font-semibold"
           onClick={() => onViewChange("sessions")}
         />
       </div>
@@ -219,7 +203,7 @@ export default function AdminDashboardOverview({ onViewChange }: AdminDashboardO
                 <h2 className="text-md font-bold text-slate-800">Top 5 Tutors</h2>
                 <p className="text-xs text-slate-455 mt-0.5">Based on ratings & sessions conducted this month</p>
               </div>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase border bg-[var(--brand-light-green)] text-[var(--brand-mid)] border-[var(--brand-light)]/20">
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase border bg-green-50 text-green-700 border-green-200">
                 Leaderboard
               </span>
             </div>
@@ -320,7 +304,7 @@ export default function AdminDashboardOverview({ onViewChange }: AdminDashboardO
               </div>
               <div className="divide-y divide-slate-100">
                 {recentEnquiries.map((e, i) => (
-                  <div key={i} className="flex items-center justify-between px-6 py-4 hover:bg-slate-50/30 transition-colors">
+                  <div key={i} className="flex items-center justify-between px-6 py-4 hover:bg-slate-55/30 transition-colors">
                     <div>
                       <p className="text-sm font-semibold text-slate-850">{e.name}</p>
                       <p className="text-xs text-slate-400 mt-0.5">{e.grade}</p>
@@ -393,7 +377,7 @@ export default function AdminDashboardOverview({ onViewChange }: AdminDashboardO
                   <select
                     value={studentGrade}
                     onChange={(e) => setStudentGrade(e.target.value)}
-                    className="w-full px-3.5 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:border-green-500 focus:ring-2 focus:ring-green-500/20 transition-all"
+                    className="w-full px-3.5 py-2 text-sm bg-slate-55 border border-slate-200 rounded-xl outline-none focus:bg-white focus:border-green-500 focus:ring-2 focus:ring-green-500/20 transition-all"
                   >
                     {["Grade 6", "Grade 7", "Grade 8", "Grade 9", "Grade 10", "Grade 11", "Grade 12"].map((g) => (
                       <option key={g} value={g}>{g}</option>
@@ -581,3 +565,4 @@ export default function AdminDashboardOverview({ onViewChange }: AdminDashboardO
     </div>
   );
 }
+

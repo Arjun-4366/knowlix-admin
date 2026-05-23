@@ -41,11 +41,7 @@ export default function StudentStats({ students }: StudentStatsProps) {
         value={total}
         icon={<Users className="w-6 h-6 text-[var(--brand-green)]" />}
         badgeText="Enrolled"
-        badgeClassName="bg-[var(--brand-light-green)] text-[var(--brand-mid)] border-[var(--brand-light)]/20"
-        gradientClass="from-[var(--brand-green)] to-[var(--brand-light)]"
-        iconBgClass="bg-[var(--brand-light-green)]"
         footerText="Active student list"
-        footerClassName="text-slate-400"
       />
 
       <DashboardStatCard
@@ -53,11 +49,7 @@ export default function StudentStats({ students }: StudentStatsProps) {
         value={docsComplete}
         icon={<FileText className="w-6 h-6 text-[var(--brand-green)]" />}
         badgeText="All Submitted"
-        badgeClassName="bg-[var(--brand-light-green)] text-[var(--brand-mid)] border-[var(--brand-light)]/20"
-        gradientClass="from-[var(--brand-green)] to-[var(--brand-light)]"
-        iconBgClass="bg-[var(--brand-light-green)]"
         footerText={`${total - docsComplete} pending upload`}
-        footerClassName="text-slate-400"
       />
 
       <DashboardStatCard
@@ -65,11 +57,7 @@ export default function StudentStats({ students }: StudentStatsProps) {
         value={approved}
         icon={<CheckCircle2 className="w-6 h-6 text-[var(--brand-green)]" />}
         badgeText="Approved"
-        badgeClassName="bg-[var(--brand-light-green)] text-[var(--brand-mid)] border-[var(--brand-light)]/20"
-        gradientClass="from-[var(--brand-green)] to-[var(--brand-light)]"
-        iconBgClass="bg-[var(--brand-light-green)]"
         footerText="Ready for sessions"
-        footerClassName="text-slate-400"
       />
 
       <DashboardStatCard
@@ -77,12 +65,9 @@ export default function StudentStats({ students }: StudentStatsProps) {
         value={pending}
         icon={<Clock className="w-6 h-6 text-[var(--brand-green)]" />}
         badgeText="In Review"
-        badgeClassName="bg-[var(--brand-light-green)] text-[var(--brand-mid)] border-[var(--brand-light)]/20"
-        gradientClass="from-[var(--brand-green)] to-[var(--brand-light)]"
-        iconBgClass="bg-[var(--brand-light-green)]"
         footerText="Needs coordinator action"
-        footerClassName="text-slate-400"
       />
     </div>
   );
 }
+

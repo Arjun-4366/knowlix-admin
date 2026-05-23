@@ -11,6 +11,8 @@ import {
   ClipboardCheck,
   FileCheck,
   TrendingUp,
+  MessageSquare,
+  BookOpen,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -28,6 +30,8 @@ const nav: NavItem[] = [
   { name: "My Students", href: "/tutor/students", icon: Users },
   { name: "Attendance", href: "/tutor/attendance", icon: ClipboardCheck },
   { name: "Assessment", href: "/tutor/assessment", icon: FileCheck },
+  { name: "Notice Board", href: "/tutor/notices", icon: MessageSquare },
+  { name: "Assignments", href: "/tutor/assignments", icon: BookOpen },
   { name: "Progress Reports", href: "/tutor/reports", icon: TrendingUp },
 ];
 

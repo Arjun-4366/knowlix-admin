@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import AdminDashboardOverview from "@/components/dashboard/admin/AdminDashboardOverview";
-import AdminTutorDirectory from "@/components/dashboard/admin/AdminTutorDirectory";
-import AdminStudentDirectory from "@/components/dashboard/admin/AdminStudentDirectory";
-import AdminSessionTracker from "@/components/dashboard/admin/AdminSessionTracker";
+import AdminDashboardOverview from "@/components/admin/dashboard/AdminDashboardOverview";
+import AdminTutorDirectory from "@/components/admin/dashboard/AdminTutorDirectory";
+import AdminStudentDirectory from "@/components/admin/dashboard/AdminStudentDirectory";
+import AdminSessionTracker from "@/components/admin/dashboard/AdminSessionTracker";
 
 export default function DashboardPage() {
   const [activeView, setActiveView] = useState<"dashboard" | "tutors" | "students" | "sessions">("dashboard");

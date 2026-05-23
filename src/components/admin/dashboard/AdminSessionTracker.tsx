@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Search, CheckCircle, XCircle, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
-import DashboardHeader from "../shared/DashboardHeader";
+import DashboardHeader from "@/components/dashboard/shared/DashboardHeader";
 
 // Dummy Today's Sessions Data
 const dummySessions = [
@@ -88,7 +88,7 @@ export default function AdminSessionTracker({ onBack }: AdminSessionTrackerProps
                 filteredSessions.map((session) => (
                   <tr key={session.id} className="hover:bg-slate-50/60 transition-colors">
                     <td className="px-6 py-4 text-sm font-semibold text-slate-700 whitespace-nowrap">{session.time}</td>
-                    <td className="px-6 py-4 text-sm font-semibold text-slate-800">{session.class}</td>
+                    <td className="px-6 py-4 text-sm font-semibold text-slate-805">{session.class}</td>
                     <td className="px-6 py-4 text-sm text-slate-600 font-medium">{session.tutor}</td>
                     <td className="px-6 py-4 text-sm">
                       <span className={cn(
@@ -103,7 +103,7 @@ export default function AdminSessionTracker({ onBack }: AdminSessionTrackerProps
                         {session.status}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-sm text-slate-500">
+                    <td className="px-6 py-4 text-sm text-slate-550">
                       {session.status === "Postponed" ? (
                         <span className="text-amber-700 font-medium bg-amber-50/50 px-2 py-1 rounded border border-amber-100">{session.reason}</span>
                       ) : (
