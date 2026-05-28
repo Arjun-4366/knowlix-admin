@@ -6,8 +6,8 @@ import { Trash2, Plus } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import SectionCard from "@/components/shared/SectionCard";
 import FormActions from "@/components/shared/FormActions";
-import { IAboutPayload, IAboutHighlight } from "@/types/about";
-import { useCreateAbout } from "@/querys/aboutQuery";
+import { IAboutPayload, IAboutHighlight } from "@/types/admin/about";
+import { useCreateAbout } from "@/querys/admin/aboutQuery";
 import { toast } from "react-hot-toast";
 import * as LucideIcons from "lucide-react";
 

@@ -4,8 +4,8 @@ import { useState } from "react";
 import { Search, Plus, Pencil, Trash2, Star, Calendar, Clock } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { IBlog, BlogCategory } from "@/types/blog";
-import { useDeleteBlog } from "@/querys/blogQuery";
+import { IBlog, BlogCategory } from "@/types/admin/blog";
+import { useDeleteBlog } from "@/querys/admin/blogQuery";
 import { useConfirmation } from "@/context/ConfirmationContext";
 
 import Image from "next/image";
@@ -27,7 +27,7 @@ export default function BlogList({ onNew, groupedBlogs }: Props) {
 
   const filtered = allPosts.filter((p) => {
     const matchSearch = p.title.toLowerCase().includes(search.toLowerCase());
-    
+
     let matchCat = true;
     if (category !== "All") {
       if (category === "Uncategorized") {
@@ -36,7 +36,7 @@ export default function BlogList({ onNew, groupedBlogs }: Props) {
         matchCat = p.category === category;
       }
     }
-    
+
     return matchSearch && matchCat;
   });
 
@@ -61,11 +61,11 @@ export default function BlogList({ onNew, groupedBlogs }: Props) {
       <div className="flex flex-col sm:flex-row gap-4 items-center">
         <div className="relative flex-1 w-full">
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-          <Input 
-            value={search} 
-            onChange={(e) => setSearch(e.target.value)} 
-            placeholder="Search by title…" 
-            className="pl-9 h-11 rounded-xl border-gray-100 bg-white focus:ring-green-500" 
+          <Input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search by title…"
+            className="pl-9 h-11 rounded-xl border-gray-100 bg-white focus:ring-green-500"
           />
         </div>
         <Select value={category} onValueChange={(v: any) => setCategory(v)}>
@@ -90,11 +90,11 @@ export default function BlogList({ onNew, groupedBlogs }: Props) {
           <div key={post.id} className="group bg-white rounded-2xl border border-gray-100 overflow-hidden hover:border-green-100 hover:shadow-xl hover:shadow-green-500/5 transition-all flex flex-col">
             <div className="aspect-video relative overflow-hidden bg-gray-100">
               {typeof post.image === "string" && post.image ? (
-                <Image 
-                  src={post.image} 
-                  alt={post.title} 
-                  fill 
-                  className="object-cover group-hover:scale-105 transition-transform duration-500" 
+                <Image
+                  src={post.image}
+                  alt={post.title}
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-500"
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-gray-300">
@@ -110,12 +110,12 @@ export default function BlogList({ onNew, groupedBlogs }: Props) {
                 {post.category || "Uncategorized"}
               </div>
             </div>
-            
+
             <div className="p-5 flex-1 flex flex-col">
               <h3 className="font-bold text-gray-800 leading-tight mb-2 line-clamp-2 group-hover:text-green-700 transition-colors">
                 {post.title}
               </h3>
-              
+
               <div className="flex items-center gap-4 text-[11px] text-gray-400 font-medium mb-4">
                 <span className="flex items-center gap-1">
                   <Calendar className="w-3.5 h-3.5 text-green-500" /> {post.date}
@@ -126,13 +126,13 @@ export default function BlogList({ onNew, groupedBlogs }: Props) {
               </div>
 
               <div className="mt-auto flex items-center justify-between pt-4 border-t border-gray-50">
-                <button 
+                <button
                   onClick={() => onNew(post)}
                   className="flex items-center gap-1.5 text-xs font-bold text-gray-500 hover:text-green-600 transition-colors"
                 >
                   <Pencil className="w-3.5 h-3.5" /> Edit
                 </button>
-                <button 
+                <button
                   onClick={() => handleDelete(post.id!)}
                   className="flex items-center gap-1.5 text-xs font-bold text-gray-400 hover:text-red-500 transition-colors"
                 >

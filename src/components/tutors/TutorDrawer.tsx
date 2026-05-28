@@ -10,8 +10,30 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { Tutor } from "@/app/admin/tutor/page";
-import { Student } from "@/components/students/StudentStats";
+import { Student } from "@/components/admin/students/StudentStats";
+
+export interface Tutor {
+  id: string;
+  name: string;
+  email: string;
+  subject: string;
+  experience: string;
+  availability: string;
+  status: "Pending HR Approval" | "Approved" | string;
+  permissions: {
+    uploadNotes: boolean;
+    editNotes: boolean;
+    shareMaterials: boolean;
+  };
+  growthMetrics: {
+    growthOfStudents: number;
+    responsibility: number;
+    ownership: number;
+    workEthics: number;
+    teamwork: number;
+    honesty: number;
+  };
+}
 
 interface TutorDrawerProps {
   selectedTutor: Tutor;

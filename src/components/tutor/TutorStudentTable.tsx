@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Search, Eye } from "lucide-react";
-import { Student } from "@/components/students/StudentStats";
+import { Student } from "@/components/admin/students/StudentStats";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";

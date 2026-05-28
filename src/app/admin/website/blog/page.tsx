@@ -4,9 +4,9 @@ import { useState } from "react";
 import PageHeader from "@/components/shared/PageHeader";
 import BlogList from "@/components/blog/BlogList";
 import BlogForm from "@/components/blog/BlogForm";
-import { useGetBlogs } from "@/querys/blogQuery";
+import { useGetBlogs } from "@/querys/admin/blogQuery";
 import Loader from "@/components/shared/Loader";
-import { IBlog } from "@/types/blog";
+import { IBlog } from "@/types/admin/blog";
 
 export default function BlogPageAdmin() {
   const { data: blogData, isLoading } = useGetBlogs();
@@ -16,7 +16,7 @@ export default function BlogPageAdmin() {
   if (isLoading) return <Loader text="Fetching Blog Posts..." />;
 
   const groupedBlogs = blogData?.data || {};
-  
+
   const handleNew = (post: IBlog | null = null) => {
     setSelectedPost(post);
     setView("form");
@@ -29,20 +29,20 @@ export default function BlogPageAdmin() {
 
   return (
     <div className="max-w-6xl">
-      <PageHeader 
-        title="Blog & Resources" 
-        description="Manage company news, workshops, trainings, and collaboration announcements" 
+      <PageHeader
+        title="Blog & Resources"
+        description="Manage company news, workshops, trainings, and collaboration announcements"
       />
 
       {view === "list" ? (
-        <BlogList 
-          onNew={handleNew} 
-          groupedBlogs={groupedBlogs as any} 
+        <BlogList
+          onNew={handleNew}
+          groupedBlogs={groupedBlogs as any}
         />
       ) : (
-        <BlogForm 
-          onBack={handleBack} 
-          initialData={selectedPost} 
+        <BlogForm
+          onBack={handleBack}
+          initialData={selectedPost}
         />
       )}
     </div>

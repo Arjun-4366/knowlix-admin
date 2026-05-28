@@ -7,8 +7,8 @@ import { Trash2, Plus, X } from "lucide-react";
 import SectionCard from "@/components/shared/SectionCard";
 import FormActions from "@/components/shared/FormActions";
 import { Input } from "../ui/input";
-import { IAboutPayload, IYearBaseJourney } from "@/types/about";
-import { useCreateAbout } from "@/querys/aboutQuery";
+import { IAboutPayload, IYearBaseJourney } from "@/types/admin/about";
+import { useCreateAbout } from "@/querys/admin/aboutQuery";
 import { toast } from "react-hot-toast";
 
 interface StoryEditorProps {
@@ -35,18 +35,18 @@ export default function StoryEditor({ form, setForm }: StoryEditorProps) {
 
   const addPoint = (mIdx: number) => {
     const newJourney = [...form.yearBaseJourney];
-    newJourney[mIdx] = { 
-      ...newJourney[mIdx], 
-      description: [...newJourney[mIdx].description, ""] 
+    newJourney[mIdx] = {
+      ...newJourney[mIdx],
+      description: [...newJourney[mIdx].description, ""]
     };
     setForm((f) => ({ ...f, yearBaseJourney: newJourney }));
   };
 
   const removePoint = (mIdx: number, pIdx: number) => {
     const newJourney = [...form.yearBaseJourney];
-    newJourney[mIdx] = { 
-      ...newJourney[mIdx], 
-      description: newJourney[mIdx].description.filter((_, idx) => idx !== pIdx) 
+    newJourney[mIdx] = {
+      ...newJourney[mIdx],
+      description: newJourney[mIdx].description.filter((_, idx) => idx !== pIdx)
     };
     setForm((f) => ({ ...f, yearBaseJourney: newJourney }));
   };
@@ -80,29 +80,29 @@ export default function StoryEditor({ form, setForm }: StoryEditorProps) {
             <div key={i} className="p-5 rounded-xl border border-gray-100 bg-gray-50/50 space-y-4 hover:border-green-100 transition-colors">
               <div className="flex items-center justify-between border-b border-gray-100 pb-2">
                 <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Milestone {i + 1}</p>
-                <button 
-                  onClick={() => removeMilestone(i)} 
+                <button
+                  onClick={() => removeMilestone(i)}
                   className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
                   title="Remove Milestone"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
               </div>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div className="space-y-1.5">
                   <Label>Year</Label>
-                  <Input 
-                    value={m.year} 
-                    onChange={(e) => updateMilestone(i, "year", e.target.value)} 
+                  <Input
+                    value={m.year}
+                    onChange={(e) => updateMilestone(i, "year", e.target.value)}
                     placeholder="e.g. 2021"
                     className="bg-white"
                   />
                 </div>
                 <div className="md:col-span-3 space-y-1.5">
                   <Label>Title</Label>
-                  <Input 
-                    value={m.title} 
+                  <Input
+                    value={m.title}
                     onChange={(e) => updateMilestone(i, "title", e.target.value)}
                     placeholder="e.g. Company Founded"
                     className="bg-white"
@@ -120,7 +120,7 @@ export default function StoryEditor({ form, setForm }: StoryEditorProps) {
                     <Plus className="w-3 h-3" /> ADD POINT
                   </button>
                 </div>
-                
+
                 <div className="space-y-2">
                   {m.description.map((point, pIdx) => (
                     <div key={pIdx} className="flex gap-2 group">

@@ -6,8 +6,8 @@ import { Plus, Trash2 } from "lucide-react";
 import SectionCard from "@/components/shared/SectionCard";
 import FormActions from "@/components/shared/FormActions";
 import MediaUpload from "@/components/shared/MediaUpload";
-import { ITeamMember } from "@/types/team";
-import { useCreateTeamMember, useDeleteTeamMember } from "@/querys/teamQuery";
+import { ITeamMember } from "@/types/admin/team";
+import { useCreateTeamMember, useDeleteTeamMember } from "@/querys/admin/teamQuery";
 import { useConfirmation } from "@/context/ConfirmationContext";
 import { toast } from "react-hot-toast";
 
@@ -71,14 +71,14 @@ export default function MentorsManager({ initialMembers }: Props) {
   return (
     <div className="space-y-6">
       {members.map((m, i) => (
-        <SectionCard 
-          key={i} 
+        <SectionCard
+          key={i}
           title={m.name || `Mentor Profile ${i + 1}`}
           description={m.tags[0] || "Subject not specified"}
         >
           <div className="space-y-4">
             <div className="flex justify-end -mt-10 mb-2">
-              <button 
+              <button
                 onClick={() => remove(m.id, i)}
                 className="text-red-400 hover:text-red-600 p-2 rounded-lg hover:bg-red-50 transition-all"
               >
@@ -90,30 +90,30 @@ export default function MentorsManager({ initialMembers }: Props) {
               <div className="space-y-4">
                 <div className="space-y-1.5">
                   <Label>Full Name</Label>
-                  <Input 
-                    value={m.name} 
-                    onChange={(e) => update(i, "name", e.target.value)} 
+                  <Input
+                    value={m.name}
+                    onChange={(e) => update(i, "name", e.target.value)}
                     placeholder="e.g. Kavitha Nair"
                   />
                 </div>
                 <div className="space-y-1.5">
                   <Label>Subject / Specialty</Label>
-                  <Input 
-                    value={m.tags[0] || ""} 
+                  <Input
+                    value={m.tags[0] || ""}
                     onChange={(e) => {
                       const newTags = [...m.tags];
                       newTags[0] = e.target.value;
                       update(i, "tags", newTags);
-                    }} 
+                    }}
                     placeholder="e.g. Mathematics"
                   />
                 </div>
                 <div className="space-y-1.5">
                   <Label>Short Bio</Label>
-                  <Textarea 
-                    value={m.description} 
-                    onChange={(e) => update(i, "description", e.target.value)} 
-                    rows={4} 
+                  <Textarea
+                    value={m.description}
+                    onChange={(e) => update(i, "description", e.target.value)}
+                    rows={4}
                     placeholder="Describe their teaching style and expertise..."
                   />
                 </div>
@@ -131,12 +131,12 @@ export default function MentorsManager({ initialMembers }: Props) {
                 </div>
                 <div className="space-y-1.5">
                   <Label>Other Details (Grades, Experience, etc.)</Label>
-                  <Input 
-                    value={m.tags.slice(1).join(", ")} 
+                  <Input
+                    value={m.tags.slice(1).join(", ")}
                     onChange={(e) => {
                       const otherTags = e.target.value.split(",").map(s => s.trim()).filter(Boolean);
                       update(i, "tags", [m.tags[0] || "", ...otherTags]);
-                    }} 
+                    }}
                     placeholder="e.g. Grade 8–12, 8+ Years Exp"
                   />
                 </div>

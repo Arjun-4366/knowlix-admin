@@ -10,9 +10,9 @@ import SectionCard from "@/components/shared/SectionCard";
 import MediaUpload from "@/components/shared/MediaUpload";
 import Loader from "@/components/shared/Loader";
 import Image from "next/image";
-import { ICourse } from "@/types/program";
-import { useGetPrograms } from "@/querys/programQuery";
-import { useGetCoursesByProgram, useAddCourse, useUpdateCourse, useDeleteCourse } from "@/querys/programQuery";
+import { ICourse } from "@/types/admin/program";
+import { useGetPrograms } from "@/querys/admin/programQuery";
+import { useGetCoursesByProgram, useAddCourse, useUpdateCourse, useDeleteCourse } from "@/querys/admin/programQuery";
 import { useConfirmation } from "@/context/ConfirmationContext";
 
 const EMPTY: ICourse = { programId: "", title: "", description: "", grade: "", totalStudentsEnrolled: "", image: "" };
@@ -25,14 +25,14 @@ export default function CoursesManager() {
   const activeProgramId = filterProgramId || (programs[0]?.id ?? "");
 
   const { data, isLoading, isError, error } = useGetCoursesByProgram(activeProgramId);
-  const { mutateAsync: doAdd }    = useAddCourse();
+  const { mutateAsync: doAdd } = useAddCourse();
   const { mutateAsync: doUpdate } = useUpdateCourse();
   const { mutateAsync: doDelete } = useDeleteCourse();
   const { confirm } = useConfirmation();
 
   const [selected, setSelected] = useState<ICourse | null>(null);
-  const [open, setOpen]         = useState(false);
-  const [busy, setBusy]         = useState(false);
+  const [open, setOpen] = useState(false);
+  const [busy, setBusy] = useState(false);
 
   if (progsLoading) return <Loader text="Loading programs…" />;
 
@@ -49,7 +49,7 @@ export default function CoursesManager() {
     setBusy(true);
     try {
       if (selected.id) await doUpdate({ id: selected.id, data: selected });
-      else             await doAdd(selected);
+      else await doAdd(selected);
       closeModal();
     } finally { setBusy(false); }
   };
@@ -58,7 +58,7 @@ export default function CoursesManager() {
     confirm({
       title: "Delete Course", confirmText: "Delete", variant: "danger",
       message: "This will permanently remove the course.",
-      onConfirm: async () => { try { await doDelete(id); } catch {} },
+      onConfirm: async () => { try { await doDelete(id); } catch { } },
     });
 
   const set = <K extends keyof ICourse>(k: K, v: ICourse[K]) =>

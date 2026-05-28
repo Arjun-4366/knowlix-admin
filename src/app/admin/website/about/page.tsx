@@ -4,8 +4,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PageHeader from "@/components/shared/PageHeader";
 import StoryEditor from "@/components/about/StoryEditor";
 import ValuesEditor from "@/components/about/ValuesEditor";
-import { useGetAbout } from "@/querys/aboutQuery";
-import { IAboutPayload } from "@/types/about";
+import { useGetAbout } from "@/querys/admin/aboutQuery";
+import { IAboutPayload } from "@/types/admin/about";
 import Loader from "@/components/shared/Loader";
 
 const tabs = [
@@ -34,10 +34,10 @@ export default function AboutPageAdmin() {
       if (sanitized.yearBaseJourney) {
         sanitized.yearBaseJourney = sanitized.yearBaseJourney.map((j: any) => ({
           ...j,
-          description: Array.isArray(j.description) 
-            ? j.description 
-            : typeof j.description === "string" && j.description 
-              ? [j.description] 
+          description: Array.isArray(j.description)
+            ? j.description
+            : typeof j.description === "string" && j.description
+              ? [j.description]
               : [],
         }));
       }

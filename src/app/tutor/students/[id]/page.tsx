@@ -3,7 +3,7 @@
 import { use, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Info, ArrowLeft } from "lucide-react";
-import { Student } from "@/components/students/StudentStats";
+import { Student } from "@/components/admin/students/StudentStats";
 import { Button } from "@/components/ui/button";
 import TutorStudentDetails from "@/components/tutor/TutorStudentDetails";
 

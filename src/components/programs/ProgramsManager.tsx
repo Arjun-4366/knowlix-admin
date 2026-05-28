@@ -8,8 +8,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import SectionCard from "@/components/shared/SectionCard";
 import MediaUpload from "@/components/shared/MediaUpload";
-import { IProgram, ProgramType } from "@/types/program";
-import { useGetPrograms, useCreateProgram, useUpdateProgram, useDeleteProgram } from "@/querys/programQuery";
+import { IProgram, ProgramType } from "@/types/admin/program";
+import { useGetPrograms, useCreateProgram, useUpdateProgram, useDeleteProgram } from "@/querys/admin/programQuery";
 import { useConfirmation } from "@/context/ConfirmationContext";
 import Loader from "@/components/shared/Loader";
 import Image from "next/image";
@@ -26,13 +26,13 @@ export default function ProgramsManager() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (isLoading) return <Loader text="Fetching Programs..." />;
-  
+
   if (isError) {
     return (
       <div className="p-8 text-center bg-red-50 border border-red-100 rounded-2xl">
         <p className="text-red-600 font-semibold">Failed to load programs</p>
         <p className="text-xs text-red-400 mt-1">{(error as any)?.message || "Unknown error"}</p>
-        <button 
+        <button
           onClick={() => window.location.reload()}
           className="mt-4 px-4 py-2 bg-red-600 text-white text-xs font-bold rounded-lg"
         >
@@ -48,28 +48,28 @@ export default function ProgramsManager() {
     setSelectedProgram(
       program
         ? {
-            ...program,
-            rating: Number.isFinite(program.rating) ? program.rating : 5,
-            studentsEnrolled: Number.isFinite(program.studentsEnrolled) ? program.studentsEnrolled : 0,
-            features: (() => {
-              if (Array.isArray(program.features)) return program.features;
-              if (typeof program.features === "string") {
-                try { const p = JSON.parse(program.features); return Array.isArray(p) ? p : []; } catch { return []; }
-              }
-              return [];
-            })(),
-          }
+          ...program,
+          rating: Number.isFinite(program.rating) ? program.rating : 5,
+          studentsEnrolled: Number.isFinite(program.studentsEnrolled) ? program.studentsEnrolled : 0,
+          features: (() => {
+            if (Array.isArray(program.features)) return program.features;
+            if (typeof program.features === "string") {
+              try { const p = JSON.parse(program.features); return Array.isArray(p) ? p : []; } catch { return []; }
+            }
+            return [];
+          })(),
+        }
         : {
-            type: "online",
-            image: "",
-            tag: "",
-            rating: 5,
-            studentsEnrolled: 0,
-            title: "",
-            grade: "",
-            description: "",
-            features: [],
-          }
+          type: "online",
+          image: "",
+          tag: "",
+          rating: 5,
+          studentsEnrolled: 0,
+          title: "",
+          grade: "",
+          description: "",
+          features: [],
+        }
     );
     setIsModalOpen(true);
   };
@@ -177,8 +177,8 @@ export default function ProgramsManager() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <Label>Program Type</Label>
-                  <Select 
-                    value={selectedProgram.type} 
+                  <Select
+                    value={selectedProgram.type}
                     onValueChange={(v: ProgramType) => setSelectedProgram({ ...selectedProgram, type: v })}
                   >
                     <SelectTrigger>
@@ -192,9 +192,9 @@ export default function ProgramsManager() {
                 </div>
                 <div className="space-y-1.5">
                   <Label>Tag (e.g. Popular)</Label>
-                  <Input 
-                    value={selectedProgram.tag} 
-                    onChange={(e) => setSelectedProgram({ ...selectedProgram, tag: e.target.value })} 
+                  <Input
+                    value={selectedProgram.tag}
+                    onChange={(e) => setSelectedProgram({ ...selectedProgram, tag: e.target.value })}
                     placeholder="Badge text"
                   />
                 </div>
@@ -203,17 +203,17 @@ export default function ProgramsManager() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <Label>Title</Label>
-                  <Input 
-                    value={selectedProgram.title} 
-                    onChange={(e) => setSelectedProgram({ ...selectedProgram, title: e.target.value })} 
+                  <Input
+                    value={selectedProgram.title}
+                    onChange={(e) => setSelectedProgram({ ...selectedProgram, title: e.target.value })}
                     placeholder="Program Name"
                   />
                 </div>
                 <div className="space-y-1.5">
                   <Label>Grade / Level</Label>
-                  <Input 
-                    value={selectedProgram.grade} 
-                    onChange={(e) => setSelectedProgram({ ...selectedProgram, grade: e.target.value })} 
+                  <Input
+                    value={selectedProgram.grade}
+                    onChange={(e) => setSelectedProgram({ ...selectedProgram, grade: e.target.value })}
                     placeholder="e.g. Grade 1 - 10"
                   />
                 </div>
@@ -241,9 +241,9 @@ export default function ProgramsManager() {
 
               <div className="space-y-1.5">
                 <Label>Description</Label>
-                <Textarea 
-                  value={selectedProgram.description} 
-                  onChange={(e) => setSelectedProgram({ ...selectedProgram, description: e.target.value })} 
+                <Textarea
+                  value={selectedProgram.description}
+                  onChange={(e) => setSelectedProgram({ ...selectedProgram, description: e.target.value })}
                   rows={3}
                   className="resize-none"
                   placeholder="Program overview..."
@@ -252,7 +252,7 @@ export default function ProgramsManager() {
 
               <div className="space-y-1.5">
                 <Label>Program Image</Label>
-                <MediaUpload 
+                <MediaUpload
                   value={selectedProgram.image}
                   onChange={(val) => setSelectedProgram({ ...selectedProgram, image: val })}
                   ratio="video"
@@ -263,7 +263,7 @@ export default function ProgramsManager() {
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <Label>Key Features</Label>
-                  <button 
+                  <button
                     onClick={addFeature}
                     className="flex items-center gap-1 text-[10px] font-bold text-green-600 hover:text-green-700 uppercase tracking-widest"
                   >
@@ -273,13 +273,13 @@ export default function ProgramsManager() {
                 <div className="space-y-2">
                   {selectedProgram?.features?.map((feature, idx) => (
                     <div key={idx} className="flex gap-2">
-                      <Input 
-                        value={feature} 
-                        onChange={(e) => updateFeature(idx, e.target.value)} 
+                      <Input
+                        value={feature}
+                        onChange={(e) => updateFeature(idx, e.target.value)}
                         placeholder={`Feature ${idx + 1}`}
                         className="h-10 text-sm"
                       />
-                      <button 
+                      <button
                         onClick={() => removeFeature(idx)}
                         className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                       >
@@ -295,13 +295,13 @@ export default function ProgramsManager() {
             </div>
 
             <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-end gap-3">
-              <button 
+              <button
                 onClick={closeModal}
                 className="px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-200 rounded-lg transition-colors"
               >
                 Cancel
               </button>
-              <button 
+              <button
                 onClick={handleSave}
                 disabled={isSubmitting}
                 className="px-6 py-2 bg-[#16a34a] text-white text-sm font-semibold rounded-lg hover:bg-[#15803d] transition-colors shadow-sm disabled:opacity-50"

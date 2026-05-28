@@ -17,7 +17,7 @@ import {
 import { toast } from "react-hot-toast";
 
 import { ProgressReport } from "./TutorReportStats";
-import { Student } from "@/components/students/StudentStats";
+import { Student } from "@/components/admin/students/StudentStats";
 import { Evaluation } from "./TutorAssessmentStats";
 
 interface AttendanceLog {
@@ -450,7 +450,7 @@ export default function TutorReportGenerator({
                 </label>
                 <span className="text-[10px] text-slate-400 font-bold">Quick Presets:</span>
               </div>
-              
+
               {/* Presets Row */}
               <div className="flex flex-wrap gap-1.5 mb-2">
                 {FEEDBACK_PRESETS.map((preset, idx) => (

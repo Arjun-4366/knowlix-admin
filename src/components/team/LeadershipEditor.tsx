@@ -6,8 +6,8 @@ import { Plus, Trash2 } from "lucide-react";
 import SectionCard from "@/components/shared/SectionCard";
 import FormActions from "@/components/shared/FormActions";
 import MediaUpload from "@/components/shared/MediaUpload";
-import { ITeamMember, TeamCategory } from "@/types/team";
-import { useCreateTeamMember, useUpdateTeamMember, useDeleteTeamMember } from "@/querys/teamQuery";
+import { ITeamMember, TeamCategory } from "@/types/admin/team";
+import { useCreateTeamMember, useUpdateTeamMember, useDeleteTeamMember } from "@/querys/admin/teamQuery";
 import { useConfirmation } from "@/context/ConfirmationContext";
 import { toast } from "react-hot-toast";
 
@@ -79,14 +79,14 @@ export default function LeadershipEditor({ initialMembers, category }: Props) {
   return (
     <div className="space-y-6">
       {members.map((m, i) => (
-        <SectionCard 
-          key={i} 
+        <SectionCard
+          key={i}
           title={m.name || `${category} Member ${i + 1}`}
           description={m.role}
         >
           <div className="space-y-4">
             <div className="flex justify-end -mt-10 mb-2">
-              <button 
+              <button
                 onClick={() => remove(m.id, i)}
                 className="text-red-400 hover:text-red-600 p-2 rounded-lg hover:bg-red-50 transition-all"
               >
@@ -98,26 +98,26 @@ export default function LeadershipEditor({ initialMembers, category }: Props) {
               <div className="space-y-4">
                 <div className="space-y-1.5">
                   <Label>Full Name</Label>
-                  <Input 
-                    value={m.name} 
-                    onChange={(e) => update(i, "name", e.target.value)} 
+                  <Input
+                    value={m.name}
+                    onChange={(e) => update(i, "name", e.target.value)}
                     placeholder="e.g. Arjun Mehta"
                   />
                 </div>
                 <div className="space-y-1.5">
                   <Label>Role / Designation</Label>
-                  <Input 
-                    value={m.role} 
-                    onChange={(e) => update(i, "role", e.target.value)} 
+                  <Input
+                    value={m.role}
+                    onChange={(e) => update(i, "role", e.target.value)}
                     placeholder="e.g. Founder & CEO"
                   />
                 </div>
                 <div className="space-y-1.5">
                   <Label>Biography / Summary</Label>
-                  <Textarea 
-                    value={m.description} 
-                    onChange={(e) => update(i, "description", e.target.value)} 
-                    rows={4} 
+                  <Textarea
+                    value={m.description}
+                    onChange={(e) => update(i, "description", e.target.value)}
+                    rows={4}
                     placeholder="Briefly describe their background and vision..."
                   />
                 </div>
@@ -135,9 +135,9 @@ export default function LeadershipEditor({ initialMembers, category }: Props) {
                 </div>
                 <div className="space-y-1.5">
                   <Label>Tags / Credentials (Comma separated)</Label>
-                  <Input 
-                    value={m.tags.join(", ")} 
-                    onChange={(e) => update(i, "tags", e.target.value.split(",").map(s => s.trim()))} 
+                  <Input
+                    value={m.tags.join(", ")}
+                    onChange={(e) => update(i, "tags", e.target.value.split(",").map(s => s.trim()))}
                     placeholder="e.g. B.Tech IIT, 12+ Years Experience"
                   />
                 </div>

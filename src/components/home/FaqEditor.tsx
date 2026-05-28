@@ -5,9 +5,9 @@ import { Label } from "@/components/ui/label";
 import { Trash2, Plus, GripVertical, Save, X } from "lucide-react";
 import SectionCard from "@/components/shared/SectionCard";
 import FormActions from "@/components/shared/FormActions";
-import { useGetFaqs, useCreateFaq, useDeleteFaq } from "@/querys/faqQuery";
+import { useGetFaqs, useCreateFaq, useDeleteFaq } from "@/querys/admin/faqQuery";
 import { useConfirmation } from "@/context/ConfirmationContext";
-import { IFaq } from "@/types/faq";
+import { IFaq } from "@/types/admin/faq";
 import Loader, { ButtonLoader } from "@/components/shared/Loader";
 import { toast } from "react-hot-toast";
 
@@ -62,14 +62,14 @@ export default function FaqEditor({ active = true }: FaqEditorProps) {
       // Since the user provided create endpoint for one item, we'll save the currently modified one or handle all.
       // But usually, an FAQ editor saves the whole list.
       // Let's assume createFaq can handle the current list or we save each.
-      
+
       // Filter out empty items
       const validItems = items.filter(item => item.question.trim() && item.answer.trim());
-      
+
       for (const item of validItems) {
         await createFaqMutation(item);
       }
-      
+
       toast.success("FAQs updated successfully!");
     } catch (error) {
       toast.error("Failed to save FAQs");
@@ -89,26 +89,26 @@ export default function FaqEditor({ active = true }: FaqEditorProps) {
             <div className="flex-1 space-y-4">
               <div className="space-y-1.5">
                 <Label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Question</Label>
-                <Input 
-                  value={faq.question} 
-                  onChange={(e) => update(i, "question", e.target.value)} 
+                <Input
+                  value={faq.question}
+                  onChange={(e) => update(i, "question", e.target.value)}
                   placeholder="e.g. What grades does Knowlix support?"
                   className="bg-white border-gray-100 focus:border-green-400"
                 />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Answer</Label>
-                <Textarea 
-                  value={faq.answer} 
-                  onChange={(e) => update(i, "answer", e.target.value)} 
-                  rows={3} 
+                <Textarea
+                  value={faq.answer}
+                  onChange={(e) => update(i, "answer", e.target.value)}
+                  rows={3}
                   placeholder="Provide a clear, helpful answer..."
                   className="bg-white border-gray-100 focus:border-green-400 resize-none"
                 />
               </div>
             </div>
-            <button 
-              onClick={() => handleDelete(faq.id, i)} 
+            <button
+              onClick={() => handleDelete(faq.id, i)}
               className="opacity-0 group-hover:opacity-100 p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all flex-shrink-0 self-start mt-1"
             >
               <Trash2 className="w-4 h-4" />
@@ -129,7 +129,7 @@ export default function FaqEditor({ active = true }: FaqEditorProps) {
           <Plus className="w-5 h-5" /> Add New FAQ
         </button>
       </div>
-      
+
       <FormActions onSave={save} saving={isSaving} label="Save FAQs" />
     </SectionCard>
   );

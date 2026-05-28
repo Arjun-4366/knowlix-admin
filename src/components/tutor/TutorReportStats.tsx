@@ -2,7 +2,7 @@
 
 import { FileSpreadsheet, Award, Calendar, AlertCircle } from "lucide-react";
 import DashboardStatCard from "@/components/dashboard/shared/DashboardStatCard";
-import { Student } from "@/components/students/StudentStats";
+import { Student } from "@/components/admin/students/StudentStats";
 
 export interface ProgressReport {
   id: string;

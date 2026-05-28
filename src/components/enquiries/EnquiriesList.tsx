@@ -4,8 +4,8 @@ import React, { useState } from "react";
 import { Search, Trash2, MessageSquare, Phone, User, GraduationCap, ChevronDown, ChevronUp } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { IEnquiry, EnquiryStatus } from "@/types/enquiry";
-import { useGetEnquiries, useUpdateEnquiryStatus, useDeleteEnquiry } from "@/querys/enquiryQuery";
+import { IEnquiry, EnquiryStatus } from "@/types/admin/enquiry";
+import { useGetEnquiries, useUpdateEnquiryStatus, useDeleteEnquiry } from "@/querys/admin/enquiryQuery";
 import { useConfirmation } from "@/context/ConfirmationContext";
 import Loader from "@/components/shared/Loader";
 import SectionCard from "@/components/shared/SectionCard";
@@ -97,11 +97,11 @@ export default function EnquiriesList() {
           <div className="flex gap-2 w-full sm:w-auto">
             <div className="relative flex-1 sm:w-64">
               <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-              <Input 
-                value={search} 
-                onChange={(e) => setSearch(e.target.value)} 
-                placeholder="Search..." 
-                className="pl-9 h-9 text-xs rounded-lg border-gray-200" 
+              <Input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search..."
+                className="pl-9 h-9 text-xs rounded-lg border-gray-200"
               />
             </div>
             <Select value={filter} onValueChange={(v: any) => setFilter(v)}>
@@ -154,12 +154,12 @@ export default function EnquiriesList() {
                       </td>
                       <td className="px-6 py-4">
                         <div onClick={(e) => e.stopPropagation()}>
-                          <Select 
-                            value={enq.status} 
+                          <Select
+                            value={enq.status}
                             onValueChange={(v: EnquiryStatus) => handleStatusChange(enq.id, v)}
                           >
-                            <SelectTrigger 
-                              className="h-6 w-24 text-[10px] font-bold uppercase tracking-wider border-none rounded-full" 
+                            <SelectTrigger
+                              className="h-6 w-24 text-[10px] font-bold uppercase tracking-wider border-none rounded-full"
                               style={{ background: sc.bg, color: sc.text }}
                             >
                               <SelectValue />

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PageHeader from "@/components/shared/PageHeader";
 import LeadershipEditor from "@/components/team/LeadershipEditor";
-import { useGetTeam } from "@/querys/teamQuery";
+import { useGetTeam } from "@/querys/admin/teamQuery";
 import Loader from "@/components/shared/Loader";
 
 export default function TeamPageAdmin() {
@@ -23,13 +23,13 @@ export default function TeamPageAdmin() {
   return (
     <div className="max-w-5xl">
       <PageHeader title="Team Management" description="Manage profiles across Leadership, Advisory, Core Team, and Mentors" />
-      
+
       <Tabs defaultValue="Leadership" onValueChange={(v) => setActiveTab(v)}>
         <TabsList className="mb-6 flex gap-1 bg-white border border-gray-200 rounded-xl p-1 w-fit">
           {["Leadership", "Advisory", "Core Team", "Mentor"].map((tab) => (
-            <TabsTrigger 
-              key={tab} 
-              value={tab} 
+            <TabsTrigger
+              key={tab}
+              value={tab}
               className="rounded-lg text-sm px-3 py-1.5 data-[state=active]:shadow-none data-[state=active]:text-white data-[state=active]:bg-[#16a34a]"
             >
               {tab}

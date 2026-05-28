@@ -1,10 +1,8 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
-import { useRouter } from "next/navigation";
-import { Plus, Check, Search } from "lucide-react";
+import { useState, useMemo, Suspense } from "react";
+import { Plus, Search } from "lucide-react";
 import DashboardHeader from "@/components/dashboard/shared/DashboardHeader";
-import { Student } from "@/components/students/StudentStats";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -15,131 +13,32 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { useConfirmation } from "@/context/ConfirmationContext";
 
 // Modular Component Imports
 import TutorStats from "@/components/tutors/TutorStats";
 import TutorTable from "@/components/tutors/TutorTable";
 import AddTutorForm from "@/components/tutors/AddTutorForm";
+import TutorTableSkeleton from "@/components/tutors/TutorTableSkeleton";
 
-// Interface Definitions
-export interface Tutor {
-  id: string;
-  name: string;
-  email: string;
-  subject: string;
-  experience: string;
-  availability: string; // "Full-time" | "Part-time" | "Weekends Only"
-  status: "Pending HR Approval" | "Approved";
-  permissions: {
-    uploadNotes: boolean;
-    editNotes: boolean;
-    shareMaterials: boolean;
-  };
-  growthMetrics: {
-    growthOfStudents: number; // 1-5
-    responsibility: number;   // 1-5
-    ownership: number;        // 1-5
-    workEthics: number;       // 1-5
-    teamwork: number;         // 1-5
-    honesty: number;          // 1-5
-  };
-}
-
-// Initial Mock Tutors Data
-const initialTutors: Tutor[] = [
-  {
-    id: "TUT-001",
-    name: "Dr. Ramesh Prasad",
-    email: "ramesh.prasad@knowlix.com",
-    subject: "Advanced Physics",
-    experience: "8 years",
-    availability: "Full-time",
-    status: "Approved",
-    permissions: { uploadNotes: true, editNotes: true, shareMaterials: true },
-    growthMetrics: { growthOfStudents: 5, responsibility: 5, ownership: 5, workEthics: 5, teamwork: 4, honesty: 5 }
-  },
-  {
-    id: "TUT-002",
-    name: "Sarah Jenkins",
-    email: "sarah.j@knowlix.com",
-    subject: "English Literature",
-    experience: "5 years",
-    availability: "Part-time",
-    status: "Approved",
-    permissions: { uploadNotes: true, editNotes: false, shareMaterials: true },
-    growthMetrics: { growthOfStudents: 4, responsibility: 5, ownership: 4, workEthics: 5, teamwork: 5, honesty: 5 }
-  },
-  {
-    id: "TUT-003",
-    name: "Amit Shah",
-    email: "amit.shah@knowlix.com",
-    subject: "Mathematics (JEE)",
-    experience: "12 years",
-    availability: "Full-time",
-    status: "Approved",
-    permissions: { uploadNotes: true, editNotes: true, shareMaterials: true },
-    growthMetrics: { growthOfStudents: 5, responsibility: 5, ownership: 5, workEthics: 4, teamwork: 5, honesty: 5 }
-  },
-  {
-    id: "TUT-004",
-    name: "Priya Nair",
-    email: "priya.nair@knowlix.com",
-    subject: "Organic Chemistry",
-    experience: "6 years",
-    availability: "Part-time",
-    status: "Approved",
-    permissions: { uploadNotes: true, editNotes: false, shareMaterials: false },
-    growthMetrics: { growthOfStudents: 4, responsibility: 4, ownership: 4, workEthics: 4, teamwork: 4, honesty: 5 }
-  },
-  {
-    id: "TUT-005",
-    name: "David Miller",
-    email: "david.m@knowlix.com",
-    subject: "Computer Science (Python)",
-    experience: "4 years",
-    availability: "Full-time",
-    status: "Approved",
-    permissions: { uploadNotes: true, editNotes: true, shareMaterials: false },
-    growthMetrics: { growthOfStudents: 4, responsibility: 5, ownership: 5, workEthics: 5, teamwork: 4, honesty: 5 }
-  },
-  {
-    id: "TUT-006",
-    name: "Ananya Roy",
-    email: "ananya.roy@knowlix.com",
-    subject: "Biology",
-    experience: "7 years",
-    availability: "Part-time",
-    status: "Approved",
-    permissions: { uploadNotes: false, editNotes: false, shareMaterials: true },
-    growthMetrics: { growthOfStudents: 4, responsibility: 4, ownership: 5, workEthics: 4, teamwork: 5, honesty: 5 }
-  },
-  {
-    id: "TUT-007",
-    name: "Vikram Malhotra",
-    email: "vikram.m@knowlix.com",
-    subject: "Chemistry",
-    experience: "3 years",
-    availability: "Part-time",
-    status: "Pending HR Approval",
-    permissions: { uploadNotes: false, editNotes: false, shareMaterials: false },
-    growthMetrics: { growthOfStudents: 3, responsibility: 3, ownership: 3, workEthics: 3, teamwork: 3, honesty: 3 }
-  },
-  {
-    id: "TUT-008",
-    name: "Sneha Sen",
-    email: "sneha.sen@knowlix.com",
-    subject: "Mathematics",
-    experience: "2 years",
-    availability: "Part-time",
-    status: "Pending HR Approval",
-    permissions: { uploadNotes: false, editNotes: false, shareMaterials: false },
-    growthMetrics: { growthOfStudents: 3, responsibility: 3, ownership: 3, workEthics: 3, teamwork: 3, honesty: 3 }
-  }
-];
+import {
+  useGetTutors,
+  useCreateTutor,
+  useUpdateTutor,
+  useDeleteTutor,
+  useApproveTutor,
+} from "@/querys/admin/tutorQuery";
+import { ICreateTutorPayload, ITutor } from "@/types/admin/tutor";
+import { Skeleton } from "@/components/ui/skeleton";
 
 function TutorsContent() {
-  const [tutors, setTutors] = useState<Tutor[]>([]);
-  const [students, setStudents] = useState<Student[]>([]);
+  const { confirm } = useConfirmation();
+  const { data: tutorsResponse, isLoading } = useGetTutors();
+  const { mutateAsync: createTutor, isPending: isCreating } = useCreateTutor();
+  const { mutateAsync: updateTutor, isPending: isUpdating } = useUpdateTutor();
+  const { mutateAsync: deleteTutor } = useDeleteTutor();
+  const { mutateAsync: approveTutor } = useApproveTutor();
+
   const [activeTab, setActiveTab] = useState<"active" | "recruitment">("active");
 
   // Search & Filter State
@@ -149,140 +48,117 @@ function TutorsContent() {
 
   // Modal State
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [tutorToEdit, setTutorToEdit] = useState<ITutor | null>(null);
 
-  // Load from Local Storage
-  useEffect(() => {
-    const storedTutors = localStorage.getItem("knowlix_tutors");
-    if (storedTutors) {
-      try {
-        setTutors(JSON.parse(storedTutors));
-      } catch (e) {
-        console.error("Error parsing stored tutors:", e);
-      }
-    } else {
-      localStorage.setItem("knowlix_tutors", JSON.stringify(initialTutors));
-      setTutors(initialTutors);
-    }
-
-    const storedStudents = localStorage.getItem("knowlix_students");
-    if (storedStudents) {
-      try {
-        setStudents(JSON.parse(storedStudents));
-      } catch (e) {
-        console.error("Error parsing stored students:", e);
-      }
-    }
-  }, []);
-
-  const saveTutorsState = (updatedList: Tutor[]) => {
-    setTutors(updatedList);
-    localStorage.setItem("knowlix_tutors", JSON.stringify(updatedList));
-  };
-
-  const triggerToast = (msg: string) => {
-    setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 3050);
-  };
+  const tutorsList = useMemo(() => {
+    return tutorsResponse?.data ?? [];
+  }, [tutorsResponse]);
 
   // HR Action: Approve and Admit Tutor
-  const handleApproveTutor = (tutorId: string) => {
-    const updated = tutors.map(t =>
-      t.id === tutorId ? { ...t, status: "Approved" as const } : t
-    );
-    saveTutorsState(updated);
-    const name = tutors.find(t => t.id === tutorId)?.name || "Tutor";
-    triggerToast(`HR Approved & Admitted: "${name}" is now active in the system.`);
+  const handleApproveTutor = async (tutorId: string) => {
+    const tutorName = tutorsList.find(t => t.id === tutorId)?.name || "Tutor";
+    confirm({
+      title: "Approve Tutor",
+      message: `Are you sure you want to approve & admit "${tutorName}" as an active tutor?`,
+      confirmText: "Approve",
+      onConfirm: async () => {
+        try {
+          await approveTutor({ id: tutorId, status: "approved" });
+        } catch (error) {
+          console.error(error);
+        }
+      },
+    });
   };
 
+  const handleEditTutor = (tutorId: string) => {
+    const tutor = tutorsList.find(t => t.id === tutorId);
+    if (tutor) {
+      setTutorToEdit(tutor);
+      setIsAddModalOpen(true);
+    }
+  };
 
+  const handleDeleteTutor = (tutorId: string) => {
+    const tutorName = tutorsList.find(t => t.id === tutorId)?.name || "this tutor";
+    confirm({
+      title: "Delete Tutor",
+      message: `Are you sure you want to delete "${tutorName}"? This action cannot be undone.`,
+      confirmText: "Delete",
+      variant: "danger",
+      onConfirm: async () => {
+        try {
+          await deleteTutor(tutorId);
+        } catch (error) {
+          console.error(error);
+        }
+      },
+    });
+  };
 
-  // Register New Tutor
-  const handleAddTutor = (tutorData: {
-    name: string;
-    email: string;
-    subject: string;
-    experienceNum: string;
-    availability: string;
-    status: "Pending HR Approval" | "Approved";
-  }) => {
-    const nextIdNum = tutors.length > 0 ? Math.max(...tutors.map(t => parseInt(t.id.split("-")[1]))) + 1 : 1;
-    const nextId = `TUT-${String(nextIdNum).padStart(3, "0")}`;
+  const handleFormSubmit = async (payload: ICreateTutorPayload) => {
+    try {
+      if (tutorToEdit) {
+        await updateTutor({ id: tutorToEdit.id, data: payload });
+        setTutorToEdit(null);
+      } else {
+        await createTutor(payload);
+      }
+      setIsAddModalOpen(false);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
-    const newTutor: Tutor = {
-      id: nextId,
-      name: tutorData.name,
-      email: tutorData.email,
-      subject: tutorData.subject,
-      experience: `${tutorData.experienceNum} years`,
-      availability: tutorData.availability,
-      status: tutorData.status,
-      permissions: { uploadNotes: false, editNotes: false, shareMaterials: false },
-      growthMetrics: { growthOfStudents: 3, responsibility: 3, ownership: 3, workEthics: 3, teamwork: 3, honesty: 3 }
-    };
-
-    saveTutorsState([...tutors, newTutor]);
+  const handleCloseModal = () => {
     setIsAddModalOpen(false);
-    triggerToast(`Tutor "${tutorData.name}" registered successfully!`);
-  };
-
-  // Calculate overall performance rating average for a tutor
-  const calculateTutorAverage = (tutor: Tutor) => {
-    const m = tutor.growthMetrics;
-    const sum = m.growthOfStudents + m.responsibility + m.ownership + m.workEthics + m.teamwork + m.honesty;
-    return (sum / 6).toFixed(2);
+    setTutorToEdit(null);
   };
 
   // Overall stats calculations
-  const totalTutors = tutors.length;
-  const activeCount = tutors.filter(t => t.status === "Approved").length;
-  const pendingCount = tutors.filter(t => t.status === "Pending HR Approval").length;
+  const totalTutors = tutorsList.length;
+  const activeCount = tutorsList.filter(t => t.status === "approved").length;
+  const pendingCount = tutorsList.filter(t => t.status === "pending").length;
 
-  const companyAverage = (() => {
-    const approvedTutors = tutors.filter(t => t.status === "Approved");
+  const companyAverage = useMemo(() => {
+    const approvedTutors = tutorsList.filter(t => t.status === "approved");
     if (approvedTutors.length === 0) return "0.0";
-    const sum = approvedTutors.reduce((acc, t) => acc + parseFloat(calculateTutorAverage(t)), 0);
-    return (sum / approvedTutors.length).toFixed(2);
-  })();
+    const sum = approvedTutors.reduce((acc, t) => acc + (t.performanceScore || 0), 0);
+    return (sum / approvedTutors.length).toFixed(1);
+  }, [tutorsList]);
 
   // Filter & Search Logic
-  const filteredTutors = tutors.filter((tutor) => {
-    const matchesTab = activeTab === "active" ? tutor.status === "Approved" : tutor.status === "Pending HR Approval";
+  const filteredTutors = useMemo(() => {
+    return tutorsList.filter((tutor) => {
+      const matchesTab = activeTab === "active" ? tutor.status === "approved" : tutor.status === "pending";
 
-    const matchesSearch =
-      tutor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      tutor.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      tutor.subject.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesSearch =
+        tutor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        tutor.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (tutor.subjects && tutor.subjects.some(s => s.toLowerCase().includes(searchQuery.toLowerCase())));
 
-    const matchesSubject = subjectFilter === "All" || tutor.subject.toLowerCase().includes(subjectFilter.toLowerCase());
+      const matchesSubject =
+        subjectFilter === "All" ||
+        (tutor.subjects && tutor.subjects.some(s => s.toLowerCase().includes(subjectFilter.toLowerCase())));
 
-    let matchesExp = true;
-    if (expFilter === "<5") {
-      const yrs = parseInt(tutor.experience);
-      matchesExp = yrs < 5;
-    } else if (expFilter === "5-10") {
-      const yrs = parseInt(tutor.experience);
-      matchesExp = yrs >= 5 && yrs <= 10;
-    } else if (expFilter === ">10") {
-      const yrs = parseInt(tutor.experience);
-      matchesExp = yrs > 10;
-    }
+      let matchesExp = true;
+      if (expFilter === "<5") {
+        const yrs = parseInt(tutor.experience) || 0;
+        matchesExp = yrs < 5;
+      } else if (expFilter === "5-10") {
+        const yrs = parseInt(tutor.experience) || 0;
+        matchesExp = yrs >= 5 && yrs <= 10;
+      } else if (expFilter === ">10") {
+        const yrs = parseInt(tutor.experience) || 0;
+        matchesExp = yrs > 10;
+      }
 
-    return matchesTab && matchesSearch && matchesSubject && matchesExp;
-  });
+      return matchesTab && matchesSearch && matchesSubject && matchesExp;
+    });
+  }, [tutorsList, activeTab, searchQuery, subjectFilter, expFilter]);
 
   return (
     <div className="space-y-8 w-full relative pb-10">
-      {/* Toast Notification */}
-      {toastMessage && (
-        <div className="fixed top-4 right-4 z-50 bg-[var(--brand-dark)] text-white border border-slate-700/30 px-4 py-3 rounded-xl shadow-xl flex items-center gap-2 animate-in fade-in slide-in-from-top-4 duration-300">
-          <div className="w-5 h-5 rounded-full bg-[var(--brand-green)] flex items-center justify-center flex-shrink-0">
-            <Check className="w-3.5 h-3.5 text-white" />
-          </div>
-          <span className="text-sm font-semibold">{toastMessage}</span>
-        </div>
-      )}
-
       {/* Header Banner */}
       <DashboardHeader
         title="Tutors Management"
@@ -299,12 +175,21 @@ function TutorsContent() {
       />
 
       {/* Stats Section */}
-      <TutorStats
-        totalTutors={totalTutors}
-        activeCount={activeCount}
-        pendingCount={pendingCount}
-        companyAverage={companyAverage}
-      />
+      {isLoading ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <Skeleton className="h-32 w-full rounded-2xl" />
+          <Skeleton className="h-32 w-full rounded-2xl" />
+          <Skeleton className="h-32 w-full rounded-2xl" />
+          <Skeleton className="h-32 w-full rounded-2xl" />
+        </div>
+      ) : (
+        <TutorStats
+          totalTutors={totalTutors}
+          activeCount={activeCount}
+          pendingCount={pendingCount}
+          companyAverage={companyAverage}
+        />
+      )}
 
       {/* Tabs & Filters */}
       <Tabs
@@ -318,13 +203,13 @@ function TutorsContent() {
             value="active"
             className="rounded-lg text-sm px-3 py-1.5 data-[state=active]:shadow-none data-[state=active]:text-white"
           >
-            Active Tutors ({activeCount})
+            Active Tutors ({isLoading ? 0 : activeCount})
           </TabsTrigger>
           <TabsTrigger
             value="recruitment"
             className="rounded-lg text-sm px-3 py-1.5 data-[state=active]:shadow-none data-[state=active]:text-white"
           >
-            Recruitment Pool ({pendingCount})
+            Recruitment Pool ({isLoading ? 0 : pendingCount})
           </TabsTrigger>
         </TabsList>
 
@@ -350,9 +235,11 @@ function TutorsContent() {
                 <SelectItem value="All">All Subject Expertise</SelectItem>
                 <SelectItem value="Physics">Physics</SelectItem>
                 <SelectItem value="Mathematics">Mathematics</SelectItem>
+                <SelectItem value="Maths">Maths</SelectItem>
                 <SelectItem value="English">English</SelectItem>
                 <SelectItem value="Biology">Biology</SelectItem>
                 <SelectItem value="Chemistry">Chemistry</SelectItem>
+                <SelectItem value="Science">Science</SelectItem>
                 <SelectItem value="Computer Science">Computer Science</SelectItem>
               </SelectContent>
             </Select>
@@ -371,30 +258,39 @@ function TutorsContent() {
           </div>
         </div>
 
-        {/* Directory Table (shared across both tabs — filtered by activeTab state) */}
-        <TabsContent value="active" forceMount className="data-[state=inactive]:hidden mt-0">
-          <TutorTable
-            tutors={filteredTutors}
-            students={students}
-            onApproveTutor={handleApproveTutor}
-          />
-        </TabsContent>
-        <TabsContent value="recruitment" forceMount className="data-[state=inactive]:hidden mt-0">
-          <TutorTable
-            tutors={filteredTutors}
-            students={students}
-            onApproveTutor={handleApproveTutor}
-          />
-        </TabsContent>
+        {/* Directory Table */}
+        {isLoading ? (
+          <TutorTableSkeleton />
+        ) : (
+          <>
+            <TabsContent value="active" forceMount className="data-[state=inactive]:hidden mt-0">
+              <TutorTable
+                tutors={filteredTutors}
+                onApproveTutor={handleApproveTutor}
+                onEditTutor={handleEditTutor}
+                onDeleteTutor={handleDeleteTutor}
+              />
+            </TabsContent>
+            <TabsContent value="recruitment" forceMount className="data-[state=inactive]:hidden mt-0">
+              <TutorTable
+                tutors={filteredTutors}
+                onApproveTutor={handleApproveTutor}
+                onEditTutor={handleEditTutor}
+                onDeleteTutor={handleDeleteTutor}
+              />
+            </TabsContent>
+          </>
+        )}
       </Tabs>
 
-
-      {/* Add Tutor Modal Dialog */}
+      {/* Add/Edit Tutor Modal Dialog */}
       {isAddModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 animate-in fade-in duration-200">
           <AddTutorForm
-            onClose={() => setIsAddModalOpen(false)}
-            onSubmit={handleAddTutor}
+            onClose={handleCloseModal}
+            onSubmit={handleFormSubmit}
+            isSubmitting={isCreating || isUpdating}
+            tutorToEdit={tutorToEdit || undefined}
           />
         </div>
       )}

@@ -1,13 +1,35 @@
 "use client";
 
-import { use, useState, useEffect } from "react";
+import { Suspense, use } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Check, FileText, CheckCircle, Info, ShieldAlert, GraduationCap, MapPin, User, UserCheck } from "lucide-react";
-import { Student } from "@/components/students/StudentStats";
+import {
+  ArrowLeft,
+  CheckCircle,
+  FileText,
+  GraduationCap,
+  Info,
+  MapPin,
+  ShieldAlert,
+  User,
+  UserCheck,
+} from "lucide-react";
+import { ButtonLoader } from "@/components/shared/Loader";
+import {
+  formatAdmissionStatus,
+  formatPackage,
+  getSubmittedDocumentLabels,
+} from "@/components/admin/students/studentMapper";
 import { cn } from "@/lib/utils";
+import {
+  useGetStudent,
+  useGetStudentDocuments,
+  useUpdateStudent,
+} from "@/querys/admin/studentQuery";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -20,376 +42,396 @@ interface PageProps {
   params: Promise<{ id: string }>;
 }
 
-import { Suspense } from "react";
+const documentCards = [
+  { key: "birthCertificate", label: "Birth Certificate" },
+  { key: "transferCertificate", label: "Transfer Certificate" },
+  { key: "previousAcademicRecord", label: "Previous Academic Records" },
+  { key: "identificationDocument", label: "Identification Documents" },
+] as const;
+
+const getStatusBadgeClass = (status: string) => {
+  switch (formatAdmissionStatus(status)) {
+    case "Approved":
+      return "bg-[var(--brand-light-green)] text-[var(--brand-mid)] border-[var(--brand-light)]/20";
+    case "Pending":
+    case "In Review":
+      return "bg-slate-50 text-slate-650 border-slate-200/60";
+    case "Inactive":
+      return "bg-amber-50 text-amber-700 border-amber-200";
+    case "Rejected":
+      return "bg-slate-100 text-slate-500 border-slate-200";
+    default:
+      return "bg-slate-100 text-slate-700 border-slate-200";
+  }
+};
 
 function StudentDetailsContent({ params }: PageProps) {
   const { id } = use(params);
   const router = useRouter();
+  const { data: student, isLoading } = useGetStudent(id);
+  const { data: documentResponse } = useGetStudentDocuments(id);
+  const { mutateAsync: updateStudent, isPending: isUpdating } = useUpdateStudent();
 
-  const [students, setStudents] = useState<Student[]>([]);
-  const [student, setStudent] = useState<Student | null>(null);
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
-
-  // Load students database from localStorage
-  useEffect(() => {
-    const stored = localStorage.getItem("knowlix_students");
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored) as Student[];
-        setStudents(parsed);
-        const match = parsed.find((s) => s.id === id);
-        if (match) {
-          setStudent(match);
-        }
-      } catch (e) {
-        console.error("Error loading students:", e);
-      }
-    }
-  }, [id]);
-
-  const handleUpdateStatus = (newStatus: string) => {
-    if (!student) return;
-
-    const updatedStudent = { ...student, admissionStatus: newStatus };
-    setStudent(updatedStudent);
-
-    const updatedList = students.map((s) => (s.id === student.id ? updatedStudent : s));
-    setStudents(updatedList);
-    localStorage.setItem("knowlix_students", JSON.stringify(updatedList));
-
-    triggerToast(`Updated status to "${newStatus}"`);
-  };
-
-  const handleUpdateAssignment = (field: keyof Student, value: string) => {
-    if (!student) return;
-
-    const updatedStudent = { ...student, [field]: value };
-    setStudent(updatedStudent);
-
-    const updatedList = students.map((s) => (s.id === student.id ? updatedStudent : s));
-    setStudents(updatedList);
-    localStorage.setItem("knowlix_students", JSON.stringify(updatedList));
-
-    let label = "";
-    if (field === "coordinatorName") label = "Academic Coordinator";
-    else if (field === "subjectTutor") label = "Subject Tutor";
-    else if (field === "mentorSalesBro") label = "Mentor - Sales Bro";
-    else label = String(field);
-
-    triggerToast(`Updated ${label} to "${value}"`);
-  };
-
-  const triggerToast = (msg: string) => {
-    setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 3000);
-  };
-
-  const getStatusBadgeClass = (status: string) => {
-    switch (status) {
-      case "Approved":
-        return "bg-[var(--brand-light-green)] text-[var(--brand-mid)] border-[var(--brand-light)]/20";
-      case "Pending Approval":
-      case "Pending":
-      case "In Review":
-        return "bg-slate-50 text-slate-650 border-slate-200/60";
-      case "Rejected":
-        return "bg-slate-100 text-slate-500 border-slate-200";
-      default:
-        return "bg-slate-100 text-slate-700 border-slate-200";
+  const handleUpdateStatus = async (admissionStatus: string) => {
+    try {
+      await updateStudent({ id, data: { admissionStatus } });
+    } catch (error) {
+      console.error(error);
     }
   };
+
+  const handleAssignmentSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+
+    try {
+      await updateStudent({
+        id,
+        data: {
+          coordinatorName: String(formData.get("coordinatorName") || ""),
+          assignedTutorId: String(formData.get("assignedTutorId") || ""),
+          assignedMentorId: String(formData.get("assignedMentorId") || ""),
+          assignedCoordinatorId: String(formData.get("assignedCoordinatorId") || ""),
+        },
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  if (isLoading) {
+    return <div className="p-8 text-center text-slate-500">Loading student details...</div>;
+  }
 
   if (!student) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[50vh] space-y-4">
-        <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-400">
-          <Info className="w-6 h-6" />
+      <div className="flex min-h-[50vh] flex-col items-center justify-center space-y-4">
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-slate-400">
+          <Info className="h-6 w-6" />
         </div>
         <div className="text-center">
-          <h3 className="font-bold text-slate-800 text-lg">Student Not Found</h3>
-          <p className="text-sm text-slate-500 mt-1">We couldn&apos;t find a student matching ID &quot;{id}&quot;.</p>
+          <h3 className="text-lg font-bold text-slate-800">Student Not Found</h3>
+          <p className="mt-1 text-sm text-slate-500">
+            We could not find a student matching ID &quot;{id}&quot;.
+          </p>
         </div>
         <Button
           variant="outline"
           onClick={() => router.push("/admin/students")}
-          className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-slate-650 hover:bg-slate-50 text-sm font-semibold transition-all"
+          className="flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-semibold text-slate-650 transition-all hover:bg-slate-50"
         >
-          <ArrowLeft className="w-4 h-4" />
+          <ArrowLeft className="h-4 w-4" />
           Back to Directory
         </Button>
       </div>
     );
   }
 
-  const docsProgress = student.documentsSubmitted ? student.documentsSubmitted.length : 0;
+  const documents = documentResponse?.documents ?? student.documents;
+  const submittedDocuments = getSubmittedDocumentLabels(documents);
+  const docsProgress = submittedDocuments.length;
+  const displayStatus = formatAdmissionStatus(student.admissionStatus);
 
   return (
-    <div className="space-y-6 pb-12 relative max-w-5xl">
-      {/* Toast Notification */}
-      {toastMessage && (
-        <div className="fixed top-4 right-4 z-50 bg-[var(--brand-dark)] text-white border border-slate-700/30 px-4 py-3 rounded-xl shadow-xl flex items-center gap-2 animate-in fade-in slide-in-from-top-4 duration-300">
-          <div className="w-5 h-5 rounded-full bg-[var(--brand-green)] flex items-center justify-center flex-shrink-0">
-            <Check className="w-3.5 h-3.5 text-white" />
-          </div>
-          <span className="text-sm font-semibold">{toastMessage}</span>
-        </div>
-      )}
-
-      {/* Back Link */}
+    <div className="relative max-w-5xl space-y-6 pb-12">
       <div>
         <button
           onClick={() => router.push("/admin/students")}
-          className="flex items-center gap-2 text-slate-500 hover:text-[var(--brand-green)] font-semibold text-sm transition-colors cursor-pointer group"
+          className="group flex items-center gap-2 text-sm font-semibold text-slate-500 transition-colors hover:text-[var(--brand-green)]"
         >
-          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
+          <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-0.5" />
           Back to Students Directory
         </button>
       </div>
 
-      {/* Student Main Profile Header Panel */}
-      <Card className="bg-white border-slate-150 p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-sm">
+      <Card className="flex flex-col justify-between gap-6 border-slate-150 bg-white p-6 shadow-sm md:flex-row md:items-center">
         <div className="flex items-center gap-4">
-          <div className="w-16 h-16 rounded-full bg-[var(--brand-light-green)] flex items-center justify-center font-bold text-[var(--brand-green)] text-2xl border border-[var(--brand-light)]/20 shadow-inner">
-            {student.name.charAt(0)}
+          <div className="flex h-16 w-16 items-center justify-center rounded-full border border-[var(--brand-light)]/20 bg-[var(--brand-light-green)] text-2xl font-bold text-[var(--brand-green)] shadow-inner">
+            {student.studentName.charAt(0)}
           </div>
           <div>
-            <div className="flex items-center flex-wrap gap-2.5">
-              <h1 className="text-2xl font-bold text-slate-800 tracking-tight">{student.name}</h1>
-              <Badge variant="outline" className="text-xs font-semibold px-2 py-0.5 rounded-md bg-slate-100 text-slate-500 border border-slate-200">
+            <div className="flex flex-wrap items-center gap-2.5">
+              <h1 className="text-2xl font-bold text-slate-800">
+                {student.studentName}
+              </h1>
+              <Badge
+                variant="outline"
+                className="rounded-md border border-slate-200 bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-500"
+              >
                 {student.id}
               </Badge>
             </div>
-            <p className="text-sm text-slate-550 font-semibold mt-1">
-              {student.courseName ? `${student.courseName} / ` : ""}
-              {student.courseType} • {student.grade}
+            <p className="mt-1 text-sm font-semibold text-slate-550">
+              {student.courseType} / Grade {student.class}
             </p>
           </div>
         </div>
 
-        {/* Status Actions */}
-        <div className="flex flex-col sm:flex-row sm:items-center gap-3 border-t md:border-t-0 pt-4 md:pt-0">
+        <div className="flex flex-col gap-3 border-t pt-4 sm:flex-row sm:items-center md:border-t-0 md:pt-0">
           <div className="text-left sm:text-right">
-            <span className="block text-[10px] uppercase font-bold text-slate-400">Admission Status</span>
-            <Badge variant="outline" className={cn(
-              "inline-flex px-3 py-1 rounded-full text-xs font-bold border mt-1 shadow-sm h-6",
-              getStatusBadgeClass(student.admissionStatus)
-            )}>
-              {student.admissionStatus}
+            <span className="block text-[10px] font-bold uppercase text-slate-400">
+              Admission Status
+            </span>
+            <Badge
+              variant="outline"
+              className={cn(
+                "mt-1 inline-flex h-6 rounded-full border px-3 py-1 text-xs font-bold shadow-sm",
+                getStatusBadgeClass(student.admissionStatus),
+              )}
+            >
+              {displayStatus}
             </Badge>
           </div>
 
           <div className="w-full sm:w-auto">
-            <span className="block text-[10px] uppercase font-bold text-slate-400 mb-1">Modify Status</span>
-            <Select value={student.admissionStatus} onValueChange={handleUpdateStatus}>
-              <SelectTrigger className="px-3.5 py-1.5 text-xs font-bold bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl w-full sm:w-44 justify-between h-9 text-slate-700">
-                <SelectValue placeholder={student.admissionStatus} />
+            <span className="mb-1 block text-[10px] font-bold uppercase text-slate-400">
+              Modify Status
+            </span>
+            <Select
+              value={student.admissionStatus}
+              onValueChange={handleUpdateStatus}
+              disabled={isUpdating}
+            >
+              <SelectTrigger className="h-9 w-full justify-between rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-100 sm:w-44">
+                <SelectValue placeholder={displayStatus} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Pending Approval">Pending Approval</SelectItem>
-                <SelectItem value="In Review">In Review</SelectItem>
-                <SelectItem value="Approved">Approved</SelectItem>
-                <SelectItem value="Rejected">Rejected</SelectItem>
+                <SelectItem value="active">Active</SelectItem>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="in_review">In Review</SelectItem>
+                <SelectItem value="inactive">Inactive</SelectItem>
+                <SelectItem value="rejected">Rejected</SelectItem>
               </SelectContent>
             </Select>
           </div>
         </div>
       </Card>
 
-      {/* Main Info Blocks */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Academic Card */}
-        <Card className="bg-white border-slate-150 shadow-sm">
-          <CardHeader className="p-6 pb-3 border-b border-slate-100">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+        <Card className="border-slate-150 bg-white shadow-sm">
+          <CardHeader className="border-b border-slate-100 p-6 pb-3">
             <div className="flex items-center gap-2">
-              <GraduationCap className="w-5 h-5 text-[var(--brand-green)]" />
-              <CardTitle className="font-bold text-slate-800 text-sm uppercase tracking-wider">Academic Profile</CardTitle>
+              <GraduationCap className="h-5 w-5 text-[var(--brand-green)]" />
+              <CardTitle className="text-sm font-bold uppercase tracking-wider text-slate-800">
+                Academic Profile
+              </CardTitle>
             </div>
           </CardHeader>
-          <CardContent className="p-6 pt-3 space-y-3.5">
+          <CardContent className="space-y-3.5 p-6 pt-3">
             <div>
-              <span className="block text-[10px] uppercase font-bold text-slate-400">Class / Grade</span>
-              <span className="text-sm font-semibold text-slate-700">{student.grade}</span>
-            </div>
-            <div>
-              <span className="block text-[10px] uppercase font-bold text-slate-400">Course / Program</span>
-              <span className="text-sm font-semibold text-slate-700">{student.courseType}</span>
-            </div>
-            <div>
-              <span className="block text-[10px] uppercase font-bold text-slate-400">Course Subject</span>
-              <span className="text-sm font-semibold text-slate-700">{student.courseName || "General"}</span>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Administration Info */}
-        <Card className="bg-white border-slate-150 shadow-sm">
-          <CardHeader className="p-6 pb-3 border-b border-slate-100">
-            <div className="flex items-center gap-2">
-              <UserCheck className="w-5 h-5 text-[var(--brand-green)]" />
-              <CardTitle className="font-bold text-slate-800 text-sm uppercase tracking-wider">Registration Info</CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent className="p-6 pt-3 space-y-3.5">
-            <div>
-              <span className="block text-[10px] uppercase font-bold text-slate-400">Parent / Guardian Name</span>
-              <span className="text-sm font-semibold text-slate-700">{student.parentName}</span>
-            </div>
-            <div>
-              <span className="block text-[10px] uppercase font-bold text-slate-400">Location / Origin</span>
-              <span className="text-sm font-semibold text-slate-700 flex items-center gap-1">
-                <MapPin className="w-3.5 h-3.5 text-slate-400" />
-                {student.location}
+              <span className="block text-[10px] font-bold uppercase text-slate-400">
+                Class / Grade
+              </span>
+              <span className="text-sm font-semibold text-slate-700">
+                Grade {student.class}
               </span>
             </div>
             <div>
-              <span className="block text-[10px] uppercase font-bold text-slate-400">Package Selected</span>
-              <span className="text-sm font-semibold text-slate-700">{student.packageSelection}</span>
+              <span className="block text-[10px] font-bold uppercase text-slate-400">
+                Course / Program
+              </span>
+              <span className="text-sm font-semibold text-slate-700">
+                {student.courseType}
+              </span>
+            </div>
+            <div>
+              <span className="block text-[10px] font-bold uppercase text-slate-400">
+                Package Selected
+              </span>
+              <span className="text-sm font-semibold text-slate-700">
+                {formatPackage(student.package, student.customPackageDetails)}
+              </span>
             </div>
           </CardContent>
         </Card>
 
-        {/* Coordinator Profile */}
-        <Card className="bg-white border-slate-150 shadow-sm">
-          <CardHeader className="p-6 pb-3 border-b border-slate-100">
+        <Card className="border-slate-150 bg-white shadow-sm">
+          <CardHeader className="border-b border-slate-100 p-6 pb-3">
             <div className="flex items-center gap-2">
-              <User className="w-5 h-5 text-[var(--brand-green)]" />
-              <CardTitle className="font-bold text-slate-800 text-sm uppercase tracking-wider">Staff Assignments</CardTitle>
+              <UserCheck className="h-5 w-5 text-[var(--brand-green)]" />
+              <CardTitle className="text-sm font-bold uppercase tracking-wider text-slate-800">
+                Registration Info
+              </CardTitle>
             </div>
           </CardHeader>
-          <CardContent className="p-6 pt-3 space-y-4">
-            <div className="space-y-1.5">
-              <span className="block text-[10px] uppercase font-bold text-slate-400">Academic Coordinator</span>
-              <Select
-                value={student.coordinatorName || "David Miller"}
-                onValueChange={(val) => handleUpdateAssignment("coordinatorName", val)}
-              >
-                <SelectTrigger className="w-full text-xs bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-slate-700 h-8 justify-between">
-                  <SelectValue placeholder={student.coordinatorName} />
-                </SelectTrigger>
-                <SelectContent>
-                  {["Dr. Ramesh Prasad", "Amit Shah", "Sarah Jenkins", "David Miller", "Ananya Roy"].map((name) => (
-                    <SelectItem key={name} value={name}>{name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+          <CardContent className="space-y-3.5 p-6 pt-3">
+            <div>
+              <span className="block text-[10px] font-bold uppercase text-slate-400">
+                Parent / Guardian Name
+              </span>
+              <span className="text-sm font-semibold text-slate-700">
+                {student.parentName}
+              </span>
             </div>
-
-            <div className="space-y-1.5">
-              <span className="block text-[10px] uppercase font-bold text-slate-400">Subject Tutor</span>
-              <Select
-                value={student.subjectTutor || "Dr. Ramesh Prasad"}
-                onValueChange={(val) => handleUpdateAssignment("subjectTutor", val)}
-              >
-                <SelectTrigger className="w-full text-xs bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-slate-700 h-8 justify-between">
-                  <SelectValue placeholder={student.subjectTutor} />
-                </SelectTrigger>
-                <SelectContent>
-                  {["Dr. Ramesh Prasad", "Amit Shah", "Sarah Jenkins", "David Miller", "Ananya Roy"].map((name) => (
-                    <SelectItem key={name} value={name}>{name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <div>
+              <span className="block text-[10px] font-bold uppercase text-slate-400">
+                Location / Origin
+              </span>
+              <span className="flex items-center gap-1 text-sm font-semibold text-slate-700">
+                <MapPin className="h-3.5 w-3.5 text-slate-400" />
+                {student.place}
+              </span>
             </div>
-
-            <div className="space-y-1.5">
-              <span className="block text-[10px] uppercase font-bold text-slate-400">Mentor - Sales Bro</span>
-              <Select
-                value={student.mentorSalesBro || "Sarah Jenkins"}
-                onValueChange={(val) => handleUpdateAssignment("mentorSalesBro", val)}
-              >
-                <SelectTrigger className="w-full text-xs bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-slate-700 h-8 justify-between">
-                  <SelectValue placeholder={student.mentorSalesBro} />
-                </SelectTrigger>
-                <SelectContent>
-                  {["Dr. Ramesh Prasad", "Amit Shah", "Sarah Jenkins", "David Miller", "Ananya Roy"].map((name) => (
-                    <SelectItem key={name} value={name}>{name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <div>
+              <span className="block text-[10px] font-bold uppercase text-slate-400">
+                Email
+              </span>
+              <span className="text-sm font-semibold text-slate-700">
+                {student.email || "Not provided"}
+              </span>
             </div>
+          </CardContent>
+        </Card>
 
-            <div className="pt-2 border-t border-slate-100 space-y-1.5">
-              <div className="flex justify-between items-center text-xs">
-                <span className="block text-[10px] uppercase font-bold text-slate-450">School Branch</span>
-                <span className="text-xs font-semibold text-slate-700">Knowlix Learning Center</span>
+        <Card className="border-slate-150 bg-white shadow-sm">
+          <CardHeader className="border-b border-slate-100 p-6 pb-3">
+            <div className="flex items-center gap-2">
+              <User className="h-5 w-5 text-[var(--brand-green)]" />
+              <CardTitle className="text-sm font-bold uppercase tracking-wider text-slate-800">
+                Staff Assignments
+              </CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent className="p-6 pt-3">
+            <form className="space-y-3" onSubmit={handleAssignmentSubmit}>
+              <div className="space-y-1.5">
+                <Label className="text-[10px] font-bold uppercase text-slate-400">
+                  Coordinator Name
+                </Label>
+                <Input
+                  name="coordinatorName"
+                  defaultValue={student.coordinatorName}
+                  className="h-9 rounded-xl border-slate-200 bg-slate-50 text-xs"
+                />
               </div>
-              <div className="flex justify-between items-center text-xs">
-                <span className="block text-[10px] uppercase font-bold text-slate-450">Access Key</span>
-                <span className="text-xs font-mono text-slate-500 uppercase">{student.id.toLowerCase()}-session-prod</span>
+
+              <div className="space-y-1.5">
+                <Label className="text-[10px] font-bold uppercase text-slate-400">
+                  Assigned Tutor ID
+                </Label>
+                <Input
+                  name="assignedTutorId"
+                  defaultValue={student.assignedTutorId || ""}
+                  className="h-9 rounded-xl border-slate-200 bg-slate-50 font-mono text-xs"
+                />
               </div>
-            </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-[10px] font-bold uppercase text-slate-400">
+                  Assigned Mentor ID
+                </Label>
+                <Input
+                  name="assignedMentorId"
+                  defaultValue={student.assignedMentorId || ""}
+                  className="h-9 rounded-xl border-slate-200 bg-slate-50 font-mono text-xs"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-[10px] font-bold uppercase text-slate-400">
+                  Assigned Coordinator ID
+                </Label>
+                <Input
+                  name="assignedCoordinatorId"
+                  defaultValue={student.assignedCoordinatorId || ""}
+                  className="h-9 rounded-xl border-slate-200 bg-slate-50 font-mono text-xs"
+                />
+              </div>
+
+              <Button
+                type="submit"
+                disabled={isUpdating}
+                className="h-9 w-full rounded-xl bg-[var(--brand-green)] text-xs font-bold text-white hover:bg-[var(--brand-mid)]"
+              >
+                {isUpdating ? <ButtonLoader /> : "Update Assignments"}
+              </Button>
+            </form>
           </CardContent>
         </Card>
       </div>
 
-      {/* Document Checklist Panel */}
-      <Card className="bg-white border-slate-150 p-6 space-y-5 shadow-sm">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+      <Card className="space-y-5 border-slate-150 bg-white p-6 shadow-sm">
+        <div className="flex flex-col justify-between gap-4 border-b border-slate-100 pb-4 sm:flex-row sm:items-center">
           <div className="flex items-center gap-2">
-            <FileText className="w-5 h-5 text-[var(--brand-green)]" />
+            <FileText className="h-5 w-5 text-[var(--brand-green)]" />
             <div>
-              <CardTitle className="font-bold text-slate-800 text-sm uppercase tracking-wider">Required Document Submission</CardTitle>
-              <p className="text-xs text-slate-400 mt-0.5">Checked items are verified and approved by the admissions coordinator.</p>
+              <CardTitle className="text-sm font-bold uppercase tracking-wider text-slate-800">
+                Required Document Submission
+              </CardTitle>
+              <p className="mt-0.5 text-xs text-slate-400">
+                Document data is loaded from the student documents endpoint when available.
+              </p>
             </div>
           </div>
 
           <div className="flex items-center gap-3 self-start sm:self-center">
             <div className="text-right">
-              <span className="text-xs font-bold text-slate-700">{docsProgress} / 4 Submitted</span>
+              <span className="text-xs font-bold text-slate-700">
+                {docsProgress} / 4 Submitted
+              </span>
             </div>
-            <div className="w-24 bg-slate-100 h-2 rounded-full overflow-hidden">
+            <div className="h-2 w-24 overflow-hidden rounded-full bg-slate-100">
               <div
-                className="bg-[var(--brand-green)] h-full rounded-full transition-all duration-500"
+                className="h-full rounded-full bg-[var(--brand-green)] transition-all duration-500"
                 style={{ width: `${(docsProgress / 4) * 100}%` }}
               />
             </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {["Birth Certificate", "Transfer Certificate", "Previous Academic Records", "Identification Documents"].map((doc) => {
-            const isSubmitted = student.documentsSubmitted?.includes(doc);
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          {documentCards.map((document) => {
+            const documentUrl = documents?.[document.key];
+            const isSubmitted = Boolean(documentUrl);
 
             return (
               <div
-                key={doc}
+                key={document.key}
                 className={cn(
-                  "p-4 rounded-xl border flex items-center justify-between transition-all",
+                  "flex items-center justify-between rounded-xl border p-4 transition-all",
                   isSubmitted
                     ? "border-[var(--brand-green)]/35 bg-[var(--brand-light-green)]/15"
-                    : "border-slate-200 bg-slate-50/50"
+                    : "border-slate-200 bg-slate-50/50",
                 )}
               >
-                <div className="flex items-center gap-3">
-                  <div className={cn(
-                    "w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 border",
-                    isSubmitted
-                      ? "bg-[var(--brand-light-green)] text-[var(--brand-green)] border-[var(--brand-light)]/20"
-                      : "bg-white text-slate-400 border-slate-200"
-                  )}>
-                    <FileText className="w-4.5 h-4.5" />
+                <div className="flex min-w-0 items-center gap-3">
+                  <div
+                    className={cn(
+                      "flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg border",
+                      isSubmitted
+                        ? "border-[var(--brand-light)]/20 bg-[var(--brand-light-green)] text-[var(--brand-green)]"
+                        : "border-slate-200 bg-white text-slate-400",
+                    )}
+                  >
+                    <FileText className="h-4.5 w-4.5" />
                   </div>
-                  <div>
-                    <h4 className="text-sm font-bold text-slate-700">{doc}</h4>
-                    <p className="text-[10px] text-slate-450 mt-0.5">
-                      {isSubmitted ? "File upload verified" : "Pending parent upload"}
+                  <div className="min-w-0">
+                    <h4 className="text-sm font-bold text-slate-700">
+                      {document.label}
+                    </h4>
+                    <p className="mt-0.5 truncate text-[10px] text-slate-450">
+                      {isSubmitted ? documentUrl : "Pending parent upload"}
                     </p>
                   </div>
                 </div>
 
-                <div>
-                  {isSubmitted ? (
-                    <Badge variant="outline" className="inline-flex items-center gap-1 text-xs font-bold text-[var(--brand-green)] bg-[var(--brand-light-green)] px-2.5 py-1 rounded-lg border border-[var(--brand-light)]/20 shadow-sm h-7">
-                      <CheckCircle className="w-3.5 h-3.5" />
-                      Verified
-                    </Badge>
-                  ) : (
-                    <Badge variant="outline" className="inline-flex items-center gap-1 text-xs font-semibold text-slate-450 bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200 shadow-sm h-7">
-                      <ShieldAlert className="w-3.5 h-3.5" />
-                      Pending
-                    </Badge>
-                  )}
-                </div>
+                {isSubmitted ? (
+                  <Badge
+                    variant="outline"
+                    className="inline-flex h-7 items-center gap-1 rounded-lg border border-[var(--brand-light)]/20 bg-[var(--brand-light-green)] px-2.5 py-1 text-xs font-bold text-[var(--brand-green)] shadow-sm"
+                  >
+                    <CheckCircle className="h-3.5 w-3.5" />
+                    Verified
+                  </Badge>
+                ) : (
+                  <Badge
+                    variant="outline"
+                    className="inline-flex h-7 items-center gap-1 rounded-lg border border-slate-200 bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-450 shadow-sm"
+                  >
+                    <ShieldAlert className="h-3.5 w-3.5" />
+                    Pending
+                  </Badge>
+                )}
               </div>
             );
           })}

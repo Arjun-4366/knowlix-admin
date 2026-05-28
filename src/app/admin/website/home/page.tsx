@@ -7,8 +7,8 @@ import HeroEditor from "@/components/home/HeroEditor";
 import StatsEditor from "@/components/home/StatsEditor";
 import WhyParentsEditor from "@/components/home/WhyParentsEditor";
 import FaqEditor from "@/components/home/FaqEditor";
-import { useGetAbout } from "@/querys/aboutQuery";
-import { IAboutPayload } from "@/types/about";
+import { useGetAbout } from "@/querys/admin/aboutQuery";
+import { IAboutPayload } from "@/types/admin/about";
 import Loader from "@/components/shared/Loader";
 
 const DEFAULT_FORM: IAboutPayload = {
@@ -42,10 +42,10 @@ export default function HomePageAdmin() {
   }
 
   const tabs = [
-    { id: "hero",       label: "Hero" },
-    { id: "stats",      label: "Stats" },
+    { id: "hero", label: "Hero" },
+    { id: "stats", label: "Stats" },
     { id: "why-parents", label: "Why Parents" },
-    { id: "faq",        label: "FAQ" },
+    { id: "faq", label: "FAQ" },
   ];
 
   return (

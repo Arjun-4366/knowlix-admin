@@ -2,10 +2,10 @@
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { IAboutPayload, ISocialMediaLinks } from "@/types/about";
+import { IAboutPayload, ISocialMediaLinks } from "@/types/admin/about";
 import SectionCard from "../shared/SectionCard";
 import FormActions from "../shared/FormActions";
-import { useCreateAbout } from "@/querys/aboutQuery";
+import { useCreateAbout } from "@/querys/admin/aboutQuery";
 import { Globe } from "lucide-react";
 
 interface SocialLinksEditorProps {

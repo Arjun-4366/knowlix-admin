@@ -11,38 +11,38 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Star, CheckCircle2, Eye } from "lucide-react";
-import { Tutor } from "@/app/admin/tutor/page";
-import { Student } from "@/components/students/StudentStats";
+import { Star, CheckCircle2, Eye, Trash2, Pencil } from "lucide-react";
+import { ITutor } from "@/types/admin/tutor";
 
 interface TutorTableProps {
-  tutors: Tutor[];
-  students: Student[];
-  onApproveTutor: (id: string) => void;
+  tutors: ITutor[];
+  onApproveTutor?: (id: string) => void;
+  onDeleteTutor?: (id: string) => void;
+  onEditTutor?: (id: string) => void;
 }
 
 export default function TutorTable({
   tutors,
-  students,
   onApproveTutor,
+  onDeleteTutor,
+  onEditTutor,
 }: TutorTableProps) {
   const router = useRouter();
 
-  const calculateTutorAverage = (tutor: Tutor) => {
-    const m = tutor.growthMetrics;
-    const sum =
-      m.growthOfStudents +
-      m.responsibility +
-      m.ownership +
-      m.workEthics +
-      m.teamwork +
-      m.honesty;
-    return (sum / 6).toFixed(2);
+  const getStatusBadgeClass = (status: string) => {
+    const s = status.toLowerCase();
+    if (s === "approved" || s === "active") {
+      return "bg-[var(--brand-light-green)] text-[var(--brand-mid)] border-[var(--brand-light)]/20";
+    }
+    if (s === "rejected") {
+      return "bg-red-50 text-red-700 border-red-200";
+    }
+    return "bg-amber-50 text-amber-700 border-amber-200";
   };
 
   return (
-    <div className="bg-white border border-slate-150 rounded-2xl shadow-sm overflow-hidden">
-      <Table>
+    <div className="bg-white border border-slate-150 rounded-2xl shadow-sm overflow-hidden w-full">
+      <Table className="w-full">
         <TableHeader className="bg-slate-50/50">
           <TableRow>
             <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[12%]">
@@ -61,7 +61,7 @@ export default function TutorTable({
               Availability
             </TableHead>
             <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[12%]">
-              GROWTH Rating
+              GROWTH Points
             </TableHead>
             <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right w-[8%]">
               Actions
@@ -71,18 +71,15 @@ export default function TutorTable({
         <TableBody className="divide-y divide-slate-100">
           {tutors.length > 0 ? (
             tutors.map((tutor) => {
-              const ratingAvg = calculateTutorAverage(tutor);
-              const assignedStudentsCount = students.filter(
-                (s) => s.subjectTutor === tutor.name
-              ).length;
+              const hasPerformance = tutor.status === "approved";
 
               return (
                 <TableRow
                   key={tutor.id}
                   className="hover:bg-slate-50/60 transition-colors"
                 >
-                  <TableCell className="px-6 py-4 text-sm font-semibold text-slate-500">
-                    {tutor.id}
+                  <TableCell className="px-6 py-4 text-sm font-semibold text-slate-550 truncate max-w-[120px]" title={tutor.id}>
+                    {tutor.id.substring(tutor.id.length - 8)}
                   </TableCell>
                   <TableCell className="px-6 py-4">
                     <div>
@@ -91,7 +88,7 @@ export default function TutorTable({
                     </div>
                   </TableCell>
                   <TableCell className="px-6 py-4 text-sm text-slate-700 font-semibold">
-                    {tutor.subject}
+                    {tutor.subjects && tutor.subjects.length > 0 ? tutor.subjects.join(", ") : "General"}
                   </TableCell>
                   <TableCell className="px-6 py-4 text-sm text-slate-650">
                     {tutor.experience}
@@ -100,29 +97,30 @@ export default function TutorTable({
                     {tutor.availability}
                   </TableCell>
                   <TableCell className="px-6 py-4">
-                    {tutor.status === "Approved" ? (
-                      <div className="flex items-center gap-1">
+                    {hasPerformance ? (
+                      <div className="flex items-center gap-1.5">
                         <Star className="w-3.5 h-3.5 text-[var(--brand-green)] fill-[var(--brand-green)]" />
-                        <span className="text-sm font-bold text-slate-750">{ratingAvg}</span>
+                        <span className="text-sm font-bold text-slate-750">{tutor.performanceScore?.toFixed(1) || "0.0"}</span>
                         <span className="text-[10px] text-slate-400">
-                          ({assignedStudentsCount} active)
+                          ({tutor.growthPoints || 0} pts)
                         </span>
                       </div>
                     ) : (
                       <Badge
                         variant="outline"
-                        className="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-50 text-slate-500 border border-slate-200"
+                        className={`text-xs font-semibold px-2 py-0.5 rounded-full ${getStatusBadgeClass(tutor.status)}`}
                       >
-                        Awaiting HR
+                        {tutor.status === "pending" ? "Awaiting HR" : tutor.status}
                       </Badge>
                     )}
                   </TableCell>
                   <TableCell className="px-6 py-4 text-sm text-right">
                     <div className="flex justify-end items-center gap-1.5">
-                      {tutor.status === "Pending HR Approval" && (
+                      {tutor.status === "pending" && onApproveTutor && (
                         <Button
                           variant="ghost"
                           size="icon-sm"
+                          type="button"
                           onClick={() => onApproveTutor(tutor.id)}
                           title="Admit Tutor (HR Approval)"
                           className="rounded-lg text-slate-400 hover:text-[var(--brand-green)] hover:bg-[var(--brand-light-green)]"
@@ -133,12 +131,37 @@ export default function TutorTable({
                       <Button
                         variant="ghost"
                         size="icon-sm"
+                        type="button"
                         onClick={() => router.push(`/admin/tutor/${tutor.id}`)}
                         title="View Tutor Details"
                         className="rounded-lg text-slate-400 hover:text-[var(--brand-green)] hover:bg-slate-50"
                       >
                         <Eye className="w-4 h-4" />
                       </Button>
+                      {onEditTutor && (
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          type="button"
+                          onClick={() => onEditTutor(tutor.id)}
+                          title="Edit Tutor"
+                          className="rounded-lg text-slate-400 hover:text-[var(--brand-green)] hover:bg-slate-50"
+                        >
+                          <Pencil className="w-4 h-4" />
+                        </Button>
+                      )}
+                      {onDeleteTutor && (
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          type="button"
+                          onClick={() => onDeleteTutor(tutor.id)}
+                          title="Delete Tutor"
+                          className="rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      )}
                     </div>
                   </TableCell>
                 </TableRow>

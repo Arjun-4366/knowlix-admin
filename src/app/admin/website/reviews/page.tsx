@@ -10,9 +10,9 @@ import {
   useGetReviews,
   useCreateReview,
   useDeleteReview,
-} from "@/querys/reviewQuery";
+} from "@/querys/admin/reviewQuery";
 import { useConfirmation } from "@/context/ConfirmationContext";
-import { IReview } from "@/types/review";
+import { IReview } from "@/types/admin/review";
 import { toast } from "react-hot-toast";
 
 import Loader from "@/components/shared/Loader";

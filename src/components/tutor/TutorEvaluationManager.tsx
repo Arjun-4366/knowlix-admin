@@ -23,7 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useConfirmation } from "@/context/ConfirmationContext";
-import { Student } from "@/components/students/StudentStats";
+import { Student } from "@/components/admin/students/StudentStats";
 import { Assignment, Exam, Evaluation } from "./TutorAssessmentStats";
 import { toast } from "react-hot-toast";
 

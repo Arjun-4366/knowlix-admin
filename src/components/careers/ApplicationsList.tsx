@@ -22,8 +22,8 @@ import {
   useUpdateApplicationStatus,
   useDeleteApplication,
   useGetCareersAdmin,
-} from "@/querys/careerQuery";
-import { ICareerApplication, ApplicationStatus } from "@/types/career";
+} from "@/querys/admin/careerQuery";
+import { ICareerApplication, ApplicationStatus } from "@/types/admin/career";
 import { useConfirmation } from "@/context/ConfirmationContext";
 import Loader from "@/components/shared/Loader";
 import { format } from "date-fns";
@@ -310,11 +310,10 @@ export default function ApplicationsList() {
                           onClick={() =>
                             handleStatusUpdate(selectedApp.id, status)
                           }
-                          className={`w-full text-left px-3 py-2 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all border ${
-                            isActive
-                              ? `${conf.bg} ${conf.text} border-current`
-                              : "bg-white text-gray-400 border-gray-50 hover:border-gray-200 hover:text-gray-600"
-                          }`}
+                          className={`w-full text-left px-3 py-2 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all border ${isActive
+                            ? `${conf.bg} ${conf.text} border-current`
+                            : "bg-white text-gray-400 border-gray-50 hover:border-gray-200 hover:text-gray-600"
+                            }`}
                         >
                           {status}
                         </button>

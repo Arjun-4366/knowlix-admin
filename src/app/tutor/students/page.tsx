@@ -2,7 +2,7 @@
 
 import { useState, useEffect, Suspense } from "react";
 import { useRouter } from "next/navigation";
-import { Student } from "@/components/students/StudentStats";
+import { Student } from "@/components/admin/students/StudentStats";
 import DashboardHeader from "@/components/dashboard/shared/DashboardHeader";
 import TutorStudentStats from "@/components/tutor/TutorStudentStats";
 import TutorStudentTable from "@/components/tutor/TutorStudentTable";

@@ -6,8 +6,8 @@ import { Label } from "@/components/ui/label";
 import SectionCard from "@/components/shared/SectionCard";
 import FormActions from "@/components/shared/FormActions";
 import MediaUpload from "@/components/shared/MediaUpload";
-import { IAboutPayload, IAboutStat } from "@/types/about";
-import { useCreateAbout } from "@/querys/aboutQuery";
+import { IAboutPayload, IAboutStat } from "@/types/admin/about";
+import { useCreateAbout } from "@/querys/admin/aboutQuery";
 import { toast } from "react-hot-toast";
 
 interface HeroEditorProps {
@@ -44,10 +44,10 @@ export default function HeroEditor({ form, setForm }: HeroEditorProps) {
         formData.append("yearBaseJourney", JSON.stringify(form.yearBaseJourney));
         const response = await createAbout(formData as any);
         toast.success("Hero section and image updated successfully!");
-        
+
         // After save, the backend should return the updated object with the new image URL
         if (response?.data?.mainPageFeatureImage) {
-           handleChange("mainPageFeatureImage", response.data.mainPageFeatureImage);
+          handleChange("mainPageFeatureImage", response.data.mainPageFeatureImage);
         }
       } else {
         await createAbout(form);
@@ -65,27 +65,27 @@ export default function HeroEditor({ form, setForm }: HeroEditorProps) {
         <div className="space-y-4">
           <div className="space-y-1.5">
             <Label>Tagline (Badge)</Label>
-            <Input 
-              value={form.mainPageTag} 
-              onChange={(e) => handleChange("mainPageTag", e.target.value)} 
-              placeholder="e.g. Learn Fast" 
+            <Input
+              value={form.mainPageTag}
+              onChange={(e) => handleChange("mainPageTag", e.target.value)}
+              placeholder="e.g. Learn Fast"
             />
           </div>
           <div className="space-y-1.5">
             <Label>Headline</Label>
-            <Input 
-              value={form.mainPageTitle} 
-              onChange={(e) => handleChange("mainPageTitle", e.target.value)} 
-              placeholder="Main headline" 
+            <Input
+              value={form.mainPageTitle}
+              onChange={(e) => handleChange("mainPageTitle", e.target.value)}
+              placeholder="Main headline"
             />
           </div>
           <div className="space-y-1.5">
             <Label>Subtitle</Label>
-            <Textarea 
-              value={form.mainPageSubtitle} 
-              onChange={(e) => handleChange("mainPageSubtitle", e.target.value)} 
-              rows={3} 
-              placeholder="Supporting text" 
+            <Textarea
+              value={form.mainPageSubtitle}
+              onChange={(e) => handleChange("mainPageSubtitle", e.target.value)}
+              rows={3}
+              placeholder="Supporting text"
             />
           </div>
         </div>
@@ -103,7 +103,7 @@ export default function HeroEditor({ form, setForm }: HeroEditorProps) {
 
       <SectionCard title="Hero Stats" description="3 key metrics displayed below the headline">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          {[0, 1, 2,3].map((i) => {
+          {[0, 1, 2, 3].map((i) => {
             const stat = form.stats[i] || { value: "", title: "", description: "" };
             return (
               <div key={i} className="space-y-2 p-4 rounded-lg border border-gray-100 bg-gray-50">
@@ -112,26 +112,26 @@ export default function HeroEditor({ form, setForm }: HeroEditorProps) {
                 </div>
                 <div className="space-y-1.5">
                   <Label>Value</Label>
-                  <Input 
-                    value={stat.value} 
-                    onChange={(e) => updateStat(i, "value", e.target.value)} 
-                    placeholder="e.g. 445+" 
+                  <Input
+                    value={stat.value}
+                    onChange={(e) => updateStat(i, "value", e.target.value)}
+                    placeholder="e.g. 445+"
                   />
                 </div>
                 <div className="space-y-1.5">
                   <Label>Title</Label>
-                  <Input 
-                    value={stat.title} 
-                    onChange={(e) => updateStat(i, "title", e.target.value)} 
-                    placeholder="e.g. Students" 
+                  <Input
+                    value={stat.title}
+                    onChange={(e) => updateStat(i, "title", e.target.value)}
+                    placeholder="e.g. Students"
                   />
                 </div>
                 <div className="space-y-1.5">
                   <Label>Description</Label>
-                  <Input 
-                    value={stat.description} 
-                    onChange={(e) => updateStat(i, "description", e.target.value)} 
-                    placeholder="e.g. Across India" 
+                  <Input
+                    value={stat.description}
+                    onChange={(e) => updateStat(i, "description", e.target.value)}
+                    placeholder="e.g. Across India"
                   />
                 </div>
               </div>

@@ -6,9 +6,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Trash2, Plus, Pencil, X, MapPin, Briefcase } from "lucide-react";
 import SectionCard from "@/components/shared/SectionCard";
-import { useGetCareersAdmin, useCreateCareer, useUpdateCareer, useDeleteCareer } from "@/querys/careerQuery";
+import { useGetCareersAdmin, useCreateCareer, useUpdateCareer, useDeleteCareer } from "@/querys/admin/careerQuery";
 import { useConfirmation } from "@/context/ConfirmationContext";
-import { ICareer } from "@/types/career";
+import { ICareer } from "@/types/admin/career";
 import Loader from "@/components/shared/Loader";
 import { toast } from "react-hot-toast";
 
@@ -28,12 +28,12 @@ export default function PositionsManager() {
   const careers = careerData?.careers || [];
 
   const openModal = (position: ICareer | null = null) => {
-    setSelectedPosition(position || { 
-      title: "", 
-      department: "", 
-      location: "", 
-      type: "Full Time", 
-      description: "", 
+    setSelectedPosition(position || {
+      title: "",
+      department: "",
+      location: "",
+      type: "Full Time",
+      description: "",
       requirements: "",
       status: "Active",
     });
@@ -119,9 +119,8 @@ export default function PositionsManager() {
                   </span>
                 </td>
                 <td className="px-6 py-4 text-center">
-                  <span className={`text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 rounded-full ${
-                    p.status === 'Active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
-                  }`}>
+                  <span className={`text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 rounded-full ${p.status === 'Active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
+                    }`}>
                     {p.status ?? 'Active'}
                   </span>
                 </td>
@@ -168,22 +167,22 @@ export default function PositionsManager() {
                 <X className="w-5 h-5 text-gray-500" />
               </button>
             </div>
-            
+
             <div className="p-6 space-y-5 max-h-[70vh] overflow-y-auto">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <Label>Job Title</Label>
-                  <Input 
-                    value={selectedPosition.title} 
-                    onChange={(e) => setSelectedPosition({ ...selectedPosition, title: e.target.value })} 
+                  <Input
+                    value={selectedPosition.title}
+                    onChange={(e) => setSelectedPosition({ ...selectedPosition, title: e.target.value })}
                     placeholder="e.g. Flutter Developer"
                   />
                 </div>
                 <div className="space-y-1.5">
                   <Label>Department</Label>
-                  <Input 
-                    value={selectedPosition.department} 
-                    onChange={(e) => setSelectedPosition({ ...selectedPosition, department: e.target.value })} 
+                  <Input
+                    value={selectedPosition.department}
+                    onChange={(e) => setSelectedPosition({ ...selectedPosition, department: e.target.value })}
                     placeholder="e.g. Mobile Development"
                   />
                 </div>
@@ -192,17 +191,17 @@ export default function PositionsManager() {
               <div className="grid grid-cols-3 gap-4">
                 <div className="col-span-2 space-y-1.5">
                   <Label>Location</Label>
-                  <Input 
-                    value={selectedPosition.location} 
-                    onChange={(e) => setSelectedPosition({ ...selectedPosition, location: e.target.value })} 
+                  <Input
+                    value={selectedPosition.location}
+                    onChange={(e) => setSelectedPosition({ ...selectedPosition, location: e.target.value })}
                     placeholder="e.g. Bangalore, India (or Remote)"
                   />
                 </div>
                 <div className="space-y-1.5">
                   <Label>Type</Label>
-                  <Input 
-                    value={selectedPosition.type} 
-                    onChange={(e) => setSelectedPosition({ ...selectedPosition, type: e.target.value })} 
+                  <Input
+                    value={selectedPosition.type}
+                    onChange={(e) => setSelectedPosition({ ...selectedPosition, type: e.target.value })}
                     placeholder="e.g. Full Time"
                   />
                 </div>
@@ -210,9 +209,9 @@ export default function PositionsManager() {
 
               <div className="space-y-1.5">
                 <Label>Job Description</Label>
-                <Textarea 
-                  value={selectedPosition.description} 
-                  onChange={(e) => setSelectedPosition({ ...selectedPosition, description: e.target.value })} 
+                <Textarea
+                  value={selectedPosition.description}
+                  onChange={(e) => setSelectedPosition({ ...selectedPosition, description: e.target.value })}
                   rows={4}
                   className="resize-none text-sm"
                   placeholder="Summarize the core responsibilities..."
@@ -221,9 +220,9 @@ export default function PositionsManager() {
 
               <div className="space-y-1.5">
                 <Label>Key Requirements</Label>
-                <Textarea 
-                  value={selectedPosition.requirements} 
-                  onChange={(e) => setSelectedPosition({ ...selectedPosition, requirements: e.target.value })} 
+                <Textarea
+                  value={selectedPosition.requirements}
+                  onChange={(e) => setSelectedPosition({ ...selectedPosition, requirements: e.target.value })}
                   rows={3}
                   className="resize-none text-sm"
                   placeholder="List qualifications, skills, and experience..."
@@ -237,25 +236,23 @@ export default function PositionsManager() {
                 </div>
                 <button
                   onClick={() => setSelectedPosition({ ...selectedPosition!, status: selectedPosition!.status === 'Active' ? 'Inactive' : 'Active' })}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                    selectedPosition.status === 'Active' ? 'bg-green-600' : 'bg-gray-300'
-                  }`}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${selectedPosition.status === 'Active' ? 'bg-green-600' : 'bg-gray-300'
+                    }`}
                 >
-                  <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
-                    selectedPosition.status === 'Active' ? 'translate-x-6' : 'translate-x-1'
-                  }`} />
+                  <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${selectedPosition.status === 'Active' ? 'translate-x-6' : 'translate-x-1'
+                    }`} />
                 </button>
               </div>
             </div>
 
             <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-end gap-3">
-              <button 
+              <button
                 onClick={closeModal}
                 className="px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-200 rounded-lg transition-colors"
               >
                 Cancel
               </button>
-              <button 
+              <button
                 onClick={handleSave}
                 disabled={isSubmitting}
                 className="px-6 py-2 bg-[#16a34a] text-white text-sm font-semibold rounded-lg hover:bg-[#15803d] transition-colors shadow-sm disabled:opacity-50"

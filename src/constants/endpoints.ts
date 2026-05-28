@@ -4,6 +4,11 @@ export const ENDPOINTS = {
   //auth
   LOGIN: `${API_BASE_URL}/auth/login`,
 
+  //dashboard
+  ADMIN_DASHBOARD: `${API_BASE_URL}/dashboard`,
+
+  //website//
+
   //about
   ABOUT: `${API_BASE_URL}/about/fetch`,
   ABOUT_CREATE: `${API_BASE_URL}/about/create`,
@@ -64,4 +69,24 @@ export const ENDPOINTS = {
   PROGRAMS_UPDATE_COURSE: `${API_BASE_URL}/programs/update-course`,
   PROGRAMS_DELETE_COURSE: `${API_BASE_URL}/programs/delete-course`,
   PROGRAMS_GET_COURSES: `${API_BASE_URL}/programs`, // usage: /programs/:id/courses
+
+  //students
+  GET_STUDENTS: `${API_BASE_URL}/students/fetch`,
+  ADD_STUDENT: `${API_BASE_URL}/students/create`,
+  UPDATE_STUDENT: `${API_BASE_URL}/students/update`,
+  DELETE_STUDENT: `${API_BASE_URL}/students/delete`,
+  GET_STUDENT: (id: string) => `${API_BASE_URL}/students/${id}`,
+  ASSIGN_TUTOR: (tutorId: string) => `${API_BASE_URL}/students/?tutorId=${tutorId}/assign`,
+  GET_STUDENT_DOC: (studentId: string) => `${API_BASE_URL}/students/${studentId}/documents`,
+
+  //tutors
+  GET_TUTORS: `${API_BASE_URL}/tutors/fetch`,
+  GET_TOP5_TUTORS: `${API_BASE_URL}/tutors/top5`,
+  ADD_TUTOR: `${API_BASE_URL}/tutors/create`,
+  UPDATE_TUTOR: `${API_BASE_URL}/tutors/update`,
+  DELETE_TUTOR: `${API_BASE_URL}/tutors/delete`,
+  APPROVE_TUTOR: (id: string) => `${API_BASE_URL}/tutors/${id}/approve`,
+  UPDATE_TUTOR_PERMISSIONS: (id: string) => `${API_BASE_URL}/tutors/${id}/permissions`,
+  GET_TUTOR_PERFORMANCE: (id: string) => `${API_BASE_URL}/tutors/${id}/performance`,
+  GET_TUTOR: (id: string) => `${API_BASE_URL}/tutors/${id}`,
 } as const;

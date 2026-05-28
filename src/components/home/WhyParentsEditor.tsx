@@ -6,8 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import SectionCard from "@/components/shared/SectionCard";
 import FormActions from "@/components/shared/FormActions";
-import { IAboutPayload, IWhyChooseKnowlix } from "@/types/about";
-import { useCreateAbout } from "@/querys/aboutQuery";
+import { IAboutPayload, IWhyChooseKnowlix } from "@/types/admin/about";
+import { useCreateAbout } from "@/querys/admin/aboutQuery";
 import { toast } from "react-hot-toast";
 import * as LucideIcons from "lucide-react";
 
@@ -61,7 +61,7 @@ export default function WhyParentsEditor({ form, setForm }: WhyParentsEditorProp
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {form.whyChooseKnowlix.map((feature, i) => {
             const IconComponent = (LucideIcons as any)[feature.icon] || LucideIcons.HelpCircle;
-            
+
             return (
               <div key={i} className="p-5 rounded-xl border border-gray-100 bg-gray-50/50 space-y-4 hover:border-green-200 transition-colors">
                 <div className="flex items-center justify-between">
@@ -74,9 +74,9 @@ export default function WhyParentsEditor({ form, setForm }: WhyParentsEditorProp
                 <div className="space-y-3">
                   <div className="space-y-1.5">
                     <Label>Title</Label>
-                    <Input 
-                      value={feature.title} 
-                      onChange={(e) => updateFeature(i, "title", e.target.value)} 
+                    <Input
+                      value={feature.title}
+                      onChange={(e) => updateFeature(i, "title", e.target.value)}
                       placeholder="e.g. Expert Mentors"
                     />
                   </div>
@@ -105,10 +105,10 @@ export default function WhyParentsEditor({ form, setForm }: WhyParentsEditorProp
 
                   <div className="space-y-1.5">
                     <Label>Description</Label>
-                    <Textarea 
-                      value={feature.subtitle} 
-                      onChange={(e) => updateFeature(i, "subtitle", e.target.value)} 
-                      rows={2} 
+                    <Textarea
+                      value={feature.subtitle}
+                      onChange={(e) => updateFeature(i, "subtitle", e.target.value)}
+                      rows={2}
                       placeholder="Short explanation for parents..."
                     />
                   </div>

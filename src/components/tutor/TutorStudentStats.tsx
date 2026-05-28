@@ -1,7 +1,7 @@
 "use client";
 
 import { Users, CheckCircle2, Clock, Calendar } from "lucide-react";
-import { Student } from "@/components/students/StudentStats";
+import { Student } from "@/components/admin/students/StudentStats";
 import DashboardStatCard from "@/components/dashboard/shared/DashboardStatCard";
 
 interface TutorStudentStatsProps {

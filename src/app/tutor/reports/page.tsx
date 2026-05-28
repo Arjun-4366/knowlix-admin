@@ -9,7 +9,7 @@ import TutorReportTemplates from "@/components/tutor/TutorReportTemplates";
 import TutorReportGenerator from "@/components/tutor/TutorReportGenerator";
 import TutorReportHistory from "@/components/tutor/TutorReportHistory";
 
-import { Student } from "@/components/students/StudentStats";
+import { Student } from "@/components/admin/students/StudentStats";
 import { Evaluation } from "@/components/tutor/TutorAssessmentStats";
 
 interface AttendanceLog {

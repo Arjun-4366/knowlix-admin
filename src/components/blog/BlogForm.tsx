@@ -9,8 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ArrowLeft, Save } from "lucide-react";
 import SectionCard from "@/components/shared/SectionCard";
 import MediaUpload from "@/components/shared/MediaUpload";
-import { IBlog, BlogCategory } from "@/types/blog";
-import { useCreateBlog, useUpdateBlog } from "@/querys/blogQuery";
+import { IBlog, BlogCategory } from "@/types/admin/blog";
+import { useCreateBlog, useUpdateBlog } from "@/querys/admin/blogQuery";
 import { ButtonLoader } from "@/components/shared/Loader";
 import { toast } from "react-hot-toast";
 
@@ -50,13 +50,13 @@ export default function BlogForm({ onBack, initialData }: Props) {
   const save = async () => {
     try {
       if (!form.title.trim()) return toast.error("Title is required");
-      
+
       if (form.id) {
         await updatePost(form);
       } else {
         await createPost(form);
       }
-      
+
       toast.success(form.id ? "Blog post updated" : "Blog post created");
       onBack();
     } catch (error) {
@@ -83,7 +83,7 @@ export default function BlogForm({ onBack, initialData }: Props) {
                 <Label>Title</Label>
                 <Input value={form.title} onChange={(e) => update("title", e.target.value)} placeholder="Enter post title…" />
               </div>
-              
+
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <Label>Category</Label>
@@ -125,11 +125,11 @@ export default function BlogForm({ onBack, initialData }: Props) {
 
           <div className="space-y-1.5">
             <Label>Content / Description</Label>
-            <Textarea 
-              value={form.description} 
-              onChange={(e) => update("description", e.target.value)} 
-              rows={12} 
-              placeholder="Write the full article content here…" 
+            <Textarea
+              value={form.description}
+              onChange={(e) => update("description", e.target.value)}
+              rows={12}
+              placeholder="Write the full article content here…"
             />
           </div>
         </div>

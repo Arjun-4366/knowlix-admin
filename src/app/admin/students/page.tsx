@@ -1,224 +1,153 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
-import { Plus, Check, X } from "lucide-react";
+import { Suspense, useEffect, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Plus } from "lucide-react";
+import AddStudentForm from "@/components/admin/students/AddStudentForm";
+import { mapApiStudentToStudent, toAdmissionStatusPayload } from "@/components/admin/students/studentMapper";
+import StudentStats from "@/components/admin/students/StudentStats";
+import StudentTable from "@/components/admin/students/StudentTable";
 import DashboardHeader from "@/components/dashboard/shared/DashboardHeader";
-import StudentStats, { Student } from "@/components/students/StudentStats";
-import StudentTable from "@/components/students/StudentTable";
-import AddStudentForm from "@/components/students/AddStudentForm";
+import Loader from "@/components/shared/Loader";
 import { Button } from "@/components/ui/button";
-
-const initialStudents: Student[] = [
-  {
-    id: "STU-101",
-    name: "Rahul Sharma",
-    parentName: "Anil Sharma",
-    grade: "Grade 10",
-    location: "Bangalore, IN",
-    courseType: "Online School",
-    courseName: "Mathematics",
-    packageSelection: "3 Months",
-    documentsSubmitted: ["Birth Certificate", "Transfer Certificate", "Previous Academic Records", "Identification Documents"],
-    coordinatorName: "Dr. Ramesh Prasad",
-    subjectTutor: "Dr. Ramesh Prasad",
-    mentorSalesBro: "Sarah Jenkins",
-    admissionStatus: "Approved",
-  },
-  {
-    id: "STU-102",
-    name: "Sneha Reddy",
-    parentName: "V. Reddy",
-    grade: "Grade 12",
-    location: "Hyderabad, IN",
-    courseType: "Online Tuition",
-    courseName: "Science",
-    packageSelection: "6 Months",
-    documentsSubmitted: ["Birth Certificate", "Identification Documents"],
-    coordinatorName: "Sarah Jenkins",
-    subjectTutor: "Amit Shah",
-    mentorSalesBro: "David Miller",
-    admissionStatus: "In Review",
-  },
-  {
-    id: "STU-103",
-    name: "Kabir Malhotra",
-    parentName: "Sanjay Malhotra",
-    grade: "Grade 8",
-    location: "Delhi, IN",
-    courseType: "Online School",
-    courseName: "English",
-    packageSelection: "1 Year",
-    documentsSubmitted: ["Birth Certificate", "Transfer Certificate", "Previous Academic Records", "Identification Documents"],
-    coordinatorName: "Amit Shah",
-    subjectTutor: "Ananya Roy",
-    mentorSalesBro: "Sarah Jenkins",
-    admissionStatus: "Approved",
-  },
-  {
-    id: "STU-104",
-    name: "Aria Fernandes",
-    parentName: "J. Fernandes",
-    grade: "Grade 11",
-    location: "Goa, IN",
-    courseType: "Hybrid Learning",
-    courseName: "Social Studies",
-    packageSelection: "2 Months",
-    documentsSubmitted: ["Birth Certificate", "Previous Academic Records"],
-    coordinatorName: "David Miller",
-    subjectTutor: "Dr. Ramesh Prasad",
-    mentorSalesBro: "Amit Shah",
-    admissionStatus: "Pending Approval",
-  },
-  {
-    id: "STU-105",
-    name: "Vikram Sen",
-    parentName: "Rajesh Sen",
-    grade: "Grade 9",
-    location: "Kolkata, IN",
-    courseType: "Online Tuition",
-    courseName: "Computer Science",
-    packageSelection: "1 Month",
-    documentsSubmitted: ["Identification Documents"],
-    coordinatorName: "Ananya Roy",
-    subjectTutor: "Sarah Jenkins",
-    mentorSalesBro: "David Miller",
-    admissionStatus: "Rejected",
-  },
-  {
-    id: "STU-106",
-    name: "Meera Joshi",
-    parentName: "Sunita Joshi",
-    grade: "Grade 10",
-    location: "Pune, IN",
-    courseType: "Online School",
-    courseName: "Physics",
-    packageSelection: "Custom (9 Months)",
-    documentsSubmitted: ["Birth Certificate", "Transfer Certificate", "Previous Academic Records", "Identification Documents"],
-    coordinatorName: "Dr. Ramesh Prasad",
-    subjectTutor: "Dr. Ramesh Prasad",
-    mentorSalesBro: "Sarah Jenkins",
-    admissionStatus: "Approved",
-  },
-];
+import { useConfirmation } from "@/context/ConfirmationContext";
+import {
+  useCreateStudent,
+  useDeleteStudent,
+  useGetStudents,
+  useUpdateStudent,
+} from "@/querys/admin/studentQuery";
+import { ICreateStudentPayload, IStudent } from "@/types/admin/student";
+import { Skeleton } from "@/components/ui/skeleton";
+import StudentTableSkeleton from "@/components/admin/students/StudentTableSkeleton";
 
 function StudentsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [students, setStudents] = useState<Student[]>(initialStudents);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const { confirm } = useConfirmation();
+  const { data: studentsResponse, isLoading } = useGetStudents();
+  const { mutateAsync: createStudent, isPending: isCreating } = useCreateStudent();
+  const { mutateAsync: updateStudent, isPending: isUpdating } = useUpdateStudent();
+  const { mutateAsync: deleteStudent } = useDeleteStudent();
+  const shouldOpenAddModal = searchParams?.get("add") === "true";
+  const [isModalOpen, setIsModalOpen] = useState(shouldOpenAddModal);
+  const [studentToEdit, setStudentToEdit] = useState<IStudent | null>(null);
 
-  // Initialize and sync with localStorage
-  useEffect(() => {
-    const stored = localStorage.getItem("knowlix_students");
-    if (stored) {
-      try {
-        setStudents(JSON.parse(stored));
-      } catch (e) {
-        console.error("Error parsing stored students:", e);
-      }
-    } else {
-      localStorage.setItem("knowlix_students", JSON.stringify(initialStudents));
-    }
-  }, []);
-
-  const saveStudents = (updatedList: Student[]) => {
-    setStudents(updatedList);
-    localStorage.setItem("knowlix_students", JSON.stringify(updatedList));
-  };
+  const students = useMemo(
+    () => (studentsResponse?.data ?? []).map(mapApiStudentToStudent),
+    [studentsResponse?.data],
+  );
 
   useEffect(() => {
-    if (searchParams && searchParams.get("add") === "true") {
-      setIsModalOpen(true);
+    if (shouldOpenAddModal) {
       router.replace("/admin/students");
     }
-  }, [searchParams, router]);
+  }, [shouldOpenAddModal, router]);
 
-  const handleAddStudent = (newStudent: Omit<Student, "id">) => {
-    const nextIdNum =
-      students.length > 0
-        ? Math.max(...students.map((s) => parseInt(s.id.split("-")[1]))) + 1
-        : 101;
-    const nextId = `STU-${nextIdNum}`;
+  const handleFormSubmit = async (payload: ICreateStudentPayload) => {
+    try {
+      if (studentToEdit) {
+        await updateStudent({ id: studentToEdit.id, data: payload });
+        setStudentToEdit(null);
+      } else {
+        await createStudent(payload);
+      }
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
-    const updated = [
-      ...students,
-      {
-        ...newStudent,
-        id: nextId,
-      },
-    ];
-    saveStudents(updated);
+  const handleCloseModal = () => {
     setIsModalOpen(false);
-    triggerToast(`Student "${newStudent.name}" registered successfully!`);
+    setStudentToEdit(null);
+  };
+
+  const handleEditStudent = (id: string) => {
+    const rawStudent = studentsResponse?.data?.find((s) => s.id === id);
+    if (rawStudent) {
+      setStudentToEdit(rawStudent);
+      setIsModalOpen(true);
+    }
   };
 
   const handleDeleteStudent = (id: string) => {
-    const studentName = students.find((s) => s.id === id)?.name || "";
-    const updated = students.filter((s) => s.id !== id);
-    saveStudents(updated);
-    triggerToast(`Student "${studentName}" deleted successfully.`);
+    const studentName = students.find((student) => student.id === id)?.name || "this student";
+
+    confirm({
+      title: "Delete Student",
+      message: `Are you sure you want to delete ${studentName}? This action cannot be undone.`,
+      confirmText: "Delete",
+      variant: "danger",
+      onConfirm: async () => {
+        try {
+          await deleteStudent(id);
+        } catch (error) {
+          console.error(error);
+        }
+      },
+    });
   };
 
-  const handleUpdateStatus = (id: string, newStatus: string) => {
-    const updated = students.map((s) => (s.id === id ? { ...s, admissionStatus: newStatus } : s));
-    saveStudents(updated);
-    const studentName = students.find((s) => s.id === id)?.name || "";
-    triggerToast(`Updated ${studentName}'s status to "${newStatus}"`);
-  };
-
-  const handleViewStudent = (student: Student) => {
-    router.push(`/admin/students/${student.id}`);
-  };
-
-  const triggerToast = (msg: string) => {
-    setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 3000);
+  const handleUpdateStatus = async (id: string, newStatus: string) => {
+    try {
+      await updateStudent({
+        id,
+        data: { admissionStatus: toAdmissionStatusPayload(newStatus) },
+      });
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const actions = (
     <Button
       onClick={() => setIsModalOpen(true)}
-      className="w-full h-10 px-4 py-2.5 bg-[var(--brand-green)] hover:bg-[var(--brand-mid)] text-white font-bold text-sm shadow-md shadow-green-600/10 hover:shadow-lg transition-all"
+      className="h-10 w-full bg-[var(--brand-green)] px-4 py-2.5 text-sm font-bold text-white shadow-md shadow-green-600/10 transition-all hover:bg-[var(--brand-mid)] hover:shadow-lg"
     >
-      <Plus className="w-4 h-4 mr-1.5" />
+      <Plus className="mr-1.5 h-4 w-4" />
       Add Student
     </Button>
   );
 
   return (
-    <div className="space-y-8 w-full relative pb-10">
-      {/* Toast Notification */}
-      {toastMessage && (
-        <div className="fixed top-4 right-4 z-50 bg-[var(--brand-dark)] text-white border border-slate-700/30 px-4 py-3 rounded-xl shadow-xl flex items-center gap-2 animate-in fade-in slide-in-from-top-4 duration-300">
-          <div className="w-5 h-5 rounded-full bg-[var(--brand-green)] flex items-center justify-center flex-shrink-0">
-            <Check className="w-3.5 h-3.5 text-white" />
-          </div>
-          <span className="text-sm font-semibold">{toastMessage}</span>
-        </div>
-      )}
-
+    <div className="relative w-full space-y-8 pb-10">
       <DashboardHeader
         title="Students Directory"
-        description="View admissions status, custom packages, coordinators, and document checklists."
+        description={`View admissions status, packages, coordinators, and document checklists. Total: ${studentsResponse?.total ?? (isLoading ? 0 : students.length)}`}
         actions={actions}
       />
 
-      <StudentStats students={students} />
+      {isLoading ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <Skeleton className="h-32 w-full rounded-2xl" />
+          <Skeleton className="h-32 w-full rounded-2xl" />
+          <Skeleton className="h-32 w-full rounded-2xl" />
+          <Skeleton className="h-32 w-full rounded-2xl" />
+        </div>
+      ) : (
+        <StudentStats students={students} />
+      )}
 
-      <StudentTable
-        students={students}
-        onDeleteStudent={handleDeleteStudent}
-        onUpdateStatus={handleUpdateStatus}
-        onViewStudent={handleViewStudent}
-      />
+      {isLoading ? (
+        <StudentTableSkeleton />
+      ) : (
+        <StudentTable
+          students={students}
+          onDeleteStudent={handleDeleteStudent}
+          onUpdateStatus={handleUpdateStatus}
+          onViewStudent={(student) => router.push(`/admin/students/${student.id}`)}
+          onEditStudent={handleEditStudent}
+        />
+      )}
 
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-sm animate-in fade-in duration-200">
           <AddStudentForm
-            onSubmit={handleAddStudent}
-            onClose={() => setIsModalOpen(false)}
+            onSubmit={handleFormSubmit}
+            onClose={handleCloseModal}
+            isSubmitting={isCreating || isUpdating}
+            studentToEdit={studentToEdit || undefined}
           />
         </div>
       )}
@@ -230,8 +159,8 @@ export default function StudentsPage() {
   return (
     <Suspense
       fallback={
-        <div className="flex items-center justify-center min-h-[50vh]">
-          <div className="w-8 h-8 border-4 border-[var(--brand-green)] border-t-transparent rounded-full animate-spin" />
+        <div className="flex min-h-[50vh] items-center justify-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-[var(--brand-green)] border-t-transparent" />
         </div>
       }
     >

@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from "react";
 import DashboardHeader from "@/components/dashboard/shared/DashboardHeader";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Student } from "@/components/students/StudentStats";
+import { Student } from "@/components/admin/students/StudentStats";
 import TutorAttendanceStats, { AttendanceLog } from "@/components/tutor/TutorAttendanceStats";
 import TutorMarkAttendance from "@/components/tutor/TutorMarkAttendance";
 import TutorAttendanceHistory from "@/components/tutor/TutorAttendanceHistory";

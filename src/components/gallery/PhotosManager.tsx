@@ -8,8 +8,8 @@ import { Trash2, Plus, Tag, Image as ImageIcon2 } from "lucide-react";
 import SectionCard from "@/components/shared/SectionCard";
 import FormActions from "@/components/shared/FormActions";
 import MediaUpload from "@/components/shared/MediaUpload";
-import { IGalleryItem } from "@/types/gallery";
-import { useAddGalleryItem, useDeleteGalleryItem } from "@/querys/galleryQuery";
+import { IGalleryItem } from "@/types/admin/gallery";
+import { useAddGalleryItem, useDeleteGalleryItem } from "@/querys/admin/galleryQuery";
 import { useConfirmation } from "@/context/ConfirmationContext";
 import { toast } from "react-hot-toast";
 
@@ -91,23 +91,23 @@ export default function PhotosManager({ initialData }: PhotosManagerProps) {
                 accept="image/*"
                 className="w-full h-full"
               />
-              <button 
+              <button
                 onClick={() => handleDelete(item.id, i)}
                 className="absolute top-3 right-3 p-2 bg-white/90 backdrop-blur-sm text-red-500 rounded-xl opacity-0 group-hover:opacity-100 transition-all shadow-sm hover:bg-red-50"
               >
                 <Trash2 className="w-4 h-4" />
               </button>
             </div>
-            
+
             <div className="p-4 space-y-3 flex-1 flex flex-col">
               <div className="space-y-1.5">
                 <div className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">
                   <Tag className="w-3 h-3 text-green-500" /> Event / Category
                 </div>
-                <Input 
-                  value={item.tag} 
-                  onChange={(e) => update(i, "tag", e.target.value)} 
-                  placeholder="e.g. Science Fair 2024" 
+                <Input
+                  value={item.tag}
+                  onChange={(e) => update(i, "tag", e.target.value)}
+                  placeholder="e.g. Science Fair 2024"
                   className="h-9 text-xs rounded-lg border-gray-100"
                 />
               </div>
@@ -116,10 +116,10 @@ export default function PhotosManager({ initialData }: PhotosManagerProps) {
                 <div className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">
                   <ImageIcon2 className="w-3 h-3 text-green-500" /> Description
                 </div>
-                <Textarea 
-                  value={item.description} 
-                  onChange={(e) => update(i, "description", e.target.value)} 
-                  placeholder="Short description of the moment..." 
+                <Textarea
+                  value={item.description}
+                  onChange={(e) => update(i, "description", e.target.value)}
+                  placeholder="Short description of the moment..."
                   rows={2}
                   className="text-xs rounded-lg border-gray-100 resize-none flex-1"
                 />

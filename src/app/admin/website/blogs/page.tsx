@@ -4,9 +4,9 @@ import { useState } from "react";
 import PageHeader from "@/components/shared/PageHeader";
 import BlogList from "@/components/blog/BlogList";
 import BlogForm from "@/components/blog/BlogForm";
-import { useGetBlogs } from "@/querys/blogQuery";
+import { useGetBlogs } from "@/querys/admin/blogQuery";
 import Loader from "@/components/shared/Loader";
-import { IBlog } from "@/types/blog";
+import { IBlog } from "@/types/admin/blog";
 
 export default function BlogsPageAdmin() {
   const { data: blogData, isLoading } = useGetBlogs();
@@ -16,7 +16,7 @@ export default function BlogsPageAdmin() {
   if (isLoading) return <Loader text="Fetching Blog Posts..." />;
 
   const groupedBlogs = blogData?.data || {};
-  
+
   // Ensure we handle the "" key from backend if category was empty
   if (groupedBlogs[""]) {
     // We can move them to a default category or just leave them
@@ -35,20 +35,20 @@ export default function BlogsPageAdmin() {
 
   return (
     <div className="max-w-6xl">
-      <PageHeader 
-        title="Blog & Resources" 
-        description="Manage company news, workshops, trainings, and collaboration announcements" 
+      <PageHeader
+        title="Blog & Resources"
+        description="Manage company news, workshops, trainings, and collaboration announcements"
       />
 
       {view === "list" ? (
-        <BlogList 
-          onNew={handleNew} 
-          groupedBlogs={groupedBlogs as any} 
+        <BlogList
+          onNew={handleNew}
+          groupedBlogs={groupedBlogs as any}
         />
       ) : (
-        <BlogForm 
-          onBack={handleBack} 
-          initialData={selectedPost} 
+        <BlogForm
+          onBack={handleBack}
+          initialData={selectedPost}
         />
       )}
     </div>

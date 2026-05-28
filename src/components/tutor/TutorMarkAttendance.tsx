@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { CheckCircle2, XCircle, Clock, Calendar, Check, Save } from "lucide-react";
-import { Student } from "@/components/students/StudentStats";
+import { Student } from "@/components/admin/students/StudentStats";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -217,11 +217,10 @@ export default function TutorMarkAttendance({ students, onSaveLog }: TutorMarkAt
                       <button
                         type="button"
                         onClick={() => handleStatusChange(student.id, "Present")}
-                        className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
-                          state.status === "Present"
+                        className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all border cursor-pointer ${state.status === "Present"
                             ? "bg-[var(--brand-light-green)] text-[var(--brand-mid)] border-[var(--brand-light)]/40 shadow-sm scale-[1.03]"
                             : "bg-white text-slate-500 border-slate-200 hover:bg-slate-50"
-                        }`}
+                          }`}
                       >
                         <CheckCircle2 className={`w-3.5 h-3.5 ${state.status === "Present" ? "text-[var(--brand-green)]" : "text-slate-400"}`} />
                         Present
@@ -231,11 +230,10 @@ export default function TutorMarkAttendance({ students, onSaveLog }: TutorMarkAt
                       <button
                         type="button"
                         onClick={() => handleStatusChange(student.id, "Late")}
-                        className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
-                          state.status === "Late"
+                        className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all border cursor-pointer ${state.status === "Late"
                             ? "bg-amber-50 text-amber-700 border-amber-200 shadow-sm scale-[1.03]"
                             : "bg-white text-slate-500 border-slate-200 hover:bg-slate-50"
-                        }`}
+                          }`}
                       >
                         <Clock className={`w-3.5 h-3.5 ${state.status === "Late" ? "text-amber-500" : "text-slate-400"}`} />
                         Late
@@ -245,11 +243,10 @@ export default function TutorMarkAttendance({ students, onSaveLog }: TutorMarkAt
                       <button
                         type="button"
                         onClick={() => handleStatusChange(student.id, "Absent")}
-                        className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
-                          state.status === "Absent"
+                        className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all border cursor-pointer ${state.status === "Absent"
                             ? "bg-red-50 text-red-700 border-red-200 shadow-sm scale-[1.03]"
                             : "bg-white text-slate-500 border-slate-200 hover:bg-slate-50"
-                        }`}
+                          }`}
                       >
                         <XCircle className={`w-3.5 h-3.5 ${state.status === "Absent" ? "text-red-500" : "text-slate-400"}`} />
                         Absent

@@ -8,8 +8,8 @@ import { Trash2, Plus, Tag, PlayCircle, Video as VideoIcon } from "lucide-react"
 import SectionCard from "@/components/shared/SectionCard";
 import FormActions from "@/components/shared/FormActions";
 import MediaUpload from "@/components/shared/MediaUpload";
-import { IGalleryItem } from "@/types/gallery";
-import { useAddGalleryItem, useDeleteGalleryItem } from "@/querys/galleryQuery";
+import { IGalleryItem } from "@/types/admin/gallery";
+import { useAddGalleryItem, useDeleteGalleryItem } from "@/querys/admin/galleryQuery";
 import { useConfirmation } from "@/context/ConfirmationContext";
 import { toast } from "react-hot-toast";
 
@@ -85,8 +85,8 @@ export default function VideosManager({ initialData }: VideosManagerProps) {
           <div key={i} className="group relative bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col">
             <div className="aspect-video relative bg-gray-50 border-b border-gray-100 flex items-center justify-center">
               {typeof item.mediaUrl === "string" && item.mediaUrl ? (
-                <video 
-                  src={item.mediaUrl} 
+                <video
+                  src={item.mediaUrl}
                   className="w-full h-full object-cover"
                   controls={false}
                 />
@@ -102,23 +102,23 @@ export default function VideosManager({ initialData }: VideosManagerProps) {
               <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
                 <PlayCircle className="w-10 h-10 text-white" />
               </div>
-              <button 
+              <button
                 onClick={() => handleDelete(item.id, i)}
                 className="absolute top-3 right-3 p-2 bg-white/90 backdrop-blur-sm text-red-500 rounded-xl opacity-0 group-hover:opacity-100 transition-all shadow-sm hover:bg-red-50"
               >
                 <Trash2 className="w-4 h-4" />
               </button>
             </div>
-            
+
             <div className="p-4 space-y-3 flex-1 flex flex-col">
               <div className="space-y-1.5">
                 <div className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">
                   <Tag className="w-3 h-3 text-blue-500" /> Video Tag / Category
                 </div>
-                <Input 
-                  value={item.tag} 
-                  onChange={(e) => update(i, "tag", e.target.value)} 
-                  placeholder="e.g. Demo Class" 
+                <Input
+                  value={item.tag}
+                  onChange={(e) => update(i, "tag", e.target.value)}
+                  placeholder="e.g. Demo Class"
                   className="h-9 text-xs rounded-lg border-gray-100"
                 />
               </div>
@@ -127,10 +127,10 @@ export default function VideosManager({ initialData }: VideosManagerProps) {
                 <div className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">
                   <VideoIcon className="w-3 h-3 text-blue-500" /> Description
                 </div>
-                <Textarea 
-                  value={item.description} 
-                  onChange={(e) => update(i, "description", e.target.value)} 
-                  placeholder="Short description..." 
+                <Textarea
+                  value={item.description}
+                  onChange={(e) => update(i, "description", e.target.value)}
+                  placeholder="Short description..."
                   rows={2}
                   className="text-xs rounded-lg border-gray-100 resize-none flex-1"
                 />
