@@ -9,6 +9,8 @@ import {
   ITutorsResponse,
   IUpdateTutorPayload,
   ITutorPermissions,
+  IAwardGrowthPointsPayload,
+  ILeaderboardResponse,
 } from "@/types/admin/tutor";
 
 export const getTutors = async (params?: QueryParams) => {
@@ -56,13 +58,13 @@ export const getTutorPerformance = async (id: string) => {
   return res.data.data;
 };
 
-export const awardGrowthPoints = async (data: {
-  tutorId: string;
-  category: string;
-  evaluationArea: string;
-  points: number;
-  description: string;
-}) => {
-  const res = await apiClient.post<IApiResponse<any>>("/growth/award", data);
+export const awardGrowthPoints = async (data: IAwardGrowthPointsPayload) => {
+  const res = await apiClient.post<IApiResponse<any>>(ENDPOINTS.ADD_GROWTH_POINT, data);
   return res.data;
 };
+
+export const getLeaderboard = async () => {
+  const res = await apiClient.get<ILeaderboardResponse>(ENDPOINTS.GET_LEADERBOARD);
+  return res.data;
+};
+

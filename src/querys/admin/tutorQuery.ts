@@ -5,6 +5,7 @@ import {
   awardGrowthPoints,
   createTutor,
   deleteTutor,
+  getLeaderboard,
   getTutor,
   getTutorPerformance,
   getTutors,
@@ -15,12 +16,22 @@ import {
   ICreateTutorPayload,
   ITutorPermissions,
   IUpdateTutorPayload,
+  IAwardGrowthPointsPayload,
+  ILeaderboardResponse,
 } from "@/types/admin/tutor";
 import { QueryParams } from "@/types/queryParams";
 
 const TUTORS_KEY = ["tutors"] as const;
 const TUTOR_KEY = ["tutor"] as const;
 const TUTOR_PERFORMANCE_KEY = ["tutor-performance"] as const;
+const LEADERBOARD_KEY = ["leaderboard"] as const;
+
+export const useGetLeaderboard = () => {
+  return useQuery({
+    queryKey: LEADERBOARD_KEY,
+    queryFn: () => getLeaderboard(),
+  });
+};
 
 export const useGetTutors = (params?: QueryParams) => {
   return useQuery({
@@ -120,13 +131,7 @@ export const useAwardGrowthPoints = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: {
-      tutorId: string;
-      category: string;
-      evaluationArea: string;
-      points: number;
-      description: string;
-    }) => awardGrowthPoints(data),
+    mutationFn: (data: IAwardGrowthPointsPayload) => awardGrowthPoints(data),
     onSuccess: (_response, variables) => {
       queryClient.invalidateQueries({ queryKey: TUTORS_KEY });
       queryClient.invalidateQueries({ queryKey: [...TUTOR_KEY, variables.tutorId] });

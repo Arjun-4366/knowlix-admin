@@ -11,6 +11,7 @@ import {
 import { ReportFiltersState, ReportType } from "./types";
 import { Calendar, Filter, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useGetTutors } from "@/querys/admin/tutorQuery";
 
 interface ReportsFiltersProps {
   filters: ReportFiltersState;
@@ -27,6 +28,9 @@ export default function ReportsFilters({
   onReset,
   isGenerating,
 }: ReportsFiltersProps) {
+  const { data: tutorsResponse } = useGetTutors();
+  const tutors = tutorsResponse?.data ?? [];
+
   const handleTypeChange = (type: ReportType) => {
     setFilters((prev) => ({
       ...prev,
@@ -174,28 +178,54 @@ export default function ReportsFilters({
 
         {/* Contextual Filters */}
         {filters.type === "tutor" && (
-          <div>
-            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
-              Performance Tier
-            </label>
-            <Select
-              value={filters.tutorTier}
-              onValueChange={(val) =>
-                setFilters((prev) => ({ ...prev, tutorTier: val }))
-              }
-            >
-              <SelectTrigger className="h-10 bg-slate-50/50 border-slate-200 rounded-xl text-xs font-semibold">
-                <SelectValue placeholder="All Tiers" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all" className="text-xs">All Tiers</SelectItem>
-                <SelectItem value="Outstanding" className="text-xs">Outstanding</SelectItem>
-                <SelectItem value="Excellent" className="text-xs">Excellent</SelectItem>
-                <SelectItem value="Very Good" className="text-xs">Very Good</SelectItem>
-                <SelectItem value="Needs Attention" className="text-xs">Needs Attention</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          <>
+            <div>
+              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                Performance Tier
+              </label>
+              <Select
+                value={filters.tutorTier}
+                onValueChange={(val) =>
+                  setFilters((prev) => ({ ...prev, tutorTier: val }))
+                }
+              >
+                <SelectTrigger className="h-10 bg-slate-50/50 border-slate-200 rounded-xl text-xs font-semibold">
+                  <SelectValue placeholder="All Tiers" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all" className="text-xs">All Tiers</SelectItem>
+                  <SelectItem value="Outstanding" className="text-xs">Outstanding</SelectItem>
+                  <SelectItem value="Excellent" className="text-xs">Excellent</SelectItem>
+                  <SelectItem value="Very Good" className="text-xs">Very Good</SelectItem>
+                  <SelectItem value="Needs Attention" className="text-xs">Needs Attention</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                Filter by Tutor
+              </label>
+              <Select
+                value={filters.tutorId || "all"}
+                onValueChange={(val) =>
+                  setFilters((prev) => ({ ...prev, tutorId: val === "all" ? undefined : val }))
+                }
+              >
+                <SelectTrigger className="h-10 bg-slate-50/50 border-slate-200 rounded-xl text-xs font-semibold">
+                  <SelectValue placeholder="All Tutors" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all" className="text-xs">All Tutors</SelectItem>
+                  {tutors.map((t) => (
+                    <SelectItem key={t.id} value={t.id} className="text-xs">
+                      {t.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </>
         )}
 
         {filters.type === "student" && (

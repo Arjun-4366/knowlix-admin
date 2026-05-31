@@ -1,17 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Search, Eye, Trash2, Calendar, FileSpreadsheet, X, CheckCircle2, XCircle, Clock } from "lucide-react";
+import { Search, Eye, Calendar, FileSpreadsheet, X, CheckCircle2, XCircle, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -20,81 +13,60 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useConfirmation } from "@/context/ConfirmationContext";
 import { AttendanceLog } from "./TutorAttendanceStats";
-import { toast } from "react-hot-toast";
 
 interface TutorAttendanceHistoryProps {
   logs: AttendanceLog[];
-  onDeleteLog: (id: string) => void;
 }
 
-export default function TutorAttendanceHistory({ logs, onDeleteLog }: TutorAttendanceHistoryProps) {
-  const { confirm } = useConfirmation();
+export default function TutorAttendanceHistory({ logs }: TutorAttendanceHistoryProps) {
   const [searchQuery, setSearchQuery] = useState("");
-  const [sessionFilter, setSessionFilter] = useState("All");
   const [dateFilter, setDateFilter] = useState("");
   const [selectedLog, setSelectedLog] = useState<AttendanceLog | null>(null);
 
   // Filter logs
   const filteredLogs = logs.filter((log) => {
-    const matchesSearch = log.sessionName.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesSession = sessionFilter === "All" || log.sessionId === sessionFilter;
+    // Search within student names in this log's records
+    const matchesSearch = searchQuery
+      ? log.records.some((r) => r.studentName.toLowerCase().includes(searchQuery.toLowerCase()))
+      : true;
     const matchesDate = !dateFilter || log.date === dateFilter;
 
-    return matchesSearch && matchesSession && matchesDate;
+    return matchesSearch && matchesDate;
   });
 
   const getBreakdown = (log: AttendanceLog) => {
     let p = 0, a = 0, l = 0;
     log.records.forEach((r) => {
-      if (r.status === "Present") p++;
-      else if (r.status === "Absent") a++;
-      else if (r.status === "Late") l++;
+      if (r.status === "present") p++;
+      else if (r.status === "absent") a++;
+      else if (r.status === "late") l++;
     });
     return { present: p, absent: a, late: l };
   };
 
-  const getStatusBadge = (status: "Present" | "Absent" | "Late") => {
+  const getStatusBadge = (status: "present" | "absent" | "late") => {
     switch (status) {
-      case "Present":
+      case "present":
         return (
-          <Badge variant="outline" className="bg-[var(--brand-light-green)] text-[var(--brand-mid)] border-[var(--brand-light)]/20 px-2 py-0.5 rounded-full text-[10px] font-bold">
+          <Badge variant="outline" className="bg-[var(--brand-light-green)] text-[var(--brand-mid)] border-[var(--brand-light)]/20 px-2 py-0.5 rounded-full text-[10px] font-bold capitalize">
             Present
           </Badge>
         );
-      case "Late":
+      case "late":
         return (
-          <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 px-2 py-0.5 rounded-full text-[10px] font-bold">
+          <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 px-2 py-0.5 rounded-full text-[10px] font-bold capitalize">
             Late
           </Badge>
         );
-      case "Absent":
+      case "absent":
         return (
-          <Badge variant="outline" className="bg-red-50 text-red-700 border-red-250 px-2 py-0.5 rounded-full text-[10px] font-bold">
+          <Badge variant="outline" className="bg-red-50 text-red-700 border-red-250 px-2 py-0.5 rounded-full text-[10px] font-bold capitalize">
             Absent
           </Badge>
         );
     }
   };
-
-  const handleDelete = (id: string, name: string) => {
-    confirm({
-      title: "Delete Attendance Log",
-      message: `Are you sure you want to delete the attendance log for ${name}? This action cannot be undone.`,
-      confirmText: "Delete Log",
-      variant: "danger",
-      onConfirm: async () => {
-        onDeleteLog(id);
-        toast.success("Attendance log successfully deleted.");
-      },
-    });
-  };
-
-  // Get distinct session names in logs for filtering dropdown
-  const uniqueSessions = Array.from(new Set(logs.map((l) => JSON.stringify({ id: l.sessionId, name: l.sessionName })))).map(
-    (s) => JSON.parse(s) as { id: string; name: string }
-  );
 
   return (
     <div className="space-y-4">
@@ -104,10 +76,10 @@ export default function TutorAttendanceHistory({ logs, onDeleteLog }: TutorAtten
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 z-10" />
           <Input
             type="text"
-            placeholder="Search class or session name..."
+            placeholder="Search by student name..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 h-10 bg-white border border-slate-200 rounded-xl"
+            className="w-full pl-10 h-10 bg-white border border-slate-200 rounded-xl text-sm"
           />
         </div>
 
@@ -123,29 +95,13 @@ export default function TutorAttendanceHistory({ logs, onDeleteLog }: TutorAtten
             />
           </div>
 
-          {/* Session Dropdown Filter */}
-          <Select value={sessionFilter} onValueChange={setSessionFilter}>
-            <SelectTrigger className="h-10 text-xs font-semibold bg-white border-slate-200 rounded-xl w-[200px]">
-              <SelectValue placeholder="All Classes" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="All" className="text-xs font-semibold">All Classes</SelectItem>
-              {uniqueSessions.map((sess) => (
-                <SelectItem key={sess.id} value={sess.id} className="text-xs font-semibold">
-                  {sess.name.length > 25 ? `${sess.name.substring(0, 25)}...` : sess.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
           {/* Clear Filter Button */}
-          {(dateFilter || sessionFilter !== "All" || searchQuery) && (
+          {(dateFilter || searchQuery) && (
             <Button
               variant="ghost"
               size="sm"
               onClick={() => {
                 setDateFilter("");
-                setSessionFilter("All");
                 setSearchQuery("");
               }}
               className="h-10 text-xs font-semibold hover:bg-slate-100 rounded-xl px-3 cursor-pointer"
@@ -165,7 +121,7 @@ export default function TutorAttendanceHistory({ logs, onDeleteLog }: TutorAtten
                 Date & Time
               </TableHead>
               <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[35%]">
-                Class / Session Name
+                Log Type
               </TableHead>
               <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[30%]">
                 Attendance Breakdown
@@ -198,10 +154,10 @@ export default function TutorAttendanceHistory({ logs, onDeleteLog }: TutorAtten
                       </span>
                     </TableCell>
 
-                    {/* Session Name */}
+                    {/* Log Type */}
                     <TableCell className="px-6 py-4">
                       <p className="text-sm font-bold text-slate-700 leading-none truncate">
-                        {log.sessionName}
+                        Daily Attendance Log
                       </p>
                       <span className="text-[10px] text-slate-400 font-semibold block mt-1">
                         Logged by {log.tutorName}
@@ -240,15 +196,6 @@ export default function TutorAttendanceHistory({ logs, onDeleteLog }: TutorAtten
                         >
                           <Eye className="w-4 h-4" />
                         </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon-sm"
-                          onClick={() => handleDelete(log.id, log.sessionName)}
-                          title="Delete Log"
-                          className="rounded-lg text-slate-450 hover:text-red-650 hover:bg-red-50 transition-all cursor-pointer"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -276,7 +223,7 @@ export default function TutorAttendanceHistory({ logs, onDeleteLog }: TutorAtten
                   Attendance Details
                 </span>
                 <h3 className="text-base font-bold text-slate-800 mt-2 font-heading">
-                  {selectedLog.sessionName}
+                  Daily Attendance Log
                 </h3>
                 <p className="text-xs text-slate-450 font-semibold mt-1">
                   Logged on {new Date(selectedLog.date).toLocaleDateString("en-US", {

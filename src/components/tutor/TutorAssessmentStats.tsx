@@ -2,6 +2,8 @@
 
 import { FileText, FileCheck, CheckSquare, Percent } from "lucide-react";
 import DashboardStatCard from "@/components/dashboard/shared/DashboardStatCard";
+import { ITutorAssignment } from "@/types/tutor/assignments";
+import { ITutorExam } from "@/types/tutor/exams";
 
 export interface Assignment {
   id: string;
@@ -42,8 +44,8 @@ export interface Evaluation {
 }
 
 interface TutorAssessmentStatsProps {
-  assignments: Assignment[];
-  exams: Exam[];
+  assignments: ITutorAssignment[];
+  exams: ITutorExam[];
   evaluations: Evaluation[];
 }
 
@@ -53,8 +55,8 @@ export default function TutorAssessmentStats({
   evaluations,
 }: TutorAssessmentStatsProps) {
   // Metrics calculations
-  const activeAssignments = assignments.filter((a) => a.status === "Active").length;
-  const pendingExams = exams.filter((e) => e.status === "Pending").length;
+  const activeAssignments = assignments.filter((a) => a.status === "assigned" || a.status === "submitted").length;
+  const pendingExams = exams.filter((e) => e.status === "pending").length;
   const totalEvaluations = evaluations.length;
 
   // Calculate average score percentage

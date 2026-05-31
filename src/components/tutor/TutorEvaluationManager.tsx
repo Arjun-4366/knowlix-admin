@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Award, Search, Trash2, Check, Sparkles } from "lucide-react";
+import { Award, Search, Trash2, Check, Sparkles, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,31 +23,24 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useConfirmation } from "@/context/ConfirmationContext";
-import { Student } from "@/components/admin/students/StudentStats";
-import { Assignment, Exam, Evaluation } from "./TutorAssessmentStats";
+import { IStudent } from "@/types/admin/student";
+import { ITutorExam } from "@/types/tutor/exams";
+import { Evaluation } from "./TutorAssessmentStats";
+import { ITutorAssignment } from "@/types/tutor/assignments";
+import { useEvaluateTutorAssignment } from "@/querys/tutor/assignmentQuery";
+import { useEnterTutorExamResults } from "@/querys/tutor/examQuery";
 import { toast } from "react-hot-toast";
 
 interface TutorEvaluationManagerProps {
-  students: Student[];
-  assignments: Assignment[];
-  exams: Exam[];
+  students: IStudent[];
+  assignments: ITutorAssignment[];
+  exams: ITutorExam[];
   evaluations: Evaluation[];
   onAddEvaluation: (evaluation: Evaluation) => void;
   onDeleteEvaluation: (id: string) => void;
 }
 
 const GRADE_OPTIONS = ["A+", "A", "B", "C", "D", "F"];
-
-const calculateAutoGrade = (obtained: number, max: number): string => {
-  if (max <= 0) return "F";
-  const pct = (obtained / max) * 100;
-  if (pct >= 90) return "A+";
-  if (pct >= 80) return "A";
-  if (pct >= 70) return "B";
-  if (pct >= 60) return "C";
-  if (pct >= 50) return "D";
-  return "F";
-};
 
 export default function TutorEvaluationManager({
   students,
@@ -58,11 +51,13 @@ export default function TutorEvaluationManager({
   onDeleteEvaluation,
 }: TutorEvaluationManagerProps) {
   const { confirm } = useConfirmation();
+  const { mutate: evaluateAssignment, isPending: isEvaluatingAssignment } = useEvaluateTutorAssignment();
+  const { mutate: enterExamResults, isPending: isEnteringExamResults } = useEnterTutorExamResults();
 
-  // Filter approved students assigned to Dr. Ramesh Prasad
-  const myStudents = students.filter(
-    (s) => s.subjectTutor === "Dr. Ramesh Prasad" && s.admissionStatus === "Approved"
-  );
+  const isSubmitting = isEvaluatingAssignment || isEnteringExamResults;
+
+  // Use all assigned students directly from query response
+  const myStudents = students;
 
   // State variables for form
   const [selectedStudentId, setSelectedStudentId] = useState("");
@@ -71,11 +66,11 @@ export default function TutorEvaluationManager({
   const [maxMarks, setMaxMarks] = useState("100");
   const [obtainedMarks, setObtainedMarks] = useState("");
   const [grade, setGrade] = useState("A");
-  const [isGradeOverridden, setIsGradeOverridden] = useState(false);
   const [remarks, setRemarks] = useState("");
 
   // Search filter for history
   const [searchQuery, setSearchQuery] = useState("");
+  const [showForm, setShowForm] = useState(false);
 
   // Pre-fill student dropdown if students are available
   useEffect(() => {
@@ -85,8 +80,8 @@ export default function TutorEvaluationManager({
   }, [myStudents, selectedStudentId]);
 
   // Available assessments based on selected type
-  const activeAssignments = assignments.filter((a) => a.tutorName === "Dr. Ramesh Prasad");
-  const activeExams = exams.filter((e) => e.tutorName === "Dr. Ramesh Prasad");
+  const activeAssignments = assignments;
+  const activeExams = exams;
 
   const currentAssessments = assessmentType === "Assignment" ? activeAssignments : activeExams;
 
@@ -99,15 +94,7 @@ export default function TutorEvaluationManager({
     }
   }, [assessmentType, assignments, exams]);
 
-  // Auto-calculate grade when marks change, unless manually overridden
-  useEffect(() => {
-    const obt = parseFloat(obtainedMarks);
-    const max = parseFloat(maxMarks);
-    if (!isNaN(obt) && !isNaN(max) && max > 0 && !isGradeOverridden) {
-      const calculated = calculateAutoGrade(obt, max);
-      setGrade(calculated);
-    }
-  }, [obtainedMarks, maxMarks, isGradeOverridden]);
+
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -133,10 +120,10 @@ export default function TutorEvaluationManager({
     const newEvaluation: Evaluation = {
       id: `EVL-${Date.now()}`,
       studentId: studentObj.id,
-      studentName: studentObj.name,
+      studentName: studentObj.studentName,
       assessmentType,
       assessmentId: assessmentObj.id,
-      assessmentTitle: "title" in assessmentObj ? (assessmentObj as Assignment).title : (assessmentObj as Exam).title,
+      assessmentTitle: assessmentObj.title,
       maxMarks: max,
       obtainedMarks: obt,
       grade,
@@ -145,13 +132,59 @@ export default function TutorEvaluationManager({
       tutorName: "Dr. Ramesh Prasad",
     };
 
-    onAddEvaluation(newEvaluation);
-    toast.success(`Evaluation recorded for ${studentObj.name}!`);
-
-    // Reset Form
-    setObtainedMarks("");
-    setRemarks("");
-    setIsGradeOverridden(false);
+    if (assessmentType === "Assignment") {
+      evaluateAssignment(
+        {
+          id: selectedAssessmentId,
+          data: {
+            studentId: selectedStudentId,
+            marksObtained: obt,
+            remarks: remarks.trim(),
+            completed: true,
+          },
+        },
+        {
+          onSuccess: () => {
+            onAddEvaluation(newEvaluation);
+            toast.success(`Evaluation recorded for ${studentObj.studentName}!`);
+            setObtainedMarks("");
+            setRemarks("");
+            setShowForm(false);
+          },
+          onError: () => {
+            toast.error("Failed to submit assignment evaluation to the backend.");
+          },
+        }
+      );
+    } else {
+      enterExamResults(
+        {
+          id: selectedAssessmentId,
+          data: {
+            results: [
+              {
+                studentId: selectedStudentId,
+                marksObtained: obt,
+                grade,
+                remarks: remarks.trim(),
+              },
+            ],
+          },
+        },
+        {
+          onSuccess: () => {
+            onAddEvaluation(newEvaluation);
+            toast.success(`Exam results entered for ${studentObj.studentName}!`);
+            setObtainedMarks("");
+            setRemarks("");
+            setShowForm(false);
+          },
+          onError: () => {
+            toast.error("Failed to submit exam results to the backend.");
+          },
+        }
+      );
+    }
   };
 
   const handleDelete = (id: string, name: string, title: string) => {
@@ -186,10 +219,35 @@ export default function TutorEvaluationManager({
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-      {/* ── Left Column: Form ── */}
-      <div className="lg:col-span-2 space-y-6">
-        <Card className="bg-white border-slate-150 shadow-sm overflow-hidden h-full">
+    <div className="space-y-6">
+      {/* Header with toggle form button */}
+      <div className="flex justify-between items-center">
+        <h2 className="text-base font-bold text-slate-800 uppercase tracking-wider font-heading">
+          Evaluations List
+        </h2>
+        <Button
+          onClick={() => setShowForm(!showForm)}
+          className={`font-bold text-xs px-4 py-2 rounded-xl flex items-center gap-1.5 cursor-pointer transition-all ${
+            showForm
+              ? "bg-slate-100 text-slate-700 hover:bg-slate-200"
+              : "bg-[var(--brand-green)] hover:bg-[var(--brand-green)]/90 text-white shadow-sm"
+          }`}
+        >
+          {showForm ? (
+            <>
+              <X className="w-3.5 h-3.5" /> Cancel
+            </>
+          ) : (
+            <>
+              <Award className="w-3.5 h-3.5" /> Enter Marks
+            </>
+          )}
+        </Button>
+      </div>
+
+      {/* ── Manual Marks Entry Form ── */}
+      {showForm && (
+        <Card className="bg-white border-slate-150 shadow-sm overflow-hidden animate-slide-down">
           <CardHeader className="p-6 pb-4 border-b border-slate-100 bg-slate-50/50">
             <CardTitle className="text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
               <Award className="w-4 h-4 text-[var(--brand-green)]" />
@@ -199,26 +257,26 @@ export default function TutorEvaluationManager({
           <CardContent className="p-6">
             {myStudents.length > 0 ? (
               <form onSubmit={handleSubmit} className="space-y-4">
-                {/* Select Student */}
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                    Select Student
-                  </label>
-                  <Select value={selectedStudentId} onValueChange={setSelectedStudentId}>
-                    <SelectTrigger className="h-10 bg-white border-slate-200 rounded-xl text-sm font-medium">
-                      <SelectValue placeholder="Select Student" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {myStudents.map((s) => (
-                        <SelectItem key={s.id} value={s.id} className="text-xs font-medium">
-                          {s.name} ({s.id})
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {/* Select Student */}
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                      Select Student
+                    </label>
+                    <Select value={selectedStudentId} onValueChange={setSelectedStudentId}>
+                      <SelectTrigger className="h-10 bg-white border-slate-200 rounded-xl text-sm font-medium">
+                        <SelectValue placeholder="Select Student" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {myStudents.map((s) => (
+                          <SelectItem key={s.id} value={s.id} className="text-xs font-medium">
+                            {s.studentName}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-                <div className="grid grid-cols-2 gap-4">
                   {/* Assessment Type */}
                   <div className="space-y-1">
                     <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
@@ -251,7 +309,7 @@ export default function TutorEvaluationManager({
                         <SelectContent>
                           {currentAssessments.map((a) => (
                             <SelectItem key={a.id} value={a.id} className="text-xs font-medium">
-                              {"title" in a ? (a as Assignment).title : (a as Exam).title}
+                              {a.title}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -264,7 +322,7 @@ export default function TutorEvaluationManager({
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {/* Maximum Marks */}
                   <div className="space-y-1">
                     <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
@@ -296,52 +354,19 @@ export default function TutorEvaluationManager({
                       required
                     />
                   </div>
-                </div>
 
-                {/* Grade Entry */}
-                <div className="p-3 bg-slate-50/60 rounded-xl border border-slate-150 flex items-center justify-between gap-4">
-                  <div>
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                      Assigned Grade
-                    </span>
-                    <div className="flex items-center gap-1.5 mt-0.5">
-                      <span className="text-lg font-black text-slate-800">{grade}</span>
-                      {!isGradeOverridden && obtainedMarks && (
-                        <span className="text-[10px] font-bold text-[var(--brand-green)] flex items-center gap-0.5">
-                          <Sparkles className="w-3 h-3 fill-[var(--brand-green)] text-[var(--brand-green)]" /> Auto-calculated
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Grade Override Option */}
-                  <div className="w-[120px]">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
-                      Override Grade
-                    </span>
-                    <Select
-                      value={isGradeOverridden ? grade : "auto"}
-                      onValueChange={(val) => {
-                        if (val === "auto") {
-                          setIsGradeOverridden(false);
-                          const obt = parseFloat(obtainedMarks);
-                          const max = parseFloat(maxMarks);
-                          if (!isNaN(obt) && !isNaN(max) && max > 0) {
-                            setGrade(calculateAutoGrade(obt, max));
-                          }
-                        } else {
-                          setIsGradeOverridden(true);
-                          setGrade(val);
-                        }
-                      }}
-                    >
-                      <SelectTrigger className="h-8 text-xs font-semibold bg-white border-slate-250 rounded-lg">
-                        <SelectValue placeholder="Auto" />
+                  {/* Select Grade */}
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                      Select Grade
+                    </label>
+                    <Select value={grade} onValueChange={setGrade}>
+                      <SelectTrigger className="h-10 bg-white border-slate-200 rounded-xl text-sm font-medium">
+                        <SelectValue placeholder="Select Grade" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="auto" className="text-xs">Auto (Calculated)</SelectItem>
                         {GRADE_OPTIONS.map((g) => (
-                          <SelectItem key={g} value={g} className="text-xs font-semibold">
+                          <SelectItem key={g} value={g} className="text-xs font-medium">
                             {g}
                           </SelectItem>
                         ))}
@@ -364,13 +389,20 @@ export default function TutorEvaluationManager({
                 </div>
 
                 {/* Submit button */}
-                <Button
-                  type="submit"
-                  disabled={!selectedAssessmentId}
-                  className="w-full bg-[var(--brand-green)] hover:bg-[var(--brand-green)]/90 text-white font-bold h-10 rounded-xl flex items-center justify-center gap-1.5 shadow-sm cursor-pointer disabled:opacity-50 disabled:pointer-events-none"
-                >
-                  <Check className="w-4 h-4" /> Save Evaluation Entry
-                </Button>
+                <div className="flex justify-end">
+                  <Button
+                    type="submit"
+                    disabled={!selectedAssessmentId || isSubmitting}
+                    className="bg-[var(--brand-green)] hover:bg-[var(--brand-green)]/90 text-white font-bold px-5 py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-sm cursor-pointer disabled:opacity-50 disabled:pointer-events-none"
+                  >
+                    {isSubmitting ? (
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <Check className="w-4 h-4" />
+                    )}
+                    {isSubmitting ? "Saving..." : "Save Evaluation Entry"}
+                  </Button>
+                </div>
               </form>
             ) : (
               <div className="p-8 text-center text-slate-450 text-sm">
@@ -379,10 +411,10 @@ export default function TutorEvaluationManager({
             )}
           </CardContent>
         </Card>
-      </div>
+      )}
 
-      {/* ── Right Column: History ── */}
-      <div className="lg:col-span-3 space-y-4">
+      {/* ── Table of History ── */}
+      <div className="space-y-4">
         {/* Search header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-50/50 p-4 rounded-2xl border border-slate-150">
           <div className="relative w-full">
@@ -398,7 +430,7 @@ export default function TutorEvaluationManager({
         </div>
 
         {/* List of past evaluations */}
-        <div className="bg-white border border-slate-150 rounded-2xl shadow-sm overflow-hidden">
+        <div className="bg-white border border-slate-150 rounded-2xl shadow-sm overflow-hidden max-h-[520px] overflow-y-auto">
           <Table className="table-fixed w-full">
             <TableHeader className="bg-slate-50/50">
               <TableRow>

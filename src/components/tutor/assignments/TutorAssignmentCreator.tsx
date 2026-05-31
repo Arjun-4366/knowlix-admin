@@ -1,650 +1,566 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Plus, Trash2, Calendar, FileText, CheckCircle2, AlertCircle, X, Search, Filter, Check, Award, Download } from "lucide-react";
+import { Suspense, useState } from "react";
+import { Calendar, FileText, CheckCircle2, Clock, XCircle, BookOpen, Users, AlertTriangle, Plus, X, Save } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { toast } from "react-hot-toast";
 import DashboardHeader from "@/components/dashboard/shared/DashboardHeader";
-import { Assignment, Submission } from "@/components/student/assignments/StudentAssignmentManager";
+import DashboardStatCard from "@/components/dashboard/shared/DashboardStatCard";
+import { useGetTutorAssignments, useCreateTutorAssignment } from "@/querys/tutor/assignmentQuery";
+import { useGetTutorStudents } from "@/querys/tutor/studentQuery";
+import { ITutorAssignment, TutorAssignmentStatus, ICreateAssignmentPayload } from "@/types/tutor/assignments";
+import { toast } from "react-hot-toast";
+import TutorEvaluateAssignmentModal from "./TutorEvaluateAssignmentModal";
 
-const SUBJECT_OPTIONS = ["Mathematics", "Physics", "Chemistry", "English", "Social Studies", "Computer Science"];
-const GRADE_OPTIONS = ["Grade 8", "Grade 9", "Grade 10", "Grade 11", "Grade 12"];
+// ─── Status helpers ────────────────────────────────────────────────────────────
 
-const initialAssignments: Assignment[] = [
-  {
-    id: "ASG-1",
-    title: "Calculus Limits Sheet",
-    description: "Complete all questions from Section 4.2 in the workbook.",
-    subject: "Mathematics",
-    dueDate: "2026-05-28",
-    status: "Active",
-    totalStudents: 3,
-    submittedCount: 2,
-    tutorName: "Dr. Ramesh Prasad",
+const STATUS_CONFIG: Record<TutorAssignmentStatus, { label: string; className: string; icon: React.ReactNode }> = {
+  assigned: {
+    label: "Assigned",
+    className: "bg-blue-50 text-blue-700 border-blue-200",
+    icon: <FileText className="w-3 h-3 mr-1" />,
   },
-  {
-    id: "ASG-2",
-    title: "Newton's Laws Lab Report",
-    description: "Submit PDF report for the gravity acceleration experiment.",
-    subject: "Physics",
-    dueDate: "2026-05-21",
-    status: "Completed",
-    totalStudents: 3,
-    submittedCount: 3,
-    tutorName: "Dr. Ramesh Prasad",
+  submitted: {
+    label: "Submitted",
+    className: "bg-amber-50 text-amber-700 border-amber-200",
+    icon: <Clock className="w-3 h-3 mr-1" />,
   },
-  {
-    id: "ASG-3",
-    title: "Medieval History Essay",
-    description: "Write a 500-word summary on feudal structures.",
-    subject: "Social Studies",
-    dueDate: "2026-06-01",
-    status: "Active",
-    totalStudents: 1,
-    submittedCount: 0,
-    tutorName: "Dr. Ramesh Prasad",
+  evaluated: {
+    label: "Evaluated",
+    className: "bg-[var(--brand-light-green)] text-[var(--brand-mid)] border-[var(--brand-light)]/20",
+    icon: <CheckCircle2 className="w-3 h-3 mr-1" />,
+  },
+  expired: {
+    label: "Expired",
+    className: "bg-red-50 text-red-700 border-red-200",
+    icon: <XCircle className="w-3 h-3 mr-1" />,
+  },
+};
+
+function StatusBadge({ status }: { status: TutorAssignmentStatus }) {
+  const cfg = STATUS_CONFIG[status] ?? STATUS_CONFIG.assigned;
+  return (
+    <Badge variant="outline" className={`text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center w-fit ${cfg.className}`}>
+      {cfg.icon}
+      {cfg.label}
+    </Badge>
+  );
+}
+
+// ─── Due date helpers ──────────────────────────────────────────────────────────
+
+function formatDueDate(dateStr: string) {
+  const d = new Date(dateStr);
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+}
+
+function isDueSoon(dateStr: string) {
+  const diff = new Date(dateStr).getTime() - Date.now();
+  return diff > 0 && diff < 3 * 24 * 60 * 60 * 1000; // within 3 days
+}
+
+function isOverdue(dateStr: string) {
+  return new Date(dateStr) < new Date();
+}
+
+// ─── Main component ────────────────────────────────────────────────────────────
+
+function AssignmentsList({
+  assignments,
+  studentMap,
+  onEvaluate,
+}: {
+  assignments: ITutorAssignment[];
+  studentMap: Map<string, string>;
+  onEvaluate?: (assignment: ITutorAssignment) => void;
+}) {
+  if (assignments.length === 0) {
+    return (
+      <div className="bg-white border border-slate-150 rounded-2xl shadow-sm overflow-hidden">
+        <div className="px-6 py-16 text-center">
+          <FileText className="w-8 h-8 text-slate-300 mx-auto mb-3" />
+          <p className="text-sm font-semibold text-slate-400">No assignments found.</p>
+        </div>
+      </div>
+    );
   }
-];
 
-const initialSubmissions: Submission[] = [
-  {
-    id: "SUB-101",
-    assignmentId: "ASG-2",
-    assignmentTitle: "Newton's Laws Lab Report",
-    studentId: "STU-101",
-    studentName: "Rahul Sharma",
-    submittedAt: "2026-05-20",
-    fileName: "rahul_sharma_newton_laws_lab.pdf",
-    fileSize: "2.4 MB",
-    status: "Graded",
-    grade: "94/100",
-    feedback: "Excellent lab structure, very detailed graphs and formulas."
-  }
-];
+  return (
+    <div className="bg-white border border-slate-150 rounded-2xl shadow-sm overflow-hidden">
+      <Table className="table-fixed w-full">
+        <TableHeader className="bg-slate-50/50">
+          <TableRow>
+            <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[34%]">
+              Assignment Details
+            </TableHead>
+            <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[16%]">
+              Due Date
+            </TableHead>
+            <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[20%]">
+              Students
+            </TableHead>
+            <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[10%]">
+              Max Marks
+            </TableHead>
+            <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[10%]">
+              Status
+            </TableHead>
+            <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right w-[10%]">
+              Actions
+            </TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody className="divide-y divide-slate-100">
+          {assignments.map((asg) => {
+            const due = asg.dueDate;
+            const dueSoon = isDueSoon(due);
+            const overdue = isOverdue(due) && asg.status === "assigned";
+            const studentNames = asg.studentIds
+              .map((id) => studentMap.get(id) ?? id.substring(0, 8) + "...")
+              .join(", ");
 
-export default function TutorAssignmentCreator() {
-  const [assignments, setAssignments] = useState<Assignment[]>([]);
-  const [submissions, setSubmissions] = useState<Submission[]>([]);
-  const [showAddForm, setShowAddForm] = useState(false);
+            return (
+              <TableRow key={asg.id} className="hover:bg-slate-50/60 transition-colors">
+                {/* Title + Subject */}
+                <TableCell className="px-6 py-4">
+                  <p className="text-sm font-bold text-slate-800 leading-tight truncate">{asg.title}</p>
+                  <div className="flex items-center gap-1 mt-1">
+                    <BookOpen className="w-3 h-3 text-slate-400 flex-shrink-0" />
+                    <span className="text-[11px] text-slate-400 font-semibold truncate">{asg.subject}</span>
+                  </div>
+                  {asg.description && (
+                    <p className="text-[10px] text-slate-400 font-medium mt-0.5 line-clamp-1">{asg.description}</p>
+                  )}
+                </TableCell>
 
-  // Form states
-  const [newTitle, setNewTitle] = useState("");
-  const [newSubject, setNewSubject] = useState(SUBJECT_OPTIONS[0]);
-  const [newDueDate, setNewDueDate] = useState("");
-  const [newDesc, setNewDesc] = useState("");
-  const [newTargetGrade, setNewTargetGrade] = useState(GRADE_OPTIONS[2]); // Default Grade 10
+                {/* Due Date */}
+                <TableCell className="px-6 py-4">
+                  <div className={`flex items-center gap-1 ${overdue ? "text-red-600" : dueSoon ? "text-amber-600" : "text-slate-650"}`}>
+                    <Calendar className="w-3.5 h-3.5 flex-shrink-0" />
+                    <span className="text-xs font-semibold">{formatDueDate(due)}</span>
+                  </div>
+                  {overdue && (
+                    <span className="text-[10px] font-bold text-red-500 block mt-0.5">Overdue</span>
+                  )}
+                  {dueSoon && !overdue && (
+                    <span className="text-[10px] font-bold text-amber-500 block mt-0.5">Due soon</span>
+                  )}
+                </TableCell>
 
-  // Evaluation states
-  const [evaluatingSub, setEvaluatingSub] = useState<Submission | null>(null);
-  const [obtainedMarks, setObtainedMarks] = useState("");
-  const [maxMarks, setMaxMarks] = useState("100");
-  const [feedback, setFeedback] = useState("");
+                {/* Students */}
+                <TableCell className="px-6 py-4">
+                  <div className="flex items-center gap-1 mb-0.5">
+                    <Users className="w-3 h-3 text-slate-400 flex-shrink-0" />
+                    <span className="text-xs font-bold text-slate-700">{asg.studentIds.length} Student{asg.studentIds.length !== 1 ? "s" : ""}</span>
+                  </div>
+                  <p className="text-[10px] text-slate-400 font-semibold truncate">{studentNames}</p>
+                </TableCell>
 
-  const tutorName = "Dr. Ramesh Prasad";
+                {/* Max Marks */}
+                <TableCell className="px-6 py-4">
+                  <span className="text-sm font-black text-slate-800">{asg.maxMarks}</span>
+                  <span className="text-[10px] text-slate-400 font-semibold block">marks</span>
+                </TableCell>
 
-  useEffect(() => {
-    // Load assignments
-    const storedAsg = localStorage.getItem("knowlix_assignments");
-    if (storedAsg) {
-      try {
-        setAssignments(JSON.parse(storedAsg));
-      } catch (e) {
-        console.error(e);
-      }
-    } else {
-      localStorage.setItem("knowlix_assignments", JSON.stringify(initialAssignments));
-      setAssignments(initialAssignments);
-    }
+                {/* Status */}
+                <TableCell className="px-6 py-4">
+                  <StatusBadge status={asg.status} />
+                </TableCell>
 
-    // Load submissions
-    const storedSub = localStorage.getItem("knowlix_submissions");
-    if (storedSub) {
-      try {
-        setSubmissions(JSON.parse(storedSub));
-      } catch (e) {
-        console.error(e);
-      }
-    } else {
-      localStorage.setItem("knowlix_submissions", JSON.stringify(initialSubmissions));
-      setSubmissions(initialSubmissions);
-    }
-  }, []);
+                {/* Actions */}
+                <TableCell className="px-6 py-4 text-right">
+                  {onEvaluate && asg.status !== "evaluated" && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => onEvaluate(asg)}
+                      className="text-xs font-bold text-[var(--brand-mid)] hover:bg-[var(--brand-light-green)]/35 hover:text-[var(--brand-mid)] px-2.5 py-1.5 rounded-lg border border-[var(--brand-green)]/20 cursor-pointer transition-all"
+                    >
+                      Evaluate
+                    </Button>
+                  )}
+                </TableCell>
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      </Table>
+    </div>
+  );
+}
 
-  const handleAddAssignment = (e: React.FormEvent) => {
+function StatsRow({ assignments }: { assignments: ITutorAssignment[] }) {
+  const total = assignments.length;
+  const evaluated = assignments.filter((a) => a.status === "evaluated").length;
+  const submitted = assignments.filter((a) => a.status === "submitted").length;
+  const assigned = assignments.filter((a) => a.status === "assigned").length;
+  const expired = assignments.filter((a) => a.status === "expired").length;
+
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <DashboardStatCard
+        label="Total Assignments"
+        value={total}
+        icon={<FileText className="w-6 h-6 text-[var(--brand-green)]" />}
+        badgeText="All"
+        footerText="All assignments assigned to students"
+      />
+      <DashboardStatCard
+        label="Assigned"
+        value={assigned}
+        icon={<Clock className="w-6 h-6 text-[var(--brand-green)]" />}
+        badgeText={`${submitted} Submitted`}
+        footerText="Pending submission from students"
+      />
+      <DashboardStatCard
+        label="Evaluated"
+        value={evaluated}
+        icon={<CheckCircle2 className="w-6 h-6 text-[var(--brand-green)]" />}
+        badgeText="Graded"
+        footerText="Assignments reviewed and graded"
+      />
+      <DashboardStatCard
+        label="Expired"
+        value={expired}
+        icon={<AlertTriangle className="w-6 h-6 text-amber-600" />}
+        badgeText="Past Due"
+        footerText="Past due date with no submission"
+      />
+    </div>
+  );
+}
+
+const SUBJECT_OPTIONS = ["Mathematics", "Physics", "Chemistry", "English", "Social Studies", "Computer Science", "Biology"];
+
+interface TutorAssignmentCreatorProps {
+  hideHeader?: boolean;
+  hideStats?: boolean;
+}
+
+function TutorAssignmentCreatorContent({ hideHeader = false, hideStats = false }: TutorAssignmentCreatorProps) {
+  const { data: assignmentsResponse, isLoading: loadingAssignments } = useGetTutorAssignments();
+  const { data: studentsResponse, isLoading: loadingStudents } = useGetTutorStudents();
+  const { mutate: createAssignment, isPending: isCreating } = useCreateTutorAssignment();
+
+  // Create-form state
+  const [showForm, setShowForm] = useState(false);
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [subject, setSubject] = useState(SUBJECT_OPTIONS[0]);
+  const [dueDate, setDueDate] = useState("");
+  const [maxMarks, setMaxMarks] = useState("50");
+  const [selectedStudentIds, setSelectedStudentIds] = useState<string[]>([]);
+
+  // Evaluate-modal state
+  const [evaluatingAssignment, setEvaluatingAssignment] = useState<ITutorAssignment | null>(null);
+  const [isEvalModalOpen, setIsEvalModalOpen] = useState(false);
+
+  const isLoading = loadingAssignments || loadingStudents;
+
+  const assignments = assignmentsResponse?.data || [];
+  const students = studentsResponse?.data || [];
+
+  // Build a map of studentId → studentName for fast lookup
+  const studentMap = new Map(students.map((s) => [s.id, s.studentName]));
+
+  // Split assignments by status for tabs
+  const active = assignments.filter((a) => a.status === "assigned" || a.status === "submitted");
+  const evaluated = assignments.filter((a) => a.status === "evaluated");
+  const expired = assignments.filter((a) => a.status === "expired");
+
+  const toggleStudent = (id: string) => {
+    setSelectedStudentIds((prev) =>
+      prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]
+    );
+  };
+
+  const handleStartEvaluation = (asg: ITutorAssignment) => {
+    setEvaluatingAssignment(asg);
+    setIsEvalModalOpen(true);
+  };
+
+  const resetForm = () => {
+    setTitle("");
+    setDescription("");
+    setSubject(SUBJECT_OPTIONS[0]);
+    setDueDate("");
+    setMaxMarks("50");
+    setSelectedStudentIds([]);
+    setShowForm(false);
+  };
+
+  const handleCreate = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!title.trim()) { toast.error("Title is required."); return; }
+    if (!dueDate) { toast.error("Due date is required."); return; }
+    if (selectedStudentIds.length === 0) { toast.error("Select at least one student."); return; }
+    const marks = parseInt(maxMarks);
+    if (isNaN(marks) || marks <= 0) { toast.error("Enter a valid max marks value."); return; }
 
-    if (!newTitle.trim() || !newDueDate) {
-      toast.error("Please fill in both the title and due date.");
-      return;
-    }
-
-    const newAsg: Assignment = {
-      id: `ASG-${Date.now()}`,
-      title: newTitle.trim(),
-      description: newDesc.trim(),
-      subject: newSubject,
-      dueDate: newDueDate,
-      status: "Active",
-      totalStudents: newTargetGrade === "Grade 10" ? 3 : 1, // Rahul Sharma, Meera Joshi etc. are Grade 10
-      submittedCount: 0,
-      tutorName: tutorName
+    const payload: ICreateAssignmentPayload = {
+      studentIds: selectedStudentIds,
+      title: title.trim(),
+      description: description.trim(),
+      subject,
+      dueDate,
+      maxMarks: marks,
     };
 
-    const updated = [newAsg, ...assignments];
-    setAssignments(updated);
-    localStorage.setItem("knowlix_assignments", JSON.stringify(updated));
-    toast.success("Assignment created and published successfully!");
-
-    // Reset Form
-    setNewTitle("");
-    setNewDueDate("");
-    setNewDesc("");
-    setShowAddForm(false);
-  };
-
-  const handleDeleteAssignment = (id: string) => {
-    if (confirm("Are you sure you want to delete this assignment? All student submissions will be deleted.")) {
-      const updatedAsg = assignments.filter((a) => a.id !== id);
-      const updatedSub = submissions.filter((s) => s.assignmentId !== id);
-      
-      setAssignments(updatedAsg);
-      setSubmissions(updatedSub);
-      
-      localStorage.setItem("knowlix_assignments", JSON.stringify(updatedAsg));
-      localStorage.setItem("knowlix_submissions", JSON.stringify(updatedSub));
-      
-      toast.success("Assignment deleted successfully.");
-    }
-  };
-
-  const handleToggleStatus = (id: string) => {
-    const updated = assignments.map((asg) => {
-      if (asg.id === id) {
-        const nextStatus: "Active" | "Completed" = asg.status === "Active" ? "Completed" : "Active";
-        return { ...asg, status: nextStatus };
-      }
-      return asg;
+    createAssignment(payload, {
+      onSuccess: () => {
+        toast.success("Assignment created successfully!");
+        resetForm();
+      },
+      onError: () => {
+        toast.error("Failed to create assignment. Please try again.");
+      },
     });
-    setAssignments(updated);
-    localStorage.setItem("knowlix_assignments", JSON.stringify(updated));
-    toast.success("Assignment status toggled.");
   };
 
-  const handleEvaluateSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!evaluatingSub) return;
-    if (!obtainedMarks.trim()) {
-      toast.error("Please enter obtained marks.");
-      return;
-    }
-
-    const updatedSub = submissions.map((sub) => {
-      if (sub.id === evaluatingSub.id) {
-        return {
-          ...sub,
-          status: "Graded" as const,
-          grade: `${obtainedMarks}/${maxMarks}`,
-          feedback: feedback.trim()
-        };
-      }
-      return sub;
-    });
-
-    setSubmissions(updatedSub);
-    localStorage.setItem("knowlix_submissions", JSON.stringify(updatedSub));
-
-    // Also push to knowlix_evaluations for tutor logs compatibility
-    const storedEval = localStorage.getItem("knowlix_evaluations");
-    let evals = [];
-    if (storedEval) {
-      try {
-        evals = JSON.parse(storedEval);
-      } catch (e) {}
-    }
-    const newEval = {
-      id: `EVL-${Date.now()}`,
-      studentId: evaluatingSub.studentId,
-      studentName: evaluatingSub.studentName,
-      assessmentType: "Assignment",
-      assessmentId: evaluatingSub.assignmentId,
-      assessmentTitle: evaluatingSub.assignmentTitle,
-      maxMarks: parseInt(maxMarks) || 100,
-      obtainedMarks: parseInt(obtainedMarks) || 0,
-      grade: parseInt(obtainedMarks) / (parseInt(maxMarks) || 100) >= 0.9 ? "A+" : "A",
-      remarks: feedback.trim(),
-      evaluatedAt: new Date().toISOString().split("T")[0],
-      tutorName: tutorName
-    };
-    evals = [newEval, ...evals];
-    localStorage.setItem("knowlix_evaluations", JSON.stringify(evals));
-
-    toast.success(`Submission graded: ${obtainedMarks}/${maxMarks}`);
-    setObtainedMarks("");
-    setFeedback("");
-    setEvaluatingSub(null);
-  };
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <div className="w-8 h-8 border-4 border-[var(--brand-green)] border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 w-full pb-10">
-      <DashboardHeader
-        title="Assignments & Evaluations"
-        description="Publish homework assignments for your classes and evaluate reports uploaded by students."
-      />
-
-      <Tabs defaultValue="list">
-        <div className="flex justify-between items-center mb-6">
-          <TabsList className="flex gap-1 bg-white border border-slate-200 rounded-xl p-1 w-fit">
-            <TabsTrigger
-              value="list"
-              className="rounded-lg text-xs px-4 py-2 font-bold data-[state=active]:shadow-none data-[state=active]:text-white cursor-pointer"
-            >
-              Assignments List
-            </TabsTrigger>
-            <TabsTrigger
-              value="submissions"
-              className="rounded-lg text-xs px-4 py-2 font-bold data-[state=active]:shadow-none data-[state=active]:text-white cursor-pointer"
-            >
-              Student Submissions ({submissions.filter((s) => s.status === "Submitted").length})
-            </TabsTrigger>
-          </TabsList>
-
+      {!hideHeader && (
+        <div className="flex items-start justify-between gap-4">
+          <DashboardHeader
+            title="Assignments"
+            description="Publish assignments for your students and track their status."
+          />
           <Button
-            onClick={() => setShowAddForm(!showAddForm)}
-            className={`font-bold text-xs px-4 py-2.5 rounded-xl flex items-center gap-1.5 cursor-pointer transition-all ${
-              showAddForm
+            onClick={() => setShowForm((v) => !v)}
+            className={`flex-shrink-0 font-bold text-xs px-4 py-2.5 rounded-xl flex items-center gap-1.5 cursor-pointer transition-all ${
+              showForm
                 ? "bg-slate-100 text-slate-700 hover:bg-slate-200"
                 : "bg-[var(--brand-green)] hover:bg-[var(--brand-green)]/90 text-white shadow-sm"
             }`}
           >
-            {showAddForm ? (
-              <>
-                <X className="w-3.5 h-3.5" /> Cancel
-              </>
-            ) : (
-              <>
-                <Plus className="w-3.5 h-3.5" /> Create Assignment
-              </>
-            )}
+            {showForm ? <><X className="w-3.5 h-3.5" /> Cancel</> : <><Plus className="w-3.5 h-3.5" /> Create Assignment</>}
           </Button>
         </div>
+      )}
 
-        {/* Create Assignment Form */}
-        {showAddForm && (
-          <div className="mb-6">
-            <Card className="bg-white border-slate-150 shadow-sm overflow-hidden animate-slide-down">
-              <CardHeader className="p-6 pb-4 border-b border-slate-100 bg-slate-50/50">
-                <CardTitle className="text-sm font-bold text-slate-800 uppercase tracking-wider">
-                  Create New Assignment
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-6">
-                <form onSubmit={handleAddAssignment} className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    {/* Title */}
-                    <div className="md:col-span-2 space-y-1">
-                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                        Assignment Title
-                      </label>
-                      <Input
-                        type="text"
-                        value={newTitle}
-                        onChange={(e) => setNewTitle(e.target.value)}
-                        placeholder="e.g. Calculus Limits Sheet 2"
-                        className="h-10 bg-white border border-slate-200 rounded-xl text-sm"
-                        required
-                      />
-                    </div>
+      {hideHeader && (
+        <div className="flex justify-end">
+          <Button
+            onClick={() => setShowForm((v) => !v)}
+            className={`font-bold text-xs px-4 py-2.5 rounded-xl flex items-center gap-1.5 cursor-pointer transition-all ${
+              showForm
+                ? "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                : "bg-[var(--brand-green)] hover:bg-[var(--brand-green)]/90 text-white shadow-sm"
+            }`}
+          >
+            {showForm ? <><X className="w-3.5 h-3.5" /> Cancel</> : <><Plus className="w-3.5 h-3.5" /> Create Assignment</>}
+          </Button>
+        </div>
+      )}
 
-                    {/* Subject */}
-                    <div className="space-y-1">
-                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                        Subject
-                      </label>
-                      <Select value={newSubject} onValueChange={setNewSubject}>
-                        <SelectTrigger className="h-10 bg-white border-slate-200 rounded-xl text-sm font-medium">
-                          <SelectValue placeholder="Select Subject" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {SUBJECT_OPTIONS.map((sub) => (
-                            <SelectItem key={sub} value={sub} className="font-medium text-xs">
-                              {sub}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    {/* Target Grade */}
-                    <div className="space-y-1">
-                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                        Target Grade
-                      </label>
-                      <Select value={newTargetGrade} onValueChange={setNewTargetGrade}>
-                        <SelectTrigger className="h-10 bg-white border-slate-200 rounded-xl text-sm font-medium">
-                          <SelectValue placeholder="Select Grade" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {GRADE_OPTIONS.map((grade) => (
-                            <SelectItem key={grade} value={grade} className="font-medium text-xs">
-                              {grade}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    {/* Due Date */}
-                    <div className="space-y-1">
-                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                        Due Date
-                      </label>
-                      <Input
-                        type="date"
-                        value={newDueDate}
-                        onChange={(e) => setNewDueDate(e.target.value)}
-                        className="h-10 bg-white border border-slate-200 rounded-xl text-sm"
-                        required
-                      />
-                    </div>
-
-                    {/* Description */}
-                    <div className="md:col-span-3 space-y-1">
-                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                        Description / Instructions
-                      </label>
-                      <Textarea
-                        value={newDesc}
-                        onChange={(e) => setNewDesc(e.target.value)}
-                        placeholder="Provide details or upload guidelines..."
-                        className="min-h-10 max-h-24 bg-white border border-slate-200 rounded-xl text-sm"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="flex justify-end">
-                    <Button
-                      type="submit"
-                      className="bg-[var(--brand-green)] hover:bg-[var(--brand-green)]/90 text-white font-bold px-5 py-2.5 rounded-xl text-xs flex items-center gap-1.5 shadow-sm cursor-pointer"
-                    >
-                      <FileText className="w-4 h-4" /> Save Assignment
-                    </Button>
-                  </div>
-                </form>
-              </CardContent>
-            </Card>
-          </div>
-        )}
-
-        {/* List Tab */}
-        <TabsContent value="list" className="mt-0 outline-none">
-          <div className="bg-white border border-slate-150 rounded-2xl shadow-sm overflow-hidden">
-            <Table className="table-fixed w-full">
-              <TableHeader className="bg-slate-50/50">
-                <TableRow>
-                  <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[10%]">
-                    Active
-                  </TableHead>
-                  <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[35%]">
-                    Assignment Details
-                  </TableHead>
-                  <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[18%]">
-                    Due Date
-                  </TableHead>
-                  <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[17%]">
-                    Submissions
-                  </TableHead>
-                  <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[12%]">
-                    Status
-                  </TableHead>
-                  <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right w-[8%]">
-                    Actions
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody className="divide-y divide-slate-100">
-                {assignments.length > 0 ? (
-                  assignments.map((asg) => (
-                    <TableRow
-                      key={asg.id}
-                      className={`hover:bg-slate-50/60 transition-colors ${
-                        asg.status === "Completed" ? "bg-slate-50/30 text-slate-400" : ""
-                      }`}
-                    >
-                      <TableCell className="px-6 py-4">
-                        <input
-                          type="checkbox"
-                          checked={asg.status === "Completed"}
-                          onChange={() => handleToggleStatus(asg.id)}
-                          className="w-4.5 h-4.5 accent-[var(--brand-green)] border-slate-300 rounded-md cursor-pointer transition-all"
-                          title="Toggle Status"
-                        />
-                      </TableCell>
-                      <TableCell className="px-6 py-4">
-                        <p className={`text-sm font-bold text-slate-700 leading-none truncate ${asg.status === "Completed" ? "line-through text-slate-400" : ""}`}>
-                          {asg.title}
-                        </p>
-                        <span className="text-[10px] text-slate-400 font-semibold block mt-1">
-                          {asg.subject} · {asg.description || "No description"}
-                        </span>
-                      </TableCell>
-                      <TableCell className="px-6 py-4">
-                        <span className="text-xs font-semibold text-slate-650 truncate block">
-                          {new Date(asg.dueDate).toLocaleDateString("en-US", {
-                            month: "short",
-                            day: "numeric",
-                            year: "numeric",
-                          })}
-                        </span>
-                      </TableCell>
-                      <TableCell className="px-6 py-4">
-                        <span className="text-xs font-bold text-slate-750 block">
-                          {asg.submittedCount} / {asg.totalStudents} Submitted
-                        </span>
-                      </TableCell>
-                      <TableCell className="px-6 py-4">
-                        {asg.status === "Completed" ? (
-                          <Badge
-                            variant="outline"
-                            className="bg-slate-100 text-slate-500 border-slate-200 text-[10px] font-bold px-2 py-0.5 rounded-full"
-                          >
-                            <CheckCircle2 className="w-3 h-3 mr-1" /> Completed
-                          </Badge>
-                        ) : (
-                          <Badge
-                            variant="outline"
-                            className="bg-[var(--brand-light-green)] text-[var(--brand-mid)] border-[var(--brand-light)]/20 text-[10px] font-bold px-2 py-0.5 rounded-full"
-                          >
-                            <AlertCircle className="w-3 h-3 mr-1 text-[var(--brand-green)]" /> Active
-                          </Badge>
-                        )}
-                      </TableCell>
-                      <TableCell className="px-6 py-4 text-sm text-right">
-                        <Button
-                          variant="ghost"
-                          size="icon-sm"
-                          onClick={() => handleDeleteAssignment(asg.id)}
-                          className="rounded-lg text-slate-450 hover:text-red-650 hover:bg-red-50 transition-all cursor-pointer"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={6} className="px-6 py-12 text-center text-slate-450 text-sm font-medium">
-                      No assignments created yet.
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </div>
-        </TabsContent>
-
-        {/* Submissions Tab */}
-        <TabsContent value="submissions" className="mt-0 outline-none">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2 bg-white border border-slate-150 rounded-2xl shadow-sm overflow-hidden">
-              <Table className="table-fixed w-full">
-                <TableHeader className="bg-slate-50/50">
-                  <TableRow>
-                    <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[30%]">Student</TableHead>
-                    <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[35%]">Assignment</TableHead>
-                    <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[20%]">Submitted</TableHead>
-                    <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right w-[15%]">Grade</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody className="divide-y divide-slate-100">
-                  {submissions.length > 0 ? (
-                    submissions.map((sub) => (
-                      <TableRow
-                        key={sub.id}
-                        onClick={() => sub.status === "Submitted" && setEvaluatingSub(sub)}
-                        className={`transition-colors cursor-pointer ${
-                          sub.status === "Submitted" ? "hover:bg-slate-50 font-semibold" : "hover:bg-slate-50/50 text-slate-400"
-                        }`}
-                      >
-                        <TableCell className="px-6 py-4">
-                          <p className="text-xs font-bold text-slate-800 leading-none">{sub.studentName}</p>
-                          <span className="text-[9px] text-slate-400 font-semibold mt-1 block">ID: {sub.studentId}</span>
-                        </TableCell>
-                        <TableCell className="px-6 py-4">
-                          <p className="text-xs font-bold text-slate-700 leading-none truncate">{sub.assignmentTitle}</p>
-                          <span className="text-[9px] text-[var(--brand-green)] font-semibold mt-1 block truncate">
-                            File: {sub.fileName} ({sub.fileSize})
-                          </span>
-                        </TableCell>
-                        <TableCell className="px-6 py-4 text-xs text-slate-600 font-medium">
-                          {sub.submittedAt}
-                        </TableCell>
-                        <TableCell className="px-6 py-4 text-right">
-                          {sub.status === "Graded" ? (
-                            <span className="text-xs font-black text-slate-800">{sub.grade}</span>
-                          ) : (
-                            <Badge className="bg-amber-50 text-amber-700 border-amber-100 text-[8px] font-bold rounded-full py-0.5 px-1.5 shadow-none">
-                              Evaluate
-                            </Badge>
-                          )}
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={4} className="px-6 py-12 text-center text-slate-450 text-xs font-medium">
-                        No submissions uploaded by students yet.
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-
-            {/* Evaluation Details Form */}
-            <div>
-              {evaluatingSub ? (
-                <Card className="bg-white border-slate-150 shadow-sm overflow-hidden animate-slide-down">
-                  <CardHeader className="p-6 pb-4 border-b border-slate-100 bg-slate-50/50">
-                    <CardTitle className="text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center justify-between">
-                      <span>Evaluate Student</span>
-                      <Button variant="ghost" size="icon-sm" onClick={() => setEvaluatingSub(null)} className="rounded-lg">
-                        <X className="w-4 h-4 text-slate-400" />
-                      </Button>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-6">
-                    <form onSubmit={handleEvaluateSubmit} className="space-y-4">
-                      <div>
-                        <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Student Name</h4>
-                        <p className="text-xs font-bold text-slate-700 mt-1">{evaluatingSub.studentName} ({evaluatingSub.studentId})</p>
-                      </div>
-
-                      <div>
-                        <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Assignment</h4>
-                        <p className="text-xs font-bold text-slate-700 mt-1">{evaluatingSub.assignmentTitle}</p>
-                      </div>
-
-                      <div className="bg-slate-50 border border-slate-100 p-3 rounded-lg flex items-center justify-between">
-                        <div className="truncate pr-4">
-                          <span className="text-[9px] font-bold text-slate-450 uppercase tracking-wider block">Attached File</span>
-                          <span className="text-xs font-semibold text-slate-700 truncate block mt-0.5">{evaluatingSub.fileName}</span>
-                        </div>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={() => toast.success(`Simulating file download: ${evaluatingSub.fileName}`)}
-                          className="h-8 text-[10px] px-2.5 rounded-lg border-slate-200 font-bold hover:bg-slate-100 cursor-pointer flex items-center gap-1 flex-shrink-0"
-                        >
-                          <Download className="w-3 h-3" /> Download
-                        </Button>
-                      </div>
-
-                      {/* Marks */}
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-1">
-                          <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Marks Obtained</label>
-                          <Input
-                            type="number"
-                            min="0"
-                            max={maxMarks}
-                            value={obtainedMarks}
-                            onChange={(e) => setObtainedMarks(e.target.value)}
-                            placeholder="e.g. 92"
-                            className="h-9 rounded-lg text-xs"
-                            required
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Out Of</label>
-                          <Input
-                            type="number"
-                            value={maxMarks}
-                            onChange={(e) => setMaxMarks(e.target.value)}
-                            className="h-9 rounded-lg text-xs bg-slate-50 text-slate-500"
-                            disabled
-                          />
-                        </div>
-                      </div>
-
-                      {/* Feedback */}
-                      <div className="space-y-1">
-                        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Feedback / Comments</label>
-                        <Textarea
-                          value={feedback}
-                          onChange={(e) => setFeedback(e.target.value)}
-                          placeholder="Provide grading remarks..."
-                          className="min-h-16 max-h-24 text-xs rounded-lg"
-                        />
-                      </div>
-
-                      <Button
-                        type="submit"
-                        className="w-full bg-[var(--brand-green)] hover:bg-[var(--brand-green)]/90 text-white font-bold py-2.5 rounded-xl text-xs shadow-sm cursor-pointer transition-all flex items-center justify-center gap-1.5"
-                      >
-                        <Award className="w-4 h-4" /> Submit Evaluation
-                      </Button>
-                    </form>
-                  </CardContent>
-                </Card>
-              ) : (
-                <div className="border border-dashed border-slate-200 rounded-2xl p-8 text-center text-slate-450 text-xs font-semibold">
-                  Select a student submission to evaluate.
+      {/* ── Create Form ── */}
+      {showForm && (
+        <Card className="bg-white border-slate-150 shadow-sm overflow-hidden">
+          <CardHeader className="p-6 pb-4 border-b border-slate-100 bg-slate-50/50">
+            <CardTitle className="text-sm font-bold text-slate-800 uppercase tracking-wider">
+              New Assignment
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-6">
+            <form onSubmit={handleCreate} className="space-y-5">
+              {/* Row 1: Title + Subject + Due Date + Max Marks */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="md:col-span-2 space-y-1.5">
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Title</label>
+                  <Input
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    placeholder="e.g. Algebra Worksheet - Chapter 5"
+                    className="h-10 bg-white border border-slate-200 rounded-xl text-sm"
+                    required
+                  />
                 </div>
-              )}
-            </div>
-          </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Subject</label>
+                  <select
+                    value={subject}
+                    onChange={(e) => setSubject(e.target.value)}
+                    className="h-10 w-full bg-white border border-slate-200 rounded-xl text-sm px-3 font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-[var(--brand-green)]/30"
+                  >
+                    {SUBJECT_OPTIONS.map((s) => <option key={s} value={s}>{s}</option>)}
+                  </select>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Due Date</label>
+                  <div className="relative">
+                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 z-10" />
+                    <Input
+                      type="date"
+                      value={dueDate}
+                      onChange={(e) => setDueDate(e.target.value)}
+                      className="h-10 pl-10 bg-white border border-slate-200 rounded-xl text-sm"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Row 2: Description + Max Marks */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="md:col-span-3 space-y-1.5">
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Description / Instructions</label>
+                  <Textarea
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    placeholder="e.g. Complete exercises 1 to 20 from chapter 5"
+                    className="min-h-[72px] max-h-28 bg-white border border-slate-200 rounded-xl text-sm"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Max Marks</label>
+                  <Input
+                    type="number"
+                    min="1"
+                    value={maxMarks}
+                    onChange={(e) => setMaxMarks(e.target.value)}
+                    className="h-10 bg-white border border-slate-200 rounded-xl text-sm"
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Row 3: Student multi-select */}
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  Assign To Students ({selectedStudentIds.length} selected)
+                </label>
+                {students.length === 0 ? (
+                  <p className="text-xs text-slate-400 font-semibold">No students in your roster.</p>
+                ) : (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 max-h-[200px] overflow-y-auto pr-1">
+                    {students.map((s) => {
+                      const selected = selectedStudentIds.includes(s.id);
+                      return (
+                        <button
+                          key={s.id}
+                          type="button"
+                          onClick={() => toggleStudent(s.id)}
+                          className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border text-left transition-all cursor-pointer text-xs font-bold ${
+                            selected
+                              ? "bg-[var(--brand-light-green)]/40 border-[var(--brand-green)] text-[var(--brand-mid)]"
+                              : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50"
+                          }`}
+                        >
+                          <div className={`w-4 h-4 rounded flex items-center justify-center flex-shrink-0 border ${
+                            selected ? "bg-[var(--brand-green)] border-[var(--brand-green)]" : "border-slate-300"
+                          }`}>
+                            {selected && <CheckCircle2 className="w-3 h-3 text-white" />}
+                          </div>
+                          <span className="truncate">{s.studentName}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              <div className="flex justify-end">
+                <Button
+                  type="submit"
+                  disabled={isCreating}
+                  className="bg-[var(--brand-green)] hover:bg-[var(--brand-green)]/90 text-white font-bold px-6 py-2.5 rounded-xl flex items-center gap-2 shadow-sm cursor-pointer disabled:opacity-50"
+                >
+                  {isCreating ? (
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <Save className="w-4 h-4" />
+                  )}
+                  {isCreating ? "Creating..." : "Create Assignment"}
+                </Button>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Stats Row */}
+      {!hideStats && <StatsRow assignments={assignments} />}
+
+      {/* Tabs */}
+      <Tabs defaultValue="active">
+        <TabsList className="flex gap-1 bg-white border border-gray-200 rounded-xl p-1 w-fit mb-6">
+          <TabsTrigger
+            value="active"
+            className="rounded-lg text-xs px-4 py-2 font-bold data-[state=active]:shadow-none data-[state=active]:text-white cursor-pointer"
+          >
+            Active ({active.length})
+          </TabsTrigger>
+          <TabsTrigger
+            value="evaluated"
+            className="rounded-lg text-xs px-4 py-2 font-bold data-[state=active]:shadow-none data-[state=active]:text-white cursor-pointer"
+          >
+            Evaluated ({evaluated.length})
+          </TabsTrigger>
+          <TabsTrigger
+            value="expired"
+            className="rounded-lg text-xs px-4 py-2 font-bold data-[state=active]:shadow-none data-[state=active]:text-white cursor-pointer"
+          >
+            Expired ({expired.length})
+          </TabsTrigger>
+          <TabsTrigger
+            value="all"
+            className="rounded-lg text-xs px-4 py-2 font-bold data-[state=active]:shadow-none data-[state=active]:text-white cursor-pointer"
+          >
+            All ({assignments.length})
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="active" className="mt-0 outline-none">
+          <AssignmentsList assignments={active} studentMap={studentMap} onEvaluate={handleStartEvaluation} />
+        </TabsContent>
+        <TabsContent value="evaluated" className="mt-0 outline-none">
+          <AssignmentsList assignments={evaluated} studentMap={studentMap} onEvaluate={handleStartEvaluation} />
+        </TabsContent>
+        <TabsContent value="expired" className="mt-0 outline-none">
+          <AssignmentsList assignments={expired} studentMap={studentMap} onEvaluate={handleStartEvaluation} />
+        </TabsContent>
+        <TabsContent value="all" className="mt-0 outline-none">
+          <AssignmentsList assignments={assignments} studentMap={studentMap} onEvaluate={handleStartEvaluation} />
         </TabsContent>
       </Tabs>
+
+      {/* Evaluate Modal */}
+      <TutorEvaluateAssignmentModal
+        isOpen={isEvalModalOpen}
+        onClose={() => {
+          setIsEvalModalOpen(false);
+          setEvaluatingAssignment(null);
+        }}
+        assignment={evaluatingAssignment}
+        studentMap={studentMap}
+      />
     </div>
+  );
+}
+
+export default function TutorAssignmentCreator({ hideHeader = false, hideStats = false }: TutorAssignmentCreatorProps) {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center min-h-[50vh]">
+          <div className="w-8 h-8 border-4 border-[var(--brand-green)] border-t-transparent rounded-full animate-spin" />
+        </div>
+      }
+    >
+      <TutorAssignmentCreatorContent hideHeader={hideHeader} hideStats={hideStats} />
+    </Suspense>
   );
 }

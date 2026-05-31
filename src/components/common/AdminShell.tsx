@@ -8,7 +8,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
   const [collapsed, setCollapsed] = useState(false);
 
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div id="admin-shell" className="flex h-screen overflow-hidden">
       <AdminSidebar collapsed={collapsed} />
       <div className="flex flex-col flex-1 overflow-hidden min-w-0">
         <AdminNavbar collapsed={collapsed} onToggle={() => setCollapsed((v) => !v)} />

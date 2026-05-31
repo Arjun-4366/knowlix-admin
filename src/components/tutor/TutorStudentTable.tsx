@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Search, Eye } from "lucide-react";
-import { Student } from "@/components/admin/students/StudentStats";
+import { IStudent } from "@/types/admin/student";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -25,12 +25,15 @@ import { Badge } from "@/components/ui/badge";
 
 // Helper to map DB course types to the specified UI Course Types
 const mapCourseType = (type: string) => {
-  switch (type) {
-    case "Online School":
+  switch (type?.toLowerCase()) {
+    case "online_school":
+    case "online school":
       return "Online School";
-    case "Online Tuition":
+    case "online_tuition":
+    case "online tuition":
       return "Online Tuition";
-    case "Hybrid Learning":
+    case "foundation_course":
+    case "hybrid learning":
       return "Foundation Course";
     default:
       return "Other Courses";
@@ -38,7 +41,7 @@ const mapCourseType = (type: string) => {
 };
 
 interface TutorStudentTableProps {
-  students: Student[];
+  students: IStudent[];
   onViewStudent: (id: string) => void;
 }
 
@@ -49,39 +52,39 @@ export default function TutorStudentTable({
   const [searchQuery, setSearchQuery] = useState("");
   const [courseFilter, setCourseFilter] = useState("All");
   const [statusFilter, setStatusFilter] = useState("All");
-  const [assignmentScope, setAssignmentScope] = useState<"assigned" | "all">("assigned");
-
-  // Filter students based on scope (Assigned to current tutor "Dr. Ramesh Prasad" vs All)
-  const scopedStudents = students.filter((s) => {
-    if (assignmentScope === "assigned") {
-      return s.subjectTutor === "Dr. Ramesh Prasad";
-    }
-    return true;
-  });
 
   // Apply search query and filters
-  const filteredStudents = scopedStudents.filter((s) => {
+  const filteredStudents = students.filter((s) => {
     const mappedType = mapCourseType(s.courseType);
     const matchesSearch =
-      s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      s.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (s.courseName && s.courseName.toLowerCase().includes(searchQuery.toLowerCase()));
+      s.studentName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      s.id?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      mappedType.toLowerCase().includes(searchQuery.toLowerCase());
 
     const matchesCourse = courseFilter === "All" || mappedType === courseFilter;
-    const matchesStatus = statusFilter === "All" || s.admissionStatus === statusFilter;
+    
+    const dbStatus = s.admissionStatus?.toLowerCase();
+    const matchesStatus =
+      statusFilter === "All" ||
+      (statusFilter === "Approved" && (dbStatus === "approved" || dbStatus === "active")) ||
+      (statusFilter === "In Review" && dbStatus === "in_review") ||
+      (statusFilter === "Pending Approval" && (dbStatus === "pending" || dbStatus === "pending_approval")) ||
+      (statusFilter === "Rejected" && dbStatus === "rejected");
 
     return matchesSearch && matchesCourse && matchesStatus;
   });
 
   const getStatusBadgeClass = (status: string) => {
-    switch (status) {
-      case "Approved":
+    switch (status?.toLowerCase()) {
+      case "approved":
+      case "active":
         return "bg-[var(--brand-light-green)] text-[var(--brand-mid)] border-[var(--brand-light)]/20";
-      case "Pending Approval":
-      case "Pending":
-      case "In Review":
+      case "pending":
+      case "in review":
+      case "in_review":
+      case "pending_approval":
         return "bg-slate-50 text-slate-650 border-slate-200/60";
-      case "Rejected":
+      case "rejected":
         return "bg-red-50 text-red-700 border-red-200";
       default:
         return "bg-slate-100 text-slate-700 border-slate-200";
@@ -104,38 +107,12 @@ export default function TutorStudentTable({
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
-          {/* Assignment Toggle Scope */}
-          <div className="flex bg-slate-100 p-0.5 rounded-xl border border-slate-200">
-            <button
-              onClick={() => setAssignmentScope("assigned")}
-              className={cn(
-                "px-3 py-1.5 rounded-lg text-xs font-bold transition-all",
-                assignmentScope === "assigned"
-                  ? "bg-white text-slate-800 shadow-sm"
-                  : "text-slate-500 hover:text-slate-800"
-              )}
-            >
-              My Students
-            </button>
-            <button
-              onClick={() => setAssignmentScope("all")}
-              className={cn(
-                "px-3 py-1.5 rounded-lg text-xs font-bold transition-all",
-                assignmentScope === "all"
-                  ? "bg-white text-slate-800 shadow-sm"
-                  : "text-slate-500 hover:text-slate-800"
-              )}
-            >
-              All Platform Students
-            </button>
-          </div>
-
           {/* Course Type Filter */}
           <Select value={courseFilter} onValueChange={setCourseFilter}>
             <SelectTrigger className="h-10 text-xs font-semibold bg-white border-slate-200 rounded-xl w-[160px]">
               <SelectValue placeholder="All Courses" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-white border border-slate-150 rounded-xl shadow-lg">
               <SelectItem value="All">All Courses</SelectItem>
               <SelectItem value="Online School">Online School</SelectItem>
               <SelectItem value="Online Tuition">Online Tuition</SelectItem>
@@ -149,7 +126,7 @@ export default function TutorStudentTable({
             <SelectTrigger className="h-10 text-xs font-semibold bg-white border-slate-200 rounded-xl w-[150px]">
               <SelectValue placeholder="All Statuses" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-white border border-slate-150 rounded-xl shadow-lg">
               <SelectItem value="All">All Statuses</SelectItem>
               <SelectItem value="Approved">Approved</SelectItem>
               <SelectItem value="In Review">In Review</SelectItem>
@@ -165,20 +142,20 @@ export default function TutorStudentTable({
         <Table className="table-fixed w-full">
           <TableHeader className="bg-slate-50/50">
             <TableRow>
-              <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[15%]">
-                Admission No
-              </TableHead>
               <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[22%]">
+                Admission ID / No
+              </TableHead>
+              <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[25%]">
                 Student Name
               </TableHead>
-              <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[20%]">
+              <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[22%]">
                 Course Type
               </TableHead>
-              <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[15%]">
+              <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[18%]">
                 Package Details
               </TableHead>
               <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[12%]">
-                Grade
+                Class / Grade
               </TableHead>
               <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[16%]">
                 Status
@@ -195,8 +172,8 @@ export default function TutorStudentTable({
                   key={student.id}
                   className="hover:bg-slate-50/60 transition-colors"
                 >
-                  {/* Admission Number */}
-                  <TableCell className="px-6 py-4 text-sm font-semibold text-slate-500 truncate">
+                  {/* Admission ID */}
+                  <TableCell className="px-6 py-4 text-xs font-semibold text-slate-500 truncate">
                     {student.id}
                   </TableCell>
 
@@ -204,41 +181,36 @@ export default function TutorStudentTable({
                   <TableCell className="px-6 py-4">
                     <div className="flex items-center gap-3 overflow-hidden">
                       <div className="w-8 h-8 rounded-full bg-[var(--brand-light-green)] flex items-center justify-center font-bold text-[var(--brand-green)] text-xs flex-shrink-0 border border-[var(--brand-light)]/20 shadow-sm">
-                        {student.name.charAt(0)}
+                        {student.studentName?.charAt(0).toUpperCase()}
                       </div>
                       <div className="truncate">
                         <p className="text-sm font-semibold text-slate-800 leading-none truncate">
-                          {student.name}
+                          {student.studentName}
                         </p>
                       </div>
                     </div>
                   </TableCell>
 
-                  {/* Course Type (Mapped & Displayed nicely) */}
+                  {/* Course Type */}
                   <TableCell className="px-6 py-4">
                     <div className="truncate">
                       <p className="text-sm font-bold text-slate-700 leading-none truncate">
                         {mapCourseType(student.courseType)}
                       </p>
-                      {student.courseName && (
-                        <span className="text-[10px] text-slate-400 font-semibold block mt-1 truncate">
-                          {student.courseName}
-                        </span>
-                      )}
                     </div>
                   </TableCell>
 
                   {/* Package Details */}
                   <TableCell className="px-6 py-4">
-                    <span className="text-sm font-semibold text-slate-650 truncate block">
-                      {student.packageSelection}
+                    <span className="text-xs font-bold text-slate-500 capitalize truncate block">
+                      {student.package?.replace("_", " ")}
                     </span>
                   </TableCell>
 
-                  {/* Grade */}
+                  {/* Class */}
                   <TableCell className="px-6 py-4">
                     <span className="text-sm font-semibold text-slate-650 truncate block">
-                      {student.grade}
+                      Class {student.class}
                     </span>
                   </TableCell>
 
@@ -247,7 +219,7 @@ export default function TutorStudentTable({
                     <Badge
                       variant="outline"
                       className={cn(
-                        "text-[10px] font-bold px-2.5 py-0.5 rounded-full border shadow-sm",
+                        "text-[10px] font-bold px-2.5 py-0.5 rounded-full border shadow-sm capitalize",
                         getStatusBadgeClass(student.admissionStatus)
                       )}
                     >
@@ -255,15 +227,15 @@ export default function TutorStudentTable({
                     </Badge>
                   </TableCell>
 
-                  {/* Actions (View details icon button) */}
+                  {/* Actions */}
                   <TableCell className="px-6 py-4 text-sm text-right">
                     <div className="flex items-center justify-end">
                       <Button
                         variant="ghost"
-                        size="icon-sm"
+                        size="icon"
                         onClick={() => onViewStudent(student.id)}
                         title="View Details"
-                        className="rounded-lg text-slate-400 hover:text-[var(--brand-green)] hover:bg-slate-50 transition-all"
+                        className="h-8 w-8 rounded-lg text-slate-400 hover:text-[var(--brand-green)] hover:bg-slate-50 transition-all cursor-pointer"
                       >
                         <Eye className="w-4 h-4" />
                       </Button>

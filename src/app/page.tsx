@@ -23,6 +23,14 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const { mutate: login, isPending } = useLogin();
 
+const roleMap: Record<string, string> = {
+  "subject_tutor": "/tutor/dashboard",
+  "tutor": "/tutor/dashboard",
+  "student": "/student/dashboard",
+  "admin": "/admin/dashboard",
+  "superadmin": "/admin/dashboard",
+};
+
   const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -36,9 +44,15 @@ export default function LoginPage() {
       { email, password },
       {
         onSuccess: (data) => {
+          console.log("data",data)
           localStorage.setItem("token", data.token);
           toast.success("Login successful!");
-          router.push("/admin/dashboard");
+          const targetRole = data.role || data.user?.role;
+          const destination = (targetRole && roleMap[targetRole]) || "/admin/dashboard";
+          router.push(destination);
+          
+
+          // router.push("/admin/dashboard");
         },
         onError: (error: any) => {
           toast.error(

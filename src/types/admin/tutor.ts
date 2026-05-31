@@ -49,3 +49,25 @@ export interface ITutorsResponse extends IApiResponse<ITutor[]> {
 }
 
 export type ITutorResponse = IApiResponse<ITutor>;
+
+export interface IAwardGrowthPointsPayload {
+  tutorId: string;
+  category: string;
+  evaluationArea: string;
+  points: number;
+  description: string;
+}
+
+export interface ILeaderboardItem {
+  tutorId: string;
+  tutorName: string;
+  totalPoints: number;
+  categoryBreakdown: Record<string, number> | null;
+  rank: number;
+}
+
+export interface ILeaderboardResponse extends IApiResponse<ILeaderboardItem[]> {
+  total?: number;
+}
+
+

@@ -14,6 +14,7 @@ export interface ReportFiltersState {
   attendanceStatus: string;
   sessionStatus: string;
   revenuePackage: string;
+  tutorId?: string;
 }
 
 export interface TutorPerformanceReport {

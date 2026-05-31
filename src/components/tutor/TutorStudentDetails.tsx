@@ -10,13 +10,13 @@ import {
   Package,
   ShieldAlert,
 } from "lucide-react";
-import { Student } from "@/components/admin/students/StudentStats";
+import { IStudent } from "@/types/admin/student";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
 interface TutorStudentDetailsProps {
-  student: Student;
+  student: IStudent;
   onBack: () => void;
 }
 
@@ -25,21 +25,29 @@ export default function TutorStudentDetails({
   onBack,
 }: TutorStudentDetailsProps) {
   const getStatusBadgeClass = (status: string) => {
-    switch (status) {
-      case "Approved":
+    switch (status?.toLowerCase()) {
+      case "approved":
+      case "active":
         return "bg-[var(--brand-light-green)] text-[var(--brand-mid)] border-[var(--brand-light)]/20";
-      case "Pending Approval":
-      case "Pending":
-      case "In Review":
+      case "pending":
+      case "in review":
+      case "in_review":
+      case "pending_approval":
         return "bg-slate-50 text-slate-650 border-slate-200/60";
-      case "Rejected":
-        return "bg-red-55/10 text-red-700 border-red-200/60";
+      case "rejected":
+        return "bg-red-50 text-red-700 border-red-200";
       default:
         return "bg-slate-100 text-slate-700 border-slate-200";
     }
   };
 
-  const docsProgress = student.documentsSubmitted ? student.documentsSubmitted.length : 0;
+  const submittedDocs: string[] = [];
+  if (student.documents?.birthCertificate) submittedDocs.push("Birth Certificate");
+  if (student.documents?.transferCertificate) submittedDocs.push("Transfer Certificate");
+  if (student.documents?.previousAcademicRecord) submittedDocs.push("Previous Academic Records");
+  if (student.documents?.identificationDocument) submittedDocs.push("Identification Documents");
+
+  const docsProgress = submittedDocs.length;
 
   return (
     <div className="space-y-6 pb-12 relative max-w-5xl">
@@ -58,18 +66,17 @@ export default function TutorStudentDetails({
       <Card className="bg-white border-slate-150 p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-sm">
         <div className="flex items-center gap-4">
           <div className="w-16 h-16 rounded-full bg-[var(--brand-light-green)] flex items-center justify-center font-bold text-[var(--brand-green)] text-2xl border border-[var(--brand-light)]/20 shadow-inner flex-shrink-0">
-            {student.name.charAt(0)}
+            {student.studentName?.charAt(0).toUpperCase()}
           </div>
           <div>
             <div className="flex items-center flex-wrap gap-2.5">
-              <h1 className="text-2xl font-bold text-slate-800 tracking-tight">{student.name}</h1>
+              <h1 className="text-2xl font-bold text-slate-800 tracking-tight">{student.studentName}</h1>
               <Badge variant="outline" className="text-xs font-semibold px-2 py-0.5 rounded-md bg-slate-100 text-slate-500 border border-slate-200">
                 {student.id}
               </Badge>
             </div>
             <p className="text-sm text-slate-550 font-semibold mt-1">
-              {student.courseName ? `${student.courseName} / ` : ""}
-              {student.courseType} • {student.grade}
+              {student.courseType} • Class {student.class}
             </p>
           </div>
         </div>
@@ -78,7 +85,7 @@ export default function TutorStudentDetails({
         <div className="flex flex-col sm:items-end gap-1 pt-4 border-t md:border-t-0 md:pt-0">
           <span className="block text-[10px] uppercase font-bold text-slate-400">Admission Status</span>
           <Badge variant="outline" className={cn(
-            "inline-flex px-3 py-1 rounded-full text-xs font-bold border mt-1 shadow-sm h-6",
+            "inline-flex px-3 py-1 rounded-full text-xs font-bold border mt-1 shadow-sm h-6 capitalize",
             getStatusBadgeClass(student.admissionStatus)
           )}>
             {student.admissionStatus}
@@ -99,15 +106,11 @@ export default function TutorStudentDetails({
           <CardContent className="p-6 pt-3 space-y-3.5">
             <div>
               <span className="block text-[10px] uppercase font-bold text-slate-400">Class / Grade</span>
-              <span className="text-sm font-semibold text-slate-700">{student.grade}</span>
+              <span className="text-sm font-semibold text-slate-700">Class {student.class}</span>
             </div>
             <div>
               <span className="block text-[10px] uppercase font-bold text-slate-400">Course / Program</span>
               <span className="text-sm font-semibold text-slate-700">{student.courseType}</span>
-            </div>
-            <div>
-              <span className="block text-[10px] uppercase font-bold text-slate-400">Subject</span>
-              <span className="text-sm font-semibold text-slate-700">{student.courseName || "General"}</span>
             </div>
           </CardContent>
         </Card>
@@ -129,12 +132,12 @@ export default function TutorStudentDetails({
               <span className="block text-[10px] uppercase font-bold text-slate-400">Location / Origin</span>
               <span className="text-sm font-semibold text-slate-700 flex items-center gap-1">
                 <MapPin className="w-3.5 h-3.5 text-slate-400" />
-                {student.location}
+                {student.place || "N/A"}
               </span>
             </div>
             <div>
               <span className="block text-[10px] uppercase font-bold text-slate-400">Package Selected</span>
-              <span className="text-sm font-semibold text-slate-700">{student.packageSelection}</span>
+              <span className="text-sm font-semibold text-slate-700 capitalize">{student.package?.replace("_", " ")}</span>
             </div>
           </CardContent>
         </Card>
@@ -151,14 +154,6 @@ export default function TutorStudentDetails({
             <div>
               <span className="block text-[10px] uppercase font-bold text-slate-400 font-heading">Academic Coordinator</span>
               <span className="text-sm font-semibold text-slate-700 block mt-0.5">{student.coordinatorName || "Not Assigned"}</span>
-            </div>
-            <div>
-              <span className="block text-[10px] uppercase font-bold text-slate-400 font-heading">Subject Tutor</span>
-              <span className="text-sm font-semibold text-slate-700 block mt-0.5">{student.subjectTutor || "Not Assigned"}</span>
-            </div>
-            <div>
-              <span className="block text-[10px] uppercase font-bold text-slate-400 font-heading">Mentor</span>
-              <span className="text-sm font-semibold text-slate-700 block mt-0.5">{student.mentorSalesBro || "Not Assigned"}</span>
             </div>
           </CardContent>
         </Card>
@@ -190,7 +185,7 @@ export default function TutorStudentDetails({
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {["Birth Certificate", "Transfer Certificate", "Previous Academic Records", "Identification Documents"].map((doc) => {
-            const isSubmitted = student.documentsSubmitted?.includes(doc);
+            const isSubmitted = submittedDocs.includes(doc);
 
             return (
               <div
@@ -226,7 +221,7 @@ export default function TutorStudentDetails({
                       Verified
                     </Badge>
                   ) : (
-                    <Badge variant="outline" className="inline-flex items-center gap-1 text-xs font-semibold text-slate-450 bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200 shadow-sm h-7">
+                    <Badge variant="outline" className="inline-flex items-center gap-1 text-xs font-semibold text-slate-455 bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200 shadow-sm h-7">
                       <ShieldAlert className="w-3.5 h-3.5" />
                       Pending
                     </Badge>

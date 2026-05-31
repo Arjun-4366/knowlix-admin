@@ -1,127 +1,104 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { CheckCircle2, XCircle, Clock, Calendar, Check, Save } from "lucide-react";
-import { Student } from "@/components/admin/students/StudentStats";
+import { useState, useEffect, useMemo } from "react";
+import { CheckCircle2, XCircle, Clock, Calendar, Save, UserCheck } from "lucide-react";
+import { IStudent } from "@/types/admin/student";
+import { ITutorSession } from "@/types/tutor/attendance";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { toast } from "react-hot-toast";
-import { AttendanceLog, AttendanceRecord } from "./TutorAttendanceStats";
-
-// Mock sessions list for Dr. Ramesh Prasad
-const AVAILABLE_SESSIONS = [
-  { id: "SESS-M10", name: "Mathematics - Grade 10 (Online School)", subject: "Mathematics" },
-  { id: "SESS-P10", name: "Physics - Grade 10 (Online School)", subject: "Physics" },
-  { id: "SESS-S11", name: "Social Studies - Grade 11 (Hybrid)", subject: "Social Studies" },
-  { id: "SESS-GEN", name: "General Tutorial / Mentoring Session", subject: "General" },
-];
+import { useMarkTutorAttendance } from "@/querys/tutor/attendanceQuery";
+import TutorSessionSelector from "./TutorSessionSelector";
 
 interface TutorMarkAttendanceProps {
-  students: Student[];
-  onSaveLog: (log: AttendanceLog) => void;
+  students: IStudent[];
+  onSuccess?: () => void;
 }
 
-export default function TutorMarkAttendance({ students, onSaveLog }: TutorMarkAttendanceProps) {
-  // Tutor context: Dr. Ramesh Prasad
-  const myAssignedStudents = students.filter(
-    (s) => s.subjectTutor === "Dr. Ramesh Prasad" && s.admissionStatus === "Approved"
+export default function TutorMarkAttendance({ students, onSuccess }: TutorMarkAttendanceProps) {
+  const { mutate: markAttendance, isPending } = useMarkTutorAttendance();
+
+  const [selectedSession, setSelectedSession] = useState<ITutorSession | null>(null);
+  const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().split("T")[0]);
+  const [records, setRecords] = useState<Record<string, { status: "present" | "absent" | "late"; remark: string }>>({});
+
+  // All approved/active students the tutor can mark attendance for
+  const allAssignedStudents = useMemo(
+    () => students.filter(
+      (s) => s.admissionStatus?.toLowerCase() === "approved" || s.admissionStatus?.toLowerCase() === "active"
+    ),
+    [students]
   );
 
-  const [selectedSessionId, setSelectedSessionId] = useState(AVAILABLE_SESSIONS[0].id);
-  const [selectedDate, setSelectedDate] = useState(() => {
-    const today = new Date();
-    return today.toISOString().split("T")[0];
-  });
+  // When a session is selected → look up session.studentIds from the FULL students list (any status)
+  // When no session → use only approved/active assigned students
+  const activeStudents = useMemo(() => {
+    if (!selectedSession) return allAssignedStudents;
+    const sessionStudentIds = new Set(selectedSession.studentIds);
+    return students.filter((s) => sessionStudentIds.has(s.id));
+  }, [selectedSession, allAssignedStudents, students]);
 
-  // Local state for attendance records
-  const [records, setRecords] = useState<Record<string, { status: "Present" | "Absent" | "Late"; remark: string }>>({});
-
-  // Reset or initialize records when assigned students change or session changes
+  // When active student list changes, reset records
   useEffect(() => {
-    const initial: Record<string, { status: "Present" | "Absent" | "Late"; remark: string }> = {};
-    myAssignedStudents.forEach((student) => {
-      initial[student.id] = {
-        status: "Present", // default to Present
-        remark: "",
-      };
+    const initial: Record<string, { status: "present" | "absent" | "late"; remark: string }> = {};
+    activeStudents.forEach((s) => {
+      initial[s.id] = { status: "present", remark: "" };
     });
     setRecords(initial);
-  }, [students]);
+  }, [activeStudents]);
 
-  const handleStatusChange = (studentId: string, status: "Present" | "Absent" | "Late") => {
-    setRecords((prev) => ({
-      ...prev,
-      [studentId]: {
-        ...prev[studentId],
-        status,
-      },
-    }));
+  // When a session is selected, also pre-fill the date from scheduledAt
+  const handleSessionSelect = (session: ITutorSession | null) => {
+    setSelectedSession(session);
+    if (session?.scheduledAt) {
+      setSelectedDate(session.scheduledAt.split("T")[0]);
+    }
+  };
+
+  const handleStatusChange = (studentId: string, status: "present" | "absent" | "late") => {
+    setRecords((prev) => ({ ...prev, [studentId]: { ...prev[studentId], status } }));
   };
 
   const handleRemarkChange = (studentId: string, remark: string) => {
-    setRecords((prev) => ({
-      ...prev,
-      [studentId]: {
-        ...prev[studentId],
-        remark,
-      },
-    }));
+    setRecords((prev) => ({ ...prev, [studentId]: { ...prev[studentId], remark } }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (myAssignedStudents.length === 0) {
-      toast.error("No active students assigned to you to mark attendance.");
+    if (activeStudents.length === 0) {
+      toast.error("No active students to mark attendance for.");
       return;
     }
 
-    const session = AVAILABLE_SESSIONS.find((s) => s.id === selectedSessionId);
-    if (!session) return;
-
-    // Construct logs
-    const logRecords: AttendanceRecord[] = myAssignedStudents.map((s) => {
-      const studentState = records[s.id] || { status: "Present", remark: "" };
+    const recordsPayload = activeStudents.map((s) => {
+      const state = records[s.id] || { status: "present", remark: "" };
       return {
         studentId: s.id,
-        studentName: s.name,
-        status: studentState.status,
-        remark: studentState.remark,
+        ...(selectedSession ? { sessionId: selectedSession.id } : {}),
+        date: selectedDate,
+        status: state.status,
+        remarks: state.remark || "",
       };
     });
 
-    const newLog: AttendanceLog = {
-      id: `ATT-${Date.now()}`,
-      sessionId: session.id,
-      sessionName: session.name,
-      date: selectedDate,
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      tutorName: "Dr. Ramesh Prasad",
-      records: logRecords,
-      createdAt: new Date().toISOString(),
-    };
-
-    onSaveLog(newLog);
-
-    // Reset records back to all present
-    const resetRecords: Record<string, { status: "Present" | "Absent" | "Late"; remark: string }> = {};
-    myAssignedStudents.forEach((student) => {
-      resetRecords[student.id] = {
-        status: "Present",
-        remark: "",
-      };
-    });
-    setRecords(resetRecords);
-
-    toast.success(`Attendance successfully logged for ${session.name}!`);
+    markAttendance(
+      { records: recordsPayload },
+      {
+        onSuccess: () => {
+          const reset: Record<string, { status: "present" | "absent" | "late"; remark: string }> = {};
+          activeStudents.forEach((s) => { reset[s.id] = { status: "present", remark: "" }; });
+          setRecords(reset);
+          toast.success("Attendance successfully marked!");
+          onSuccess?.();
+        },
+        onError: (err) => {
+          console.error("Failed to mark attendance:", err);
+          toast.error("Failed to mark attendance. Please try again.");
+        },
+      }
+    );
   };
 
   return (
@@ -133,44 +110,40 @@ export default function TutorMarkAttendance({ students, onSaveLog }: TutorMarkAt
             Attendance Details
           </CardTitle>
         </CardHeader>
-        <CardContent className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Session Select */}
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                Select Session / Class
-              </label>
-              <Select value={selectedSessionId} onValueChange={setSelectedSessionId}>
-                <SelectTrigger className="h-11 bg-white border-slate-200 rounded-xl font-medium">
-                  <SelectValue placeholder="Select Class" />
-                </SelectTrigger>
-                <SelectContent>
-                  {AVAILABLE_SESSIONS.map((sess) => (
-                    <SelectItem key={sess.id} value={sess.id} className="font-medium text-sm">
-                      {sess.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Date Picker */}
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                Session Date
-              </label>
-              <div className="relative">
-                <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 z-10" />
-                <Input
-                  type="date"
-                  value={selectedDate}
-                  onChange={(e) => setSelectedDate(e.target.value)}
-                  className="pl-10 h-11 bg-white border border-slate-200 rounded-xl"
-                  max={new Date().toISOString().split("T")[0]}
-                />
-              </div>
+        <CardContent className="p-6 space-y-6">
+          {/* Session Date */}
+          <div className="max-w-xs space-y-2">
+            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+              Session Date
+            </label>
+            <div className="relative">
+              <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 z-10" />
+              <Input
+                type="date"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                className="pl-10 h-11 bg-white border border-slate-200 rounded-xl"
+                max={new Date().toISOString().split("T")[0]}
+              />
             </div>
           </div>
+
+          {/* Session Selector */}
+          <TutorSessionSelector
+            selectedSessionId={selectedSession?.id ?? null}
+            onSelect={handleSessionSelect}
+          />
+
+          {/* Session selected info banner */}
+          {selectedSession && (
+            <div className="flex items-center gap-3 bg-[var(--brand-light-green)]/30 border border-[var(--brand-green)]/30 rounded-xl px-4 py-3">
+              <UserCheck className="w-4 h-4 text-[var(--brand-green)] flex-shrink-0" />
+              <p className="text-xs font-semibold text-[var(--brand-mid)]">
+                Session selected — roster filtered to{" "}
+                <span className="font-bold">{activeStudents.length}</span> student{activeStudents.length !== 1 ? "s" : ""} from this session.
+              </p>
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -182,15 +155,15 @@ export default function TutorMarkAttendance({ students, onSaveLog }: TutorMarkAt
               Student Attendance Roster
             </CardTitle>
             <span className="text-xs font-semibold text-slate-400">
-              {myAssignedStudents.length} Students Assigned
+              {activeStudents.length} Students
             </span>
           </div>
         </CardHeader>
         <CardContent className="p-0">
-          {myAssignedStudents.length > 0 ? (
+          {activeStudents.length > 0 ? (
             <div className="divide-y divide-slate-100">
-              {myAssignedStudents.map((student) => {
-                const state = records[student.id] || { status: "Present", remark: "" };
+              {activeStudents.map((student) => {
+                const state = records[student.id] || { status: "present", remark: "" };
                 return (
                   <div
                     key={student.id}
@@ -199,65 +172,63 @@ export default function TutorMarkAttendance({ students, onSaveLog }: TutorMarkAt
                     {/* Student Identity */}
                     <div className="flex items-center gap-3 min-w-[240px]">
                       <div className="w-10 h-10 rounded-full bg-[var(--brand-light-green)] flex items-center justify-center font-bold text-[var(--brand-green)] text-sm border border-[var(--brand-light)]/20 shadow-sm">
-                        {student.name.charAt(0)}
+                        {student.studentName?.charAt(0).toUpperCase()}
                       </div>
                       <div>
-                        <p className="text-sm font-bold text-slate-800 leading-none">
-                          {student.name}
-                        </p>
+                        <p className="text-sm font-bold text-slate-800 leading-none">{student.studentName}</p>
                         <p className="text-[11px] text-slate-450 font-semibold mt-1">
-                          ID: {student.id} · {student.grade}
+                          ID: {student.id} · Class {student.class}
                         </p>
                       </div>
                     </div>
 
-                    {/* Interactive Pills for Status */}
+                    {/* Status Pills */}
                     <div className="flex items-center gap-2">
-                      {/* Present Pill */}
                       <button
                         type="button"
-                        onClick={() => handleStatusChange(student.id, "Present")}
-                        className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all border cursor-pointer ${state.status === "Present"
+                        onClick={() => handleStatusChange(student.id, "present")}
+                        className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
+                          state.status === "present"
                             ? "bg-[var(--brand-light-green)] text-[var(--brand-mid)] border-[var(--brand-light)]/40 shadow-sm scale-[1.03]"
                             : "bg-white text-slate-500 border-slate-200 hover:bg-slate-50"
-                          }`}
+                        }`}
                       >
-                        <CheckCircle2 className={`w-3.5 h-3.5 ${state.status === "Present" ? "text-[var(--brand-green)]" : "text-slate-400"}`} />
+                        <CheckCircle2 className={`w-3.5 h-3.5 ${state.status === "present" ? "text-[var(--brand-green)]" : "text-slate-400"}`} />
                         Present
                       </button>
 
-                      {/* Late Pill */}
                       <button
                         type="button"
-                        onClick={() => handleStatusChange(student.id, "Late")}
-                        className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all border cursor-pointer ${state.status === "Late"
+                        onClick={() => handleStatusChange(student.id, "late")}
+                        className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
+                          state.status === "late"
                             ? "bg-amber-50 text-amber-700 border-amber-200 shadow-sm scale-[1.03]"
                             : "bg-white text-slate-500 border-slate-200 hover:bg-slate-50"
-                          }`}
+                        }`}
                       >
-                        <Clock className={`w-3.5 h-3.5 ${state.status === "Late" ? "text-amber-500" : "text-slate-400"}`} />
+                        <Clock className={`w-3.5 h-3.5 ${state.status === "late" ? "text-amber-500" : "text-slate-400"}`} />
                         Late
                       </button>
 
-                      {/* Absent Pill */}
                       <button
                         type="button"
-                        onClick={() => handleStatusChange(student.id, "Absent")}
-                        className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all border cursor-pointer ${state.status === "Absent"
+                        onClick={() => handleStatusChange(student.id, "absent")}
+                        className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
+                          state.status === "absent"
                             ? "bg-red-50 text-red-700 border-red-200 shadow-sm scale-[1.03]"
                             : "bg-white text-slate-500 border-slate-200 hover:bg-slate-50"
-                          }`}
+                        }`}
                       >
-                        <XCircle className={`w-3.5 h-3.5 ${state.status === "Absent" ? "text-red-500" : "text-slate-400"}`} />
+                        <XCircle className={`w-3.5 h-3.5 ${state.status === "absent" ? "text-red-500" : "text-slate-400"}`} />
                         Absent
                       </button>
                     </div>
 
-                    {/* Remarks Input */}
+                    {/* Remarks */}
                     <div className="flex-1 max-w-sm">
                       <Input
                         type="text"
-                        placeholder="Add optional remarks (e.g. late arrival, network issue)..."
+                        placeholder="Add optional remarks..."
                         value={state.remark}
                         onChange={(e) => handleRemarkChange(student.id, e.target.value)}
                         className="h-9 text-xs border border-slate-200 rounded-lg w-full"
@@ -269,24 +240,36 @@ export default function TutorMarkAttendance({ students, onSaveLog }: TutorMarkAt
             </div>
           ) : (
             <div className="p-8 text-center text-slate-450 text-sm">
-              You do not have any approved, active students assigned to you.
+              {selectedSession
+                ? "No matching students found in your roster for the selected session."
+                : "You do not have any approved, active students assigned to you."}
             </div>
           )}
         </CardContent>
       </Card>
 
-      {/* ── Submit Area ── */}
-      {myAssignedStudents.length > 0 && (
-        <div className="flex justify-end">
+      {/* ── Submit ── */}
+      <div className="flex items-center justify-between pt-2">
+        {activeStudents.length === 0 && (
+          <p className="text-xs text-slate-400 font-semibold">
+            Add students to your roster to submit attendance.
+          </p>
+        )}
+        <div className="ml-auto">
           <Button
             type="submit"
-            className="bg-[var(--brand-green)] hover:bg-[var(--brand-green)]/90 text-white font-bold px-6 py-2.5 rounded-xl flex items-center gap-2 shadow-sm cursor-pointer"
+            disabled={isPending || activeStudents.length === 0}
+            className="bg-[var(--brand-green)] hover:bg-[var(--brand-green)]/90 text-white font-bold px-6 py-2.5 rounded-xl flex items-center gap-2 shadow-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <Save className="w-4 h-4" />
-            Submit Attendance Log
+            {isPending ? (
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            ) : (
+              <Save className="w-4 h-4" />
+            )}
+            {isPending ? "Saving..." : "Submit Attendance Log"}
           </Button>
         </div>
-      )}
+      </div>
     </form>
   );
 }

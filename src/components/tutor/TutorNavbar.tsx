@@ -10,6 +10,7 @@ const pageTitles: Record<string, { title: string; section?: string }> = {
   "/tutor/attendance": { title: "Attendance" },
   "/tutor/assessment": { title: "Assessment" },
   "/tutor/reports":    { title: "Progress Reports" },
+  "/tutor/profile":    { title: "My Profile" },
 };
 
 interface Props {

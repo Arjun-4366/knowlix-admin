@@ -1,21 +1,25 @@
 "use client";
 
 import { Users, CheckCircle2, Clock, Calendar } from "lucide-react";
-import { Student } from "@/components/admin/students/StudentStats";
+import { IStudent } from "@/types/admin/student";
 import DashboardStatCard from "@/components/dashboard/shared/DashboardStatCard";
 
 interface TutorStudentStatsProps {
-  students: Student[];
+  students: IStudent[];
 }
 
 export default function TutorStudentStats({ students }: TutorStudentStatsProps) {
-  // Calculate high-level metrics for stats cards (based on assigned students)
-  const myAssignedList = students.filter((s) => s.subjectTutor === "Dr. Ramesh Prasad");
-  const totalAssigned = myAssignedList.length;
-  const approvedCount = myAssignedList.filter((s) => s.admissionStatus === "Approved").length;
-  const pendingCount = myAssignedList.filter(
-    (s) => s.admissionStatus === "Pending Approval" || s.admissionStatus === "Pending" || s.admissionStatus === "In Review"
-  ).length;
+  const totalAssigned = students.length;
+  
+  const approvedCount = students.filter((s) => {
+    const status = s.admissionStatus?.toLowerCase();
+    return status === "approved" || status === "active";
+  }).length;
+
+  const pendingCount = students.filter((s) => {
+    const status = s.admissionStatus?.toLowerCase();
+    return status === "pending" || status === "in_review";
+  }).length;
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -53,4 +57,3 @@ export default function TutorStudentStats({ students }: TutorStudentStatsProps) 
     </div>
   );
 }
-

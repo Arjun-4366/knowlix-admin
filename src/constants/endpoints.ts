@@ -89,4 +89,40 @@ export const ENDPOINTS = {
   UPDATE_TUTOR_PERMISSIONS: (id: string) => `${API_BASE_URL}/tutors/${id}/permissions`,
   GET_TUTOR_PERFORMANCE: (id: string) => `${API_BASE_URL}/tutors/${id}/performance`,
   GET_TUTOR: (id: string) => `${API_BASE_URL}/tutors/${id}`,
-} as const;
+  ADD_GROWTH_POINT:`${API_BASE_URL}/growth/award`,
+  GET_LEADERBOARD:`${API_BASE_URL}/growth/leaderboard`,
+
+  // reports
+  GET_REPORTS: `${API_BASE_URL}/reports`,
+
+
+  // TUTOR
+  //dashboard
+  GET_TUTOR_DASHBOARD:`${API_BASE_URL}/tutor/dashboard`,
+  
+  // profile
+  TUTOR_PROFILE:`${API_BASE_URL}/tutor/profile`,
+
+  //students
+  GET_TUTOR_STUDENTS:`${API_BASE_URL}/tutor/students`,
+  GET_TUTOR_STUDENT: (id:string)=>`${API_BASE_URL}/tutor/students/${id}`,
+  //Attendance
+  GET_TUTOR_ATTENDANCE:`${API_BASE_URL}/tutor/attendance`,
+  MARK_TUTOR_ATTENDANCE:`${API_BASE_URL}/tutor/attendance/mark`,
+  GET_SESSIONS:`${API_BASE_URL}/tutor/meet/fetch`,
+  CREATE_SESSION:`${API_BASE_URL}/tutor/meet/create`,
+  UPDATE_SESSION: (id: string) => `${API_BASE_URL}/tutor/meet/${id}/update`,
+  DELETE_SESSION: (id: string) => `${API_BASE_URL}/tutor/meet/${id}`,
+
+  //assignments
+  GET_TUTOR_ASSIGNMENTS:`${API_BASE_URL}/tutor/assignments/fetch`,
+  CREATE_ASSIGNMENTS:`${API_BASE_URL}/tutor/assignments/create`,
+  EVALUATE_ASSIGNMENTS:(id:string)=>`${API_BASE_URL}/tutor/assignments/${id}/evaluate`,
+
+  //exams
+  GET_TUTOR_EXAMS: `${API_BASE_URL}/tutor/exams/fetch`,
+  CREATE_EXAM: `${API_BASE_URL}/tutor/exams/create`,
+  UPDATE_EXAM_STATUS: (id: string) => `${API_BASE_URL}/tutor/exams/${id}/status`,
+  ENTER_EXAM_RESULTS: (id: string) => `${API_BASE_URL}/tutor/exams/${id}/results`,
+  
+} as const; 

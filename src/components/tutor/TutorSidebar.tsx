@@ -13,8 +13,10 @@ import {
   TrendingUp,
   MessageSquare,
   BookOpen,
+  User,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useGetTutorProfile } from "@/querys/tutor/profileQuery";
 
 type NavChild = { name: string; href: string };
 type NavItem = {
@@ -31,7 +33,6 @@ const nav: NavItem[] = [
   { name: "Attendance", href: "/tutor/attendance", icon: ClipboardCheck },
   { name: "Assessment", href: "/tutor/assessment", icon: FileCheck },
   { name: "Notice Board", href: "/tutor/notices", icon: MessageSquare },
-  { name: "Assignments", href: "/tutor/assignments", icon: BookOpen },
   { name: "Progress Reports", href: "/tutor/reports", icon: TrendingUp },
 ];
 
@@ -41,6 +42,7 @@ interface Props {
 
 export default function TutorSidebar({ collapsed }: Props) {
   const pathname = usePathname();
+  const { data: profile } = useGetTutorProfile();
   const [openDropdowns, setOpenDropdowns] = useState<Record<string, boolean>>(() => {
     const initial: Record<string, boolean> = {};
     nav.forEach((item) => {
@@ -222,8 +224,9 @@ export default function TutorSidebar({ collapsed }: Props) {
       </nav>
 
       {/* User footer */}
-      <div
-        className="border-t border-white/10 flex-shrink-0"
+      <Link
+        href="/tutor/profile"
+        className="border-t border-white/10 flex-shrink-0 hover:bg-white/5 transition-colors cursor-pointer"
         style={{
           padding: collapsed ? "16px 0" : "16px",
           display: "flex",
@@ -236,7 +239,7 @@ export default function TutorSidebar({ collapsed }: Props) {
             className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0"
             style={{ background: "var(--brand-green)" }}
           >
-            T
+            {profile?.name ? profile.name.charAt(0).toUpperCase() : "T"}
           </div>
           <div
             className="overflow-hidden"
@@ -247,11 +250,11 @@ export default function TutorSidebar({ collapsed }: Props) {
               whiteSpace: "nowrap",
             }}
           >
-            <p className="text-white text-xs font-semibold">Tutor</p>
-            <p className="text-white/45 text-xs">tutor@knowlix.in</p>
+            <p className="text-white text-xs font-semibold truncate">{profile?.name || "Tutor"}</p>
+            <p className="text-white/45 text-[10px] truncate">{profile?.email || "tutor@knowlix.in"}</p>
           </div>
         </div>
-      </div>
+      </Link>
     </aside>
   );
 }

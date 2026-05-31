@@ -1,39 +1,31 @@
 "use client";
 
-import { use, useState, useEffect } from "react";
+import { use } from "react";
 import { useRouter } from "next/navigation";
 import { Info, ArrowLeft } from "lucide-react";
-import { Student } from "@/components/admin/students/StudentStats";
+import { useGetStudent } from "@/querys/tutor/studentQuery";
 import { Button } from "@/components/ui/button";
 import TutorStudentDetails from "@/components/tutor/TutorStudentDetails";
+import { Suspense } from "react";
 
 interface PageProps {
   params: Promise<{ id: string }>;
 }
 
-import { Suspense } from "react";
-
 function TutorStudentDetailsContent({ params }: PageProps) {
   const { id } = use(params);
   const router = useRouter();
 
-  const [student, setStudent] = useState<Student | null>(null);
+  const { data: response, isLoading } = useGetStudent(id);
+  const student = response || null;
 
-  // Load student database from localStorage
-  useEffect(() => {
-    const stored = localStorage.getItem("knowlix_students");
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored) as Student[];
-        const match = parsed.find((s) => s.id === id);
-        if (match) {
-          setStudent(match);
-        }
-      } catch (e) {
-        console.error("Error loading students:", e);
-      }
-    }
-  }, [id]);
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <div className="w-8 h-8 border-4 border-[var(--brand-green)] border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   if (!student) {
     return (
@@ -48,7 +40,7 @@ function TutorStudentDetailsContent({ params }: PageProps) {
         <Button
           variant="outline"
           onClick={() => router.push("/tutor/students")}
-          className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-slate-650 hover:bg-slate-50 text-sm font-semibold transition-all"
+          className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-slate-655 hover:bg-slate-50 text-sm font-semibold transition-all cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Student Roster
@@ -67,7 +59,11 @@ function TutorStudentDetailsContent({ params }: PageProps) {
 
 export default function TutorStudentDetailsPage({ params }: PageProps) {
   return (
-    <Suspense fallback={<div className="p-8 text-center text-slate-500">Loading student details...</div>}>
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <div className="w-8 h-8 border-4 border-[var(--brand-green)] border-t-transparent rounded-full animate-spin" />
+      </div>
+    }>
       <TutorStudentDetailsContent params={params} />
     </Suspense>
   );

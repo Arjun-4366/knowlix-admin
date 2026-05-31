@@ -6,7 +6,7 @@ import DashboardStatCard from "@/components/dashboard/shared/DashboardStatCard";
 export interface AttendanceRecord {
   studentId: string;
   studentName: string;
-  status: "Present" | "Absent" | "Late";
+  status: "present" | "absent" | "late";
   remark?: string;
 }
 
@@ -37,9 +37,9 @@ export default function TutorAttendanceStats({ logs }: TutorAttendanceStatsProps
   logs.forEach((log) => {
     log.records.forEach((record) => {
       totalRecordsCount++;
-      if (record.status === "Present") presentCount++;
-      else if (record.status === "Absent") absentCount++;
-      else if (record.status === "Late") lateCount++;
+      if (record.status === "present") presentCount++;
+      else if (record.status === "absent") absentCount++;
+      else if (record.status === "late") lateCount++;
     });
   });
 

@@ -17,6 +17,8 @@ import {
   mockRevenue,
 } from "./mockData";
 import ReportsFilters from "./ReportsFilters";
+import { useGetTutorPerformanceReport } from "@/querys/admin/reportsQuery";
+import { ITutorPerformanceReportItem } from "@/types/admin/reports";
 import {
   TrendingUp,
   Users,
@@ -60,8 +62,14 @@ const initialFilters: ReportFiltersState = {
 
 export default function ReportsDashboard() {
   const [filters, setFilters] = useState<ReportFiltersState>(initialFilters);
+  const [activeFilters, setActiveFilters] = useState<ReportFiltersState>(initialFilters);
   const [isGenerating, setIsGenerating] = useState(false);
   const [hasGenerated, setHasGenerated] = useState(true);
+
+  // React Query hook call to get real tutor reports
+  const { data: realReportsResponse } = useGetTutorPerformanceReport(
+    activeFilters.type === "tutor" ? activeFilters.tutorId : undefined
+  );
 
   // Filtered lists
   const [filteredTutors, setFilteredTutors] = useState<TutorPerformanceReport[]>(mockTutors);
@@ -76,6 +84,9 @@ export default function ReportsDashboard() {
     setHasGenerated(false);
 
     setTimeout(() => {
+      // Set active filters to trigger query hook
+      setActiveFilters(filters);
+
       // Perform filtering
       const { type, tutorTier, studentGrade, attendanceStatus, sessionStatus, revenuePackage } = filters;
 
@@ -128,6 +139,7 @@ export default function ReportsDashboard() {
 
   const handleReset = () => {
     setFilters(initialFilters);
+    setActiveFilters(initialFilters);
     setFilteredTutors(mockTutors);
     setFilteredStudents(mockStudents);
     setFilteredAttendance(mockAttendance);
@@ -162,9 +174,10 @@ export default function ReportsDashboard() {
 
     if (type === "tutor") {
       fileName = "tutor_performance_report.csv";
-      csvContent += "Tutor ID,Tutor Name,Subject Expertise,Classes Conducted,Rating,Retention Rate (%),Satisfaction Rate (%),Performance Tier,Active Students\n";
-      filteredTutors.forEach((t) => {
-        csvContent += `"${t.id}","${t.name}","${t.subject}",${t.classesConducted},${t.rating},${t.retentionRate},${t.satisfactionRate},"${t.performanceTier}",${t.activeStudents}\n`;
+      csvContent += "Tutor ID,Tutor Name,Role,Growth Points,Performance Score,G,H,O,R,T,W,Total Sessions,Conducted Sessions,Attendance Rate (%)\n";
+      const realData = realReportsResponse?.data ?? [];
+      realData.forEach((t) => {
+        csvContent += `"${t.tutorId}","${t.name}","${t.role}",${t.growthPoints},${t.performanceScore},${t.growthBreakdown.G},${t.growthBreakdown.H},${t.growthBreakdown.O},${t.growthBreakdown.R},${t.growthBreakdown.T},${t.growthBreakdown.W},${t.totalSessions},${t.conductedSessions},${t.attendanceRate}\n`;
       });
     } else if (type === "student") {
       fileName = "student_performance_report.csv";
@@ -263,7 +276,7 @@ export default function ReportsDashboard() {
           </div>
 
           {/* Render KPI Cards based on report type */}
-          {filters.type === "tutor" && <TutorKPI data={filteredTutors} />}
+          {filters.type === "tutor" && <RealTutorKPI data={realReportsResponse?.data ?? []} />}
           {filters.type === "student" && <StudentKPI data={filteredStudents} />}
           {filters.type === "attendance" && <AttendanceKPI data={filteredAttendance} />}
           {filters.type === "session" && <SessionKPI data={filteredSessions} />}
@@ -274,7 +287,7 @@ export default function ReportsDashboard() {
             <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider mb-4">
               Visual Highlights & Summary
             </h3>
-            {filters.type === "tutor" && <TutorVisuals data={filteredTutors} />}
+            {filters.type === "tutor" && <RealTutorVisuals data={realReportsResponse?.data ?? []} />}
             {filters.type === "student" && <StudentVisuals data={filteredStudents} />}
             {filters.type === "attendance" && <AttendanceVisuals data={filteredAttendance} />}
             {filters.type === "session" && <SessionVisuals data={filteredSessions} />}
@@ -288,7 +301,7 @@ export default function ReportsDashboard() {
               <p className="text-xs text-slate-400 mt-1">Tabular breakdown of the generated report parameters.</p>
             </div>
             
-            {filters.type === "tutor" && <TutorTable data={filteredTutors} />}
+            {filters.type === "tutor" && <RealTutorTable data={realReportsResponse?.data ?? []} />}
             {filters.type === "student" && <StudentTable data={filteredStudents} />}
             {filters.type === "attendance" && <AttendanceTable data={filteredAttendance} />}
             {filters.type === "session" && <SessionTable data={filteredSessions} />}
@@ -990,6 +1003,154 @@ function RevenueTable({ data }: { data: RevenueReport[] }) {
           <TableRow>
             <TableCell colSpan={5} className="px-5 py-12 text-center text-slate-400 text-xs">
               No financial invoice entries found.
+            </TableCell>
+          </TableRow>
+        )}
+      </TableBody>
+    </Table>
+  );
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   REAL TUTOR PERFORMANCE REPORT COMPONENTS
+   ────────────────────────────────────────────────────────────────────────── */
+
+interface RealTutorKPIProps {
+  data: ITutorPerformanceReportItem[];
+}
+
+function RealTutorKPI({ data }: RealTutorKPIProps) {
+  const avgGrowthPoints = data.length 
+    ? (data.reduce((acc, t) => acc + t.growthPoints, 0) / data.length).toFixed(1) 
+    : "0.0";
+  const totalConducted = data.reduce((acc, t) => acc + t.conductedSessions, 0);
+  const avgPerfScore = data.length 
+    ? (data.reduce((acc, t) => acc + t.performanceScore, 0) / data.length).toFixed(1) 
+    : "0.0";
+  const avgAttendance = data.length 
+    ? Math.round(data.reduce((acc, t) => acc + t.attendanceRate, 0) / data.length) 
+    : 0;
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
+      <KPICard label="Avg Growth Points" value={`${avgGrowthPoints} pts`} icon={<Award className="w-5 h-5 text-[var(--brand-green)]" />} />
+      <KPICard label="Total Conducted Sessions" value={totalConducted} icon={<Calendar className="w-5 h-5 text-blue-500" />} />
+      <KPICard label="Avg Performance Score" value={`${avgPerfScore} / 100`} icon={<TrendingUp className="w-5 h-5 text-emerald-500" />} />
+      <KPICard label="Avg Attendance Rate" value={`${avgAttendance}%`} icon={<Percent className="w-5 h-5 text-purple-500" />} />
+    </div>
+  );
+}
+
+function RealTutorVisuals({ data }: { data: ITutorPerformanceReportItem[] }) {
+  if (data.length === 0) return <div className="text-xs text-slate-400 text-center py-6">No data to display.</div>;
+
+  return (
+    <div className="space-y-4">
+      <p className="text-xs font-semibold text-slate-500">Tutors growth points and sessions conduction rates:</p>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Growth points list */}
+        <div className="space-y-3">
+          <span className="text-[10px] font-bold text-slate-400 uppercase">Tutors by Growth Points</span>
+          <div className="space-y-2">
+            {data.slice(0, 4).map((t) => {
+              const maxPoints = Math.max(...data.map(x => x.growthPoints), 10);
+              const percentage = Math.min((t.growthPoints / maxPoints) * 100, 100);
+              return (
+                <div key={t.tutorId} className="space-y-1">
+                  <div className="flex justify-between text-xs font-semibold">
+                    <span className="text-slate-700">{t.name}</span>
+                    <span className="text-[var(--brand-green)] font-bold">{t.growthPoints} points</span>
+                  </div>
+                  <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                    <div className="bg-[var(--brand-green)] h-full rounded-full transition-all duration-500" style={{ width: `${percentage}%` }} />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Sessions list */}
+        <div className="space-y-3">
+          <span className="text-[10px] font-bold text-slate-400 uppercase">Conducted out of Total Sessions</span>
+          <div className="space-y-2">
+            {data.slice(0, 4).map((t) => {
+              const ratio = t.totalSessions > 0 ? Math.round((t.conductedSessions / t.totalSessions) * 100) : 0;
+              return (
+                <div key={t.tutorId} className="space-y-1">
+                  <div className="flex justify-between text-xs font-semibold">
+                    <span className="text-slate-700">{t.name}</span>
+                    <span className="text-blue-500 font-bold">{t.conductedSessions} / {t.totalSessions} sessions ({ratio}%)</span>
+                  </div>
+                  <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                    <div className="bg-blue-500 h-full rounded-full transition-all duration-500" style={{ width: `${ratio}%` }} />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function RealTutorTable({ data }: { data: ITutorPerformanceReportItem[] }) {
+  const formatTutorRole = (role: string) =>
+    role
+      .split("_")
+      .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+      .join(" ");
+
+  return (
+    <Table className="table-fixed w-full">
+      <TableHeader className="bg-slate-50/50">
+        <TableRow>
+          <TableHead className="px-5 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[20%]">Tutor Name</TableHead>
+          <TableHead className="px-5 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[15%]">Role</TableHead>
+          <TableHead className="px-5 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center w-[15%]">Growth Points</TableHead>
+          <TableHead className="px-5 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center w-[25%]">G-R-O-W-T-H Breakdown</TableHead>
+          <TableHead className="px-5 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center w-[15%]">Sessions (Cond/Tot)</TableHead>
+          <TableHead className="px-5 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right w-[10%]">Attendance</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody className="divide-y divide-slate-100">
+        {data.length > 0 ? (
+          data.map((tutor) => (
+            <TableRow key={tutor.tutorId} className="hover:bg-slate-50/60 transition-colors">
+              <TableCell className="px-5 py-4">
+                <p className="text-xs font-bold text-slate-800 leading-none">{tutor.name}</p>
+                <span className="text-[10px] text-slate-400 font-semibold mt-1 block truncate">ID: {tutor.tutorId}</span>
+              </TableCell>
+              <TableCell className="px-5 py-4 text-xs text-slate-600 truncate">{formatTutorRole(tutor.role)}</TableCell>
+              <TableCell className="px-5 py-4 text-xs text-center font-bold text-[var(--brand-green)]">
+                ★ {tutor.growthPoints} pts
+              </TableCell>
+              <TableCell className="px-5 py-4 text-center">
+                <div className="flex items-center justify-center gap-1.5 flex-wrap">
+                  {Object.entries(tutor.growthBreakdown).map(([k, v]) => (
+                    <Badge
+                      key={k}
+                      variant="outline"
+                      className="text-[9px] font-bold px-1.5 py-0.25 bg-slate-50 text-slate-600 border-slate-200"
+                    >
+                      {k}: {v}
+                    </Badge>
+                  ))}
+                </div>
+              </TableCell>
+              <TableCell className="px-5 py-4 text-xs text-center font-bold text-slate-700">
+                {tutor.conductedSessions} / {tutor.totalSessions}
+              </TableCell>
+              <TableCell className="px-5 py-4 text-xs font-bold text-right text-slate-700">
+                {tutor.attendanceRate}%
+              </TableCell>
+            </TableRow>
+          ))
+        ) : (
+          <TableRow>
+            <TableCell colSpan={6} className="px-5 py-12 text-center text-slate-400 text-xs">
+              No tutor performance records match the selected filter presets.
             </TableCell>
           </TableRow>
         )}
