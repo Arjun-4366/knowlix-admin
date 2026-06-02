@@ -44,30 +44,57 @@ const initialNotices: Notice[] = [
   }
 ];
 
+import { useGetStudentNotices } from "@/querys/student/studentQuery";
+
 export default function StudentNoticeBoard() {
-  const [notices, setNotices] = useState<Notice[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
-  const studentGrade = "Grade 10"; // Rahul Sharma's grade
+  const storedUser = typeof window !== "undefined" ? localStorage.getItem("user") : null;
+  const user = storedUser ? JSON.parse(storedUser) : null;
+  const studentGrade = user?.class || "Grade 10";
 
-  useEffect(() => {
-    const stored = localStorage.getItem("knowlix_notices");
-    if (stored) {
-      try {
-        setNotices(JSON.parse(stored));
-      } catch (e) {
-        console.error("Error parsing stored notices:", e);
-      }
-    } else {
-      localStorage.setItem("knowlix_notices", JSON.stringify(initialNotices));
-      setNotices(initialNotices);
+  const { data, isLoading } = useGetStudentNotices();
+
+  const noticesList: Notice[] = [];
+  if (data) {
+    if (data.announcements) {
+      data.announcements.forEach((ann) => {
+        noticesList.push({
+          id: ann.id,
+          title: ann.title,
+          content: ann.content,
+          category: "General",
+          targetGrade: "All Grades",
+          date: ann.publishedAt || ann.createdAt,
+          authorName: ann.authorRole === "admin" ? "Administrator" : "Staff",
+          authorRole: ann.authorRole === "admin" ? "Admin" : "Tutor",
+        });
+      });
     }
-  }, []);
+
+    if (data.notices) {
+      data.notices.forEach((ntc) => {
+        noticesList.push({
+          id: ntc.id,
+          title: ntc.title,
+          content: ntc.content,
+          category: ntc.priority === "high" ? "Urgent" : "General",
+          targetGrade: ntc.department ? `Dept: ${ntc.department}` : "All Grades",
+          date: ntc.createdAt,
+          authorName: ntc.authorRole === "admin" ? "Administrator" : "Staff",
+          authorRole: ntc.authorRole === "admin" ? "Admin" : "Tutor",
+        });
+      });
+    }
+  }
+
+  // Fallback to initialNotices if no data is returned from API yet
+  const activeNotices = data ? noticesList : initialNotices;
 
   // Filter notices to only those matching student's grade or "All Grades"
-  const studentNotices = notices.filter(
-    (n) => n.targetGrade === "All Grades" || n.targetGrade === studentGrade
+  const studentNotices = activeNotices.filter(
+    (n) => n.targetGrade === "All Grades" || n.targetGrade === studentGrade || n.targetGrade.startsWith("Dept:")
   );
 
   // Apply search and category filter
@@ -126,70 +153,76 @@ export default function StudentNoticeBoard() {
       </div>
 
       {/* Notices Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredNotices.length > 0 ? (
-          filteredNotices.map((notice) => {
-            let catColor = "bg-slate-100 text-slate-650 border-slate-200";
-            if (notice.category === "Urgent") catColor = "bg-red-50 text-red-700 border-red-150";
-            else if (notice.category === "Exam") catColor = "bg-amber-50 text-amber-700 border-amber-150";
-            else if (notice.category === "Holiday") catColor = "bg-blue-50 text-blue-700 border-blue-150";
-            else if (notice.category === "Event") catColor = "bg-purple-50 text-purple-700 border-purple-150";
+      {isLoading ? (
+        <div className="flex items-center justify-center min-h-[30vh] w-full">
+          <div className="w-8 h-8 border-4 border-[var(--brand-green)] border-t-transparent rounded-full animate-spin" />
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredNotices.length > 0 ? (
+            filteredNotices.map((notice) => {
+              let catColor = "bg-slate-100 text-slate-650 border-slate-200";
+              if (notice.category === "Urgent") catColor = "bg-red-50 text-red-700 border-red-150";
+              else if (notice.category === "Exam") catColor = "bg-amber-50 text-amber-700 border-amber-150";
+              else if (notice.category === "Holiday") catColor = "bg-blue-50 text-blue-700 border-blue-150";
+              else if (notice.category === "Event") catColor = "bg-purple-50 text-purple-700 border-purple-150";
 
-            return (
-              <Card
-                key={notice.id}
-                className="bg-white border border-slate-150 rounded-2xl shadow-sm hover:shadow-md transition-all flex flex-col justify-between overflow-hidden"
-              >
-                <CardContent className="p-6 space-y-4 flex-1">
-                  {/* Category */}
-                  <div className="flex gap-1.5">
-                    <Badge variant="outline" className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${catColor}`}>
-                      {notice.category}
-                    </Badge>
-                    <Badge variant="outline" className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-slate-50 border-slate-200 text-slate-600">
-                      {notice.targetGrade}
-                    </Badge>
-                  </div>
+              return (
+                <Card
+                  key={notice.id}
+                  className="bg-white border border-slate-150 rounded-2xl shadow-sm hover:shadow-md transition-all flex flex-col justify-between overflow-hidden"
+                >
+                  <CardContent className="p-6 space-y-4 flex-1">
+                    {/* Category */}
+                    <div className="flex gap-1.5">
+                      <Badge variant="outline" className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${catColor}`}>
+                        {notice.category}
+                      </Badge>
+                      <Badge variant="outline" className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-slate-50 border-slate-200 text-slate-600">
+                        {notice.targetGrade}
+                      </Badge>
+                    </div>
 
-                  {/* Title & Content */}
-                  <div className="space-y-2">
-                    <h3 className="text-sm font-bold text-slate-800 leading-tight">
-                      {notice.title}
-                    </h3>
-                    <p className="text-xs text-slate-600 leading-relaxed whitespace-pre-line">
-                      {notice.content}
-                    </p>
-                  </div>
-                </CardContent>
+                    {/* Title & Content */}
+                    <div className="space-y-2">
+                      <h3 className="text-sm font-bold text-slate-800 leading-tight">
+                        {notice.title}
+                      </h3>
+                      <p className="text-xs text-slate-600 leading-relaxed whitespace-pre-line">
+                        {notice.content}
+                      </p>
+                    </div>
+                  </CardContent>
 
-                {/* Footer with Metadata */}
-                <div className="px-6 py-4 bg-slate-50/50 border-t border-slate-100 rounded-b-2xl flex items-center justify-between text-[10px] font-semibold text-slate-450">
-                  <div className="flex items-center gap-1.5">
-                    <User className="w-3.5 h-3.5 text-slate-400" />
-                    <span className="truncate max-w-[150px]">
-                      {notice.authorName} ({notice.authorRole})
-                    </span>
-                  </div>
+                  {/* Footer with Metadata */}
+                  <div className="px-6 py-4 bg-slate-50/50 border-t border-slate-100 rounded-b-2xl flex items-center justify-between text-[10px] font-semibold text-slate-450">
+                    <div className="flex items-center gap-1.5">
+                      <User className="w-3.5 h-3.5 text-slate-400" />
+                      <span className="truncate max-w-[150px]">
+                        {notice.authorName} ({notice.authorRole})
+                      </span>
+                    </div>
 
-                  <div className="flex items-center gap-1">
-                    <Calendar className="w-3.5 h-3.5 text-slate-400" />
-                    <span>
-                      {new Date(notice.date).toLocaleDateString("en-US", {
-                        month: "short",
-                        day: "numeric",
-                      })}
-                    </span>
+                    <div className="flex items-center gap-1">
+                      <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                      <span>
+                        {new Date(notice.date).toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                        })}
+                      </span>
+                    </div>
                   </div>
-                </div>
-              </Card>
-            );
-          })
-        ) : (
-          <div className="col-span-full py-16 bg-white border border-slate-150 rounded-2xl shadow-sm text-center text-slate-450 text-sm font-medium">
-            No notices published for your grade at this time.
-          </div>
-        )}
-      </div>
+                </Card>
+              );
+            })
+          ) : (
+            <div className="col-span-full py-16 bg-white border border-slate-150 rounded-2xl shadow-sm text-center text-slate-450 text-sm font-medium">
+              No notices published for your grade at this time.
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

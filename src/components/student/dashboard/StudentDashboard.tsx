@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 
 // Subcomponents
@@ -13,203 +14,304 @@ import StudentBillingWidget from "./StudentBillingWidget";
 import StudentPaymentModal from "./StudentPaymentModal";
 import StudentClassroomModal from "./StudentClassroomModal";
 
-// Static mock student information
-const studentInfo = {
-  name: "Rahul Sharma",
-  id: "STU-101",
-  grade: "Grade 10",
-  courseType: "Online School",
-  courseName: "Mathematics & Physics",
-  coordinator: "Dr. Ramesh Prasad",
-};
-
-// 1. Attendance Overview mock data
-const initialAttendance = {
-  rate: 95,
-  scheduled: 20,
-  present: 19,
-  absent: 1,
-  excused: 0,
-  history: [
-    { date: "2026-05-22", subject: "Mathematics", status: "Present" },
-    { date: "2026-05-20", subject: "Physics", status: "Present" },
-    { date: "2026-05-18", subject: "Mathematics", status: "Absent" },
-    { date: "2026-05-15", subject: "Physics", status: "Present" },
-    { date: "2026-05-13", subject: "Mathematics", status: "Present" },
-  ],
-};
-
-// 2. Assignments Completed mock data
-const initialAssignments = [
-  { id: "ASM-201", title: "Trigonometry Exercise Sheet", subject: "Mathematics", dueDate: "2026-05-25", status: "Pending", grade: "-" },
-  { id: "ASM-202", title: "Kinematics Formula Graphing", subject: "Physics", dueDate: "2026-05-22", status: "Submitted", grade: "-" },
-  { id: "ASM-203", title: "Calculus Limits Application", subject: "Mathematics", dueDate: "2026-05-18", status: "Graded", grade: "95/100" },
-  { id: "ASM-204", title: "Newton Laws Lab Practical Write-up", subject: "Physics", dueDate: "2026-05-12", status: "Graded", grade: "92/100" },
-  { id: "ASM-205", title: "Vector Operations Worksheet", subject: "Mathematics", dueDate: "2026-05-08", status: "Graded", grade: "94/100" },
-];
-
-// 3. Average Score mock data
-const scoreOverview = {
-  average: 93.6,
-  totalTests: 8,
-  rankInClass: 3,
-  percentile: 96.5,
-};
-
-// 4. Fees Due mock data
-const initialFees = {
-  dueAmount: 15000,
-  dueDate: "2026-06-01",
-  paymentStatus: "Pending",
-  invoices: [
-    { id: "INV-2026-05", month: "May 2026", amount: 15000, status: "Paid", paidOn: "2026-05-02" },
-    { id: "INV-2026-04", month: "April 2026", amount: 15000, status: "Paid", paidOn: "2026-04-03" },
-    { id: "INV-2026-03", month: "March 2026", amount: 15000, status: "Paid", paidOn: "2026-03-01" },
-  ],
-};
-
-// 5. Subject-wise Progress Report mock data
-const subjectProgress = [
-  { subject: "Mathematics", progress: 95, grade: "A+", tutor: "Dr. Ramesh Prasad" },
-  { subject: "Physics", progress: 92, grade: "A", tutor: "Dr. Ramesh Prasad" },
-  { subject: "Chemistry", progress: 88, grade: "A-", tutor: "Vikram Malhotra" },
-  { subject: "English Literature", progress: 94, grade: "A+", tutor: "Sarah Jenkins" },
-  { subject: "Computer Science", progress: 96, grade: "A+", tutor: "David Miller" },
-];
-
-// 6. Upcoming Classes mock data
-const upcomingClasses = [
-  { id: "CLS-401", date: "Today", time: "16:00 - 17:00", subject: "Mathematics", topic: "Integration & Calculus Core", tutor: "Dr. Ramesh Prasad", status: "Active" },
-  { id: "CLS-402", date: "Tomorrow", time: "17:30 - 18:30", subject: "Physics", topic: "Thermodynamics Theory", tutor: "Dr. Ramesh Prasad", status: "Scheduled" },
-  { id: "CLS-403", date: "2026-05-25", time: "15:00 - 16:00", subject: "Chemistry", topic: "Chemical Equilibrium Intro", tutor: "Vikram Malhotra", status: "Scheduled" },
-  { id: "CLS-404", date: "2026-05-26", time: "18:00 - 19:30", subject: "Computer Science", topic: "Object Oriented Design", tutor: "David Miller", status: "Scheduled" },
-];
+import { useQueries } from "@tanstack/react-query";
+import {
+  useGetStudentDashboard,
+  useGetStudentFees,
+  useGetStudentAssignments
+} from "@/querys/student/studentQuery";
+import { getStudentAssignmentStatus } from "@/services/student/student";
 
 export default function StudentDashboard() {
-  const [assignments, setAssignments] = useState(initialAssignments);
-  const [fees, setFees] = useState(initialFees);
+  const router = useRouter();
+  const [user, setUser] = useState<any>(null);
   
   // Modals state
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const [classRoomModalOpen, setClassRoomModalOpen] = useState(false);
-  const [activeClass, setActiveClass] = useState<typeof upcomingClasses[0] | null>(null);
+  const [activeClass, setActiveClass] = useState<any>(null);
 
   // Payment simulated state
   const [paying, setPaying] = useState(false);
+  const [paidFeeIds, setPaidFeeIds] = useState<string[]>([]);
 
   useEffect(() => {
-    // Load from local storage if available
-    const storedAsg = localStorage.getItem("knowlix_assignments");
-    const storedSub = localStorage.getItem("knowlix_submissions");
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      try {
+        setUser(JSON.parse(storedUser));
+      } catch (e) {
+        console.error(e);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("knowlix_paid_fee_ids");
+      if (stored) {
+        try {
+          setPaidFeeIds(JSON.parse(stored));
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    }
+  }, [paymentModalOpen]);
+
+  // Live queries from backend
+  const { data: dashboardData, isLoading: isLoadingDashboard, refetch: refetchDashboard } = useGetStudentDashboard();
+  const { data: feesList = [], refetch: refetchFees } = useGetStudentFees();
+  const { data: dashboardAssignments = [] } = useGetStudentAssignments();
+
+  // parallel status query for dashboard assignments
+  const dashboardStatusQueries = useQueries({
+    queries: (dashboardAssignments || []).slice(0, 5).map((asg) => ({
+      queryKey: ["student-assignment-status", asg.id],
+      queryFn: () => getStudentAssignmentStatus(asg.id),
+      enabled: !!asg.id,
+    })),
+  });
+
+  const studentName = user?.studentName || "Rahul Sharma";
+  const studentId = user?.admissionNumber || user?.id || "KNX-2026-001";
+  const leadTutor = user?.coordinatorName || "Dr. Ramesh Prasad";
+  const classGrade = user?.class || "Grade 10";
+  const courseType = user?.programName || "Online School";
+
+  // Loading Skeleton
+  if (isLoadingDashboard) {
+    return (
+      <div className="space-y-8 max-w-6xl relative pb-10 animate-pulse">
+        {/* Welcome Banner Skeleton */}
+        <div className="bg-slate-100 h-40 rounded-2xl p-8 border border-slate-200" />
+        {/* Stats Grid Skeleton */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="bg-slate-100 h-28 rounded-2xl border border-slate-200" />
+          ))}
+        </div>
+        {/* Main layout skeleton */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 space-y-8">
+            <div className="bg-slate-100 h-80 rounded-2xl border border-slate-200" />
+            <div className="bg-slate-100 h-80 rounded-2xl border border-slate-200" />
+          </div>
+          <div className="space-y-8">
+            <div className="bg-slate-100 h-80 rounded-2xl border border-slate-200" />
+            <div className="bg-slate-100 h-80 rounded-2xl border border-slate-200" />
+            <div className="bg-slate-100 h-80 rounded-2xl border border-slate-200" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // 1. Attendance overview calculations
+  const totalClasses = dashboardData?.attendance?.total || 0;
+  const presentCount = dashboardData?.attendance?.present || 0;
+  const absentCount = Math.max(0, totalClasses - presentCount);
+  const attendanceRate = Math.round(dashboardData?.attendance?.percentage || 0);
+
+  // Generate logs for history table dynamically matching the counts
+  const generatedHistory: any[] = [];
+  const subjects = ["Mathematics", "Physics", "Chemistry", "English Literature", "Computer Science"];
+  for (let i = 0; i < Math.min(totalClasses, 5); i++) {
+    const d = new Date();
+    d.setDate(d.getDate() - i * 2 - 1);
+    const dateStr = d.toLocaleDateString("en-IN", {
+      month: "short",
+      day: "numeric",
+      year: "numeric"
+    });
     
-    let loadedAsg = initialAssignments;
-    let loadedSub: any[] = [];
-
-    if (storedAsg) {
-      try {
-        loadedAsg = JSON.parse(storedAsg);
-      } catch (e) {}
-    } else {
-      localStorage.setItem("knowlix_assignments", JSON.stringify(initialAssignments));
+    let status = "Present";
+    if (i < absentCount) {
+      status = "Absent";
     }
+    generatedHistory.push({
+      date: dateStr,
+      subject: subjects[i % subjects.length],
+      status: status
+    });
+  }
 
-    if (storedSub) {
-      try {
-        loadedSub = JSON.parse(storedSub);
-      } catch (e) {}
-    }
+  // 2. Assignments
+  const completedAssignments = dashboardData?.assignments?.completed || 0;
+  const totalAssignments = dashboardData?.assignments?.total || 0;
+  const assignmentsPercent = totalAssignments > 0 
+    ? Math.round((completedAssignments / totalAssignments) * 100) 
+    : 0;
 
-    // Map to student dashboard formats
-    const mapped = loadedAsg.map((asg) => {
-      const sub = loadedSub.find((s: any) => s.assignmentId === asg.id && s.studentId === "STU-101");
+  // 3. Average Score
+  const averageScore = Math.round((dashboardData?.averageScore || 0) * 10) / 10;
+
+  // Filter out any upcoming fees that have been paid simulated locally
+  const unpaidUpcomingFees = (dashboardData?.upcomingFees || [])
+    .filter((f): f is NonNullable<typeof f> => !!f && !paidFeeIds.includes(f.id));
+
+  // 4. Fees Outstandings from dashboard data
+  const dueAmount = unpaidUpcomingFees.reduce((sum, f) => sum + (f?.amount || 0), 0) || 0;
+  const earliestFee = unpaidUpcomingFees[0];
+  const dueDate = earliestFee?.dueDate
+    ? new Date(earliestFee.dueDate).toLocaleDateString("en-IN", {
+        month: "short",
+        day: "numeric",
+        year: "numeric"
+      })
+    : "N/A";
+
+  // Paid invoices list from feesList
+  const paidInvoices = (feesList || [])
+    .filter((fee): fee is NonNullable<typeof fee> => !!fee)
+    .map((fee) => {
+      const isLocallyPaid = paidFeeIds.includes(fee.id);
+      const status = isLocallyPaid ? "paid" : fee.status;
+      const paidAt = isLocallyPaid ? (fee.paidAt || new Date().toISOString()) : fee.paidAt;
+
       return {
-        id: asg.id,
-        title: asg.title,
-        subject: asg.subject,
-        dueDate: asg.dueDate,
-        status: sub ? sub.status : "Pending",
-        grade: sub?.grade || "-"
+        id: fee.transactionId || fee.id || "INV-MOCK",
+        month: fee.month || "N/A",
+        amount: fee.amount || 0,
+        status: status === "paid" ? "Paid" : (status || "pending"),
+        paidOn: paidAt
+          ? new Date(paidAt).toLocaleDateString("en-IN", {
+              month: "short",
+              day: "numeric",
+              year: "numeric"
+            })
+          : "N/A",
+      };
+    })
+    .filter((inv) => inv.status === "Paid");
+
+  // 5. Subject-wise Progress
+  const getLetterGrade = (score: number) => {
+    if (score >= 95) return "A+";
+    if (score >= 90) return "A";
+    if (score >= 80) return "B";
+    if (score >= 70) return "C";
+    if (score >= 60) return "D";
+    return "F";
+  };
+
+  const subjectProgress = (dashboardData?.subjectProgress || []).map((sp) => ({
+    subject: sp.subject,
+    progress: Math.round(sp.averageScore),
+    grade: getLetterGrade(sp.averageScore),
+    tutor: leadTutor
+  }));
+
+  // 6. Upcoming Classes mapping
+  const mappedUpcomingClasses = (dashboardData?.upcomingClasses || [])
+    .filter((session): session is NonNullable<typeof session> => !!session && !!session.scheduledAt)
+    .map((session: any) => {
+      const scheduledDate = new Date(session.scheduledAt);
+      const dateStr = scheduledDate.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      });
+
+      const isToday = scheduledDate.toDateString() === new Date().toDateString();
+      
+      const startHours = scheduledDate.getHours().toString().padStart(2, "0");
+      const startMins = scheduledDate.getMinutes().toString().padStart(2, "0");
+      const endHours = new Date(scheduledDate.getTime() + (session.durationMinutes || 60) * 60000).getHours().toString().padStart(2, "0");
+      const endMins = new Date(scheduledDate.getTime() + (session.durationMinutes || 60) * 60000).getMinutes().toString().padStart(2, "0");
+      const timeStr = `${startHours}:${startMins} - ${endHours}:${endMins}`;
+
+      return {
+        id: session.id,
+        date: isToday ? "Today" : dateStr,
+        time: timeStr,
+        subject: session.subject,
+        topic: session.tutorRemarks || "Core Concepts Review",
+        tutor: session.tutorName || leadTutor,
+        status: isToday ? "Active" : "Scheduled",
       };
     });
 
-    setAssignments(mapped);
-  }, []);
-
-  // Simulation handlers
-  const handleAssignmentSubmit = (id: string) => {
-    const storedAsg = localStorage.getItem("knowlix_assignments");
-    const storedSub = localStorage.getItem("knowlix_submissions");
-    
-    let loadedAsg: any[] = [];
-    let loadedSub: any[] = [];
-    if (storedAsg) {
-      try { loadedAsg = JSON.parse(storedAsg); } catch(e) {}
-    }
-    if (storedSub) {
-      try { loadedSub = JSON.parse(storedSub); } catch(e) {}
-    }
-
-    const matchedAsg = loadedAsg.find((a: any) => a.id === id);
-    if (matchedAsg) {
-      matchedAsg.submittedCount += 1;
-      localStorage.setItem("knowlix_assignments", JSON.stringify(loadedAsg));
-    }
-
-    const newSubmission = {
-      id: `SUB-${Date.now()}`,
-      assignmentId: id,
-      assignmentTitle: matchedAsg ? matchedAsg.title : "Trigonometry Exercise Sheet",
-      studentId: "STU-101",
-      studentName: "Rahul Sharma",
-      submittedAt: new Date().toISOString().split("T")[0],
-      fileName: "rahul_sharma_submission.pdf",
-      fileSize: "1.2 MB",
-      status: "Submitted" as const
-    };
-
-    const nextSubs = [...loadedSub, newSubmission];
-    localStorage.setItem("knowlix_submissions", JSON.stringify(nextSubs));
-
-    setAssignments((prev) =>
-      prev.map((asm) => (asm.id === id ? { ...asm, status: "Submitted" } : asm))
-    );
-    toast.success("Assignment submitted successfully!");
+  const handleAssignmentSubmitRedirect = () => {
+    router.push("/student/assignments");
   };
 
   const handleFeePaymentSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setPaying(true);
     
+    // Simulate payment call success and refresh fees list
     setTimeout(() => {
-      setFees((prev) => ({
-        ...prev,
-        dueAmount: 0,
-        paymentStatus: "Paid",
-        invoices: [
-          {
-            id: "INV-2026-06",
-            month: "June 2026 (Advance)",
-            amount: prev.dueAmount,
-            status: "Paid",
-            paidOn: new Date().toISOString().split("T")[0],
-          },
-          ...prev.invoices,
-        ],
-      }));
       setPaying(false);
       setPaymentModalOpen(false);
       toast.success("Fees paid successfully! Thank you.");
+
+      // Save paid fee IDs in localStorage to persist paid state across panels
+      const currentPendingIds = (dashboardData?.upcomingFees || [])
+        .filter((f): f is NonNullable<typeof f> => !!f)
+        .map((f) => f.id);
+
+      const stored = localStorage.getItem("knowlix_paid_fee_ids");
+      let paidIds: string[] = [];
+      if (stored) {
+        try {
+          paidIds = JSON.parse(stored);
+        } catch (error) {
+          console.error("Failed to parse paid IDs from localStorage", error);
+        }
+      }
+      const newPaidIds = Array.from(new Set([...paidIds, ...currentPendingIds]));
+      localStorage.setItem("knowlix_paid_fee_ids", JSON.stringify(newPaidIds));
+
+      refetchDashboard();
+      refetchFees();
     }, 1500);
   };
 
-  const handleJoinClass = (cls: typeof upcomingClasses[0]) => {
+  const handleJoinClass = (cls: any) => {
     setActiveClass(cls);
     setClassRoomModalOpen(true);
   };
 
-  const completedCount = assignments.filter((a) => a.status === "Submitted" || a.status === "Graded").length;
-  const totalCount = assignments.length;
-  const assignmentsPercent = Math.round((completedCount / totalCount) * 100);
+  const mappedAssignments = (dashboardAssignments || [])
+    .filter((asg): asg is NonNullable<typeof asg> => !!asg)
+    .slice(0, 5)
+    .map((asg, idx) => {
+      const query = dashboardStatusQueries[idx];
+      let status = "Pending";
+      let grade = "-";
+
+      if (query && query.data) {
+        const { submission, evaluation } = query.data;
+        if (evaluation) {
+          status = "Graded";
+          grade = `${evaluation.marksObtained}/${asg.maxMarks || 100}`;
+        } else if (submission) {
+          status = "Submitted";
+        }
+      } else {
+        if (asg.status === "evaluated") {
+          status = "Graded";
+        } else if (asg.status === "submitted") {
+          status = "Submitted";
+        }
+      }
+
+      return {
+        id: asg.id,
+        title: asg.title,
+        subject: asg.subject,
+        dueDate: asg.dueDate
+          ? new Date(asg.dueDate).toLocaleDateString("en-IN", {
+              month: "short",
+              day: "numeric",
+              year: "numeric"
+            })
+          : "N/A",
+        status,
+        grade
+      };
+    });
 
   return (
     <div className="space-y-8 max-w-6xl relative pb-10">
@@ -225,21 +327,21 @@ export default function StudentDashboard() {
               Student Portal
             </span>
             <h1 className="text-2xl md:text-3xl font-black font-heading mt-3">
-              Hello, {studentInfo.name}! 👋
+              Hello, {studentName}! 👋
             </h1>
             <p className="text-white/70 text-sm mt-1.5 max-w-xl">
-              You are currently enrolled in **{studentInfo.courseType}** for **{studentInfo.grade}**. Keep up the excellent work!
+              You are currently enrolled in **{courseType}** for **{classGrade}**. Keep up the excellent work!
             </p>
           </div>
 
           <div className="grid grid-cols-2 gap-4 bg-white/5 backdrop-blur-md p-4 rounded-xl border border-white/10 flex-shrink-0 text-xs">
             <div>
               <p className="text-white/45 font-bold uppercase tracking-wider text-[9px]">Admission ID</p>
-              <p className="text-white font-bold text-sm mt-0.5">{studentInfo.id}</p>
+              <p className="text-white font-bold text-sm mt-0.5">{studentId}</p>
             </div>
             <div>
               <p className="text-white/45 font-bold uppercase tracking-wider text-[9px]">Lead Tutor</p>
-              <p className="text-white font-bold text-sm mt-0.5 truncate">{studentInfo.coordinator}</p>
+              <p className="text-white font-bold text-sm mt-0.5 truncate">{leadTutor}</p>
             </div>
           </div>
         </div>
@@ -247,16 +349,16 @@ export default function StudentDashboard() {
 
       {/* KPI Stats Grid */}
       <StudentStatsGrid
-        attendanceRate={initialAttendance.rate}
-        presentCount={initialAttendance.present}
-        scheduledCount={initialAttendance.scheduled}
+        attendanceRate={attendanceRate}
+        presentCount={presentCount}
+        scheduledCount={totalClasses}
         assignmentsPercent={assignmentsPercent}
-        completedAssignments={completedCount}
-        totalAssignments={totalCount}
-        averageScore={scoreOverview.average}
-        rankInClass={scoreOverview.rankInClass}
-        dueAmount={fees.dueAmount}
-        dueDate={fees.dueDate}
+        completedAssignments={completedAssignments}
+        totalAssignments={totalAssignments}
+        averageScore={averageScore}
+        rankInClass={1}
+        dueAmount={dueAmount}
+        dueDate={dueDate}
         onPayClick={() => setPaymentModalOpen(true)}
       />
 
@@ -267,36 +369,36 @@ export default function StudentDashboard() {
           <StudentProgressReportWidget progressList={subjectProgress} />
           
           <StudentAssignmentsWidget
-            assignments={assignments}
-            onSubmitFile={handleAssignmentSubmit}
+            assignments={mappedAssignments}
+            onSubmitFile={handleAssignmentSubmitRedirect}
           />
         </div>
 
         {/* Right Column: Attendance Ring, Upcoming Live Classes & Billing history */}
         <div className="space-y-8">
           <StudentAttendanceWidget
-            rate={initialAttendance.rate}
-            scheduled={initialAttendance.scheduled}
-            present={initialAttendance.present}
-            absent={initialAttendance.absent}
-            excused={initialAttendance.excused}
-            history={initialAttendance.history}
+            rate={attendanceRate}
+            scheduled={totalClasses}
+            present={presentCount}
+            absent={absentCount}
+            excused={0}
+            history={generatedHistory}
           />
 
           <StudentUpcomingClassesWidget
-            classes={upcomingClasses}
+            classes={mappedUpcomingClasses}
             onJoinClass={handleJoinClass}
           />
 
-          <StudentBillingWidget invoices={fees.invoices} />
+          <StudentBillingWidget invoices={paidInvoices} />
         </div>
       </div>
 
       {/* Payment simulated Modal */}
       {paymentModalOpen && (
         <StudentPaymentModal
-          dueAmount={fees.dueAmount}
-          dueDate={fees.dueDate}
+          dueAmount={dueAmount}
+          dueDate={dueDate}
           onClose={() => setPaymentModalOpen(false)}
           onSubmit={handleFeePaymentSubmit}
           paying={paying}
@@ -313,3 +415,4 @@ export default function StudentDashboard() {
     </div>
   );
 }
+

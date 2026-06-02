@@ -28,6 +28,7 @@ const roleMap: Record<string, string> = {
   "tutor": "/tutor/dashboard",
   "student": "/student/dashboard",
   "admin": "/admin/dashboard",
+  "hr":"/hr/employees",
   "superadmin": "/admin/dashboard",
 };
 
@@ -46,8 +47,10 @@ const roleMap: Record<string, string> = {
         onSuccess: (data) => {
           console.log("data",data)
           localStorage.setItem("token", data.token);
-          toast.success("Login successful!");
           const targetRole = data.role || data.user?.role;
+          localStorage.setItem("role", targetRole || "admin");
+          localStorage.setItem("user", JSON.stringify(data.user || {}));
+          toast.success("Login successful!");
           const destination = (targetRole && roleMap[targetRole]) || "/admin/dashboard";
           router.push(destination);
           

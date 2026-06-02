@@ -95,6 +95,19 @@ export const ENDPOINTS = {
   // reports
   GET_REPORTS: `${API_BASE_URL}/reports`,
 
+  // STUDENT
+  GET_STUDENT_DASHBOARD: `${API_BASE_URL}/student/dashboard`,
+  GET_STUDENT_NOTICES: `${API_BASE_URL}/student/notices`,
+  STUDENT_CHATBOT: `${API_BASE_URL}/student/chatbot`,
+  GET_STUDENT_SCHEDULE: `${API_BASE_URL}/student/schedule`,
+  GET_STUDENT_ASSIGNMENTS: `${API_BASE_URL}/student/assignments`,
+  SUBMIT_STUDENT_ASSIGNMENT: (id: string) => `${API_BASE_URL}/student/assignments/${id}/submit`,
+  GET_STUDENT_ASSIGNMENT_STATUS: (id: string) => `${API_BASE_URL}/student/assignments/${id}/status`,
+  GET_STUDENT_RESULTS: `${API_BASE_URL}/student/results`,
+  GET_STUDENT_RESULTS_GRADES: `${API_BASE_URL}/student/results/grades`,
+  GET_STUDENT_RESULTS_ANALYTICS: `${API_BASE_URL}/student/results/analytics`,
+  GET_STUDENT_FEES: `${API_BASE_URL}/student/fees`,
+  GET_STUDENT_FEES_STATUS: `${API_BASE_URL}/student/fees/status`,
 
   // TUTOR
   //dashboard

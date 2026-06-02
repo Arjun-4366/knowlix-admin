@@ -6,11 +6,20 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "react-hot-toast";
 import DashboardHeader from "@/components/dashboard/shared/DashboardHeader";
+import { useQueries } from "@tanstack/react-query";
+import {
+  useGetStudentAssignments,
+  useGetStudentAssignmentStatus,
+  useSubmitStudentAssignment
+} from "@/querys/student/studentQuery";
+import { getStudentAssignmentStatus } from "@/services/student/student";
+import { IAssignment } from "@/types/student/student";
 
-// Type definitions
+// Keep type definitions for compatibility with AdminAssignmentCreator.tsx
 export interface Assignment {
   id: string;
   title: string;
@@ -37,98 +46,78 @@ export interface Submission {
   feedback?: string;
 }
 
-const initialAssignments: Assignment[] = [
-  {
-    id: "ASG-1",
-    title: "Calculus Limits Sheet",
-    description: "Complete all questions from Section 4.2 in the workbook.",
-    subject: "Mathematics",
-    dueDate: "2026-05-28",
-    status: "Active",
-    totalStudents: 3,
-    submittedCount: 2,
-    tutorName: "Dr. Ramesh Prasad",
-  },
-  {
-    id: "ASG-2",
-    title: "Newton's Laws Lab Report",
-    description: "Submit PDF report for the gravity acceleration experiment.",
-    subject: "Physics",
-    dueDate: "2026-05-21",
-    status: "Completed",
-    totalStudents: 3,
-    submittedCount: 3,
-    tutorName: "Dr. Ramesh Prasad",
-  },
-  {
-    id: "ASG-3",
-    title: "Medieval History Essay",
-    description: "Write a 500-word summary on feudal structures.",
-    subject: "Social Studies",
-    dueDate: "2026-06-01",
-    status: "Active",
-    totalStudents: 1,
-    submittedCount: 0,
-    tutorName: "Dr. Ramesh Prasad",
-  }
-];
-
-const initialSubmissions: Submission[] = [
-  {
-    id: "SUB-101",
-    assignmentId: "ASG-2",
-    assignmentTitle: "Newton's Laws Lab Report",
-    studentId: "STU-101",
-    studentName: "Rahul Sharma",
-    submittedAt: "2026-05-20",
-    fileName: "rahul_sharma_newton_laws_lab.pdf",
-    fileSize: "2.4 MB",
-    status: "Graded",
-    grade: "94/100",
-    feedback: "Excellent lab structure, very detailed graphs and formulas."
-  }
-];
-
 export default function StudentAssignmentManager() {
-  const [assignments, setAssignments] = useState<Assignment[]>([]);
-  const [submissions, setSubmissions] = useState<Submission[]>([]);
-  const [selectedAsg, setSelectedAsg] = useState<Assignment | null>(null);
+  const [user, setUser] = useState<any>(null);
+  const [selectedAsg, setSelectedAsg] = useState<IAssignment | null>(null);
   
   // File upload state simulation
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [mockFileName, setMockFileName] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-
-  const studentId = "STU-101";
-  const studentName = "Rahul Sharma";
+  const [remarks, setRemarks] = useState("");
 
   useEffect(() => {
-    // Load assignments
-    const storedAsg = localStorage.getItem("knowlix_assignments");
-    if (storedAsg) {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
       try {
-        setAssignments(JSON.parse(storedAsg));
+        setUser(JSON.parse(storedUser));
       } catch (e) {
         console.error(e);
       }
-    } else {
-      localStorage.setItem("knowlix_assignments", JSON.stringify(initialAssignments));
-      setAssignments(initialAssignments);
-    }
-
-    // Load submissions
-    const storedSub = localStorage.getItem("knowlix_submissions");
-    if (storedSub) {
-      try {
-        setSubmissions(JSON.parse(storedSub));
-      } catch (e) {
-        console.error(e);
-      }
-    } else {
-      localStorage.setItem("knowlix_submissions", JSON.stringify(initialSubmissions));
-      setSubmissions(initialSubmissions);
     }
   }, []);
+
+  // Fetch assignments list
+  const { data: assignmentsData, isLoading: isLoadingAsg, error } = useGetStudentAssignments();
+  const assignments = assignmentsData || [];
+
+  // Fetch statuses of all assignments in parallel to populate the badges and list
+  const statusQueries = useQueries({
+    queries: assignments.map((asg) => ({
+      queryKey: ["student-assignment-status", asg.id],
+      queryFn: () => getStudentAssignmentStatus(asg.id),
+      enabled: !!asg.id,
+    })),
+  });
+
+  const submitMutation = useSubmitStudentAssignment();
+
+  // Create a mapping of assignment ID to its live submission & evaluation status
+  const assignmentStatusMap = new Map<
+    string,
+    {
+      submission?: any;
+      evaluation?: any;
+      statusText: "Pending" | "Submitted" | "Graded";
+      grade?: string;
+    }
+  >();
+
+  assignments.forEach((asg, idx) => {
+    const query = statusQueries[idx];
+    if (query && query.data) {
+      const { submission, evaluation } = query.data;
+      let statusText: "Pending" | "Submitted" | "Graded" = "Pending";
+      let grade = "";
+
+      if (evaluation) {
+        statusText = "Graded";
+        grade = `${evaluation.marksObtained}/${asg.maxMarks}`;
+      } else if (submission) {
+        statusText = "Submitted";
+      }
+
+      assignmentStatusMap.set(asg.id, {
+        submission,
+        evaluation,
+        statusText,
+        grade,
+      });
+    } else {
+      assignmentStatusMap.set(asg.id, {
+        statusText: "Pending",
+      });
+    }
+  });
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -146,46 +135,60 @@ export default function StudentAssignmentManager() {
       return;
     }
 
-    setSubmitting(true);
+    const mockFileUrl = `https://knowlix-cloud.s3.amazonaws.com/submissions/${Date.now()}_${mockFileName}`;
 
-    setTimeout(() => {
-      const newSubmission: Submission = {
-        id: `SUB-${Date.now()}`,
-        assignmentId: selectedAsg.id,
-        assignmentTitle: selectedAsg.title,
-        studentId: studentId,
-        studentName: studentName,
-        submittedAt: new Date().toISOString().split("T")[0],
-        fileName: mockFileName,
-        fileSize: "1.8 MB",
-        status: "Submitted"
-      };
-
-      // Save submission
-      const updatedSub = [...submissions, newSubmission];
-      setSubmissions(updatedSub);
-      localStorage.setItem("knowlix_submissions", JSON.stringify(updatedSub));
-
-      // Update assignments list
-      const updatedAsg = assignments.map((asg) => {
-        if (asg.id === selectedAsg.id) {
-          return {
-            ...asg,
-            submittedCount: asg.submittedCount + 1
-          };
-        }
-        return asg;
-      });
-      setAssignments(updatedAsg);
-      localStorage.setItem("knowlix_assignments", JSON.stringify(updatedAsg));
-
-      toast.success("Assignment submitted successfully!");
-      setSubmitting(false);
-      setSelectedFile(null);
-      setMockFileName("");
-      setSelectedAsg(null);
-    }, 1500);
+    submitMutation.mutate(
+      {
+        id: selectedAsg.id,
+        fileUrl: mockFileUrl,
+        remarks: remarks.trim(),
+      },
+      {
+        onSuccess: () => {
+          toast.success("Assignment submitted successfully!");
+          setSelectedFile(null);
+          setMockFileName("");
+          setRemarks("");
+          setSelectedAsg(null);
+        },
+        onError: (err: any) => {
+          console.error(err);
+          toast.error("Failed to submit assignment.");
+        },
+      }
+    );
   };
+
+  // Build submission history list dynamically from status queries
+  const submissionsHistory: any[] = [];
+  assignments.forEach((asg) => {
+    const statusInfo = assignmentStatusMap.get(asg.id);
+    if (statusInfo && (statusInfo.submission || statusInfo.evaluation)) {
+      const fileName = statusInfo.submission?.fileUrl
+        ? statusInfo.submission.fileUrl.split("/").pop() || "submission.pdf"
+        : "submission.pdf";
+      submissionsHistory.push({
+        id: statusInfo.submission?.id || statusInfo.evaluation?.id || asg.id,
+        assignmentId: asg.id,
+        assignmentTitle: asg.title,
+        submittedAt: statusInfo.submission?.submittedAt
+          ? new Date(statusInfo.submission.submittedAt).toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+            })
+          : "Recently",
+        fileName,
+        fileSize: "1.8 MB",
+        status: statusInfo.evaluation ? "Graded" : "Submitted",
+        grade: statusInfo.grade,
+        feedback: statusInfo.evaluation?.remarks || statusInfo.submission?.remarks
+      });
+    }
+  });
+
+  const selectedStatusInfo = selectedAsg ? assignmentStatusMap.get(selectedAsg.id) : null;
+  const isSubmitting = submitMutation.isPending;
 
   return (
     <div className="space-y-6 w-full pb-10">
@@ -215,22 +218,26 @@ export default function StudentAssignmentManager() {
                     </TableRow>
                   </TableHeader>
                   <TableBody className="divide-y divide-slate-100">
-                    {assignments.length > 0 ? (
+                    {isLoadingAsg ? (
+                      <TableRow>
+                        <TableCell colSpan={4} className="px-6 py-12 text-center text-slate-450 text-xs font-medium">
+                          <div className="flex justify-center items-center gap-2">
+                            <div className="w-4 h-4 border-2 border-[var(--brand-green)] border-t-transparent rounded-full animate-spin" />
+                            Loading assignments...
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ) : assignments.length > 0 ? (
                       assignments.map((asg) => {
-                        // Find if student submitted this assignment
-                        const sub = submissions.find((s) => s.assignmentId === asg.id && s.studentId === studentId);
-                        
-                        let statusText: "Pending" | "Submitted" | "Graded" = "Pending";
-                        if (sub) {
-                          statusText = sub.status;
-                        }
+                        const statusInfo = assignmentStatusMap.get(asg.id);
+                        const statusText = statusInfo?.statusText || "Pending";
 
                         return (
                           <TableRow key={asg.id} className="hover:bg-slate-50/60 transition-colors">
                             <TableCell className="px-6 py-4">
                               <p className="text-xs font-bold text-slate-800 truncate leading-none">{asg.title}</p>
                               <span className="text-[9px] text-slate-450 mt-1.5 block font-semibold">
-                                {asg.subject} • Uploaded by {asg.tutorName}
+                                {asg.subject} • Max Marks: {asg.maxMarks}
                               </span>
                             </TableCell>
                             <TableCell className="px-6 py-4 text-xs text-center font-medium text-slate-650">
@@ -262,7 +269,7 @@ export default function StudentAssignmentManager() {
                             </TableCell>
                             <TableCell className="px-6 py-4 text-right">
                               {statusText === "Graded" ? (
-                                <span className="text-xs font-black text-slate-800">{sub?.grade}</span>
+                                <span className="text-xs font-black text-slate-800">{statusInfo?.grade}</span>
                               ) : statusText === "Submitted" ? (
                                 <Button
                                   variant="ghost"
@@ -323,10 +330,12 @@ export default function StudentAssignmentManager() {
                 </div>
 
                 {/* Check submission */}
-                {submissions.find((s) => s.assignmentId === selectedAsg.id && s.studentId === studentId) ? (
+                {selectedStatusInfo && (selectedStatusInfo.submission || selectedStatusInfo.evaluation) ? (
                   // Submitted review
                   (() => {
-                    const sub = submissions.find((s) => s.assignmentId === selectedAsg.id && s.studentId === studentId)!;
+                    const sub = selectedStatusInfo.submission;
+                    const evalInfo = selectedStatusInfo.evaluation;
+                    const fileName = sub?.fileUrl ? sub.fileUrl.split("/").pop() || "submission.pdf" : "submission.pdf";
                     return (
                       <div className="space-y-4">
                         <div className="bg-blue-50/50 border border-blue-100 rounded-xl p-4 space-y-2">
@@ -334,11 +343,44 @@ export default function StudentAssignmentManager() {
                             <CheckCircle2 className="w-3.5 h-3.5" /> File Submitted Successfully
                           </h4>
                           <div className="text-xs text-slate-700 flex items-center justify-between font-semibold mt-1">
-                            <span className="truncate max-w-[150px]">{sub.fileName}</span>
-                            <span className="text-[10px] text-slate-400">{sub.fileSize}</span>
+                            <span className="truncate max-w-[150px]">{fileName}</span>
+                            <span className="text-[10px] text-slate-400">1.8 MB</span>
                           </div>
-                          <p className="text-[10px] text-slate-400 mt-1 block">Submitted on {sub.submittedAt}</p>
+                          {sub?.submittedAt && (
+                            <p className="text-[10px] text-slate-400 mt-1 block">
+                              Submitted on {new Date(sub.submittedAt).toLocaleDateString("en-US", {
+                                month: "short",
+                                day: "numeric",
+                                year: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit"
+                              })}
+                            </p>
+                          )}
+                          {sub?.remarks && (
+                            <p className="text-[10px] text-slate-500 italic mt-1 bg-white p-2 rounded border border-slate-100">
+                              Remarks: "{sub.remarks}"
+                            </p>
+                          )}
                         </div>
+
+                        {/* If evaluated, show details here too */}
+                        {evalInfo && (
+                          <div className="bg-emerald-50/50 border border-emerald-100 rounded-xl p-4 space-y-2">
+                            <h4 className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider flex items-center gap-1">
+                              <Check className="w-3.5 h-3.5" /> Evaluated
+                            </h4>
+                            <div className="flex justify-between items-center text-xs font-bold text-slate-750">
+                              <span>Obtained Score:</span>
+                              <span className="text-[var(--brand-green)]">{evalInfo.marksObtained} / {selectedAsg.maxMarks}</span>
+                            </div>
+                            {evalInfo.remarks && (
+                              <p className="text-[10px] text-slate-650 italic mt-1 bg-white p-2 rounded border border-emerald-100">
+                                Feedback: "{evalInfo.remarks}"
+                              </p>
+                            )}
+                          </div>
+                        )}
                       </div>
                     );
                   })()
@@ -366,12 +408,24 @@ export default function StudentAssignmentManager() {
                       </div>
                     </div>
 
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
+                        Remarks / Notes
+                      </label>
+                      <Textarea
+                        value={remarks}
+                        onChange={(e) => setRemarks(e.target.value)}
+                        placeholder="Add comments for your tutor..."
+                        className="text-xs min-h-16 max-h-24 rounded-xl"
+                      />
+                    </div>
+
                     <Button
                       type="submit"
-                      disabled={submitting}
+                      disabled={isSubmitting}
                       className="w-full bg-[var(--brand-green)] hover:bg-[var(--brand-green)]/90 text-white font-bold py-2.5 rounded-xl text-xs shadow-sm cursor-pointer transition-all flex items-center justify-center gap-1.5"
                     >
-                      {submitting ? (
+                      {isSubmitting ? (
                         <>
                           <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                           Submitting...
@@ -387,7 +441,7 @@ export default function StudentAssignmentManager() {
               </CardContent>
             </Card>
           ) : (
-            // Static review panel of student submissions
+            // Dynamic review panel of student submissions
             <Card className="bg-white border-slate-150 shadow-sm overflow-hidden">
               <CardHeader className="p-6 pb-4 border-b border-slate-100 bg-slate-50/50">
                 <CardTitle className="text-sm font-bold text-slate-800 uppercase tracking-wider">
@@ -396,61 +450,67 @@ export default function StudentAssignmentManager() {
               </CardHeader>
               <CardContent className="p-6">
                 <div className="space-y-4">
-                  {submissions.map((sub) => (
-                    <div key={sub.id} className="border border-slate-100 rounded-xl p-4 hover:bg-slate-50/40 transition-all space-y-3">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <h4 className="text-xs font-bold text-slate-800 leading-tight truncate max-w-[150px]">
-                            {sub.assignmentTitle}
-                          </h4>
-                          <span className="text-[9px] text-slate-400 font-semibold block mt-0.5">
-                            Submitted on {sub.submittedAt}
-                          </span>
-                        </div>
-                        <Badge
-                          variant="outline"
-                          className={`text-[8px] font-bold px-2 py-0.5 rounded-full ${
-                            sub.status === "Graded"
-                              ? "bg-emerald-50 text-emerald-700 border-emerald-100"
-                              : "bg-blue-50 text-blue-700 border-blue-100"
-                          }`}
-                        >
-                          {sub.status}
-                        </Badge>
-                      </div>
-
-                      {/* File Details */}
-                      <div className="flex items-center justify-between text-[10px] font-semibold text-slate-500 bg-slate-50/60 border border-slate-100 p-2 rounded-lg">
-                        <div className="flex items-center gap-1.5 truncate">
-                          <FileText className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
-                          <span className="truncate">{sub.fileName}</span>
-                        </div>
-                        <span className="text-slate-400 text-[9px]">{sub.fileSize}</span>
-                      </div>
-
-                      {/* Tutor Grade & Remarks */}
-                      {sub.status === "Graded" && (
-                        <div className="bg-slate-50 border-t border-slate-100 p-3 rounded-lg mt-2 space-y-2">
-                          <div className="flex items-center justify-between text-xs">
-                            <span className="font-bold text-slate-800">Obtained Grade:</span>
-                            <span className="font-black text-[var(--brand-green)] bg-[var(--brand-light-green)] px-2 py-0.5 rounded-md text-[10px]">
-                              {sub.grade}
+                  {submissionsHistory.length > 0 ? (
+                    submissionsHistory.map((sub) => (
+                      <div key={sub.id} className="border border-slate-100 rounded-xl p-4 hover:bg-slate-50/40 transition-all space-y-3">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h4 className="text-xs font-bold text-slate-800 leading-tight truncate max-w-[150px]">
+                              {sub.assignmentTitle}
+                            </h4>
+                            <span className="text-[9px] text-slate-400 font-semibold block mt-0.5">
+                              Submitted on {sub.submittedAt}
                             </span>
                           </div>
-                          {sub.feedback && (
-                            <div className="space-y-1">
-                              <span className="text-[9px] font-bold text-slate-450 uppercase tracking-wider block">
-                                Tutor Feedback
-                              </span>
-                              <p className="text-[10px] text-slate-600 leading-normal italic whitespace-pre-line">
-                                "{sub.feedback}"
-                              </p>
-                            </div>
-                          )}
+                          <Badge
+                            variant="outline"
+                            className={`text-[8px] font-bold px-2 py-0.5 rounded-full ${
+                              sub.status === "Graded"
+                                ? "bg-emerald-50 text-emerald-700 border-emerald-100"
+                                : "bg-blue-50 text-blue-700 border-blue-100"
+                            }`}
+                          >
+                            {sub.status}
+                          </Badge>
                         </div>
-                      )}
+
+                        {/* File Details */}
+                        <div className="flex items-center justify-between text-[10px] font-semibold text-slate-500 bg-slate-50/60 border border-slate-100 p-2 rounded-lg">
+                          <div className="flex items-center gap-1.5 truncate">
+                            <FileText className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+                            <span className="truncate">{sub.fileName}</span>
+                          </div>
+                          <span className="text-slate-400 text-[9px]">{sub.fileSize}</span>
+                        </div>
+
+                        {/* Tutor Grade & Remarks */}
+                        {sub.status === "Graded" && (
+                          <div className="bg-slate-50 border-t border-slate-100 p-3 rounded-lg mt-2 space-y-2">
+                            <div className="flex items-center justify-between text-xs">
+                              <span className="font-bold text-slate-800">Obtained Grade:</span>
+                              <span className="font-black text-[var(--brand-green)] bg-[var(--brand-light-green)] px-2 py-0.5 rounded-md text-[10px]">
+                                {sub.grade}
+                              </span>
+                            </div>
+                            {sub.feedback && (
+                              <div className="space-y-1">
+                                <span className="text-[9px] font-bold text-slate-450 uppercase tracking-wider block">
+                                  Tutor Feedback
+                                </span>
+                                <p className="text-[10px] text-slate-650 leading-normal italic whitespace-pre-line">
+                                  "{sub.feedback}"
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-6 text-slate-400 text-xs font-semibold">
+                      No submissions yet.
                     </div>
-                  ))}
+                  )}
                 </div>
               </CardContent>
             </Card>

@@ -17,7 +17,17 @@ export default function AuthGuard({ children }: AuthGuardProps) {
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
-      router.replace("/admin/dashboard");
+      const role = localStorage.getItem("role") || "admin";
+      const roleMap: Record<string, string> = {
+        "subject_tutor": "/tutor/dashboard",
+        "tutor": "/tutor/dashboard",
+        "student": "/student/dashboard",
+        "admin": "/admin/dashboard",
+        "hr": "/hr",
+        "superadmin": "/admin/dashboard",
+      };
+      const destination = roleMap[role] || "/admin/dashboard";
+      router.replace(destination);
       setAuthState("authenticated");
     } else {
       setAuthState("unauthenticated");

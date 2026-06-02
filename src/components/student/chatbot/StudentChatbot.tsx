@@ -24,6 +24,8 @@ const PRESET_TOPICS = [
   { label: "Question Papers", icon: Download, prompt: "Where can I find last year's Grade 10 Physics question papers?" },
 ];
 
+import { useStudentChatbot } from "@/querys/student/studentQuery";
+
 export default function StudentChatbot() {
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -35,15 +37,30 @@ export default function StudentChatbot() {
   ]);
   const [inputValue, setInputValue] = useState("");
   const [isTyping, setIsTyping] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messageAreaRef = useRef<HTMLDivElement>(null);
+  
+  const chatbotMutation = useStudentChatbot();
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (messageAreaRef.current) {
+      messageAreaRef.current.scrollTo({
+        top: messageAreaRef.current.scrollHeight,
+        behavior: "smooth"
+      });
+    }
   };
 
   useEffect(() => {
     scrollToBottom();
   }, [messages, isTyping]);
+
+  useEffect(() => {
+    // Add body layout class to lock main scrolling when chatbot page is mounted
+    document.body.classList.add("chatbot-open");
+    return () => {
+      document.body.classList.remove("chatbot-open");
+    };
+  }, []);
 
   const getBotResponse = (prompt: string): Promise<string> => {
     return new Promise((resolve) => {
@@ -86,30 +103,89 @@ export default function StudentChatbot() {
     setInputValue("");
     setIsTyping(true);
 
-    const botText = await getBotResponse(textToSend);
-    
-    setIsTyping(false);
-    setMessages((prev) => [
-      ...prev,
-      {
-        id: `msg-${Date.now() + 1}`,
-        sender: "bot",
-        text: botText,
-        timestamp: new Date()
+    chatbotMutation.mutate(textToSend, {
+      onSuccess: (data) => {
+        setIsTyping(false);
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: `msg-${Date.now() + 1}`,
+            sender: "bot",
+            text: data.response,
+            timestamp: new Date()
+          }
+        ]);
+      },
+      onError: async (err) => {
+        // Fallback to local response logic if API fails or backend is unreachable
+        const botText = await getBotResponse(textToSend);
+        setIsTyping(false);
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: `msg-${Date.now() + 1}`,
+            sender: "bot",
+            text: botText,
+            timestamp: new Date()
+          }
+        ]);
       }
-    ]);
+    });
+  };
+
+  const formatMessageText = (text: string) => {
+    if (!text) return "";
+    const lines = text.split("\n");
+    return lines.map((line, lineIdx) => {
+      const parts = line.split(/(\*\*.*?\*\*|\*.*?\*)/g);
+      const parsedLine = parts.map((part, partIdx) => {
+        if (part.startsWith("**") && part.endsWith("**")) {
+          return (
+            <strong key={partIdx} className="font-extrabold text-slate-900">
+              {part.slice(2, -2)}
+            </strong>
+          );
+        } else if (part.startsWith("*") && part.endsWith("*")) {
+          return (
+            <em key={partIdx} className="italic text-slate-700 font-medium">
+              {part.slice(1, -1)}
+            </em>
+          );
+        }
+        let formattedPart = part;
+        if (formattedPart.includes("$")) {
+          formattedPart = formattedPart
+            .replace(/\$x\^n\$/g, "xⁿ")
+            .replace(/\$x\^2\$/g, "x²")
+            .replace(/\$x\^\{n\+1\}\$/g, "xⁿ⁺¹")
+            .replace(/\\int/g, "∫")
+            .replace(/dx/g, " dx")
+            .replace(/\\frac\{x\^\{n\+1\}\}\{n\+1\}/g, "xⁿ⁺¹ / (n+1)")
+            .replace(/\\frac\{x\^3\}\{3\}/g, "x³ / 3")
+            .replace(/\\neq/g, "≠")
+            .replace(/\$/g, "");
+        }
+        return <span key={partIdx}>{formattedPart}</span>;
+      });
+
+      return (
+        <div key={lineIdx} className={lineIdx > 0 ? "mt-1.5" : ""}>
+          {parsedLine}
+        </div>
+      );
+    });
   };
 
   return (
-    <div className="space-y-6 w-full pb-10 flex flex-col h-[calc(100vh-100px)]">
-      <DashboardHeader
+    <div className="space-y-6 w-full flex flex-col h-full pb-1">
+      {/* <DashboardHeader
         title="AI Chatbot Assistant"
         description="Interact with our intelligent study bot to get study notes, past papers, schedule details, and immediate doubt clarification."
-      />
+      /> */}
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 flex-1 min-h-0">
         {/* Left Column: Preset topics panel */}
-        <div className="space-y-4 lg:col-span-1 flex flex-col">
+        <div className="space-y-4 lg:col-span-1 flex flex-col min-h-0 h-full">
           <Card className="bg-white border-slate-150 shadow-sm flex-1 flex flex-col overflow-hidden">
             <CardHeader className="p-4 border-b border-slate-100 bg-slate-50/50 flex-shrink-0">
               <CardTitle className="text-xs font-bold text-slate-800 uppercase tracking-wider">
@@ -157,7 +233,7 @@ export default function StudentChatbot() {
         </div>
 
         {/* Right Column: Active chat container */}
-        <div className="lg:col-span-3 flex flex-col h-full">
+        <div className="lg:col-span-3 flex flex-col h-full min-h-0">
           <Card className="bg-white border-slate-150 shadow-sm flex-1 flex flex-col overflow-hidden h-full">
             {/* Header */}
             <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/20 flex-shrink-0">
@@ -193,7 +269,7 @@ export default function StudentChatbot() {
             </div>
 
             {/* Message Area */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-4 min-h-0 bg-slate-50/30">
+            <div ref={messageAreaRef} className="flex-1 overflow-y-auto p-6 space-y-4 min-h-0 bg-slate-50/30">
               {messages.map((msg) => {
                 const isBot = msg.sender === "bot";
                 return (
@@ -219,7 +295,7 @@ export default function StudentChatbot() {
                             : "bg-[var(--brand-mid)] border-[var(--brand-mid)] text-white rounded-tr-sm"
                         }`}
                       >
-                        {msg.text}
+                        {formatMessageText(msg.text)}
 
                         {/* Special download buttons mock */}
                         {isBot && msg.text.includes("Formula Cheat Sheet") && (
@@ -280,7 +356,6 @@ export default function StudentChatbot() {
                   </div>
                 </div>
               )}
-              <div ref={messagesEndRef} />
             </div>
 
             {/* Input Bar */}

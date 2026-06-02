@@ -178,3 +178,8 @@
 .admin-stagger > *:nth-child(6) { animation-delay: 275ms; }
 .admin-stagger > *:nth-child(7) { animation-delay: 330ms; }
 .admin-stagger > *:nth-child(8) { animation-delay: 385ms; }
+
+/* Prevent layout scrolling when chatbot is open */
+body.chatbot-open main {
+  overflow: hidden !important;
+}
