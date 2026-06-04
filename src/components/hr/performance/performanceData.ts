@@ -10,24 +10,34 @@ export const DEFAULT_PERFORMANCE_CYCLE_ID = "PERF-H1-2026";
 
 export const coreValues: CoreValue[] = [
   {
-    id: "ownership",
+    id: "G",
+    title: "Growth",
+    description: "Demonstrates continuous learning, adapts to feedback, and strives for professional development.",
+  },
+  {
+    id: "H",
+    title: "Helpfulness",
+    description: "Supports students and peers, offers assistance, and contributes to a collaborative environment.",
+  },
+  {
+    id: "O",
     title: "Ownership",
-    description: "Acts like the problem belongs here and closes loops without hand-holding.",
+    description: "Takes full accountability for student outcomes and classroom session success.",
   },
   {
-    id: "learner-mindset",
-    title: "Learner Mindset",
-    description: "Adapts quickly, reflects on outcomes, and applies feedback to improve.",
+    id: "R",
+    title: "Reliability",
+    description: "Consistently delivers high-quality teaching, prompt attendance, and reliable session timings.",
   },
   {
-    id: "student-first",
-    title: "Student First",
-    description: "Keeps learner outcomes and family trust at the center of decisions.",
+    id: "T",
+    title: "Trustworthiness",
+    description: "Acts with integrity, builds trust with students and families, and protects data privacy.",
   },
   {
-    id: "team-reliability",
-    title: "Team Reliability",
-    description: "Shares context early, supports peers, and delivers consistently across functions.",
+    id: "W",
+    title: "Work Ethics",
+    description: "Maintains professional conduct, respects guidelines, and demonstrates commitment to academic excellence.",
   },
 ];
 

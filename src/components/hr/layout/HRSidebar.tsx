@@ -8,6 +8,8 @@ import {
   GraduationCap,
   Wallet,
   ChartNoAxesCombined,
+  Bell,
+  BarChart3,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -22,6 +24,8 @@ const nav: NavItem[] = [
   { name: "Attendance & Leave", href: "/hr/attendance", icon: CalendarDays },
   { name: "Payroll Management", href: "/hr/payroll", icon: Wallet },
   { name: "Performance Management", href: "/hr/performance", icon: ChartNoAxesCombined },
+  { name: "Notices", href: "/hr/notices", icon: Bell },
+  { name: "Reports & Analytics", href: "/hr/reports", icon: BarChart3 },
 ];
 
 interface Props {

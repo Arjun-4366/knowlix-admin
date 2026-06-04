@@ -1,53 +1,146 @@
 "use client";
 
-import { useState, useSyncExternalStore } from "react";
+import { useState } from "react";
 import { differenceInCalendarDays, format, parseISO } from "date-fns";
+import { toast } from "react-hot-toast";
 import DashboardHeader from "@/components/dashboard/shared/DashboardHeader";
-import { Card } from "@/components/ui/card";
-import {
-  DEFAULT_ATTENDANCE_DATE,
-  holidayCalendar,
-  initialAttendanceRecords,
-  initialLeaveRequests,
-  initialShiftAssignments,
-  shiftTemplates,
-  workPolicies,
-} from "./attendanceData";
+import { Loader2 } from "lucide-react";
+import { DEFAULT_ATTENDANCE_DATE } from "./attendanceData";
 import AttendanceOverview from "./AttendanceOverview";
 import DailyAttendanceTracker from "./DailyAttendanceTracker";
 import HolidayCalendar from "./HolidayCalendar";
-import LeaveRequestBoard from "./LeaveRequestBoard";
-import ShiftManagementPanel from "./ShiftManagementPanel";
 import {
   AttendanceStatus,
   EnrichedAttendanceRecord,
-  EnrichedLeaveRequest,
-  EnrichedShiftAssignment,
-  LeaveStatus,
+  HolidayItem,
 } from "./types";
+import { Employee } from "../employees/types";
 import {
-  getEmployeesServerSnapshot,
-  loadEmployees,
-  subscribeToEmployees,
-} from "../employees/employeeData";
+  useGetHolidays,
+  useCreateHoliday,
+  useDeleteHoliday,
+  useGetHRTutorAttendance,
+  useApproveAttendance,
+  useGetTutorsHR,
+} from "@/querys/admin/hrQuery";
+import { IHoliday } from "@/types/admin/hr";
 
-function resolveShiftName(shiftId: string) {
-  return (
-    shiftTemplates.find((shift) => shift.id === shiftId)?.name || "Unassigned Shift"
-  );
+function toHolidayItem(h: IHoliday): HolidayItem {
+  return {
+    id: h.id,
+    name: h.name,
+    date: h.date.slice(0, 10),
+    type: h.isOptional ? "Optional" : "National",
+    appliesTo: h.description || "All teams",
+  };
+}
+
+const mapTutorToEmployee = (tutor: any): Employee => {
+  const tutorId = tutor.id || tutor._id || "";
+  let mappedStatus: Employee["status"] = "Active";
+  if (tutor.status === "pending") {
+    mappedStatus = "On Probation";
+  } else if (tutor.status === "rejected") {
+    mappedStatus = "Terminated";
+  }
+
+  let mappedDept: Employee["department"] = "Tutor";
+  let mappedRole = "Tutor";
+  if (tutor.role === "mentor_sales_bro") {
+    mappedDept = "Sales";
+    mappedRole = "Mentor/Sales Rep";
+  } else if (tutor.role === "academic_coordinator") {
+    mappedDept = "Academics";
+    mappedRole = "Academic Coordinator";
+  }
+
+  return {
+    id: tutorId,
+    name: tutor.name || "Unnamed Tutor",
+    email: tutor.email || "",
+    phone: tutor.phone || "",
+    address: tutor.availability || "Online / Remote",
+    dob: "1990-01-01",
+    emergencyContact: {
+      name: "Emergency Contact",
+      relationship: "Family",
+      phone: tutor.phone || "",
+    },
+    designation: mappedRole,
+    department: mappedDept,
+    dateOfJoining: tutor.createdAt ? tutor.createdAt.slice(0, 10) : new Date().toISOString().split("T")[0],
+    status: mappedStatus,
+    manager: "HR Manager",
+    salaryDetails: {
+      base: 40000,
+      allowance: 10000,
+      pf: 4800,
+      ctc: 600000,
+    },
+    documents: [],
+    joiningRecords: {
+      probationEnd: "",
+      joiningNotes: `Experience: ${tutor.experience || "Not specified"}. Availability: ${tutor.availability || "Not specified"}.`,
+    },
+  };
+};
+
+function toAttendanceRecord(r: any): EnrichedAttendanceRecord {
+  let dateStr = "";
+  if (r.date) {
+    dateStr = r.date.slice(0, 10);
+  }
+
+  let checkInVal: string | undefined;
+  if (r.checkIn) {
+    const t = new Date(r.checkIn);
+    checkInVal = isNaN(t.getTime()) ? undefined : format(t, "HH:mm");
+  }
+
+  let checkOutVal: string | undefined;
+  if (r.checkOut) {
+    const t = new Date(r.checkOut);
+    checkOutVal = isNaN(t.getTime()) ? undefined : format(t, "HH:mm");
+  }
+
+  let mappedStatus: AttendanceStatus = "Present";
+  if (r.status === "present") mappedStatus = "Present";
+  else if (r.status === "absent") mappedStatus = "Absent";
+  else if (r.status === "half_day") mappedStatus = "On Leave";
+  else if (r.status === "late") mappedStatus = "Late";
+
+  return {
+    id: r.id || r._id,
+    employeeId: r.tutorId,
+    date: dateStr,
+    shiftId: "SHIFT-GEN",
+    checkIn: checkInVal,
+    checkOut: checkOutVal,
+    hoursWorked: r.workHours ?? 0,
+    status: mappedStatus,
+    notes: r.remarks || "",
+    employeeName: "Tutor",
+    department: "Tutor",
+    designation: "Tutor",
+    shiftName: "General",
+  };
 }
 
 export default function AttendanceManager() {
-  const employees = useSyncExternalStore(
-    subscribeToEmployees,
-    loadEmployees,
-    getEmployeesServerSnapshot
-  );
   const [selectedDate, setSelectedDate] = useState(DEFAULT_ATTENDANCE_DATE);
-  const [attendanceRecords, setAttendanceRecords] =
-    useState(initialAttendanceRecords);
-  const [leaveRequests, setLeaveRequests] = useState(initialLeaveRequests);
-  const [selectedDepartment, setSelectedDepartment] = useState("all");
+
+  const { data: tutorsRes, isLoading: tutorsLoading } = useGetTutorsHR();
+  const { data: attendanceRes, isLoading: attendanceLoading } = useGetHRTutorAttendance();
+  const { data: holidaysRes, isLoading: holidaysLoading } = useGetHolidays();
+
+  const createHolidayMutation = useCreateHoliday();
+  const deleteHolidayMutation = useDeleteHoliday();
+  const approveAttendanceMutation = useApproveAttendance();
+
+  const employees = tutorsRes?.data ? (tutorsRes.data as any[]).map(mapTutorToEmployee) : [];
+  const rawAttendance = attendanceRes?.data ? (attendanceRes.data as any[]).map(toAttendanceRecord) : [];
+  const holidays = holidaysRes?.data ? (holidaysRes.data as IHoliday[]).map(toHolidayItem) : [];
+
   const effectiveSelectedDate = selectedDate || DEFAULT_ATTENDANCE_DATE;
 
   const activeEmployees = employees.filter(
@@ -58,44 +151,16 @@ export default function AttendanceManager() {
     activeEmployees.map((employee) => [employee.id, employee])
   );
 
-  const attendanceView: EnrichedAttendanceRecord[] = attendanceRecords
+  const attendanceView: EnrichedAttendanceRecord[] = rawAttendance
     .filter((record) => employeeLookup.has(record.employeeId))
     .map((record) => {
       const employee = employeeLookup.get(record.employeeId);
-
       return {
         ...record,
         employeeName: employee?.name || "Unknown Employee",
         department: employee?.department || "Unmapped",
         designation: employee?.designation || "Profile missing",
-        shiftName: resolveShiftName(record.shiftId),
-      };
-    });
-
-  const leaveView: EnrichedLeaveRequest[] = leaveRequests
-    .filter((request) => employeeLookup.has(request.employeeId))
-    .map((request) => {
-      const employee = employeeLookup.get(request.employeeId);
-
-      return {
-        ...request,
-        employeeName: employee?.name || "Unknown Employee",
-        department: employee?.department || "Unmapped",
-        designation: employee?.designation || "Profile missing",
-      };
-    });
-
-  const assignmentView: EnrichedShiftAssignment[] = initialShiftAssignments
-    .filter((assignment) => employeeLookup.has(assignment.employeeId))
-    .map((assignment) => {
-      const employee = employeeLookup.get(assignment.employeeId);
-
-      return {
-        ...assignment,
-        employeeName: employee?.name || "Unknown Employee",
-        department: employee?.department || "Unmapped",
-        designation: employee?.designation || "Profile missing",
-        shiftName: resolveShiftName(assignment.shiftId),
+        shiftName: "General",
       };
     });
 
@@ -111,108 +176,51 @@ export default function AttendanceManager() {
   const lateCount = attendanceForDay.filter(
     (record) => record.status === "Late"
   ).length;
-  const pendingLeaveCount = leaveView.filter(
-    (request) => request.status === "Pending"
-  ).length;
-  const approvedLeaveCount = leaveView.filter(
-    (request) => request.status === "Approved"
-  ).length;
-  const leaveStartingSoonCount = leaveView.filter(
-    (request) =>
-      request.status === "Pending" &&
-      differenceInCalendarDays(
-        parseISO(request.startDate),
-        parseISO(effectiveSelectedDate)
-      ) >= 0 &&
-      differenceInCalendarDays(
-        parseISO(request.startDate),
-        parseISO(effectiveSelectedDate)
-      ) <= 7
-  ).length;
-  const upcomingHolidays = holidayCalendar.filter(
+
+  const upcomingHolidays = [...holidays].sort((left, right) =>
+    left.date.localeCompare(right.date)
+  );
+  const nextHoliday = upcomingHolidays.find(
     (holiday) =>
       differenceInCalendarDays(
         parseISO(holiday.date),
         parseISO(effectiveSelectedDate)
-      ) >= 0 &&
-      differenceInCalendarDays(
-        parseISO(holiday.date),
-        parseISO(effectiveSelectedDate)
-      ) <= 90
-  );
-  const nextHoliday = upcomingHolidays[0];
-  const staffedHours = assignmentView.reduce(
-    (total, assignment) => total + assignment.weeklyHours,
-    0
-  );
-  const onsiteAssignmentCount = assignmentView.filter(
-    (assignment) => assignment.workMode === "Onsite"
-  ).length;
-  const departments = Array.from(
-    new Set(activeEmployees.map((employee) => employee.department))
-  );
-  const filteredAssignments = assignmentView.filter((assignment) =>
-    selectedDepartment === "all"
-      ? true
-      : assignment.department === selectedDepartment
+      ) >= 0
   );
 
   const handleAttendanceStatusChange = (
     recordId: string,
     status: AttendanceStatus
   ) => {
-    setAttendanceRecords((currentRecords) =>
-      currentRecords.map((record) => {
-        if (record.id !== recordId) {
-          return record;
-        }
-
-        if (status === "On Leave" || status === "Absent") {
-          return {
-            ...record,
-            status,
-            checkIn: undefined,
-            checkOut: undefined,
-            hoursWorked: 0,
-          };
-        }
-
-        return {
-          ...record,
-          status,
-        };
-      })
-    );
-  };
-
-  const handleLeaveStatusChange = (requestId: string, status: LeaveStatus) => {
-    setLeaveRequests((currentRequests) =>
-      currentRequests.map((request) =>
-        request.id === requestId ? { ...request, status } : request
-      )
-    );
+    const isMongoId = /^[0-9a-fA-F]{24}$/.test(recordId);
+    if (isMongoId) {
+      const backendStatus = status === "Absent" ? "rejected" : "approved";
+      approveAttendanceMutation.mutate({
+        id: recordId,
+        data: {
+          status: backendStatus,
+          remarks: `Status updated to ${status} via HR Attendance Dashboard`,
+        },
+      });
+    } else {
+      toast.error("Offline updates are not supported for attendance.");
+    }
   };
 
   const handleDateChange = (value: string) => {
     setSelectedDate(value || DEFAULT_ATTENDANCE_DATE);
   };
 
-  if (activeEmployees.length === 0) {
+  if (tutorsLoading || attendanceLoading) {
     return (
       <div className="space-y-6 pb-10">
         <DashboardHeader
-          title="Attendance & Leave Management"
-          description="Daily attendance tracking, leave approvals, holiday planning, and shift governance."
+          title="Attendance Management"
+          description="Daily attendance tracking and holiday planning."
         />
-
-        <Card className="rounded-2xl border-slate-150 p-8 text-center bg-white shadow-sm space-y-3">
-          <p className="text-sm font-semibold text-slate-700">
-            No active employees are available for attendance tracking yet.
-          </p>
-          <p className="text-xs text-slate-500">
-            Add or reactivate employees in the directory to populate this section.
-          </p>
-        </Card>
+        <div className="flex h-96 items-center justify-center bg-white rounded-2xl border border-slate-150 shadow-sm">
+          <Loader2 className="h-8 w-8 animate-spin text-[var(--brand-green)]" />
+        </div>
       </div>
     );
   }
@@ -220,11 +228,11 @@ export default function AttendanceManager() {
   return (
     <div className="space-y-6 pb-10">
       <DashboardHeader
-        title="Attendance & Leave Management"
+        title="Attendance Management"
         description={`Operational snapshot for ${format(
           parseISO(effectiveSelectedDate),
           "dd MMM yyyy"
-        )}: daily attendance, leave flow, holiday visibility, and shift control.`}
+        )}: daily attendance and holiday visibility.`}
       />
 
       <AttendanceOverview
@@ -232,45 +240,31 @@ export default function AttendanceManager() {
         totalTracked={attendanceForDay.length}
         remoteCount={remoteCount}
         lateCount={lateCount}
-        pendingLeaveCount={pendingLeaveCount}
-        approvedLeaveCount={approvedLeaveCount}
-        leaveStartingSoonCount={leaveStartingSoonCount}
         upcomingHolidayCount={upcomingHolidays.length}
         nextHolidayLabel={
           nextHoliday
             ? `${nextHoliday.name} (${format(parseISO(nextHoliday.date), "dd MMM")})`
             : "No holiday scheduled"
         }
-        activeShiftCount={shiftTemplates.length}
-        staffedHours={staffedHours}
-        onsiteAssignmentCount={onsiteAssignmentCount}
       />
 
-      <div className="grid grid-cols-1 xl:grid-cols-[1.65fr_1fr] gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-[1.6fr_1fr] gap-6">
         <DailyAttendanceTracker
           selectedDate={effectiveSelectedDate}
           onDateChange={handleDateChange}
           records={attendanceForDay}
           onStatusChange={handleAttendanceStatusChange}
         />
-        <LeaveRequestBoard
-          requests={leaveView}
-          onStatusChange={handleLeaveStatusChange}
-        />
-      </div>
-
-      <div className="grid grid-cols-1 xl:grid-cols-[0.95fr_1.55fr] gap-6">
         <HolidayCalendar
           holidays={upcomingHolidays}
           referenceDate={effectiveSelectedDate}
-        />
-        <ShiftManagementPanel
-          shifts={shiftTemplates}
-          assignments={filteredAssignments}
-          policies={workPolicies}
-          selectedDepartment={selectedDepartment}
-          onDepartmentChange={setSelectedDepartment}
-          departments={departments}
+          loading={holidaysLoading}
+          onCreateHoliday={async (data) => {
+            await createHolidayMutation.mutateAsync(data);
+          }}
+          onDeleteHoliday={async (id) => {
+            await deleteHolidayMutation.mutateAsync(id);
+          }}
         />
       </div>
     </div>

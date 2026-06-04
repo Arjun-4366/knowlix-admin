@@ -137,5 +137,49 @@ export const ENDPOINTS = {
   CREATE_EXAM: `${API_BASE_URL}/tutor/exams/create`,
   UPDATE_EXAM_STATUS: (id: string) => `${API_BASE_URL}/tutor/exams/${id}/status`,
   ENTER_EXAM_RESULTS: (id: string) => `${API_BASE_URL}/tutor/exams/${id}/results`,
-  
+
+  //HR
+    // Tutor management (HR)
+    CREATE_TUTOR: `${API_BASE_URL}/hr/tutors/create`,
+    GET_TUTORS_HR: `${API_BASE_URL}/hr/tutors`,
+    GET_TUTOR_HR: (id: string) => `${API_BASE_URL}/hr/tutors/${id}`,
+
+    // Tutor attendance (HR)
+    GET_HR_TUTOR_ATTENDANCE: `${API_BASE_URL}/hr/attendance`,
+    GET_HR_TUTOR_ATTENDANCE_SUMMARY: `${API_BASE_URL}/hr/tutors/attendance/summary`,
+    APPROVE_ATTENDANCE: (id: string) => `${API_BASE_URL}/hr/attendance/${id}/approve`,
+    APPROVE_ATTENDANCE_BULK: `${API_BASE_URL}/hr/attendance/approve-bulk`,
+
+    // Holidays
+    GET_HOLIDAYS: `${API_BASE_URL}/hr/holidays`,
+    CREATE_HOLIDAY: `${API_BASE_URL}/hr/holidays/create`,
+    DELETE_HOLIDAY: (id: string) => `${API_BASE_URL}/hr/holidays/${id}`,
+
+    // Performance / evaluations (tutor-based)
+    CREATE_PERFORMANCE: `${API_BASE_URL}/hr/performance/create`,
+    GET_PERFORMANCE: `${API_BASE_URL}/hr/performance`,
+    UPDATE_PERFORMANCE: (id: string) => `${API_BASE_URL}/hr/performance/${id}`,
+    CREATE_TUTOR_PERFORMANCE: `${API_BASE_URL}/hr/tutors/performance/create`,
+    GET_TUTOR_PERFORMANCE_HR: `${API_BASE_URL}/hr/tutors/performance`,
+
+    // Notices & announcements
+    CREATE_NOTICE: `${API_BASE_URL}/hr/notices/create`,
+    GET_NOTICES: `${API_BASE_URL}/hr/notices`,
+    DELETE_NOTICE: (id: string) => `${API_BASE_URL}/hr/notices/${id}`,
+    UPDATE_NOTICE: (id: string) => `${API_BASE_URL}/hr/notices/${id}`,
+
+    // Reports & analytics
+    GET_HR_ATTENDANCE_REPORT: `${API_BASE_URL}/hr/reports/attendance`,
+    GET_HR_SALARY: `${API_BASE_URL}/hr/reports/salary`,
+    GET_HR_PERFORMANCE_REPORT: `${API_BASE_URL}/hr/reports/performance`,
+    GET_HR_TURNOVER: `${API_BASE_URL}/hr/reports/turnover`,
+
+    // Legacy aliases (kept for backwards compat)
+    GET_HR_ATTENDANCE: `${API_BASE_URL}/hr/reports/attendance`,
+    GET_HR_PERFOMANCE: `${API_BASE_URL}/hr/reports/performance`,
+    CREATE_PERFOMANCE: `${API_BASE_URL}/hr/performance/create`,
+    UPDATE_PERFOMANCE: (id: string) => `${API_BASE_URL}/hr/performance/${id}`,
+
+    
+
 } as const; 

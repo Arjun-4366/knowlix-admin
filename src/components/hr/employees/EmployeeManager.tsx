@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useSyncExternalStore } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
+import { Loader2 } from "lucide-react";
 import { useConfirmation } from "@/context/ConfirmationContext";
 import DashboardHeader from "@/components/dashboard/shared/DashboardHeader";
 
@@ -13,12 +14,59 @@ import { EmployeeFormData } from "./EmployeeFormModal";
 import {
   EMPLOYEE_DEPARTMENTS,
   EMPLOYEE_STATUSES,
-  getEmployeesServerSnapshot,
-  loadEmployees,
-  persistEmployees,
-  subscribeToEmployees,
 } from "./employeeData";
 import { Employee } from "./types";
+import { useGetTutorsHR, useCreateTutorByHR } from "@/querys/admin/hrQuery";
+
+const mapTutorToEmployee = (tutor: any): Employee => {
+  const tutorId = tutor.id || tutor._id || "";
+  let mappedStatus: Employee["status"] = "Active";
+  if (tutor.status === "pending") {
+    mappedStatus = "On Probation";
+  } else if (tutor.status === "rejected") {
+    mappedStatus = "Terminated";
+  }
+
+  let mappedDept: Employee["department"] = "Tutor";
+  let mappedRole = "Tutor";
+  if (tutor.role === "mentor_sales_bro") {
+    mappedDept = "Sales";
+    mappedRole = "Mentor/Sales Rep";
+  } else if (tutor.role === "academic_coordinator") {
+    mappedDept = "Academics";
+    mappedRole = "Academic Coordinator";
+  }
+
+  return {
+    id: tutorId,
+    name: tutor.name || "Unnamed Tutor",
+    email: tutor.email || "",
+    phone: tutor.phone || "",
+    address: tutor.availability || "Online / Remote",
+    dob: "1990-01-01",
+    emergencyContact: {
+      name: "Emergency Contact",
+      relationship: "Family",
+      phone: tutor.phone || "",
+    },
+    designation: mappedRole,
+    department: mappedDept,
+    dateOfJoining: tutor.createdAt ? tutor.createdAt.slice(0, 10) : new Date().toISOString().split("T")[0],
+    status: mappedStatus,
+    manager: "HR Manager",
+    salaryDetails: {
+      base: 40000,
+      allowance: 10000,
+      pf: 4800,
+      ctc: 600000,
+    },
+    documents: [],
+    joiningRecords: {
+      probationEnd: "",
+      joiningNotes: `Experience: ${tutor.experience || "Not specified"}. Availability: ${tutor.availability || "Not specified"}.`,
+    },
+  };
+};
 
 export default function EmployeeManager() {
   const router = useRouter();
@@ -28,15 +76,11 @@ export default function EmployeeManager() {
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
   const [showFormModal, setShowFormModal] = useState(false);
   const [editEmployee, setEditEmployee] = useState<Employee | null>(null);
-  const employees = useSyncExternalStore(
-    subscribeToEmployees,
-    loadEmployees,
-    getEmployeesServerSnapshot
-  );
 
-  const syncEmployees = (updated: Employee[]) => {
-    persistEmployees(updated);
-  };
+  const { data: tutorsRes, isLoading } = useGetTutorsHR();
+  const createTutorMutation = useCreateTutorByHR();
+
+  const employees = tutorsRes?.data ? (tutorsRes.data as any[]).map(mapTutorToEmployee) : [];
 
   const totalCount = employees.length;
   const activeCount = employees.filter((e) => e.status === "Active").length;
@@ -61,32 +105,27 @@ export default function EmployeeManager() {
     setShowFormModal(true);
   };
 
-  const handleFormSubmit = (data: EmployeeFormData) => {
-    const ctc = (data.salaryDetails.base + data.salaryDetails.allowance + data.salaryDetails.pf) * 12;
-    const salaryDetails = { ...data.salaryDetails, ctc };
-
+  const handleFormSubmit = async (data: EmployeeFormData) => {
     if (editEmployee) {
-      const updated = employees.map((emp) =>
-        emp.id === editEmployee.id
-          ? { ...emp, ...data, salaryDetails, joiningRecords: { ...emp.joiningRecords, ...data.joiningRecords } }
-          : emp
-      );
-      syncEmployees(updated);
-      toast.success("Employee profile updated successfully!");
+      toast.error("Tutor editing is not supported on the backend yet.");
     } else {
-      const nextIdNum =
-        employees.reduce((acc, emp) => {
-          const n = parseInt(emp.id.replace("EMP-", ""), 10);
-          return isNaN(n) ? acc : Math.max(acc, n);
-        }, 100) + 1;
-      const newEmp: Employee = {
-        id: `EMP-${nextIdNum}`,
-        ...data,
-        salaryDetails,
-        documents: [],
-      };
-      syncEmployees([newEmp, ...employees]);
-      toast.success("New employee registered successfully!");
+      createTutorMutation.mutate({
+        name: data.name,
+        email: data.email,
+        phone: data.phone,
+        role: data.role || "subject_tutor",
+        password: data.password || "password123",
+        experience: data.experience || "6 Years",
+        availability: data.availability || "Evening",
+        subjects: data.subjects || ["Maths", "Science"],
+        status: "approved",
+        profileImage: data.profileImage || "https://cdn.example.com/profile.png",
+        permissions: data.permissions || {
+          canUploadNotes: true,
+          canEditNotes: true,
+          canShareMaterial: false,
+        },
+      });
     }
     setShowFormModal(false);
   };
@@ -99,8 +138,7 @@ export default function EmployeeManager() {
       confirmText: "Delete Record",
       variant: "danger",
       onConfirm: () => {
-        syncEmployees(employees.filter((e) => e.id !== id));
-        toast.success("Employee record deleted.");
+        toast.error("Tutor deletion is not supported on the backend yet.");
       },
     });
   };
@@ -112,29 +150,37 @@ export default function EmployeeManager() {
         description="Comprehensive employee database management, HR file storage, salary structures, and exit registers."
       />
 
-      <EmployeeStats
-        totalCount={totalCount}
-        activeCount={activeCount}
-        probationCount={probationCount}
-        departedCount={departedCount}
-      />
+      {isLoading ? (
+        <div className="flex h-96 items-center justify-center bg-white rounded-2xl border border-slate-150 shadow-sm">
+          <Loader2 className="h-8 w-8 animate-spin text-[var(--brand-green)]" />
+        </div>
+      ) : (
+        <>
+          <EmployeeStats
+            totalCount={totalCount}
+            activeCount={activeCount}
+            probationCount={probationCount}
+            departedCount={departedCount}
+          />
 
-      <EmployeeTable
-        employees={filteredEmployees}
-        searchTerm={searchTerm}
-        onSearchChange={setSearchTerm}
-        selectedDept={selectedDept}
-        onDeptChange={setSelectedDept}
-        selectedStatus={selectedStatus}
-        onStatusChange={setSelectedStatus}
-        departments={EMPLOYEE_DEPARTMENTS}
-        statuses={EMPLOYEE_STATUSES}
-        activeEmployeeId={null}
-        onSelectEmployee={(emp) => router.push(`/hr/employees/${emp.id}`)}
-        onEditEmployee={openForm}
-        onDeleteEmployee={handleDeleteEmployee}
-        onAddEmployee={() => openForm()}
-      />
+          <EmployeeTable
+            employees={filteredEmployees}
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+            selectedDept={selectedDept}
+            onDeptChange={setSelectedDept}
+            selectedStatus={selectedStatus}
+            onStatusChange={setSelectedStatus}
+            departments={EMPLOYEE_DEPARTMENTS}
+            statuses={EMPLOYEE_STATUSES}
+            activeEmployeeId={null}
+            onSelectEmployee={(emp) => router.push(`/hr/employees/${emp.id}`)}
+            onEditEmployee={openForm}
+            onDeleteEmployee={handleDeleteEmployee}
+            onAddEmployee={() => openForm()}
+          />
+        </>
+      )}
 
       <EmployeeFormModal
         isOpen={showFormModal}

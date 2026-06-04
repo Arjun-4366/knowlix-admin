@@ -1,14 +1,10 @@
 "use client";
 
-import { useState, useSyncExternalStore } from "react";
+import { useState } from "react";
 import { toast } from "react-hot-toast";
+import { Loader2 } from "lucide-react";
 import DashboardHeader from "@/components/dashboard/shared/DashboardHeader";
 import { Card } from "@/components/ui/card";
-import {
-  getEmployeesServerSnapshot,
-  loadEmployees,
-  subscribeToEmployees,
-} from "../employees/employeeData";
 import { Employee } from "../employees/types";
 import CompensationAdjustmentsPanel from "./CompensationAdjustmentsPanel";
 import PayrollCyclePanel from "./PayrollCyclePanel";
@@ -24,8 +20,59 @@ import {
   payrollPolicies,
   salaryStructureTemplates,
 } from "./payrollData";
-import { PayslipRecord, TaxRecord } from "./types";
+import { PayslipRecord, TaxRecord, PayrollAdjustment } from "./types";
 import { formatPayrollMonth } from "./utils";
+import { useGetTutorsHR, useGetSalaryReport } from "@/querys/admin/hrQuery";
+
+const mapTutorToEmployee = (tutor: any): Employee => {
+  const tutorId = tutor.id || tutor._id || "";
+  let mappedStatus: Employee["status"] = "Active";
+  if (tutor.status === "pending") {
+    mappedStatus = "On Probation";
+  } else if (tutor.status === "rejected") {
+    mappedStatus = "Terminated";
+  }
+
+  let mappedDept: Employee["department"] = "Tutor";
+  let mappedRole = "Tutor";
+  if (tutor.role === "mentor_sales_bro") {
+    mappedDept = "Sales";
+    mappedRole = "Mentor/Sales Rep";
+  } else if (tutor.role === "academic_coordinator") {
+    mappedDept = "Academics";
+    mappedRole = "Academic Coordinator";
+  }
+
+  return {
+    id: tutorId,
+    name: tutor.name || "Unnamed Tutor",
+    email: tutor.email || "",
+    phone: tutor.phone || "",
+    address: tutor.availability || "Online / Remote",
+    dob: "1990-01-01",
+    emergencyContact: {
+      name: "Emergency Contact",
+      relationship: "Family",
+      phone: tutor.phone || "",
+    },
+    designation: mappedRole,
+    department: mappedDept,
+    dateOfJoining: tutor.createdAt ? tutor.createdAt.slice(0, 10) : new Date().toISOString().split("T")[0],
+    status: mappedStatus,
+    manager: "HR Manager",
+    salaryDetails: {
+      base: 40000,
+      allowance: 10000,
+      pf: 4800,
+      ctc: 600000,
+    },
+    documents: [],
+    joiningRecords: {
+      probationEnd: "",
+      joiningNotes: `Experience: ${tutor.experience || "Not specified"}. Availability: ${tutor.availability || "Not specified"}.`,
+    },
+  };
+};
 
 function buildDraftPayslip(
   employee: Employee,
@@ -56,11 +103,6 @@ function buildDraftPayslip(
 }
 
 export default function PayrollManager() {
-  const employees = useSyncExternalStore(
-    subscribeToEmployees,
-    loadEmployees,
-    getEmployeesServerSnapshot
-  );
   const [selectedCycleId, setSelectedCycleId] = useState(DEFAULT_PAYROLL_CYCLE_ID);
   const [selectedDepartment, setSelectedDepartment] = useState("all");
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(null);
@@ -68,6 +110,13 @@ export default function PayrollManager() {
   const [payrollAdjustments, setPayrollAdjustments] = useState(
     initialPayrollAdjustments
   );
+
+  const { data: tutorsRes, isLoading: tutorsLoading } = useGetTutorsHR();
+  const { data: salaryReportRes, isLoading: salaryReportLoading } = useGetSalaryReport();
+
+  const employees = tutorsRes?.data ? (tutorsRes.data as any[]).map(mapTutorToEmployee) : [];
+  const livePayrollTotal = salaryReportRes?.data?.totalMonthlyPayroll ?? null;
+  const liveEmployeeCount = salaryReportRes?.data?.employeeCount ?? null;
 
   const activeEmployees = employees.filter(
     (employee) =>
@@ -134,190 +183,202 @@ export default function PayrollManager() {
       };
     });
 
-  const resolvedSelectedEmployeeId = visiblePayslips.some(
-    (payslip) => payslip.employeeId === selectedEmployeeId
+  const resolvedSelectedEmployeeId = filteredEmployees.some(
+    (employee) => employee.id === selectedEmployeeId
   )
     ? selectedEmployeeId
-    : visiblePayslips[0]?.employeeId ?? null;
+    : filteredEmployees[0]?.id ?? null;
 
-  const generatedCount = visiblePayslips.filter(
-    (payslip) => payslip.status === "Generated" || payslip.status === "Sent"
-  ).length;
-  const pendingCount = visiblePayslips.filter(
-    (payslip) => payslip.status === "Draft" || payslip.status === "Ready"
-  ).length;
-  const grossPayTotal = filteredEmployees.reduce(
-    (total, employee) =>
-      total + employee.salaryDetails.base + employee.salaryDetails.allowance,
+  const selectedEmployee =
+    filteredEmployees.find((employee) => employee.id === resolvedSelectedEmployeeId) ??
+    null;
+  const selectedPayslip =
+    visiblePayslips.find((payslip) => payslip.employeeId === resolvedSelectedEmployeeId) ??
+    null;
+  const selectedAdjustments = visibleAdjustments.filter(
+    (adjustment) => adjustment.employeeId === resolvedSelectedEmployeeId
+  );
+  const selectedTaxRecord =
+    visibleTaxRecords.find((record) => record.employeeId === resolvedSelectedEmployeeId) ??
+    null;
+
+  const totalCalculatedGrossPay = visiblePayslips.reduce(
+    (total, payslip) => total + payslip.grossPay,
     0
   );
-  const netPayTotal = visiblePayslips.reduce(
+  const totalCalculatedNetPay = visiblePayslips.reduce(
     (total, payslip) => total + payslip.netPay,
     0
   );
+
+  const grossPayTotal = livePayrollTotal ?? totalCalculatedGrossPay;
+  const netPayTotal = livePayrollTotal ? Math.round(livePayrollTotal * 0.85) : totalCalculatedNetPay;
+
+  const totalPayslips = filteredEmployees.length;
+  const generatedCount = payslipRecords.filter(
+    (record) =>
+      record.cycleId === selectedCycleId &&
+      visibleEmployeeIds.has(record.employeeId) &&
+      record.status !== "Draft"
+  ).length;
+
+  const pendingCount = Math.max(totalPayslips - generatedCount, 0);
+
   const bonusTotal = visibleAdjustments
-    .filter((adjustment) => adjustment.type === "Bonus")
-    .reduce((total, adjustment) => total + adjustment.amount, 0);
+    .filter((adj) => adj.type === "Bonus" && adj.status === "Approved")
+    .reduce((sum, adj) => sum + adj.amount, 0);
+
   const deductionTotal = visibleAdjustments
-    .filter((adjustment) => adjustment.type === "Deduction")
-    .reduce((total, adjustment) => total + adjustment.amount, 0);
-  const approvedAdjustmentCount = visibleAdjustments.filter(
-    (adjustment) => adjustment.status === "Approved"
-  ).length;
-  const pendingAdjustmentCount = visibleAdjustments.filter(
-    (adjustment) => adjustment.status === "Pending"
-  ).length;
-  const projectedTaxTotal = visibleTaxRecords.reduce(
-    (total, record) => total + record.projectedTax,
-    0
-  );
-  const tdsYtdTotal = visibleTaxRecords.reduce(
-    (total, record) => total + record.tdsYtd,
-    0
-  );
-  const taxReviewCount = visibleTaxRecords.filter(
-    (record) => record.form16Status === "In Progress" || record.exemptions > 0
+    .filter((adj) => adj.type === "Deduction" && adj.status === "Approved")
+    .reduce((sum, adj) => sum + adj.amount, 0);
+
+  const tdsYtdTotal = visibleTaxRecords.reduce((sum, rec) => sum + rec.tdsYtd, 0);
+  const projectedTaxTotal = visibleTaxRecords.reduce((sum, rec) => sum + rec.projectedTax, 0);
+  const declarationReviewCount = visibleTaxRecords.filter(
+    (rec) => rec.form16Status === "In Progress"
   ).length;
 
-  const handleGeneratePendingPayslips = () => {
-    if (filteredEmployees.length === 0) {
-      return;
-    }
+  const pendingCountAdjustments = visibleAdjustments.filter(
+    (adj) => adj.status === "Pending"
+  ).length;
 
+  const approvedCountAdjustments = visibleAdjustments.filter(
+    (adj) => adj.status === "Approved"
+  ).length;
+
+  const handleGeneratePending = () => {
     setPayslipRecords((currentRecords) => {
-      const nextRecords = [...currentRecords];
+      const existingEmployeeIds = new Set(
+        currentRecords
+          .filter((r) => r.cycleId === selectedCycleId)
+          .map((r) => r.employeeId)
+      );
 
-      filteredEmployees.forEach((employee) => {
-        const existingRecordIndex = nextRecords.findIndex(
-          (record) =>
-            record.cycleId === selectedCycleId && record.employeeId === employee.id
-        );
+      const newDrafts = filteredEmployees
+        .filter((emp) => !existingEmployeeIds.has(emp.id))
+        .map((emp) => buildDraftPayslip(emp, selectedCycleId, initialTaxRecords));
 
-        if (existingRecordIndex === -1) {
-          nextRecords.push({
-            ...buildDraftPayslip(employee, selectedCycleId, initialTaxRecords),
-            status: "Generated",
-            note: "Generated from salary structure and payroll policy defaults.",
-          });
-          return;
-        }
-
-        const existingRecord = nextRecords[existingRecordIndex];
-
-        if (
-          existingRecord.status === "Draft" ||
-          existingRecord.status === "Ready"
-        ) {
-          nextRecords[existingRecordIndex] = {
-            ...existingRecord,
-            status: "Generated",
-          };
-        }
-      });
-
-      return nextRecords;
+      if (newDrafts.length === 0) return currentRecords;
+      toast.success(`Generated ${newDrafts.length} pending payslips.`);
+      return [...currentRecords, ...newDrafts];
     });
-
-    toast.success("Pending payslips generated for the current payroll filter.");
   };
 
-  const handleApplyApprovedAdjustments = () => {
-    if (approvedAdjustmentCount === 0) {
-      return;
-    }
-
+  const handleApplyApproved = () => {
     setPayrollAdjustments((currentAdjustments) =>
-      currentAdjustments.map((adjustment) =>
-        adjustment.cycleId === selectedCycleId &&
-        visibleEmployeeIds.has(adjustment.employeeId) &&
-        adjustment.status === "Approved"
-          ? { ...adjustment, status: "Applied" }
-          : adjustment
+      currentAdjustments.map((adj) =>
+        adj.cycleId === selectedCycleId && adj.status === "Approved"
+          ? { ...adj, status: "Applied" as const }
+          : adj
       )
     );
-
-    toast.success("Approved payroll adjustments marked as applied.");
+    toast.success("Applied all approved adjustments to this cycle.");
   };
 
-  if (activeEmployees.length === 0) {
+  const handleAddAdjustment = (
+    employeeId: string,
+    type: "Bonus" | "Deduction",
+    amount: number,
+    label: string,
+    note?: string
+  ) => {
+    const newAdjustment: PayrollAdjustment = {
+      id: `ADJ-${Date.now()}`,
+      cycleId: selectedCycleId,
+      employeeId,
+      type,
+      label,
+      amount,
+      status: "Approved",
+      owner: "HR Manager",
+      note,
+    };
+
+    setPayrollAdjustments((currentAdjustments) => [...currentAdjustments, newAdjustment]);
+    toast.success("Compensation adjustment added.");
+  };
+
+  const handleDeleteAdjustment = (adjustmentId: string) => {
+    setPayrollAdjustments((currentAdjustments) =>
+      currentAdjustments.filter((adjustment) => adjustment.id !== adjustmentId)
+    );
+    toast.success("Compensation adjustment removed.");
+  };
+
+  if (tutorsLoading || salaryReportLoading) {
     return (
       <div className="space-y-6 pb-10">
         <DashboardHeader
-          title="Payroll Management"
-          description="Salary structure setup, payslip generation, and tax records will appear after active employees are available."
+          title="Payroll & Compensation Governance"
+          description="Manage base salaries, allowance structures, tax deductions, and monthly cycles."
         />
-
-        <Card className="rounded-2xl border-slate-150 p-8 text-center bg-white shadow-sm space-y-3">
-          <p className="text-sm font-semibold text-slate-700">
-            No active employees are available for payroll processing yet.
-          </p>
-          <p className="text-xs text-slate-500">
-            Add or reactivate employees in the directory before opening payroll
-            cycles.
-          </p>
-        </Card>
+        <div className="flex h-96 items-center justify-center bg-white rounded-2xl border border-slate-150 shadow-sm">
+          <Loader2 className="h-8 w-8 animate-spin text-[var(--brand-green)]" />
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6 pb-10">
+    <div className="space-y-6 pb-10 w-full">
       <DashboardHeader
-        title="Payroll Management"
-        description={`Payroll control room for ${formatPayrollMonth(
+        title="Payroll & Compensation Governance"
+        description={`Operational sheet for ${formatPayrollMonth(
           selectedCycle.month
-        )}: salary structures, payslip generation, adjustment governance, and tax compliance.`}
+        )}: Monthly structure alignment, tax computations, and cycle settlement.`}
       />
 
       <PayrollOverview
         grossPayTotal={grossPayTotal}
         netPayTotal={netPayTotal}
         generatedCount={generatedCount}
-        totalPayslips={visiblePayslips.length}
+        totalPayslips={totalPayslips}
         bonusTotal={bonusTotal}
         deductionTotal={deductionTotal}
         tdsYtdTotal={tdsYtdTotal}
         projectedTaxTotal={projectedTaxTotal}
-        declarationReviewCount={taxReviewCount}
+        declarationReviewCount={declarationReviewCount}
       />
 
-      <div className="grid grid-cols-1 2xl:grid-cols-[1.55fr_1fr] gap-6">
-        <PayrollCyclePanel
-          cycles={payrollCycles}
-          policies={payrollPolicies}
-          selectedCycleId={selectedCycleId}
-          onCycleChange={setSelectedCycleId}
-          selectedDepartment={selectedDepartment}
-          onDepartmentChange={setSelectedDepartment}
-          departments={departments}
-          payslips={visiblePayslips}
-          selectedEmployeeId={resolvedSelectedEmployeeId}
-          onEmployeeSelect={setSelectedEmployeeId}
-          onGeneratePending={handleGeneratePendingPayslips}
-          pendingCount={pendingCount}
-        />
-        <TaxRecordsPanel
-          records={visibleTaxRecords}
-          projectedTaxTotal={projectedTaxTotal}
-          tdsYtdTotal={tdsYtdTotal}
-          reviewCount={taxReviewCount}
-        />
-      </div>
+      <PayrollCyclePanel
+        cycles={payrollCycles}
+        policies={payrollPolicies}
+        selectedCycleId={selectedCycleId}
+        onCycleChange={setSelectedCycleId}
+        selectedDepartment={selectedDepartment}
+        onDepartmentChange={setSelectedDepartment}
+        departments={departments}
+        payslips={visiblePayslips}
+        selectedEmployeeId={resolvedSelectedEmployeeId}
+        onEmployeeSelect={setSelectedEmployeeId}
+        onGeneratePending={handleGeneratePending}
+        pendingCount={pendingCount}
+      />
 
-      <div className="grid grid-cols-1 2xl:grid-cols-[1.45fr_1fr] gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-[1fr_1.1fr] gap-6">
         <SalaryStructurePanel
           employees={filteredEmployees}
           templates={salaryStructureTemplates}
         />
-        <CompensationAdjustmentsPanel
-          cycleLabel={formatPayrollMonth(selectedCycle.month)}
-          adjustments={visibleAdjustments}
-          bonusTotal={bonusTotal}
-          deductionTotal={deductionTotal}
-          pendingCount={pendingAdjustmentCount}
-          approvedCount={approvedAdjustmentCount}
-          onApplyApproved={handleApplyApprovedAdjustments}
-        />
+
+        <div className="space-y-6">
+          <CompensationAdjustmentsPanel
+            cycleLabel={formatPayrollMonth(selectedCycle.month)}
+            adjustments={visibleAdjustments}
+            bonusTotal={bonusTotal}
+            deductionTotal={deductionTotal}
+            pendingCount={pendingCountAdjustments}
+            approvedCount={approvedCountAdjustments}
+            onApplyApproved={handleApplyApproved}
+          />
+
+          <TaxRecordsPanel
+            records={visibleTaxRecords}
+            projectedTaxTotal={projectedTaxTotal}
+            tdsYtdTotal={tdsYtdTotal}
+            reviewCount={declarationReviewCount}
+          />
+        </div>
       </div>
     </div>
   );

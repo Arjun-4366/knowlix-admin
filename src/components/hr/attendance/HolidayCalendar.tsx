@@ -1,5 +1,8 @@
+"use client";
+
+import { useState } from "react";
 import { differenceInCalendarDays, format, parseISO } from "date-fns";
-import { CalendarDays, Sparkles } from "lucide-react";
+import { CalendarDays, Plus, Sparkles, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -8,6 +11,14 @@ import { HolidayItem, HolidayType } from "./types";
 interface HolidayCalendarProps {
   holidays: HolidayItem[];
   referenceDate: string;
+  loading?: boolean;
+  onCreateHoliday?: (data: {
+    name: string;
+    date: string;
+    description?: string;
+    isOptional?: boolean;
+  }) => Promise<void>;
+  onDeleteHoliday?: (id: string) => Promise<void>;
 }
 
 const typeClassMap: Record<HolidayType, string> = {
@@ -19,7 +30,18 @@ const typeClassMap: Record<HolidayType, string> = {
 export default function HolidayCalendar({
   holidays,
   referenceDate,
+  loading = false,
+  onCreateHoliday,
+  onDeleteHoliday,
 }: HolidayCalendarProps) {
+  const [showForm, setShowForm] = useState(false);
+  const [formName, setFormName] = useState("");
+  const [formDate, setFormDate] = useState("");
+  const [formDesc, setFormDesc] = useState("");
+  const [formOptional, setFormOptional] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
   const sortedHolidays = [...holidays].sort((left, right) =>
     left.date.localeCompare(right.date)
   );
@@ -27,26 +49,123 @@ export default function HolidayCalendar({
   const groupedHolidays = sortedHolidays.reduce<Record<string, HolidayItem[]>>(
     (group, holiday) => {
       const key = format(parseISO(holiday.date), "MMMM yyyy");
-      if (!group[key]) {
-        group[key] = [];
-      }
+      if (!group[key]) group[key] = [];
       group[key].push(holiday);
       return group;
     },
     {}
   );
 
+  const handleAdd = async () => {
+    if (!formName || !formDate || !onCreateHoliday) return;
+    setSaving(true);
+    try {
+      await onCreateHoliday({
+        name: formName,
+        date: formDate,
+        description: formDesc || undefined,
+        isOptional: formOptional,
+      });
+      setFormName("");
+      setFormDate("");
+      setFormDesc("");
+      setFormOptional(false);
+      setShowForm(false);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!onDeleteHoliday) return;
+    setDeletingId(id);
+    try {
+      await onDeleteHoliday(id);
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
   return (
     <Card className="bg-white border border-slate-150 rounded-2xl shadow-sm overflow-hidden h-full">
-      <div className="p-5 border-b border-slate-100">
-        <h2 className="text-sm font-bold text-slate-850">Holiday Calendar</h2>
-        <p className="text-xs text-slate-500 mt-1">
-          Publish closure windows early so payroll, leave, and staffing plans stay aligned.
-        </p>
+      <div className="p-5 border-b border-slate-100 flex items-start justify-between gap-3">
+        <div>
+          <h2 className="text-sm font-bold text-slate-850">Holiday Calendar</h2>
+          <p className="text-xs text-slate-500 mt-1">
+            Publish closure windows early so payroll, leave, and staffing plans stay aligned.
+          </p>
+        </div>
+        {onCreateHoliday && (
+          <button
+            onClick={() => setShowForm((v) => !v)}
+            className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg text-white transition-colors"
+            style={{ background: "var(--brand-green)" }}
+          >
+            <Plus className="w-3.5 h-3.5" />
+            Add
+          </button>
+        )}
       </div>
 
+      {/* Add Holiday Form */}
+      {showForm && (
+        <div className="px-5 py-4 border-b border-slate-100 bg-slate-50/60 space-y-3">
+          <input
+            type="text"
+            placeholder="Holiday name *"
+            value={formName}
+            onChange={(e) => setFormName(e.target.value)}
+            className="w-full border border-slate-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-200"
+          />
+          <input
+            type="date"
+            value={formDate}
+            onChange={(e) => setFormDate(e.target.value)}
+            className="w-full border border-slate-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-200"
+          />
+          <input
+            type="text"
+            placeholder="Description (optional)"
+            value={formDesc}
+            onChange={(e) => setFormDesc(e.target.value)}
+            className="w-full border border-slate-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-200"
+          />
+          <label className="flex items-center gap-2 text-xs text-slate-600 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={formOptional}
+              onChange={(e) => setFormOptional(e.target.checked)}
+              className="rounded"
+            />
+            Mark as optional holiday
+          </label>
+          <div className="flex gap-2">
+            <button
+              onClick={handleAdd}
+              disabled={!formName || !formDate || saving}
+              className="flex-1 text-xs font-semibold py-2 rounded-lg text-white disabled:opacity-50 transition-colors"
+              style={{ background: "var(--brand-green)" }}
+            >
+              {saving ? "Saving…" : "Add Holiday"}
+            </button>
+            <button
+              onClick={() => setShowForm(false)}
+              className="px-4 text-xs font-medium py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="p-5 space-y-5">
-        {nextHoliday && (
+        {loading && (
+          <div className="py-8 text-center text-xs text-slate-400 animate-pulse">
+            Loading holidays…
+          </div>
+        )}
+
+        {!loading && nextHoliday && (
           <div className="rounded-2xl border border-emerald-100 bg-emerald-50/60 p-4 flex items-start gap-3">
             <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
               <Sparkles className="w-4 h-4" />
@@ -68,7 +187,7 @@ export default function HolidayCalendar({
           </div>
         )}
 
-        {sortedHolidays.length > 0 ? (
+        {!loading && sortedHolidays.length > 0 ? (
           <div className="space-y-4">
             {Object.entries(groupedHolidays).map(([monthLabel, monthHolidays]) => (
               <div key={monthLabel} className="space-y-2">
@@ -82,32 +201,44 @@ export default function HolidayCalendar({
                       key={holiday.id}
                       className="rounded-xl border border-slate-150 bg-slate-50/40 px-4 py-3 flex items-start justify-between gap-3"
                     >
-                      <div className="space-y-1">
+                      <div className="space-y-1 flex-1">
                         <p className="text-xs font-bold text-slate-800">{holiday.name}</p>
                         <p className="text-[11px] text-slate-500">
-                          {format(parseISO(holiday.date), "EEE, dd MMM")} • {holiday.appliesTo}
+                          {format(parseISO(holiday.date), "EEE, dd MMM")} •{" "}
+                          {holiday.appliesTo}
                         </p>
                       </div>
-                      <Badge
-                        variant="outline"
-                        className={cn(
-                          "rounded-full border text-[10px] font-bold px-2.5 py-1",
-                          typeClassMap[holiday.type]
+                      <div className="flex items-center gap-2">
+                        <Badge
+                          variant="outline"
+                          className={cn(
+                            "rounded-full border text-[10px] font-bold px-2.5 py-1",
+                            typeClassMap[holiday.type]
+                          )}
+                        >
+                          {holiday.type}
+                        </Badge>
+                        {onDeleteHoliday && (
+                          <button
+                            onClick={() => handleDelete(holiday.id)}
+                            disabled={deletingId === holiday.id}
+                            className="w-6 h-6 rounded-md flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors disabled:opacity-40"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
                         )}
-                      >
-                        {holiday.type}
-                      </Badge>
+                      </div>
                     </div>
                   ))}
                 </div>
               </div>
             ))}
           </div>
-        ) : (
+        ) : !loading ? (
           <div className="py-12 text-center text-sm text-slate-500">
             No upcoming holidays fall inside the current 90-day planning window.
           </div>
-        )}
+        ) : null}
       </div>
     </Card>
   );

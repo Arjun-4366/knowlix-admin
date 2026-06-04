@@ -1,47 +1,121 @@
 "use client";
 
-import { useState, useSyncExternalStore } from "react";
-import { toast } from "react-hot-toast";
+import { useState } from "react";
+import { Loader2, Plus } from "lucide-react";
 import DashboardHeader from "@/components/dashboard/shared/DashboardHeader";
-import { Card } from "@/components/ui/card";
-import {
-  getEmployeesServerSnapshot,
-  loadEmployees,
-  subscribeToEmployees,
-} from "../employees/employeeData";
-import AppraisalFeedbackPanel from "./AppraisalFeedbackPanel";
+import { Button } from "@/components/ui/button";
 import EmployeePerformanceTracker from "./EmployeePerformanceTracker";
-import GoalsKpiPanel from "./GoalsKpiPanel";
 import PerformanceOverview from "./PerformanceOverview";
+import CreateEvaluationModal from "./CreateEvaluationModal";
 import {
   coreValues,
   DEFAULT_PERFORMANCE_CYCLE_ID,
-  initialFeedbackEntries,
-  initialGoalKpis,
-  initialPerformanceScorecards,
   performanceCycles,
 } from "./performanceData";
-import { GoalKpi, ReviewStatus } from "./types";
+import { PerformanceScorecard, ReviewStatus } from "./types";
+import { Employee } from "../employees/types";
+import {
+  useGetTutorsHR,
+  useGetTutorEvaluations,
+  useCreateTutorEvaluation,
+} from "@/querys/admin/hrQuery";
+import { IHRPerformanceEvaluation, ICreateHRPerformancePayload } from "@/types/admin/hr";
 
-const nextReviewStatusMap: Record<Exclude<ReviewStatus, "Closed">, ReviewStatus> = {
-  "Self Review": "Manager Review",
-  "Manager Review": "Calibration Ready",
-  "Calibration Ready": "Closed",
+const mapTutorToEmployee = (tutor: any): Employee => {
+  const tutorId = tutor.id || tutor._id || "";
+  let mappedStatus: Employee["status"] = "Active";
+  if (tutor.status === "pending") {
+    mappedStatus = "On Probation";
+  } else if (tutor.status === "rejected") {
+    mappedStatus = "Terminated";
+  }
+
+  let mappedDept: Employee["department"] = "Tutor";
+  let mappedRole = "Tutor";
+  if (tutor.role === "mentor_sales_bro") {
+    mappedDept = "Sales";
+    mappedRole = "Mentor/Sales Rep";
+  } else if (tutor.role === "academic_coordinator") {
+    mappedDept = "Academics";
+    mappedRole = "Academic Coordinator";
+  }
+
+  return {
+    id: tutorId,
+    name: tutor.name || "Unnamed Tutor",
+    email: tutor.email || "",
+    phone: tutor.phone || "",
+    address: tutor.availability || "Online / Remote",
+    dob: "1990-01-01",
+    emergencyContact: {
+      name: "Emergency Contact",
+      relationship: "Family",
+      phone: tutor.phone || "",
+    },
+    designation: mappedRole,
+    department: mappedDept,
+    dateOfJoining: tutor.createdAt ? tutor.createdAt.slice(0, 10) : new Date().toISOString().split("T")[0],
+    status: mappedStatus,
+    manager: "HR Manager",
+    salaryDetails: {
+      base: 40000,
+      allowance: 10000,
+      pf: 4800,
+      ctc: 600000,
+    },
+    documents: [],
+    joiningRecords: {
+      probationEnd: "",
+      joiningNotes: `Experience: ${tutor.experience || "Not specified"}. Availability: ${tutor.availability || "Not specified"}.`,
+    },
+  };
 };
 
+function toScorecard(ev: IHRPerformanceEvaluation): PerformanceScorecard {
+  const cycleId = DEFAULT_PERFORMANCE_CYCLE_ID;
+  return {
+    id: ev.id,
+    cycleId,
+    employeeId: ev.tutorId,
+    reviewer: ev.evaluatorId || "HR Manager",
+    overallScore: ev.averageScore,
+    nextReviewDate: ev.updatedAt?.slice(0, 10) ?? "",
+    appraisalStatus: "Manager Review" as ReviewStatus,
+    trend: ev.averageScore >= 8 ? "Improving" : "Stable",
+    recommendedAction: ev.goals || "On track for objectives",
+    strengths: ["Domain knowledge", "Communication"],
+    watchouts: ["Schedule adherence"],
+    managerSummary: ev.feedback || "Good progress in curriculum delivery.",
+    selfSummary: "Completing modules on time.",
+    valueRatings: Object.entries(ev.scores || {}).map(([valueId, score]) => ({
+      valueId,
+      score,
+      note: "Standard evaluation rating",
+    })),
+  };
+}
+
 export default function PerformanceManager() {
-  const employees = useSyncExternalStore(
-    subscribeToEmployees,
-    loadEmployees,
-    getEmployeesServerSnapshot
-  );
-  const [selectedCycleId, setSelectedCycleId] = useState(
-    DEFAULT_PERFORMANCE_CYCLE_ID
-  );
+  const [selectedCycleId, setSelectedCycleId] = useState(DEFAULT_PERFORMANCE_CYCLE_ID);
   const [selectedDepartment, setSelectedDepartment] = useState("all");
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(null);
-  const [scorecards, setScorecards] = useState(initialPerformanceScorecards);
-  const [goals, setGoals] = useState(initialGoalKpis);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+
+  const { data: tutorsRes, isLoading: tutorsLoading } = useGetTutorsHR();
+  const { data: evaluationsRes, isLoading: evaluationsLoading } = useGetTutorEvaluations();
+  const createEvaluationMutation = useCreateTutorEvaluation();
+
+  const handleCreateEvaluation = async (data: ICreateHRPerformancePayload) => {
+    try {
+      await createEvaluationMutation.mutateAsync(data);
+      setShowCreateModal(false);
+    } catch (err) {
+      // toast notification is already managed by the mutation onError hook
+    }
+  };
+
+  const employees = tutorsRes?.data ? (tutorsRes.data as any[]).map(mapTutorToEmployee) : [];
+  const scorecards = evaluationsRes?.data ? (evaluationsRes.data as IHRPerformanceEvaluation[]).map(toScorecard) : [];
 
   const activeEmployees = employees.filter(
     (employee) =>
@@ -68,7 +142,6 @@ export default function PerformanceManager() {
     )
     .map((scorecard) => {
       const employee = employees.find((item) => item.id === scorecard.employeeId);
-
       return {
         ...scorecard,
         employeeName: employee?.name || "Unknown Employee",
@@ -78,43 +151,11 @@ export default function PerformanceManager() {
     })
     .sort((left, right) => right.overallScore - left.overallScore);
 
-  const visibleFeedback = initialFeedbackEntries.filter(
-    (entry) =>
-      entry.cycleId === selectedCycleId && visibleEmployeeIds.has(entry.employeeId)
-  );
-
-  const visibleGoals = goals
-    .filter(
-      (goal) =>
-        goal.cycleId === selectedCycleId && visibleEmployeeIds.has(goal.employeeId)
-    )
-    .map((goal) => {
-      const employee = employees.find((item) => item.id === goal.employeeId);
-
-      return {
-        ...goal,
-        employeeName: employee?.name || "Unknown Employee",
-        designation: employee?.designation || "Profile missing",
-        department: employee?.department || "Unmapped",
-      };
-    });
-
   const resolvedSelectedEmployeeId = visibleScorecards.some(
     (scorecard) => scorecard.employeeId === selectedEmployeeId
   )
     ? selectedEmployeeId
     : visibleScorecards[0]?.employeeId ?? null;
-
-  const selectedScorecard =
-    visibleScorecards.find(
-      (scorecard) => scorecard.employeeId === resolvedSelectedEmployeeId
-    ) ?? null;
-  const selectedFeedback = visibleFeedback.filter(
-    (entry) => entry.employeeId === resolvedSelectedEmployeeId
-  );
-  const selectedGoals = visibleGoals.filter(
-    (goal) => goal.employeeId === resolvedSelectedEmployeeId
-  );
 
   const averageScore =
     visibleScorecards.length > 0
@@ -124,104 +165,19 @@ export default function PerformanceManager() {
         ) / visibleScorecards.length
       : 0;
   const highPerformerCount = visibleScorecards.filter(
-    (scorecard) => scorecard.overallScore >= 4.3
-  ).length;
-  const appraisalsInMotion = visibleScorecards.filter(
-    (scorecard) => scorecard.appraisalStatus !== "Closed"
-  ).length;
-  const calibrationReadyCount = visibleScorecards.filter(
-    (scorecard) => scorecard.appraisalStatus === "Calibration Ready"
-  ).length;
-  const constructiveFeedbackCount = visibleFeedback.filter(
-    (entry) => entry.tone === "Constructive"
-  ).length;
-  const goalsOnTrackCount = visibleGoals.filter(
-    (goal) => goal.status === "On Track" || goal.status === "Achieved"
-  ).length;
-  const achievedGoalCount = visibleGoals.filter(
-    (goal) => goal.status === "Achieved"
-  ).length;
-  const needsSupportCount = visibleGoals.filter(
-    (goal) => goal.status === "Needs Support"
-  ).length;
-  const averageGoalProgress =
-    visibleGoals.length > 0
-      ? visibleGoals.reduce((total, goal) => total + goal.progress, 0) /
-        visibleGoals.length
-      : 0;
-  const watchlistCount = visibleScorecards.filter(
-    (scorecard) => scorecard.trend === "At Risk"
+    (scorecard) => scorecard.overallScore >= 8.0
   ).length;
 
-  const handleAdvanceAppraisal = () => {
-    if (!selectedScorecard || selectedScorecard.appraisalStatus === "Closed") {
-      return;
-    }
-
-    const nextStatus = nextReviewStatusMap[selectedScorecard.appraisalStatus];
-
-    setScorecards((currentScorecards) =>
-      currentScorecards.map((scorecard) =>
-        scorecard.cycleId === selectedCycleId &&
-        scorecard.employeeId === selectedScorecard.employeeId
-          ? { ...scorecard, appraisalStatus: nextStatus }
-          : scorecard
-      )
-    );
-
-    toast.success(
-      `${selectedScorecard.employeeName}'s appraisal moved to ${nextStatus}.`
-    );
-  };
-
-  const handleResolveSupportGoals = () => {
-    if (!resolvedSelectedEmployeeId) {
-      return;
-    }
-
-    const supportGoals = selectedGoals.filter(
-      (goal) => goal.status === "Needs Support"
-    );
-
-    if (supportGoals.length === 0) {
-      return;
-    }
-
-    setGoals((currentGoals: GoalKpi[]) =>
-      currentGoals.map((goal) =>
-        goal.cycleId === selectedCycleId &&
-        goal.employeeId === resolvedSelectedEmployeeId &&
-        goal.status === "Needs Support"
-          ? {
-              ...goal,
-              status: "On Track",
-              progress: Math.min(goal.progress + 12, 100),
-              note: "Manager unblocker applied and goal moved back onto track.",
-            }
-          : goal
-      )
-    );
-
-    toast.success("Support goals moved back to on-track with manager unblockers.");
-  };
-
-  if (activeEmployees.length === 0) {
+  if (tutorsLoading || evaluationsLoading) {
     return (
       <div className="space-y-6 pb-10">
         <DashboardHeader
           title="Performance Management"
-          description="Core-value reviews, appraisals, and goal tracking will appear after active employees are available."
+          description="Core-value reviews and appraisals."
         />
-
-        <Card className="rounded-2xl border-slate-150 p-8 text-center bg-white shadow-sm space-y-3">
-          <p className="text-sm font-semibold text-slate-700">
-            No active employees are available for performance management yet.
-          </p>
-          <p className="text-xs text-slate-500">
-            Add or reactivate employees in the directory before opening
-            performance cycles.
-          </p>
-        </Card>
+        <div className="flex h-96 items-center justify-center bg-white rounded-2xl border border-slate-150 shadow-sm">
+          <Loader2 className="h-8 w-8 animate-spin text-[var(--brand-green)]" />
+        </div>
       </div>
     );
   }
@@ -230,22 +186,22 @@ export default function PerformanceManager() {
     <div className="space-y-6 pb-10">
       <DashboardHeader
         title="Performance Management"
-        description={`Core-value performance board for ${selectedCycle.label}: employee tracking, appraisals, feedback, and goal/KPI execution.`}
+        description={`Core-value performance board for ${selectedCycle.label}: employee tracking, appraisals, and feedback.`}
+        actions={
+          <Button
+            onClick={() => setShowCreateModal(true)}
+            className="bg-[var(--brand-green)] hover:bg-[var(--brand-green)]/90 text-white font-bold text-xs px-4 py-2.5 rounded-xl flex items-center gap-1.5 shadow-sm cursor-pointer ml-auto"
+          >
+            <Plus className="w-4 h-4" /> Create Evaluation
+          </Button>
+        }
       />
 
       <PerformanceOverview
         cycleStatus={selectedCycle.status}
         averageScore={averageScore}
         highPerformerCount={highPerformerCount}
-        appraisalsInMotion={appraisalsInMotion}
-        calibrationReadyCount={calibrationReadyCount}
-        constructiveFeedbackCount={constructiveFeedbackCount}
-        goalsOnTrackCount={goalsOnTrackCount}
-        totalGoals={visibleGoals.length}
-        achievedGoalCount={achievedGoalCount}
-        needsSupportCount={needsSupportCount}
-        averageGoalProgress={averageGoalProgress}
-        watchlistCount={watchlistCount}
+        totalEvaluations={visibleScorecards.length}
       />
 
       <EmployeePerformanceTracker
@@ -261,20 +217,13 @@ export default function PerformanceManager() {
         onEmployeeSelect={setSelectedEmployeeId}
       />
 
-      <div className="grid grid-cols-1 2xl:grid-cols-[1fr_1.05fr] gap-6">
-        <AppraisalFeedbackPanel
-          cycle={selectedCycle}
-          scorecard={selectedScorecard}
-          feedbackEntries={selectedFeedback}
-          onAdvanceAppraisal={handleAdvanceAppraisal}
-        />
-        <GoalsKpiPanel
-          cycleLabel={selectedCycle.label}
-          employeeName={selectedScorecard?.employeeName ?? null}
-          goals={selectedGoals}
-          onResolveSupportGoals={handleResolveSupportGoals}
-        />
-      </div>
+      <CreateEvaluationModal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        onSubmit={handleCreateEvaluation}
+        tutors={employees}
+        saving={createEvaluationMutation.isPending}
+      />
     </div>
   );
 }

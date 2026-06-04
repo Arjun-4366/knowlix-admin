@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useSyncExternalStore } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Edit2 } from "lucide-react";
+import { Edit2, Loader2 } from "lucide-react";
 import { toast } from "react-hot-toast";
 import DashboardHeader from "@/components/dashboard/shared/DashboardHeader";
 import { Button } from "@/components/ui/button";
@@ -12,12 +12,59 @@ import EmployeeFormModal, { EmployeeFormData } from "./EmployeeFormModal";
 import {
   EMPLOYEE_DEPARTMENTS,
   EMPLOYEE_STATUSES,
-  getEmployeesServerSnapshot,
-  loadEmployees,
-  persistEmployees,
-  subscribeToEmployees,
 } from "./employeeData";
 import { Employee } from "./types";
+import { useGetTutorHR } from "@/querys/admin/hrQuery";
+
+const mapTutorToEmployee = (tutor: any): Employee => {
+  const tutorId = tutor.id || tutor._id || "";
+  let mappedStatus: Employee["status"] = "Active";
+  if (tutor.status === "pending") {
+    mappedStatus = "On Probation";
+  } else if (tutor.status === "rejected") {
+    mappedStatus = "Terminated";
+  }
+
+  let mappedDept: Employee["department"] = "Tutor";
+  let mappedRole = "Tutor";
+  if (tutor.role === "mentor_sales_bro") {
+    mappedDept = "Sales";
+    mappedRole = "Mentor/Sales Rep";
+  } else if (tutor.role === "academic_coordinator") {
+    mappedDept = "Academics";
+    mappedRole = "Academic Coordinator";
+  }
+
+  return {
+    id: tutorId,
+    name: tutor.name || "Unnamed Tutor",
+    email: tutor.email || "",
+    phone: tutor.phone || "",
+    address: tutor.availability || "Online / Remote",
+    dob: "1990-01-01",
+    emergencyContact: {
+      name: "Emergency Contact",
+      relationship: "Family",
+      phone: tutor.phone || "",
+    },
+    designation: mappedRole,
+    department: mappedDept,
+    dateOfJoining: tutor.createdAt ? tutor.createdAt.slice(0, 10) : new Date().toISOString().split("T")[0],
+    status: mappedStatus,
+    manager: "HR Manager",
+    salaryDetails: {
+      base: 40000,
+      allowance: 10000,
+      pf: 4800,
+      ctc: 600000,
+    },
+    documents: [],
+    joiningRecords: {
+      probationEnd: "",
+      joiningNotes: `Experience: ${tutor.experience || "Not specified"}. Availability: ${tutor.availability || "Not specified"}.`,
+    },
+  };
+};
 
 interface EmployeeDetailsPageProps {
   employeeId: string;
@@ -28,11 +75,9 @@ export default function EmployeeDetailsPage({
 }: EmployeeDetailsPageProps) {
   const router = useRouter();
   const [showFormModal, setShowFormModal] = useState(false);
-  const employees = useSyncExternalStore(
-    subscribeToEmployees,
-    loadEmployees,
-    getEmployeesServerSnapshot
-  );
+
+  const { data: tutorRes, isLoading } = useGetTutorHR(employeeId);
+  const employee = tutorRes?.data ? mapTutorToEmployee(tutorRes.data) : null;
 
   if (!employeeId) {
     return (
@@ -61,99 +106,13 @@ export default function EmployeeDetailsPage({
     );
   }
 
-  const employee = employees.find((entry) => entry.id === employeeId) ?? null;
-
-  const updateEmployee = (updater: (currentEmployee: Employee) => Employee) => {
-    const updatedEmployees = employees.map((entry) =>
-      entry.id === employeeId ? updater(entry) : entry
+  if (isLoading) {
+    return (
+      <div className="flex h-96 items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-[var(--brand-green)]" />
+      </div>
     );
-
-    persistEmployees(updatedEmployees);
-  };
-
-  const handleFormSubmit = (data: EmployeeFormData) => {
-    const ctc =
-      (data.salaryDetails.base +
-        data.salaryDetails.allowance +
-        data.salaryDetails.pf) *
-      12;
-
-    updateEmployee((currentEmployee) => ({
-      ...currentEmployee,
-      ...data,
-      salaryDetails: {
-        ...data.salaryDetails,
-        ctc,
-      },
-      joiningRecords: {
-        ...currentEmployee.joiningRecords,
-        ...data.joiningRecords,
-      },
-    }));
-
-    setShowFormModal(false);
-    toast.success("Employee profile updated successfully!");
-  };
-
-  const handleStatusChange = (newStatus: Employee["status"]) => {
-    updateEmployee((currentEmployee) => ({
-      ...currentEmployee,
-      status: newStatus,
-      exitRecords:
-        newStatus === "Active" || newStatus === "On Probation"
-          ? undefined
-          : currentEmployee.exitRecords,
-    }));
-
-    toast.success(`Employee status updated to ${newStatus}.`);
-  };
-
-  const handleSaveExitRecord = (
-    exitDate: string,
-    exitReason: string,
-    exitNotes: string
-  ) => {
-    updateEmployee((currentEmployee) => ({
-      ...currentEmployee,
-      exitRecords: {
-        exitDate,
-        reason: exitReason,
-        exitNotes: exitNotes || undefined,
-      },
-    }));
-
-    toast.success("Exit record saved successfully!");
-  };
-
-  const handleAddDocument = (
-    docName: string,
-    docType: Employee["documents"][0]["type"]
-  ) => {
-    updateEmployee((currentEmployee) => ({
-      ...currentEmployee,
-      documents: [
-        {
-          id: `DOC-${currentEmployee.id}-${Date.now()}`,
-          name: docName,
-          type: docType,
-          uploadDate: new Date().toISOString().split("T")[0],
-          fileSize: "Manual Upload",
-        },
-        ...currentEmployee.documents,
-      ],
-    }));
-
-    toast.success("Document added to employee record.");
-  };
-
-  const handleDeleteDocument = (docId: string) => {
-    updateEmployee((currentEmployee) => ({
-      ...currentEmployee,
-      documents: currentEmployee.documents.filter((doc) => doc.id !== docId),
-    }));
-
-    toast.success("Document removed from employee record.");
-  };
+  }
 
   if (!employee) {
     return (
@@ -184,6 +143,34 @@ export default function EmployeeDetailsPage({
       </div>
     );
   }
+
+  const handleFormSubmit = (data: EmployeeFormData) => {
+    toast.error("Tutor editing is not supported on the backend yet.");
+    setShowFormModal(false);
+  };
+
+  const handleStatusChange = (newStatus: Employee["status"]) => {
+    toast.error("Tutor status updates must go through admin approval flow.");
+  };
+
+  const handleSaveExitRecord = (
+    exitDate: string,
+    exitReason: string,
+    exitNotes: string
+  ) => {
+    toast.error("Exit records are not supported on the backend yet.");
+  };
+
+  const handleAddDocument = (
+    docName: string,
+    docType: Employee["documents"][0]["type"]
+  ) => {
+    toast.error("Document uploads are not supported on the backend yet.");
+  };
+
+  const handleDeleteDocument = (docId: string) => {
+    toast.error("Document removal is not supported on the backend yet.");
+  };
 
   return (
     <div className="space-y-6 pb-10">
