@@ -93,8 +93,8 @@ export default function TutorTable({
                   <TableCell className="px-6 py-4 text-sm text-slate-650">
                     {tutor.experience}
                   </TableCell>
-                  <TableCell className="px-6 py-4 text-sm text-slate-650">
-                    {tutor.availability}
+                  <TableCell className="px-6 py-4 text-sm text-slate-655">
+                    {Array.isArray(tutor.availability) ? tutor.availability.join(", ") : tutor.availability}
                   </TableCell>
                   <TableCell className="px-6 py-4">
                     {hasPerformance ? (

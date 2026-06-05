@@ -23,12 +23,84 @@ export const getStudent = async (id: string) => {
 };
 
 export const createStudent = async (data: ICreateStudentPayload) => {
-    const res = await apiClient.post<IStudentResponse>(ENDPOINTS.ADD_STUDENT, data);
+    const formData = new FormData();
+    formData.append("studentName", data.studentName);
+    formData.append("parentName", data.parentName);
+    formData.append("class", data.class);
+    if (data.email) formData.append("email", data.email);
+    if (data.phone) formData.append("phone", data.phone);
+    if (data.password) formData.append("password", data.password);
+    formData.append("place", data.place);
+    formData.append("courseType", data.courseType);
+    formData.append("package", data.package);
+    if (data.customPackageDetails) formData.append("customPackageDetails", data.customPackageDetails);
+    formData.append("coordinatorName", data.coordinatorName);
+    formData.append("admissionStatus", data.admissionStatus);
+    formData.append("assignedTutorId", data.assignedTutorId);
+    formData.append("assignedMentorId", data.assignedMentorId);
+    formData.append("assignedCoordinatorId", data.assignedCoordinatorId);
+
+    if (data.documents) {
+        if (data.documents.birthCertificate) {
+            formData.append("birthCertificate", data.documents.birthCertificate);
+        }
+        if (data.documents.transferCertificate) {
+            formData.append("transferCertificate", data.documents.transferCertificate);
+        }
+        if (data.documents.previousAcademicRecord) {
+            formData.append("previousAcademicRecord", data.documents.previousAcademicRecord);
+        }
+        if (data.documents.identificationDocument) {
+            formData.append("identificationDocument", data.documents.identificationDocument);
+        }
+    }
+
+    const res = await apiClient.post<IStudentResponse>(ENDPOINTS.ADD_STUDENT, formData, {
+        headers: {
+            "Content-Type": "multipart/form-data",
+        },
+    });
     return res.data;
 };
 
 export const updateStudent = async (id: string, data: IUpdateStudentPayload) => {
-    const res = await apiClient.put<IStudentResponse>(`${ENDPOINTS.UPDATE_STUDENT}/${id}`, data);
+    const formData = new FormData();
+    if (data.studentName) formData.append("studentName", data.studentName);
+    if (data.parentName) formData.append("parentName", data.parentName);
+    if (data.class) formData.append("class", data.class);
+    if (data.email) formData.append("email", data.email);
+    if (data.phone) formData.append("phone", data.phone);
+    if (data.password) formData.append("password", data.password);
+    if (data.place) formData.append("place", data.place);
+    if (data.courseType) formData.append("courseType", data.courseType);
+    if (data.package) formData.append("package", data.package);
+    if (data.customPackageDetails !== undefined) formData.append("customPackageDetails", data.customPackageDetails);
+    if (data.coordinatorName) formData.append("coordinatorName", data.coordinatorName);
+    if (data.admissionStatus) formData.append("admissionStatus", data.admissionStatus);
+    if (data.assignedTutorId !== undefined) formData.append("assignedTutorId", data.assignedTutorId || "");
+    if (data.assignedMentorId !== undefined) formData.append("assignedMentorId", data.assignedMentorId || "");
+    if (data.assignedCoordinatorId !== undefined) formData.append("assignedCoordinatorId", data.assignedCoordinatorId || "");
+
+    if (data.documents) {
+        if (data.documents.birthCertificate) {
+            formData.append("birthCertificate", data.documents.birthCertificate);
+        }
+        if (data.documents.transferCertificate) {
+            formData.append("transferCertificate", data.documents.transferCertificate);
+        }
+        if (data.documents.previousAcademicRecord) {
+            formData.append("previousAcademicRecord", data.documents.previousAcademicRecord);
+        }
+        if (data.documents.identificationDocument) {
+            formData.append("identificationDocument", data.documents.identificationDocument);
+        }
+    }
+
+    const res = await apiClient.put<IStudentResponse>(`${ENDPOINTS.UPDATE_STUDENT}/${id}`, formData, {
+        headers: {
+            "Content-Type": "multipart/form-data",
+        },
+    });
     return res.data;
 };
 

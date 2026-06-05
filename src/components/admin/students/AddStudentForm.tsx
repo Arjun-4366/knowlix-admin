@@ -1,5 +1,5 @@
-import { useState, type FormEvent } from "react";
-import { CheckCircle, FileText, X } from "lucide-react";
+import { useState, useRef, type FormEvent } from "react";
+import { CheckCircle, FileText, X, Upload, ExternalLink } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,143 @@ import { ICreateStudentPayload, IStudentDocuments, IStudent } from "@/types/admi
 import { useGetTutors } from "@/querys/admin/tutorQuery";
 import { useGetMentors } from "@/querys/admin/mentorQuery";
 import { useGetCoordinators } from "@/querys/admin/coordinatorQuery";
+
+interface CertificateUploadFieldProps {
+  label: string;
+  value: string | File | undefined;
+  onChange: (file: File | string) => void;
+  accept?: string;
+}
+
+function CertificateUploadField({
+  label,
+  value,
+  onChange,
+  accept = ".pdf,.png,.jpg,.jpeg",
+}: CertificateUploadFieldProps) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      onChange(file);
+    }
+  };
+
+  const handleClear = () => {
+    onChange("");
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const getFileName = (val: string | File) => {
+    if (val instanceof File) {
+      return val.name;
+    }
+    try {
+      const decoded = decodeURIComponent(val);
+      const parts = decoded.split("/");
+      return parts[parts.length - 1] || "Uploaded Document";
+    } catch {
+      return "Uploaded Document";
+    }
+  };
+
+  const formatFileSize = (size?: number) => {
+    if (!size) return "";
+    const kb = size / 1024;
+    if (kb < 1024) return `${kb.toFixed(1)} KB`;
+    return `${(kb / 1024).toFixed(1)} MB`;
+  };
+
+  const isFile = value instanceof File;
+  const isUrl = typeof value === "string" && value.startsWith("http");
+
+  return (
+    <div className="space-y-1.5">
+      <Label className="flex items-center gap-1.5 text-xs font-semibold text-slate-550">
+        {value ? (
+          <CheckCircle className="h-3.5 w-3.5 text-[var(--brand-green)]" />
+        ) : (
+          <FileText className="h-3.5 w-3.5 text-slate-400" />
+        )}
+        {label}
+      </Label>
+
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        accept={accept}
+        className="hidden"
+      />
+
+      {value ? (
+        <div className="flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-slate-50/50 p-3 shadow-sm hover:bg-slate-50 transition-colors">
+          <div className="flex min-w-0 items-center gap-2.5">
+            <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg border border-[var(--brand-light)]/20 bg-[var(--brand-light-green)] text-[var(--brand-green)]">
+              <FileText className="h-4.5 w-4.5" />
+            </div>
+            <div className="min-w-0">
+              <p className="truncate text-xs font-bold text-slate-700">
+                {getFileName(value)}
+              </p>
+              <p className="text-[10px] text-slate-450 mt-0.5">
+                {isFile ? formatFileSize((value as File).size) : "Cloud Document"}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-1.5 flex-shrink-0">
+            {isUrl && (
+              <a
+                href={value as string}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex h-7 w-7 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-750 transition-colors shadow-sm"
+                title="View Document"
+              >
+                <ExternalLink className="h-3.5 w-3.5" />
+              </a>
+            )}
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="flex h-7 w-7 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-750 transition-colors shadow-sm"
+              title="Replace File"
+            >
+              <Upload className="h-3.5 w-3.5" />
+            </button>
+            <button
+              type="button"
+              onClick={handleClear}
+              className="flex h-7 w-7 items-center justify-center rounded-lg border border-slate-200 bg-white text-red-500 hover:bg-red-50 hover:text-red-650 transition-colors shadow-sm"
+              title="Remove File"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div
+          onClick={() => fileInputRef.current?.click()}
+          className="flex flex-col items-center justify-center gap-1.5 rounded-xl border border-dashed border-slate-250 bg-slate-50/50 py-4 px-3 text-center cursor-pointer hover:bg-slate-50 hover:border-slate-350 transition-all group"
+        >
+          <Upload className="h-4.5 w-4.5 text-slate-400 group-hover:text-slate-600 transition-colors" />
+          <div>
+            <p className="text-[11px] font-bold text-slate-600 group-hover:text-slate-800 transition-colors">
+              Click to upload {label.toLowerCase()}
+            </p>
+            <p className="text-[9px] text-slate-400 mt-0.5">
+              Supports PDF, PNG, JPG up to 10MB
+            </p>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 interface AddStudentFormProps {
   onSubmit: (student: ICreateStudentPayload) => void;
@@ -91,7 +228,7 @@ export default function AddStudentForm({
   const [assignedMentorId, setAssignedMentorId] = useState(studentToEdit?.assignedMentorId ?? "");
   const [assignedCoordinatorId, setAssignedCoordinatorId] = useState(studentToEdit?.assignedCoordinatorId ?? "");
 
-  const setDocumentValue = (key: keyof IStudentDocuments, value: string) => {
+  const setDocumentValue = (key: keyof IStudentDocuments, value: string | File) => {
     setDocuments((current) => ({ ...current, [key]: value }));
   };
 
@@ -340,33 +477,19 @@ export default function AddStudentForm({
               variant="outline"
               className="rounded-full border-[var(--brand-light)]/20 bg-[var(--brand-light-green)] px-2 py-0.5 text-[10px] font-bold uppercase text-[var(--brand-mid)]"
             >
-              URL Based
+              File Upload
             </Badge>
           </div>
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            {documentFields.map((field) => {
-              const hasValue = !!documents[field.key];
-
-              return (
-                <div key={field.key} className="space-y-1.5">
-                  <Label className="flex items-center gap-1.5 text-xs font-semibold text-slate-550">
-                    {hasValue ? (
-                      <CheckCircle className="h-3.5 w-3.5 text-[var(--brand-green)]" />
-                    ) : (
-                      <FileText className="h-3.5 w-3.5 text-slate-400" />
-                    )}
-                    {field.label}
-                  </Label>
-                  <Input
-                    value={documents[field.key]}
-                    onChange={(event) => setDocumentValue(field.key, event.target.value)}
-                    placeholder={field.placeholder}
-                    className="rounded-xl border-slate-200 bg-slate-50 focus:bg-white"
-                  />
-                </div>
-              );
-            })}
+            {documentFields.map((field) => (
+              <CertificateUploadField
+                key={field.key}
+                label={field.label}
+                value={documents[field.key]}
+                onChange={(value) => setDocumentValue(field.key, value)}
+              />
+            ))}
           </div>
         </div>
 

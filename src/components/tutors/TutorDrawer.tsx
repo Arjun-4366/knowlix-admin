@@ -139,7 +139,7 @@ export default function TutorDrawer({
                     Availability
                   </span>
                   <span className="text-sm font-semibold text-slate-750">
-                    {selectedTutor.availability}
+                    {Array.isArray(selectedTutor.availability) ? selectedTutor.availability.join(", ") : selectedTutor.availability}
                   </span>
                 </div>
                 <div>

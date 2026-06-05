@@ -468,7 +468,22 @@ function StudentDetailsContent({ params }: PageProps) {
                       {document.label}
                     </h4>
                     <p className="mt-0.5 truncate text-[10px] text-slate-450">
-                      {isSubmitted ? documentUrl : "Pending parent upload"}
+                      {isSubmitted ? (
+                        typeof documentUrl === "string" ? (
+                          <a
+                            href={documentUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="hover:underline hover:text-[var(--brand-green)] font-semibold transition-colors"
+                          >
+                            {documentUrl}
+                          </a>
+                        ) : (
+                          (documentUrl as File).name
+                        )
+                      ) : (
+                        "Pending parent upload"
+                      )}
                     </p>
                   </div>
                 </div>

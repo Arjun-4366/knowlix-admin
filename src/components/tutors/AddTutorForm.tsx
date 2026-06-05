@@ -11,6 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 import { ICreateTutorPayload, ITutor, TutorStatus } from "@/types/admin/tutor";
 
 interface AddTutorFormProps {
@@ -19,6 +20,10 @@ interface AddTutorFormProps {
   isSubmitting?: boolean;
   tutorToEdit?: ITutor;
 }
+
+const AVAILABILITY_OPTIONS = ["Morning", "Afternoon", "Evening"];
+const SUBJECT_OPTIONS = ["Math", "Physics", "Chemistry", "Biology", "English", "Science", "Computer Science"];
+const SYLLABUS_OPTIONS = ["CBSE", "ICSE", "State Board", "IB", "IGCSE"];
 
 export default function AddTutorForm({
   onClose,
@@ -29,12 +34,15 @@ export default function AddTutorForm({
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
-  const [subjectsText, setSubjectsText] = useState("");
+  const [password, setPassword] = useState("");
   const [experience, setExperience] = useState("");
-  const [availability, setAvailability] = useState("Full-time");
+  const [availability, setAvailability] = useState<string[]>([]);
   const [role, setRole] = useState("subject_tutor");
   const [status, setStatus] = useState<TutorStatus>("pending");
-  
+
+  const [subjectEntries, setSubjectEntries] = useState<Array<{ name: string; syllabi: string[] }>>([]);
+  const [customSubjectInput, setCustomSubjectInput] = useState("");
+
   // Permissions state
   const [canUploadNotes, setCanUploadNotes] = useState(false);
   const [canEditNotes, setCanEditNotes] = useState(false);
@@ -45,34 +53,87 @@ export default function AddTutorForm({
       setName(tutorToEdit.name || "");
       setEmail(tutorToEdit.email || "");
       setPhone(tutorToEdit.phone || "");
-      setSubjectsText(tutorToEdit.subjects ? tutorToEdit.subjects.join(", ") : "");
       setExperience(tutorToEdit.experience || "");
-      setAvailability(tutorToEdit.availability || "Full-time");
       setRole(tutorToEdit.role || "subject_tutor");
       setStatus(tutorToEdit.status || "pending");
       setCanUploadNotes(tutorToEdit.permissions?.canUploadNotes || false);
       setCanEditNotes(tutorToEdit.permissions?.canEditNotes || false);
       setCanShareMaterial(tutorToEdit.permissions?.canShareMaterial || false);
+
+      // Load availability
+      if (Array.isArray(tutorToEdit.availability)) {
+        setAvailability(tutorToEdit.availability);
+      } else if (typeof tutorToEdit.availability === "string") {
+        setAvailability(tutorToEdit.availability.split(",").map(a => a.trim()).filter(Boolean));
+      } else {
+        setAvailability([]);
+      }
+
+      // Load subject entries
+      if (tutorToEdit.subjectEntries) {
+        setSubjectEntries(tutorToEdit.subjectEntries);
+      } else if (tutorToEdit.subjects) {
+        setSubjectEntries(tutorToEdit.subjects.map(s => ({
+          name: s,
+          syllabi: tutorToEdit.syllabus || []
+        })));
+      } else {
+        setSubjectEntries([]);
+      }
     }
   }, [tutorToEdit]);
 
+  const toggleAvailability = (option: string) => {
+    setAvailability((prev) =>
+      prev.includes(option) ? prev.filter((a) => a !== option) : [...prev, option]
+    );
+  };
+
+  const handleSubjectToggle = (subj: string) => {
+    setSubjectEntries((prev) => {
+      const exists = prev.find((e) => e.name === subj);
+      if (exists) {
+        return prev.filter((e) => e.name !== subj);
+      } else {
+        return [...prev, { name: subj, syllabi: [] }];
+      }
+    });
+  };
+
+  const handleSyllabusToggleForSubject = (subj: string, syl: string) => {
+    setSubjectEntries((prev) =>
+      prev.map((e) => {
+        if (e.name === subj) {
+          const syllabi = e.syllabi.includes(syl)
+            ? e.syllabi.filter((s) => s !== syl)
+            : [...e.syllabi, syl];
+          return { ...e, syllabi };
+        }
+        return e;
+      })
+    );
+  };
+
+  const addCustomSubject = () => {
+    const trimmed = customSubjectInput.trim();
+    if (trimmed && !subjectEntries.some((e) => e.name.toLowerCase() === trimmed.toLowerCase())) {
+      setSubjectEntries((prev) => [...prev, { name: trimmed, syllabi: [] }]);
+      setCustomSubjectInput("");
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !email || !subjectsText || !experience || !phone) {
-      alert("Please fill in all required fields.");
+    if (!name || !email || !experience || !phone || availability.length === 0 || subjectEntries.length === 0) {
+      alert("Please fill in all required fields and select at least one availability and subject entry.");
       return;
     }
-
-    const parsedSubjects = subjectsText
-      .split(",")
-      .map((s) => s.trim())
-      .filter((s) => s.length > 0);
 
     const payload: ICreateTutorPayload = {
       name,
       email,
       phone,
-      subjects: parsedSubjects,
+      subjects: subjectEntries.map((e) => e.name),
       experience: experience.toLowerCase().includes("year") ? experience : `${experience} Years`,
       availability,
       role,
@@ -83,7 +144,13 @@ export default function AddTutorForm({
         canEditNotes,
         canShareMaterial,
       },
+      syllabus: Array.from(new Set(subjectEntries.flatMap((e) => e.syllabi))),
+      subjectEntries,
     };
+
+    if (password) {
+      payload.password = password;
+    }
 
     onSubmit(payload);
   };
@@ -97,7 +164,7 @@ export default function AddTutorForm({
             {tutorToEdit ? "Edit Tutor Details" : "Register New Tutor"}
           </h3>
           <p className="text-xs text-slate-450 mt-0.5">
-            Configure subjects, workloads, role classifications, and workspace access.
+            Configure subjects, availability slots, workloads, and workspace permissions.
           </p>
         </div>
         <button
@@ -118,7 +185,7 @@ export default function AddTutorForm({
               type="text"
               required
               disabled={isSubmitting}
-              placeholder="e.g. Arjun Nair"
+              placeholder="e.g. John Mathew"
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="w-full bg-slate-50 focus:bg-white border-slate-200 rounded-xl"
@@ -130,7 +197,7 @@ export default function AddTutorForm({
               type="email"
               required
               disabled={isSubmitting}
-              placeholder="e.g. arjun@gmail.com"
+              placeholder="e.g. john.tutor@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full bg-slate-50 focus:bg-white border-slate-200 rounded-xl"
@@ -145,19 +212,19 @@ export default function AddTutorForm({
               type="tel"
               required
               disabled={isSubmitting}
-              placeholder="e.g. 9876543210"
+              placeholder="e.g. 9876543200"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               className="w-full bg-slate-50 focus:bg-white border-slate-200 rounded-xl"
             />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs font-semibold text-slate-500">Experience (Years) *</Label>
+            <Label className="text-xs font-semibold text-slate-500">Experience (e.g. 5 Years) *</Label>
             <Input
               type="text"
               required
               disabled={isSubmitting}
-              placeholder="e.g. 6 Years"
+              placeholder="e.g. 5 years"
               value={experience}
               onChange={(e) => setExperience(e.target.value)}
               className="w-full bg-slate-50 focus:bg-white border-slate-200 rounded-xl"
@@ -165,34 +232,130 @@ export default function AddTutorForm({
           </div>
         </div>
 
+        {!tutorToEdit && (
+          <div className="space-y-1.5">
+            <Label className="text-xs font-semibold text-slate-500">Password *</Label>
+            <Input
+              type="password"
+              required
+              disabled={isSubmitting}
+              placeholder="e.g. StrongPassword@123"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full bg-slate-50 focus:bg-white border-slate-200 rounded-xl"
+            />
+          </div>
+        )}
+
+        {/* Availability */}
         <div className="space-y-1.5">
-          <Label className="text-xs font-semibold text-slate-500">Subjects Expertise *</Label>
-          <Input
-            type="text"
-            required
-            disabled={isSubmitting}
-            placeholder="e.g. Maths, Science (comma separated)"
-            value={subjectsText}
-            onChange={(e) => setSubjectsText(e.target.value)}
-            className="w-full bg-slate-50 focus:bg-white border-slate-200 rounded-xl"
-          />
+          <Label className="text-xs font-semibold text-slate-500 block">Availability *</Label>
+          <div className="flex gap-2">
+            {AVAILABILITY_OPTIONS.map((option) => {
+              const isSelected = availability.includes(option);
+              return (
+                <button
+                  key={option}
+                  type="button"
+                  onClick={() => toggleAvailability(option)}
+                  className={cn(
+                    "px-4 py-2 text-xs font-bold border rounded-xl transition-all cursor-pointer",
+                    isSelected
+                      ? "bg-[var(--brand-light-green)] text-[var(--brand-green)] border-[var(--brand-green)]"
+                      : "bg-slate-50 text-slate-500 border-slate-200 hover:bg-slate-100"
+                  )}
+                >
+                  {option}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-4">
-          <div className="space-y-1.5">
-            <Label className="text-xs font-semibold text-slate-500">Availability *</Label>
-            <Select disabled={isSubmitting} value={availability} onValueChange={setAvailability}>
-              <SelectTrigger className="w-full text-sm bg-slate-50 border border-slate-200 rounded-xl">
-                <SelectValue placeholder="Availability" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Full-time">Full-time</SelectItem>
-                <SelectItem value="Part-time">Part-time</SelectItem>
-                <SelectItem value="Weekends Only">Weekends Only</SelectItem>
-                <SelectItem value="Evening">Evening</SelectItem>
-              </SelectContent>
-            </Select>
+        {/* Subjects & Syllabi */}
+        <div className="space-y-3 pt-2">
+          <Label className="text-xs font-semibold text-slate-500 block">Subjects & Syllabi *</Label>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            {SUBJECT_OPTIONS.map((subj) => {
+              const entry = subjectEntries.find((e) => e.name === subj);
+              const isSelected = !!entry;
+              return (
+                <button
+                  key={subj}
+                  type="button"
+                  onClick={() => handleSubjectToggle(subj)}
+                  className={cn(
+                    "px-3 py-2 text-xs font-bold border rounded-xl transition-all cursor-pointer text-left flex justify-between items-center",
+                    isSelected
+                      ? "bg-[var(--brand-light-green)] text-[var(--brand-green)] border-[var(--brand-green)]"
+                      : "bg-slate-50 text-slate-500 border-slate-200 hover:bg-slate-100"
+                  )}
+                >
+                  <span>{subj}</span>
+                  {isSelected && (
+                    <span className="text-[10px] bg-[var(--brand-green)] text-white px-1.5 py-0.5 rounded-full">
+                      {entry.syllabi.length}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
           </div>
+
+          <div className="flex gap-2 items-center">
+            <Input
+              type="text"
+              placeholder="Add custom subject..."
+              value={customSubjectInput}
+              onChange={(e) => setCustomSubjectInput(e.target.value)}
+              className="h-9 text-xs bg-slate-50 border-slate-200 rounded-xl"
+            />
+            <Button
+              type="button"
+              onClick={addCustomSubject}
+              className="h-9 px-3 text-xs bg-[var(--brand-green)] text-white rounded-xl"
+            >
+              Add
+            </Button>
+          </div>
+
+          {subjectEntries.length > 0 && (
+            <div className="space-y-3 bg-slate-50/50 p-4 border border-slate-150 rounded-2xl mt-2">
+              <Label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                Assign Syllabi for Selected Subjects
+              </Label>
+              <div className="space-y-3">
+                {subjectEntries.map((entry) => (
+                  <div key={entry.name} className="space-y-1.5 pb-2.5 border-b border-slate-100 last:border-b-0 last:pb-0">
+                    <span className="text-xs font-bold text-slate-700">{entry.name} Syllabi:</span>
+                    <div className="flex flex-wrap gap-1.5 mt-1">
+                      {SYLLABUS_OPTIONS.map((syl) => {
+                        const isSylChecked = entry.syllabi.includes(syl);
+                        return (
+                          <button
+                            key={syl}
+                            type="button"
+                            onClick={() => handleSyllabusToggleForSubject(entry.name, syl)}
+                            className={cn(
+                              "px-2.5 py-1 text-[10px] font-bold border rounded-lg transition-all cursor-pointer",
+                              isSylChecked
+                                ? "bg-green-600 text-white border-green-600"
+                                : "bg-white text-slate-500 border-slate-200 hover:bg-slate-50"
+                            )}
+                          >
+                            {syl}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
           <div className="space-y-1.5">
             <Label className="text-xs font-semibold text-slate-500">Staff Role *</Label>
             <Select disabled={isSubmitting} value={role} onValueChange={setRole}>

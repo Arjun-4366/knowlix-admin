@@ -15,7 +15,7 @@ export interface ITutor {
   phone: string;
   subjects: string[];
   experience: string;
-  availability: string;
+  availability: string | string[];
   role: string;
   status: TutorStatus;
   profileImage: string;
@@ -25,6 +25,8 @@ export interface ITutor {
   createdAt: string;
   updatedAt: string;
   rank?: number;
+  syllabus?: string[];
+  subjectEntries?: Array<{ name: string; syllabi: string[] }>;
 }
 
 export interface ICreateTutorPayload {
@@ -34,11 +36,13 @@ export interface ICreateTutorPayload {
   phone: string;
   subjects: string[];
   experience: string;
-  availability: string;
+  availability: string[];
   role: string;
   status: TutorStatus;
   profileImage: string;
   permissions: ITutorPermissions;
+  syllabus?: string[];
+  subjectEntries?: Array<{ name: string; syllabi: string[] }>;
 }
 
 export type IUpdateTutorPayload = Partial<ICreateTutorPayload>;

@@ -1,10 +1,10 @@
 import { IApiResponse } from "@/types/admin/api";
 
 export interface IStudentDocuments {
-  birthCertificate: string;
-  transferCertificate: string;
-  previousAcademicRecord: string;
-  identificationDocument: string;
+  birthCertificate: string | File;
+  transferCertificate: string | File;
+  previousAcademicRecord: string | File;
+  identificationDocument: string | File;
 }
 
 export type StudentAdmissionStatus =
