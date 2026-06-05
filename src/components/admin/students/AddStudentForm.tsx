@@ -15,6 +15,9 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { ButtonLoader } from "@/components/shared/Loader";
 import { ICreateStudentPayload, IStudentDocuments, IStudent } from "@/types/admin/student";
+import { useGetTutors } from "@/querys/admin/tutorQuery";
+import { useGetMentors } from "@/querys/admin/mentorQuery";
+import { useGetCoordinators } from "@/querys/admin/coordinatorQuery";
 
 interface AddStudentFormProps {
   onSubmit: (student: ICreateStudentPayload) => void;
@@ -63,6 +66,14 @@ export default function AddStudentForm({
   isSubmitting = false,
   studentToEdit,
 }: AddStudentFormProps) {
+  const { data: tutorsResponse } = useGetTutors();
+  const { data: mentorsResponse } = useGetMentors();
+  const { data: coordinatorsResponse } = useGetCoordinators();
+
+  const tutorsList = tutorsResponse?.data ?? [];
+  const mentorsList = mentorsResponse?.data ?? [];
+  const coordinatorsList = coordinatorsResponse?.data ?? [];
+
   const [studentName, setStudentName] = useState(studentToEdit?.studentName ?? "");
   const [parentName, setParentName] = useState(studentToEdit?.parentName ?? "");
   const [studentClass, setStudentClass] = useState(studentToEdit?.class ?? "8");
@@ -364,56 +375,82 @@ export default function AddStudentForm({
             Assignments
           </h4>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-slate-550">
-                Coordinator Name *
+            <div className="space-y-1.5 md:col-span-2">
+              <Label className="text-xs font-semibold text-slate-555">
+                Assigned Admissions Coordinator *
               </Label>
-              <Input
-                required
-                value={coordinatorName}
-                onChange={(event) => setCoordinatorName(event.target.value)}
-                placeholder="Rahul Kumar"
-                className="rounded-xl border-slate-200 bg-slate-50 focus:bg-white"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-slate-550">
-                Assigned Tutor ID *
-              </Label>
-              <Input
-                required
-                value={assignedTutorId}
-                onChange={(event) => setAssignedTutorId(event.target.value)}
-                placeholder="6a15d349475d455434c93af5"
-                className="rounded-xl border-slate-200 bg-slate-50 focus:bg-white"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-slate-550">
-                Assigned Mentor ID *
-              </Label>
-              <Input
-                required
-                value={assignedMentorId}
-                onChange={(event) => setAssignedMentorId(event.target.value)}
-                placeholder="66503d4a7a4e7c91d9b9a222"
-                className="rounded-xl border-slate-200 bg-slate-50 focus:bg-white"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-slate-550">
-                Assigned Coordinator ID *
-              </Label>
-              <Input
-                required
+              <Select
                 value={assignedCoordinatorId}
-                onChange={(event) => setAssignedCoordinatorId(event.target.value)}
-                placeholder="66503d4a7a4e7c91d9b9a333"
-                className="rounded-xl border-slate-200 bg-slate-50 focus:bg-white"
-              />
+                onValueChange={(val) => {
+                  setAssignedCoordinatorId(val);
+                  const selected = coordinatorsList.find(c => c.id === val);
+                  if (selected) {
+                    setCoordinatorName(selected.name);
+                  }
+                }}
+              >
+                <SelectTrigger className="rounded-xl border-slate-200 bg-slate-50">
+                  <SelectValue placeholder="Select Coordinator" />
+                </SelectTrigger>
+                <SelectContent>
+                  {coordinatorsList.map((coordinator) => (
+                    <SelectItem key={coordinator.id} value={coordinator.id}>
+                      {coordinator.name} ({coordinator.designation} - {coordinator.department})
+                    </SelectItem>
+                  ))}
+                  {assignedCoordinatorId && !coordinatorsList.some(c => c.id === assignedCoordinatorId) && (
+                    <SelectItem value={assignedCoordinatorId}>
+                      {coordinatorName ? `${coordinatorName} (ID: ${assignedCoordinatorId})` : `ID: ${assignedCoordinatorId}`}
+                    </SelectItem>
+                  )}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold text-slate-550">
+                Assigned Tutor *
+              </Label>
+              <Select value={assignedTutorId} onValueChange={setAssignedTutorId}>
+                <SelectTrigger className="rounded-xl border-slate-200 bg-slate-50">
+                  <SelectValue placeholder="Select Tutor" />
+                </SelectTrigger>
+                <SelectContent>
+                  {tutorsList.map((tutor) => (
+                    <SelectItem key={tutor.id} value={tutor.id}>
+                      {tutor.name} ({tutor.subjects ? tutor.subjects.join(", ") : "No subjects"})
+                    </SelectItem>
+                  ))}
+                  {assignedTutorId && !tutorsList.some(t => t.id === assignedTutorId) && (
+                    <SelectItem value={assignedTutorId}>
+                      {studentToEdit?.assignedTutorId ? `ID: ${studentToEdit.assignedTutorId}` : assignedTutorId}
+                    </SelectItem>
+                  )}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold text-slate-550">
+                Assigned Mentor *
+              </Label>
+              <Select value={assignedMentorId} onValueChange={setAssignedMentorId}>
+                <SelectTrigger className="rounded-xl border-slate-200 bg-slate-50">
+                  <SelectValue placeholder="Select Mentor" />
+                </SelectTrigger>
+                <SelectContent>
+                  {mentorsList.map((mentor) => (
+                    <SelectItem key={mentor.id} value={mentor.id}>
+                      {mentor.name} ({mentor.designation} - {mentor.department})
+                    </SelectItem>
+                  ))}
+                  {assignedMentorId && !mentorsList.some(m => m.id === assignedMentorId) && (
+                    <SelectItem value={assignedMentorId}>
+                      {studentToEdit?.assignedMentorId ? `ID: ${studentToEdit.assignedMentorId}` : assignedMentorId}
+                    </SelectItem>
+                  )}
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </div>

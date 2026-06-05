@@ -119,6 +119,20 @@ export const ENDPOINTS = {
   //students
   GET_TUTOR_STUDENTS:`${API_BASE_URL}/tutor/students`,
   GET_TUTOR_STUDENT: (id:string)=>`${API_BASE_URL}/tutor/students/${id}`,
+
+  //mentors
+  GET_MENTORS: `${API_BASE_URL}/mentors/fetch`,
+  CREATE_MENTOR: `${API_BASE_URL}/mentors/create`,
+  UPDATE_MENTOR: (id: string) => `${API_BASE_URL}/mentors/update/${id}`,
+  DELETE_MENTOR: (id: string) => `${API_BASE_URL}/mentors/delete/${id}`,
+
+  //coordinators
+
+  GET_COORDINATORS: `${API_BASE_URL}/coordinators/fetch`,
+  CREATE_COORDINATOR: `${API_BASE_URL}/coordinators/create`,
+  UPDATE_COORDINATOR: (id: string) => `${API_BASE_URL}/coordinators/update/${id}`,
+  DELETE_COORDINATOR: (id: string) => `${API_BASE_URL}/coordinators/delete/${id}`,
+
   //Attendance
   GET_TUTOR_ATTENDANCE:`${API_BASE_URL}/tutor/attendance`,
   MARK_TUTOR_ATTENDANCE:`${API_BASE_URL}/tutor/attendance/mark`,

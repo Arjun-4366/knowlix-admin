@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, use } from "react";
+import { Suspense, use, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
@@ -25,6 +25,9 @@ import {
   useGetStudentDocuments,
   useUpdateStudent,
 } from "@/querys/admin/studentQuery";
+import { useGetTutors } from "@/querys/admin/tutorQuery";
+import { useGetMentors } from "@/querys/admin/mentorQuery";
+import { useGetCoordinators } from "@/querys/admin/coordinatorQuery";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -72,6 +75,28 @@ function StudentDetailsContent({ params }: PageProps) {
   const { data: documentResponse } = useGetStudentDocuments(id);
   const { mutateAsync: updateStudent, isPending: isUpdating } = useUpdateStudent();
 
+  const { data: tutorsResponse } = useGetTutors();
+  const { data: mentorsResponse } = useGetMentors();
+  const { data: coordinatorsResponse } = useGetCoordinators();
+
+  const tutorsList = tutorsResponse?.data ?? [];
+  const mentorsList = mentorsResponse?.data ?? [];
+  const coordinatorsList = coordinatorsResponse?.data ?? [];
+
+  const [assignedTutorId, setAssignedTutorId] = useState("");
+  const [assignedMentorId, setAssignedMentorId] = useState("");
+  const [assignedCoordinatorId, setAssignedCoordinatorId] = useState("");
+  const [coordinatorName, setCoordinatorName] = useState("");
+
+  useEffect(() => {
+    if (student) {
+      setAssignedTutorId(student.assignedTutorId || "");
+      setAssignedMentorId(student.assignedMentorId || "");
+      setAssignedCoordinatorId(student.assignedCoordinatorId || "");
+      setCoordinatorName(student.coordinatorName || "");
+    }
+  }, [student]);
+
   const handleUpdateStatus = async (admissionStatus: string) => {
     try {
       await updateStudent({ id, data: { admissionStatus } });
@@ -82,16 +107,15 @@ function StudentDetailsContent({ params }: PageProps) {
 
   const handleAssignmentSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const formData = new FormData(event.currentTarget);
 
     try {
       await updateStudent({
         id,
         data: {
-          coordinatorName: String(formData.get("coordinatorName") || ""),
-          assignedTutorId: String(formData.get("assignedTutorId") || ""),
-          assignedMentorId: String(formData.get("assignedMentorId") || ""),
-          assignedCoordinatorId: String(formData.get("assignedCoordinatorId") || ""),
+          coordinatorName,
+          assignedTutorId,
+          assignedMentorId,
+          assignedCoordinatorId,
         },
       });
     } catch (error) {
@@ -296,46 +320,80 @@ function StudentDetailsContent({ params }: PageProps) {
             <form className="space-y-3" onSubmit={handleAssignmentSubmit}>
               <div className="space-y-1.5">
                 <Label className="text-[10px] font-bold uppercase text-slate-400">
-                  Coordinator Name
+                  Assigned Admissions Coordinator
                 </Label>
-                <Input
-                  name="coordinatorName"
-                  defaultValue={student.coordinatorName}
-                  className="h-9 rounded-xl border-slate-200 bg-slate-50 text-xs"
-                />
+                <Select
+                  value={assignedCoordinatorId}
+                  onValueChange={(val) => {
+                    setAssignedCoordinatorId(val);
+                    const selected = coordinatorsList.find((c) => c.id === val);
+                    if (selected) {
+                      setCoordinatorName(selected.name);
+                    }
+                  }}
+                >
+                  <SelectTrigger className="h-9 rounded-xl border border-slate-200 bg-slate-50 text-xs">
+                    <SelectValue placeholder="Select Coordinator" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {coordinatorsList.map((coordinator) => (
+                      <SelectItem key={coordinator.id} value={coordinator.id}>
+                        {coordinator.name} ({coordinator.designation})
+                      </SelectItem>
+                    ))}
+                    {assignedCoordinatorId && !coordinatorsList.some((c) => c.id === assignedCoordinatorId) && (
+                      <SelectItem value={assignedCoordinatorId}>
+                        {coordinatorName ? `${coordinatorName} (ID: ${assignedCoordinatorId})` : `ID: ${assignedCoordinatorId}`}
+                      </SelectItem>
+                    )}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="space-y-1.5">
                 <Label className="text-[10px] font-bold uppercase text-slate-400">
-                  Assigned Tutor ID
+                  Assigned Tutor
                 </Label>
-                <Input
-                  name="assignedTutorId"
-                  defaultValue={student.assignedTutorId || ""}
-                  className="h-9 rounded-xl border-slate-200 bg-slate-50 font-mono text-xs"
-                />
+                <Select value={assignedTutorId} onValueChange={setAssignedTutorId}>
+                  <SelectTrigger className="h-9 rounded-xl border border-slate-200 bg-slate-50 text-xs">
+                    <SelectValue placeholder="Select Tutor" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {tutorsList.map((tutor) => (
+                      <SelectItem key={tutor.id} value={tutor.id}>
+                        {tutor.name} ({tutor.subjects ? tutor.subjects.join(", ") : "No subjects"})
+                      </SelectItem>
+                    ))}
+                    {assignedTutorId && !tutorsList.some((t) => t.id === assignedTutorId) && (
+                      <SelectItem value={assignedTutorId}>
+                        ID: {assignedTutorId}
+                      </SelectItem>
+                    )}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="space-y-1.5">
                 <Label className="text-[10px] font-bold uppercase text-slate-400">
-                  Assigned Mentor ID
+                  Assigned Mentor
                 </Label>
-                <Input
-                  name="assignedMentorId"
-                  defaultValue={student.assignedMentorId || ""}
-                  className="h-9 rounded-xl border-slate-200 bg-slate-50 font-mono text-xs"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <Label className="text-[10px] font-bold uppercase text-slate-400">
-                  Assigned Coordinator ID
-                </Label>
-                <Input
-                  name="assignedCoordinatorId"
-                  defaultValue={student.assignedCoordinatorId || ""}
-                  className="h-9 rounded-xl border-slate-200 bg-slate-50 font-mono text-xs"
-                />
+                <Select value={assignedMentorId} onValueChange={setAssignedMentorId}>
+                  <SelectTrigger className="h-9 rounded-xl border border-slate-200 bg-slate-50 text-xs">
+                    <SelectValue placeholder="Select Mentor" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {mentorsList.map((mentor) => (
+                      <SelectItem key={mentor.id} value={mentor.id}>
+                        {mentor.name} ({mentor.designation})
+                      </SelectItem>
+                    ))}
+                    {assignedMentorId && !mentorsList.some((m) => m.id === assignedMentorId) && (
+                      <SelectItem value={assignedMentorId}>
+                        ID: {assignedMentorId}
+                      </SelectItem>
+                    )}
+                  </SelectContent>
+                </Select>
               </div>
 
               <Button

@@ -6,7 +6,8 @@ import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard, Home, Info, BookOpen, FileText,
   Users, ImageIcon, Briefcase, MessageSquare, Settings,
-  ChevronDown, GraduationCap, Star, Globe, BarChart3
+  ChevronDown, GraduationCap, Star, Globe, BarChart3,
+  UserCheck
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -23,6 +24,8 @@ const nav: NavItem[] = [
   { name: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
   { name: "Students", href: "/admin/students", icon: Users },
   { name: "Tutors", href: "/admin/tutor", icon: GraduationCap },
+  { name: "Mentors", href: "/admin/mentors", icon: UserCheck },
+  { name: "Coordinators", href: "/admin/coordinators", icon: Briefcase },
   { name: "Notice Board", href: "/admin/notices", icon: MessageSquare },
   { name: "Assignments", href: "/admin/assignments", icon: BookOpen },
   { name: "Reports", href: "/admin/reports", icon: BarChart3 },
