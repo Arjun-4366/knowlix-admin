@@ -33,6 +33,13 @@ export interface IStudent {
   assignedTutorId: string | null;
   assignedMentorId: string | null;
   assignedCoordinatorId: string | null;
+  programId?: string | null;
+  programName?: string | null;
+  courseId?: string | null;
+  courseName?: string | null;
+  syllabus?: string;
+  totalFee?: number;
+  paidAmount?: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -54,6 +61,11 @@ export interface ICreateStudentPayload {
   assignedTutorId: string;
   assignedMentorId: string;
   assignedCoordinatorId: string;
+  programId?: string;
+  courseId?: string;
+  syllabus?: string;
+  totalFee?: number;
+  paidAmount?: number;
 }
 
 export type IUpdateStudentPayload = Partial<ICreateStudentPayload>;
