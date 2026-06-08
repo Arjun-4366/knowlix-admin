@@ -106,28 +106,53 @@ export default function EmployeeManager() {
   };
 
   const handleFormSubmit = async (data: EmployeeFormData) => {
-    if (editEmployee) {
-      toast.error("Tutor editing is not supported on the backend yet.");
-    } else {
-      createTutorMutation.mutate({
-        name: data.name,
-        email: data.email,
-        phone: data.phone,
-        role: data.role || "subject_tutor",
-        password: data.password || "password123",
-        experience: data.experience || "6 Years",
-        availability: data.availability || "Evening",
-        subjects: data.subjects || ["Maths", "Science"],
-        status: "approved",
-        profileImage: data.profileImage || "https://cdn.example.com/profile.png",
-        permissions: data.permissions || {
-          canUploadNotes: true,
-          canEditNotes: true,
-          canShareMaterial: false,
-        },
-      });
+    try {
+      if (editEmployee) {
+        toast.error("Tutor editing is not supported on the backend yet.");
+        setShowFormModal(false);
+      } else {
+        if (data.profileImage instanceof File) {
+          const formData = new FormData();
+          formData.append("name", data.name);
+          formData.append("email", data.email);
+          formData.append("phone", data.phone);
+          formData.append("role", data.role || "subject_tutor");
+          formData.append("password", data.password || "");
+          formData.append("experience", data.experience || "");
+          formData.append("availability", JSON.stringify(data.availability ? [data.availability] : []));
+          formData.append("subjects", JSON.stringify(data.subjects || []));
+          formData.append("status", "approved");
+          formData.append("permissions", JSON.stringify(data.permissions || {
+            canUploadNotes: true,
+            canEditNotes: true,
+            canShareMaterial: false,
+          }));
+          formData.append("profileImage", data.profileImage);
+          await createTutorMutation.mutateAsync(formData);
+        } else {
+          await createTutorMutation.mutateAsync({
+            name: data.name,
+            email: data.email,
+            phone: data.phone,
+            role: data.role || "subject_tutor",
+            password: data.password || "",
+            experience: data.experience || "",
+            availability: data.availability ? [data.availability] : [],
+            subjects: data.subjects || [],
+            status: "approved",
+            profileImage: data.profileImage || "",
+            permissions: data.permissions || {
+              canUploadNotes: true,
+              canEditNotes: true,
+              canShareMaterial: false,
+            },
+          });
+        }
+        setShowFormModal(false);
+      }
+    } catch (error) {
+      console.error("Failed to create employee", error);
     }
-    setShowFormModal(false);
   };
 
   const handleDeleteEmployee = (id: string) => {
@@ -189,6 +214,7 @@ export default function EmployeeManager() {
         employee={editEmployee}
         departments={EMPLOYEE_DEPARTMENTS}
         statuses={EMPLOYEE_STATUSES}
+        isSubmitting={createTutorMutation.isPending}
       />  
     </div>
   );

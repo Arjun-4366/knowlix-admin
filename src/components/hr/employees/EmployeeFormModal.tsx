@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { X, User, Briefcase, Key, Shield, Image } from "lucide-react";
+import { X, User, Briefcase, Key, Shield, Image, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
@@ -17,7 +17,7 @@ export type EmployeeFormData = {
   experience?: string;
   availability?: string;
   role?: string;
-  profileImage?: string;
+  profileImage?: File | string;
   permissions?: {
     canUploadNotes: boolean;
     canEditNotes: boolean;
@@ -32,6 +32,7 @@ interface EmployeeFormModalProps {
   employee?: Employee | null;
   departments?: string[];
   statuses?: string[];
+  isSubmitting?: boolean;
 }
 
 export default function EmployeeFormModal({
@@ -39,17 +40,18 @@ export default function EmployeeFormModal({
   onClose,
   onSubmit,
   employee,
+  isSubmitting = false,
 }: EmployeeFormModalProps) {
   // Form states matching payload ONLY
   const [name, setName] = useState("");
-  const [password, setPassword] = useState("password123");
+  const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
-  const [subjects, setSubjects] = useState("Maths, Science");
-  const [experience, setExperience] = useState("6 Years");
-  const [availability, setAvailability] = useState("Evening");
+  const [subjects, setSubjects] = useState("");
+  const [experience, setExperience] = useState("");
+  const [availability, setAvailability] = useState("");
   const [role, setRole] = useState("subject_tutor");
-  const [profileImage, setProfileImage] = useState("https://cdn.example.com/profile.png");
+  const [profileImage, setProfileImage] = useState<File | string>("");
   const [canUploadNotes, setCanUploadNotes] = useState(true);
   const [canEditNotes, setCanEditNotes] = useState(true);
   const [canShareMaterial, setCanShareMaterial] = useState(false);
@@ -79,12 +81,12 @@ export default function EmployeeFormModal({
       setName("");
       setEmail("");
       setPhone("");
-      setPassword("password123");
-      setSubjects("Maths, Science");
-      setExperience("6 Years");
-      setAvailability("Evening");
+      setPassword("");
+      setSubjects("");
+      setExperience("");
+      setAvailability("");
       setRole("subject_tutor");
-      setProfileImage("https://cdn.example.com/profile.png");
+      setProfileImage("");
       setCanUploadNotes(true);
       setCanEditNotes(true);
       setCanShareMaterial(false);
@@ -110,7 +112,7 @@ export default function EmployeeFormModal({
       experience: experience.trim(),
       availability: availability.trim(),
       role,
-      profileImage: profileImage.trim(),
+      profileImage,
       permissions: {
         canUploadNotes,
         canEditNotes,
@@ -266,30 +268,42 @@ export default function EmployeeFormModal({
                 <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
                   Availability
                 </label>
-                <Input
-                  type="text"
+                <Select
                   value={availability}
-                  onChange={(e) => setAvailability(e.target.value)}
-                  placeholder="e.g. Evening"
-                  className="h-10 bg-white"
-                />
+                  onValueChange={(val) => setAvailability(val)}
+                >
+                  <SelectTrigger className="h-10 bg-white">
+                    <SelectValue placeholder="Select Availability" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Morning">Morning</SelectItem>
+                    <SelectItem value="Afternoon">Afternoon</SelectItem>
+                    <SelectItem value="Evening">Evening</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               {/* Profile Image */}
               <div className="col-span-1 md:col-span-2 space-y-1">
                 <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
-                  Profile Image URL
+                  Profile Image
                 </label>
                 <div className="relative">
-                  <Image className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
+                  <Image className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4 pointer-events-none" />
                   <Input
-                    type="text"
-                    value={profileImage}
-                    onChange={(e) => setProfileImage(e.target.value)}
-                    placeholder="https://cdn.example.com/profile.png"
-                    className="h-10 bg-white pr-9"
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      if (e.target.files?.[0]) {
+                        setProfileImage(e.target.files[0]);
+                      }
+                    }}
+                    className="h-10 bg-white pr-9 cursor-pointer file:cursor-pointer file:border-0 file:bg-[var(--brand-green)] file:text-white file:px-3 file:py-1 file:rounded-md file:text-xs file:font-semibold hover:file:bg-[var(--brand-green)]/90"
                   />
                 </div>
+                {typeof profileImage === "string" && profileImage && (
+                  <p className="text-xs text-slate-500 mt-1">Current: {profileImage}</p>
+                )}
               </div>
             </div>
           </div>
@@ -345,9 +359,17 @@ export default function EmployeeFormModal({
             </Button>
             <Button
               type="submit"
-              className="bg-[var(--brand-green)] hover:bg-[var(--brand-green)]/90 text-white font-bold text-xs px-4 py-2 rounded-xl cursor-pointer"
+              disabled={isSubmitting}
+              className="bg-[var(--brand-green)] hover:bg-[var(--brand-green)]/90 text-white font-bold text-xs px-4 py-2 rounded-xl cursor-pointer disabled:opacity-50"
             >
-              Save Record
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 mr-2 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                "Save Record"
+              )}
             </Button>
           </div>
         </form>

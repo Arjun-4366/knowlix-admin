@@ -8,23 +8,25 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "react-hot-toast";
 import { Employee } from "../employees/types";
-import { ICreateHRPerformancePayload } from "@/types/admin/hr";
+import { ICreateHRPerformancePayload, IHRPerformanceEvaluation } from "@/types/admin/hr";
 
-interface CreateEvaluationModalProps {
+interface UpdateEvaluationModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (data: ICreateHRPerformancePayload) => void;
+  onSubmit: (id: string, data: Partial<ICreateHRPerformancePayload>) => void;
+  evaluation: IHRPerformanceEvaluation | null;
   tutors: Employee[];
   saving: boolean;
 }
 
-export default function CreateEvaluationModal({
+export default function UpdateEvaluationModal({
   isOpen,
   onClose,
   onSubmit,
+  evaluation,
   tutors,
   saving,
-}: CreateEvaluationModalProps) {
+}: UpdateEvaluationModalProps) {
   const [tutorId, setTutorId] = useState("");
   const [period, setPeriod] = useState("2026-06");
   const [scoreG, setScoreG] = useState(5);
@@ -72,7 +74,9 @@ export default function CreateEvaluationModal({
       return;
     }
 
-    onSubmit({
+    if (!evaluation?.id) return;
+
+    onSubmit(evaluation.id, {
       tutorId,
       period: period.trim(),
       scores: {
@@ -93,7 +97,7 @@ export default function CreateEvaluationModal({
       <div className="bg-white border border-slate-150 rounded-2xl max-w-xl w-full shadow-xl overflow-hidden my-8 animate-scale-in">
         <header className="px-6 py-4 border-b border-slate-100 bg-slate-50/80 flex items-center justify-between">
           <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
-            <Plus className="w-4 h-4 text-[var(--brand-green)]" /> New Performance Review
+            <Plus className="w-4 h-4 text-[var(--brand-green)]" /> Edit Performance Review
           </h3>
           <button
             onClick={onClose}
@@ -107,29 +111,10 @@ export default function CreateEvaluationModal({
           {/* Section 1: Assignment Context */}
           <div className="space-y-3">
             <h4 className="text-[11px] font-extrabold uppercase tracking-wider text-[var(--brand-green)] border-b border-slate-100 pb-1 flex items-center gap-1.5">
-              <User className="w-4 h-4" /> 1. Context & Period
+              <User className="w-4 h-4" /> 1. Period
             </h4>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Tutor Selection */}
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
-                  Tutor *
-                </label>
-                <Select value={tutorId} onValueChange={setTutorId}>
-                  <SelectTrigger className="w-full bg-white">
-                    <SelectValue placeholder="Select Tutor..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {tutors.map((t) => (
-                      <SelectItem key={t.id} value={t.id}>
-                        {t.name} ({t.department})
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
+            <div className="grid grid-cols-1 gap-4">
               {/* Review Period */}
               <div className="space-y-1">
                 <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
@@ -302,7 +287,7 @@ export default function CreateEvaluationModal({
               disabled={saving}
               className="bg-[var(--brand-green)] hover:bg-[var(--brand-green)]/90 text-white font-bold text-xs px-4 py-2 rounded-xl cursor-pointer"
             >
-              {saving ? "Submitting…" : "Save Evaluation"}
+              {saving ? "Submitting…" : "Update Evaluation"}
             </Button>
           </div>
         </form>

@@ -2,6 +2,14 @@ import { useState } from "react";
 import { Search, CheckCircle, XCircle, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import DashboardHeader from "@/components/dashboard/shared/DashboardHeader";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 // Dummy Today's Sessions Data
 const dummySessions = [
@@ -72,25 +80,25 @@ export default function AdminSessionTracker({ onBack }: AdminSessionTrackerProps
 
       <div className="bg-white border border-slate-150 rounded-2xl shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full border-collapse text-left">
-            <thead>
-              <tr className="border-b border-slate-100 bg-slate-50/50">
-                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Time Slot</th>
-                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Class / Subject</th>
-                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Tutor</th>
-                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
-                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Reason for Postponement</th>
-                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Tutor Remarks</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
+          <Table className="w-full border-collapse text-left">
+            <TableHeader>
+              <TableRow className="border-b border-slate-100 bg-slate-50/50">
+                <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Time Slot</TableHead>
+                <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Class / Subject</TableHead>
+                <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Tutor</TableHead>
+                <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Status</TableHead>
+                <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Reason for Postponement</TableHead>
+                <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Tutor Remarks</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody className="divide-y divide-slate-100">
               {filteredSessions.length > 0 ? (
                 filteredSessions.map((session) => (
-                  <tr key={session.id} className="hover:bg-slate-50/60 transition-colors">
-                    <td className="px-6 py-4 text-sm font-semibold text-slate-700 whitespace-nowrap">{session.time}</td>
-                    <td className="px-6 py-4 text-sm font-semibold text-slate-805">{session.class}</td>
-                    <td className="px-6 py-4 text-sm text-slate-600 font-medium">{session.tutor}</td>
-                    <td className="px-6 py-4 text-sm">
+                  <TableRow key={session.id} className="hover:bg-slate-50/60 transition-colors">
+                    <TableCell className="px-6 py-4 text-sm font-semibold text-slate-700 whitespace-nowrap">{session.time}</TableCell>
+                    <TableCell className="px-6 py-4 text-sm font-semibold text-slate-805">{session.class}</TableCell>
+                    <TableCell className="px-6 py-4 text-sm text-slate-600 font-medium">{session.tutor}</TableCell>
+                    <TableCell className="px-6 py-4 text-sm">
                       <span className={cn(
                         "inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold border",
                         session.status === "Conducted" && "bg-[var(--brand-light-green)] text-[var(--brand-mid)] border-[var(--brand-light)]/20",
@@ -102,28 +110,28 @@ export default function AdminSessionTracker({ onBack }: AdminSessionTrackerProps
                         {session.status === "Postponed" && <AlertCircle className="w-3.5 h-3.5 text-amber-600" />}
                         {session.status}
                       </span>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-slate-550">
+                    </TableCell>
+                    <TableCell className="px-6 py-4 text-sm text-slate-550">
                       {session.status === "Postponed" ? (
                         <span className="text-amber-700 font-medium bg-amber-50/50 px-2 py-1 rounded border border-amber-100">{session.reason}</span>
                       ) : (
                         <span className="text-slate-350">—</span>
                       )}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-slate-600 italic">
+                    </TableCell>
+                    <TableCell className="px-6 py-4 text-sm text-slate-600 italic">
                       &ldquo;{session.remarks}&rdquo;
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 ))
               ) : (
-                <tr>
-                  <td colSpan={6} className="px-6 py-8 text-center text-slate-400 text-sm">
+                <TableRow>
+                  <TableCell colSpan={6} className="px-6 py-8 text-center text-slate-400 text-sm">
                     No sessions found matching your query.
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               )}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
       </div>
     </div>

@@ -18,6 +18,7 @@ export type StudentAdmissionStatus =
 
 export interface IStudent {
   id: string;
+  admissionNumber?: string;
   studentName: string;
   parentName: string;
   class: string;
@@ -46,6 +47,7 @@ export interface IStudent {
 
 export interface ICreateStudentPayload {
   studentName: string;
+  admissionNumber?: string;
   parentName: string;
   class: string;
   email: string;

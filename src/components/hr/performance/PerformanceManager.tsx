@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import EmployeePerformanceTracker from "./EmployeePerformanceTracker";
 import PerformanceOverview from "./PerformanceOverview";
 import CreateEvaluationModal from "./CreateEvaluationModal";
+import UpdateEvaluationModal from "./UpdateEvaluationModal";
 import {
   coreValues,
   DEFAULT_PERFORMANCE_CYCLE_ID,
@@ -18,6 +19,7 @@ import {
   useGetTutorsHR,
   useGetTutorEvaluations,
   useCreateTutorEvaluation,
+  useUpdateTutorEvaluation,
 } from "@/querys/admin/hrQuery";
 import { IHRPerformanceEvaluation, ICreateHRPerformancePayload } from "@/types/admin/hr";
 
@@ -72,7 +74,7 @@ const mapTutorToEmployee = (tutor: any): Employee => {
 };
 
 function toScorecard(ev: IHRPerformanceEvaluation): PerformanceScorecard {
-  const cycleId = DEFAULT_PERFORMANCE_CYCLE_ID;
+  const cycleId = ev.period === "2025-12" ? "PERF-H2-2025" : DEFAULT_PERFORMANCE_CYCLE_ID;
   return {
     id: ev.id,
     cycleId,
@@ -100,10 +102,12 @@ export default function PerformanceManager() {
   const [selectedDepartment, setSelectedDepartment] = useState("all");
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [updateModalEvaluationId, setUpdateModalEvaluationId] = useState<string | null>(null);
 
   const { data: tutorsRes, isLoading: tutorsLoading } = useGetTutorsHR();
   const { data: evaluationsRes, isLoading: evaluationsLoading } = useGetTutorEvaluations();
   const createEvaluationMutation = useCreateTutorEvaluation();
+  const updateEvaluationMutation = useUpdateTutorEvaluation();
 
   const handleCreateEvaluation = async (data: ICreateHRPerformancePayload) => {
     try {
@@ -114,7 +118,17 @@ export default function PerformanceManager() {
     }
   };
 
+  const handleUpdateEvaluation = async (id: string, data: Partial<ICreateHRPerformancePayload>) => {
+    try {
+      await updateEvaluationMutation.mutateAsync({ id, data });
+      setUpdateModalEvaluationId(null);
+    } catch (err) {
+      // toast handled
+    }
+  };
+
   const employees = tutorsRes?.data ? (tutorsRes.data as any[]).map(mapTutorToEmployee) : [];
+  const rawEvaluations = evaluationsRes?.data ? (evaluationsRes.data as IHRPerformanceEvaluation[]) : [];
   const scorecards = evaluationsRes?.data ? (evaluationsRes.data as IHRPerformanceEvaluation[]).map(toScorecard) : [];
 
   const activeEmployees = employees.filter(
@@ -138,7 +152,8 @@ export default function PerformanceManager() {
     .filter(
       (scorecard) =>
         scorecard.cycleId === selectedCycleId &&
-        visibleEmployeeIds.has(scorecard.employeeId)
+        (selectedDepartment === "all" || 
+         (employees.find(e => e.id === scorecard.employeeId)?.department || "Unmapped") === selectedDepartment)
     )
     .map((scorecard) => {
       const employee = employees.find((item) => item.id === scorecard.employeeId);
@@ -215,14 +230,24 @@ export default function PerformanceManager() {
         coreValues={coreValues}
         selectedEmployeeId={resolvedSelectedEmployeeId}
         onEmployeeSelect={setSelectedEmployeeId}
+        onEditEvaluation={(evalId) => setUpdateModalEvaluationId(evalId)}
       />
 
       <CreateEvaluationModal
         isOpen={showCreateModal}
         onClose={() => setShowCreateModal(false)}
         onSubmit={handleCreateEvaluation}
-        tutors={employees}
+        tutors={activeEmployees}
         saving={createEvaluationMutation.isPending}
+      />
+
+      <UpdateEvaluationModal
+        isOpen={!!updateModalEvaluationId}
+        onClose={() => setUpdateModalEvaluationId(null)}
+        onSubmit={handleUpdateEvaluation}
+        evaluation={rawEvaluations.find((e) => e.id === updateModalEvaluationId) || null}
+        tutors={activeEmployees}
+        saving={updateEvaluationMutation.isPending}
       />
     </div>
   );

@@ -122,8 +122,8 @@ export default function StudentTable({
         <Table className="table-fixed">
           <TableHeader className="bg-slate-50/50">
             <TableRow>
-              <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[12%]">
-                Student ID
+              <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[14%]">
+                Admission #
               </TableHead>
               <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[24%]">
                 Student
@@ -153,7 +153,7 @@ export default function StudentTable({
                   className="hover:bg-slate-50/60 transition-colors"
                 >
                   <TableCell className="px-6 py-4 text-sm font-semibold text-slate-500 truncate">
-                    {student.id}
+                    {student.admissionNumber || "Pending"}
                   </TableCell>
                   <TableCell className="px-6 py-4">
                     <div className="flex items-center gap-3 overflow-hidden">

@@ -18,11 +18,13 @@ import { useGetTutorHR } from "@/querys/admin/hrQuery";
 
 const mapTutorToEmployee = (tutor: any): Employee => {
   const tutorId = tutor.id || tutor._id || "";
-  let mappedStatus: Employee["status"] = "Active";
-  if (tutor.status === "pending") {
-    mappedStatus = "On Probation";
+  let mappedStatus: Employee["status"] = "Pending";
+  if (tutor.status === "approved") {
+    mappedStatus = "Active";
   } else if (tutor.status === "rejected") {
     mappedStatus = "Terminated";
+  } else if (tutor.status === "pending") {
+    mappedStatus = "Pending";
   }
 
   let mappedDept: Employee["department"] = "Tutor";
@@ -40,29 +42,22 @@ const mapTutorToEmployee = (tutor: any): Employee => {
     name: tutor.name || "Unnamed Tutor",
     email: tutor.email || "",
     phone: tutor.phone || "",
-    address: tutor.availability || "Online / Remote",
-    dob: "1990-01-01",
-    emergencyContact: {
-      name: "Emergency Contact",
-      relationship: "Family",
-      phone: tutor.phone || "",
-    },
-    designation: mappedRole,
+    role: tutor.role || "subject_tutor",
     department: mappedDept,
+    designation: mappedRole,
     dateOfJoining: tutor.createdAt ? tutor.createdAt.slice(0, 10) : new Date().toISOString().split("T")[0],
     status: mappedStatus,
-    manager: "HR Manager",
-    salaryDetails: {
-      base: 40000,
-      allowance: 10000,
-      pf: 4800,
-      ctc: 600000,
-    },
+    subjects: tutor.subjects || [],
+    experience: tutor.experience || "",
+    availability: tutor.availability || [],
+    profileImage: tutor.profileImage || "",
+    // Empty mock fields to satisfy TypeScript
+    address: "",
+    dob: "",
+    emergencyContact: { name: "", relationship: "", phone: "" },
+    salaryDetails: { base: 0, allowance: 0, pf: 0, ctc: 0 },
     documents: [],
-    joiningRecords: {
-      probationEnd: "",
-      joiningNotes: `Experience: ${tutor.experience || "Not specified"}. Availability: ${tutor.availability || "Not specified"}.`,
-    },
+    joiningRecords: {},
   };
 };
 

@@ -3,6 +3,15 @@ export interface Employee {
   name: string;
   email: string;
   phone: string;
+  subjects?: string[];
+  experience?: string;
+  availability?: string[];
+  role?: string;
+  department: "HR" | "Tutor" | "Sales" | "Operations" | "Academics" | "Finance" | string;
+  designation: string;
+  status: "Active" | "On Probation" | "Terminated" | "Resigned" | "Pending" | "Approved" | string;
+  dateOfJoining: string;
+  profileImage?: string;
   address: string;
   dob: string;
   emergencyContact: {
@@ -10,11 +19,7 @@ export interface Employee {
     relationship: string;
     phone: string;
   };
-  designation: string;
-  department: "HR" | "Tutor" | "Sales" | "Operations" | "Academics" | "Finance";
-  dateOfJoining: string;
-  status: "Active" | "On Probation" | "Terminated" | "Resigned";
-  manager: string;
+  manager?: string;
   salaryDetails: {
     base: number;
     allowance: number;
@@ -24,7 +29,7 @@ export interface Employee {
   documents: {
     id: string;
     name: string;
-    type: "ID Proof" | "Certificate" | "Agreement" | "Other";
+    type: "ID Proof" | "Certificate" | "Agreement" | "Other" | string;
     uploadDate: string;
     fileSize: string;
   }[];
@@ -41,4 +46,3 @@ export interface Employee {
 
 export type DepartmentType = Employee["department"];
 export type StatusType = Employee["status"];
-export type DocType = Employee["documents"][0]["type"];

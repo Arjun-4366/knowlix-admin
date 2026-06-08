@@ -111,7 +111,7 @@ function toAttendanceRecord(r: any): EnrichedAttendanceRecord {
 
   return {
     id: r.id || r._id,
-    employeeId: r.tutorId,
+    employeeId: r.employeeId || r.tutorId,
     date: dateStr,
     shiftId: "SHIFT-GEN",
     checkIn: checkInVal,

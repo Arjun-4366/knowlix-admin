@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { HolidayItem, HolidayType } from "./types";
+import { useConfirmation } from "@/context/ConfirmationContext";
 
 interface HolidayCalendarProps {
   holidays: HolidayItem[];
@@ -41,6 +42,7 @@ export default function HolidayCalendar({
   const [formOptional, setFormOptional] = useState(false);
   const [saving, setSaving] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const { confirm } = useConfirmation();
 
   const sortedHolidays = [...holidays].sort((left, right) =>
     left.date.localeCompare(right.date)
@@ -76,14 +78,24 @@ export default function HolidayCalendar({
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = (id: string, name: string) => {
     if (!onDeleteHoliday) return;
-    setDeletingId(id);
-    try {
-      await onDeleteHoliday(id);
-    } finally {
-      setDeletingId(null);
-    }
+    
+    confirm({
+      title: "Delete Holiday",
+      message: `Are you sure you want to delete the holiday "${name}"? This action cannot be undone.`,
+      confirmText: "Delete",
+      cancelText: "Cancel",
+      variant: "danger",
+      onConfirm: async () => {
+        setDeletingId(id);
+        try {
+          await onDeleteHoliday(id);
+        } finally {
+          setDeletingId(null);
+        }
+      }
+    });
   };
 
   return (
@@ -220,7 +232,7 @@ export default function HolidayCalendar({
                         </Badge>
                         {onDeleteHoliday && (
                           <button
-                            onClick={() => handleDelete(holiday.id)}
+                            onClick={() => handleDelete(holiday.id, holiday.name)}
                             disabled={deletingId === holiday.id}
                             className="w-6 h-6 rounded-md flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors disabled:opacity-40"
                           >

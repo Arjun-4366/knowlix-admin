@@ -11,6 +11,7 @@ import {
   getTutors,
   updateTutor,
   updateTutorPermissions,
+  assignStudentsToTutor,
 } from "@/services/admin/tutor/tutor";
 import {
   ICreateTutorPayload,
@@ -18,6 +19,7 @@ import {
   IUpdateTutorPayload,
   IAwardGrowthPointsPayload,
   ILeaderboardResponse,
+  IAssignStudentsPayload,
 } from "@/types/admin/tutor";
 import { QueryParams } from "@/types/queryParams";
 
@@ -139,5 +141,21 @@ export const useAwardGrowthPoints = () => {
       toast.success("Growth points awarded successfully");
     },
     onError: () => toast.error("Failed to award growth points"),
+  });
+};
+
+export const useAssignStudentsToTutor = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: IAssignStudentsPayload }) =>
+      assignStudentsToTutor(id, payload),
+    onSuccess: (_response, variables) => {
+      queryClient.invalidateQueries({ queryKey: TUTORS_KEY });
+      queryClient.invalidateQueries({ queryKey: [...TUTOR_KEY, variables.id] });
+      queryClient.invalidateQueries({ queryKey: ["students"] });
+      toast.success("Students assigned successfully");
+    },
+    onError: () => toast.error("Failed to assign students"),
   });
 };

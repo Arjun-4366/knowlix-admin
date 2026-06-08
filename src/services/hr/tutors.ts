@@ -16,7 +16,7 @@ export const getTutorHR = async (id: string) => {
   return res.data;
 };
 
-export const createTutorByHR = async (data: Record<string, unknown>) => {
+export const createTutorByHR = async (data: Record<string, unknown> | FormData) => {
   const res = await apiClient.post<IApiResponse<unknown>>(ENDPOINTS.CREATE_TUTOR, data);
   return res.data;
 };

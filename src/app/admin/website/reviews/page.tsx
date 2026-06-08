@@ -16,6 +16,14 @@ import { IReview } from "@/types/admin/review";
 import { toast } from "react-hot-toast";
 
 import Loader from "@/components/shared/Loader";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 export default function ReviewsPage() {
   const { data: reviewData, isLoading } = useGetReviews();
@@ -97,44 +105,44 @@ export default function ReviewsPage() {
         </div>
 
         <div className="overflow-x-auto -mx-6">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-gray-50 border-y border-gray-100">
-                <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+          <Table className="w-full text-left border-collapse">
+            <TableHeader>
+              <TableRow className="bg-gray-50 border-y border-gray-100">
+                <TableHead className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
                   Name
-                </th>
-                <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                </TableHead>
+                <TableHead className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
                   City
-                </th>
-                <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                </TableHead>
+                <TableHead className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
                   Grade
-                </th>
-                <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider w-1/3">
+                </TableHead>
+                <TableHead className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider w-1/3">
                   Review Text
-                </th>
-                <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                </TableHead>
+                <TableHead className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
                   Rating
-                </th>
-                <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">
+                </TableHead>
+                <TableHead className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">
                   Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody className="divide-y divide-gray-100">
               {reviews.map((r) => (
-                <tr
+                <TableRow
                   key={r.id}
                   className="hover:bg-gray-50/50 transition-colors group"
                 >
-                  <td className="px-6 py-4 text-sm font-medium text-gray-700">
+                  <TableCell className="px-6 py-4 text-sm font-medium text-gray-700">
                     {r.name}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-500">{r.city}</td>
-                  <td className="px-6 py-4 text-sm text-gray-500">{r.grade}</td>
-                  <td className="px-6 py-4 text-sm text-gray-500">
+                  </TableCell>
+                  <TableCell className="px-6 py-4 text-sm text-gray-500">{r.city}</TableCell>
+                  <TableCell className="px-6 py-4 text-sm text-gray-500">{r.grade}</TableCell>
+                  <TableCell className="px-6 py-4 text-sm text-gray-500">
                     <p className="line-clamp-1 max-w-xs">{r.ratingText}</p>
-                  </td>
-                  <td className="px-6 py-4">
+                  </TableCell>
+                  <TableCell className="px-6 py-4">
                     <div className="flex gap-0.5">
                       {Array.from({ length: 5 }).map((_, s) => (
                         <Star
@@ -143,8 +151,8 @@ export default function ReviewsPage() {
                         />
                       ))}
                     </div>
-                  </td>
-                  <td className="px-6 py-4 text-right">
+                  </TableCell>
+                  <TableCell className="px-6 py-4 text-right">
                     <div className="flex justify-end gap-1">
                       <button
                         onClick={() => openModal(r)}
@@ -161,21 +169,21 @@ export default function ReviewsPage() {
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ))}
               {reviews.length === 0 && (
-                <tr>
-                  <td
+                <TableRow>
+                  <TableCell
                     colSpan={6}
                     className="px-6 py-10 text-center text-gray-400 italic"
                   >
                     No reviews found. Click "Add Review" to create one.
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               )}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
       </SectionCard>
 

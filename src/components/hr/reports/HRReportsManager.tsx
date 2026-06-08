@@ -1,4 +1,12 @@
 "use client";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 import { useState } from "react";
 import {
@@ -115,35 +123,35 @@ function AttendanceReportPanel({ dateFrom, dateTo }: { dateFrom: string; dateTo:
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-xs">
-              <thead>
-                <tr className="border-b border-slate-100">
+            <Table className="w-full text-xs">
+              <TableHeader>
+                <TableRow className="border-b border-slate-100">
                   {["Employee ID", "Present", "Absent", "Late", "On Leave", "Total Days", "Work Hours"].map(
                     (h) => (
-                      <th
+                      <TableHead
                         key={h}
                         className="text-left py-2 px-3 font-semibold text-slate-500 uppercase tracking-wider text-[10px]"
                       >
                         {h}
-                      </th>
+                      </TableHead>
                     )
                   )}
-                </tr>
-              </thead>
-              <tbody>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {data.summary.map((row: IAttendanceSummaryEntry, i: number) => (
-                  <tr key={row.employeeId} className={cn("border-b border-slate-50", i % 2 === 0 ? "" : "bg-slate-50/50")}>
-                    <td className="py-2.5 px-3 font-mono text-slate-700 font-semibold">{row.employeeId.slice(-8)}</td>
-                    <td className="py-2.5 px-3 text-emerald-700 font-semibold">{row.present}</td>
-                    <td className="py-2.5 px-3 text-red-600 font-semibold">{row.absent}</td>
-                    <td className="py-2.5 px-3 text-amber-600 font-semibold">{row.late}</td>
-                    <td className="py-2.5 px-3 text-slate-600">{row.onLeave}</td>
-                    <td className="py-2.5 px-3 text-slate-600">{row.totalDays}</td>
-                    <td className="py-2.5 px-3 text-slate-600">{row.totalWorkHours.toFixed(1)}h</td>
-                  </tr>
+                  <TableRow key={row.employeeId} className={cn("border-b border-slate-50", i % 2 === 0 ? "" : "bg-slate-50/50")}>
+                    <TableCell className="py-2.5 px-3 font-mono text-slate-700 font-semibold">{row.employeeId.slice(-8)}</TableCell>
+                    <TableCell className="py-2.5 px-3 text-emerald-700 font-semibold">{row.present}</TableCell>
+                    <TableCell className="py-2.5 px-3 text-red-600 font-semibold">{row.absent}</TableCell>
+                    <TableCell className="py-2.5 px-3 text-amber-600 font-semibold">{row.late}</TableCell>
+                    <TableCell className="py-2.5 px-3 text-slate-600">{row.onLeave}</TableCell>
+                    <TableCell className="py-2.5 px-3 text-slate-600">{row.totalDays}</TableCell>
+                    <TableCell className="py-2.5 px-3 text-slate-600">{row.totalWorkHours.toFixed(1)}h</TableCell>
+                  </TableRow>
                 ))}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           </div>
         )}
       </div>
@@ -182,29 +190,29 @@ function SalaryReportPanel() {
           <div className="py-10 text-center text-sm text-slate-400">No salary data available.</div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-xs">
-              <thead>
-                <tr className="border-b border-slate-100">
+            <Table className="w-full text-xs">
+              <TableHeader>
+                <TableRow className="border-b border-slate-100">
                   {["Employee", "Department", "Designation", "Monthly Salary"].map((h) => (
-                    <th key={h} className="text-left py-2 px-3 font-semibold text-slate-500 uppercase tracking-wider text-[10px]">
+                    <TableHead key={h} className="text-left py-2 px-3 font-semibold text-slate-500 uppercase tracking-wider text-[10px]">
                       {h}
-                    </th>
+                    </TableHead>
                   ))}
-                </tr>
-              </thead>
-              <tbody>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {data.employees.map((emp: ISalaryEntry, i: number) => (
-                  <tr key={emp.employeeId} className={cn("border-b border-slate-50", i % 2 === 0 ? "" : "bg-slate-50/50")}>
-                    <td className="py-2.5 px-3 font-semibold text-slate-800">{emp.name}</td>
-                    <td className="py-2.5 px-3 text-slate-600">{emp.department}</td>
-                    <td className="py-2.5 px-3 text-slate-600">{emp.designation}</td>
-                    <td className="py-2.5 px-3 font-semibold text-slate-800">
+                  <TableRow key={emp.employeeId} className={cn("border-b border-slate-50", i % 2 === 0 ? "" : "bg-slate-50/50")}>
+                    <TableCell className="py-2.5 px-3 font-semibold text-slate-800">{emp.name}</TableCell>
+                    <TableCell className="py-2.5 px-3 text-slate-600">{emp.department}</TableCell>
+                    <TableCell className="py-2.5 px-3 text-slate-600">{emp.designation}</TableCell>
+                    <TableCell className="py-2.5 px-3 font-semibold text-slate-800">
                       {formatCurrency(emp.salary, emp.currency)}
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 ))}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           </div>
         )}
       </div>

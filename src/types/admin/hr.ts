@@ -1,5 +1,34 @@
 import { IApiResponse } from "./api";
 
+// ── HR Management ─────────────────────────────────────────────────────────────
+
+export interface IHr {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  department: string;
+  role: string;
+  status: "active" | "inactive" | string;
+  createdAt: string;
+}
+
+export interface ICreateHrPayload {
+  name: string;
+  email: string;
+  phone: string;
+  department: string;
+  role: string;
+  password?: string;
+}
+
+export type IHrResponse = IApiResponse<IHr>;
+export type IHrsResponse = IApiResponse<IHr[]> & { total: number };
+
+export interface IUpdateHrPasswordPayload {
+  password: string;
+}
+
 // ── Holiday ────────────────────────────────────────────────────────────────────
 
 export interface IHoliday {

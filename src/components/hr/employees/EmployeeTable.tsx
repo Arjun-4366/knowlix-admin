@@ -7,6 +7,14 @@ import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Employee } from "./types";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 interface EmployeeTableProps {
   employees: Employee[];
@@ -107,18 +115,18 @@ export default function EmployeeTable({
       {/* Main Employee Grid List */}
       <Card className="bg-white border-slate-150 shadow-sm rounded-2xl overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="border-b border-slate-100 bg-slate-50/50">
-                <th className="px-5 py-3.5 text-[10px] font-bold text-slate-500 uppercase tracking-wider">ID</th>
-                <th className="px-5 py-3.5 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Employee</th>
-                <th className="px-5 py-3.5 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Department</th>
-                <th className="px-5 py-3.5 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Status</th>
-                <th className="px-5 py-3.5 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Date of Join</th>
-                <th className="px-5 py-3.5 text-[10px] font-bold text-slate-500 uppercase tracking-wider text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
+          <Table className="w-full text-left border-collapse">
+            <TableHeader>
+              <TableRow className="border-b border-slate-100 bg-slate-50/50">
+                {/* <TableHead className="px-5 py-3.5 text-[10px] font-bold text-slate-500 uppercase tracking-wider">ID</TableHead> */}
+                <TableHead className="px-5 py-3.5 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Employee</TableHead>
+                <TableHead className="px-5 py-3.5 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Department</TableHead>
+                <TableHead className="px-5 py-3.5 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Status</TableHead>
+                <TableHead className="px-5 py-3.5 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Date of Join</TableHead>
+                <TableHead className="px-5 py-3.5 text-[10px] font-bold text-slate-500 uppercase tracking-wider text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody className="divide-y divide-slate-100">
               {employees.length > 0 ? (
                 employees.map((emp) => {
                   let statusColor = "bg-slate-100 text-slate-700 border-slate-200";
@@ -133,7 +141,7 @@ export default function EmployeeTable({
                   }
 
                   return (
-                    <tr
+                    <TableRow
                       key={emp.id}
                       onClick={() => onSelectEmployee(emp)}
                       className={`hover:bg-slate-50/70 transition-colors cursor-pointer ${
@@ -141,10 +149,10 @@ export default function EmployeeTable({
                       }`}
                     >
                       {/* ID */}
-                      <td className="px-5 py-4 text-xs font-semibold text-slate-500">{emp.id}</td>
+                      {/* <TableCell className="px-5 py-4 text-xs font-semibold text-slate-500">{emp.id}</TableCell> */}
 
                       {/* Profile */}
-                      <td className="px-5 py-4">
+                      <TableCell className="px-5 py-4">
                         <div className="flex items-center gap-3">
                           <div className="w-8 h-8 rounded-full bg-[var(--brand-light-green)] text-[var(--brand-mid)] flex items-center justify-center font-bold text-xs">
                             {emp.name.split(" ").map((n) => n[0]).join("")}
@@ -154,29 +162,29 @@ export default function EmployeeTable({
                             <p className="text-[10px] font-semibold text-slate-450 mt-1">{emp.designation}</p>
                           </div>
                         </div>
-                      </td>
+                      </TableCell>
 
                       {/* Department */}
-                      <td className="px-5 py-4 text-xs text-slate-600 font-semibold">{emp.department}</td>
+                      <TableCell className="px-5 py-4 text-xs text-slate-600 font-semibold">{emp.department}</TableCell>
 
                       {/* Status */}
-                      <td className="px-5 py-4">
+                      <TableCell className="px-5 py-4">
                         <Badge variant="outline" className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${statusColor}`}>
                           {emp.status}
                         </Badge>
-                      </td>
+                      </TableCell>
 
                       {/* Joined Date */}
-                      <td className="px-5 py-4 text-xs text-slate-500">
+                      <TableCell className="px-5 py-4 text-xs text-slate-500">
                         {new Date(emp.dateOfJoining).toLocaleDateString("en-US", {
                           year: "numeric",
                           month: "short",
                           day: "numeric",
                         })}
-                      </td>
+                      </TableCell>
 
                       {/* Actions */}
-                      <td className="px-5 py-4 text-right" onClick={(e) => e.stopPropagation()}>
+                      <TableCell className="px-5 py-4 text-right" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center justify-end gap-1.5">
                           <Button
                             variant="ghost"
@@ -197,19 +205,19 @@ export default function EmployeeTable({
                             <Trash2 className="w-3.5 h-3.5" />
                           </Button>
                         </div>
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   );
                 })
               ) : (
-                <tr>
-                  <td colSpan={6} className="py-12 text-center text-slate-400 text-xs font-medium bg-white">
+                <TableRow>
+                  <TableCell colSpan={6} className="py-12 text-center text-slate-400 text-xs font-medium bg-white">
                     No employees found matching constraints.
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               )}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
       </Card>
     </div>

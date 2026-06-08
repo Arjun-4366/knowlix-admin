@@ -15,6 +15,14 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import toast from "react-hot-toast";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 const SYLLABUS_OPTIONS = ["CBSE", "ICSE", "IGCSE", "IB", "State"];
 const DAYS_OF_WEEK = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
@@ -499,23 +507,23 @@ export default function TutorProfilePage() {
                     <p className="text-xs text-gray-500 py-4 text-center border border-dashed border-slate-200 rounded-xl bg-slate-50/50">No slot schedule set. Create one below!</p>
                   ) : (
                     <div className="overflow-x-auto border border-slate-100 rounded-xl bg-slate-50/30">
-                      <table className="min-w-full divide-y divide-slate-100">
-                        <thead className="bg-slate-50">
-                          <tr>
-                            <th className="px-4 py-2.5 text-left text-[9px] font-bold text-slate-500 uppercase tracking-wider">Day</th>
-                            <th className="px-4 py-2.5 text-left text-[9px] font-bold text-slate-500 uppercase tracking-wider">Timings</th>
-                            <th className="px-4 py-2.5 text-center text-[9px] font-bold text-slate-500 uppercase tracking-wider">Status</th>
-                            <th className="px-4 py-2.5 text-right text-[9px] font-bold text-slate-500 uppercase tracking-wider">Actions</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-100 bg-white">
+                      <Table className="min-w-full divide-y divide-slate-100">
+                        <TableHeader className="bg-slate-50">
+                          <TableRow>
+                            <TableHead className="px-4 py-2.5 text-left text-[9px] font-bold text-slate-500 uppercase tracking-wider">Day</TableHead>
+                            <TableHead className="px-4 py-2.5 text-left text-[9px] font-bold text-slate-500 uppercase tracking-wider">Timings</TableHead>
+                            <TableHead className="px-4 py-2.5 text-center text-[9px] font-bold text-slate-500 uppercase tracking-wider">Status</TableHead>
+                            <TableHead className="px-4 py-2.5 text-right text-[9px] font-bold text-slate-500 uppercase tracking-wider">Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody className="divide-y divide-slate-100 bg-white">
                           {slots.map((slot, index) => (
-                            <tr key={index} className="hover:bg-slate-50/35 transition-colors">
-                              <td className="px-4 py-3 whitespace-nowrap text-xs font-bold text-slate-700">{slot.day}</td>
-                              <td className="px-4 py-3 whitespace-nowrap text-xs text-slate-500 font-medium">
+                            <TableRow key={index} className="hover:bg-slate-50/35 transition-colors">
+                              <TableCell className="px-4 py-3 whitespace-nowrap text-xs font-bold text-slate-700">{slot.day}</TableCell>
+                              <TableCell className="px-4 py-3 whitespace-nowrap text-xs text-slate-500 font-medium">
                                 <span className="font-bold text-[var(--brand-green)]">{slot.startTime}</span> - <span className="font-bold text-[var(--brand-green)]">{slot.endTime}</span>
-                              </td>
-                              <td className="px-4 py-3 whitespace-nowrap text-center">
+                              </TableCell>
+                              <TableCell className="px-4 py-3 whitespace-nowrap text-center">
                                 <Badge
                                   onClick={() => toggleSlotFilled(index)}
                                   variant="outline"
@@ -527,8 +535,8 @@ export default function TutorProfilePage() {
                                 >
                                   {slot.filled ? "Filled / Booked" : "Available"}
                                 </Badge>
-                              </td>
-                              <td className="px-4 py-3 whitespace-nowrap text-right text-xs">
+                              </TableCell>
+                              <TableCell className="px-4 py-3 whitespace-nowrap text-right text-xs">
                                 <button
                                   type="button"
                                   onClick={() => removeSlot(index)}
@@ -537,11 +545,11 @@ export default function TutorProfilePage() {
                                 >
                                   <Trash2 className="w-4 h-4" />
                                 </button>
-                              </td>
-                            </tr>
+                              </TableCell>
+                            </TableRow>
                           ))}
-                        </tbody>
-                      </table>
+                        </TableBody>
+                      </Table>
                     </div>
                   )}
                 </div>

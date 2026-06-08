@@ -58,6 +58,14 @@ const mockExams: ExamSchedule[] = [
 
 import { useGetStudentSchedule } from "@/querys/student/studentQuery";
 import { useEffect } from "react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 const isToday = (date: Date) => {
   const today = new Date();
@@ -298,37 +306,37 @@ export default function StudentSchedule() {
           <TabsContent value="meetings" className="mt-0 outline-none space-y-4">
             <div className="bg-white border border-slate-150 rounded-2xl shadow-sm overflow-hidden">
               <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="bg-slate-50/50 border-b border-slate-150">
-                      <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Mentor</th>
-                      <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Agenda / Focus</th>
-                      <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Scheduled Date</th>
-                      <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Time Slot</th>
-                      <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100">
+                <Table className="w-full text-left border-collapse">
+                  <TableHeader>
+                    <TableRow className="bg-slate-50/50 border-b border-slate-150">
+                      <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Mentor</TableHead>
+                      <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Agenda / Focus</TableHead>
+                      <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Scheduled Date</TableHead>
+                      <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Time Slot</TableHead>
+                      <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Status</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody className="divide-y divide-slate-100">
                     {meetings.map((mtg) => (
-                      <tr key={mtg.id} className="hover:bg-slate-50/40 transition-colors text-xs font-semibold text-slate-650">
-                        <td className="px-6 py-4">
+                      <TableRow key={mtg.id} className="hover:bg-slate-50/40 transition-colors text-xs font-semibold text-slate-650">
+                        <TableCell className="px-6 py-4">
                           <div className="flex items-center gap-2">
                             <div className="w-6 h-6 rounded-full bg-[var(--brand-green)] text-white text-[9px] font-bold flex items-center justify-center">
                               {mtg.mentor.substring(0, 1)}
                             </div>
                             <span className="font-bold text-slate-800">{mtg.mentor}</span>
                           </div>
-                        </td>
-                        <td className="px-6 py-4 text-slate-705">{mtg.agenda}</td>
-                        <td className="px-6 py-4">
+                        </TableCell>
+                        <TableCell className="px-6 py-4 text-slate-705">{mtg.agenda}</TableCell>
+                        <TableCell className="px-6 py-4">
                           {new Date(mtg.date).toLocaleDateString("en-US", {
                             month: "short",
                             day: "numeric",
                             year: "numeric"
                           })}
-                        </td>
-                        <td className="px-6 py-4">{mtg.time}</td>
-                        <td className="px-6 py-4 text-right">
+                        </TableCell>
+                        <TableCell className="px-6 py-4">{mtg.time}</TableCell>
+                        <TableCell className="px-6 py-4 text-right">
                           <Badge
                             variant="outline"
                             className={`text-[9px] font-bold py-0.5 px-2 border rounded-full ${
@@ -341,11 +349,11 @@ export default function StudentSchedule() {
                           >
                             {mtg.status}
                           </Badge>
-                        </td>
-                      </tr>
+                        </TableCell>
+                      </TableRow>
                     ))}
-                  </tbody>
-                </table>
+                  </TableBody>
+                </Table>
               </div>
             </div>
           </TabsContent>

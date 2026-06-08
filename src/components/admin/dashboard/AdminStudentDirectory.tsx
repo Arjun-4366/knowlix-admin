@@ -2,6 +2,14 @@ import { useState } from "react";
 import { Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import DashboardHeader from "@/components/dashboard/shared/DashboardHeader";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 // Dummy Students Data
 const dummyStudents = [
@@ -50,29 +58,29 @@ export default function AdminStudentDirectory({ onBack }: AdminStudentDirectoryP
 
       <div className="bg-white border border-slate-150 rounded-2xl shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full border-collapse text-left">
-            <thead>
-              <tr className="border-b border-slate-100 bg-slate-50/50">
-                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Student ID</th>
-                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Name</th>
-                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Grade</th>
-                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Course Enrolled</th>
-                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Date Joined</th>
-                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">Attendance</th>
-                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
+          <Table className="w-full border-collapse text-left">
+            <TableHeader>
+              <TableRow className="border-b border-slate-100 bg-slate-50/50">
+                <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Student ID</TableHead>
+                <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Name</TableHead>
+                <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Grade</TableHead>
+                <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Course Enrolled</TableHead>
+                <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Date Joined</TableHead>
+                <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">Attendance</TableHead>
+                <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Status</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody className="divide-y divide-slate-100">
               {filteredStudents.length > 0 ? (
                 filteredStudents.map((student) => (
-                  <tr key={student.id} className="hover:bg-slate-50/60 transition-colors">
-                    <td className="px-6 py-4 text-sm font-semibold text-slate-550">{student.id}</td>
-                    <td className="px-6 py-4 text-sm font-semibold text-slate-800">{student.name}</td>
-                    <td className="px-6 py-4 text-sm text-slate-600">{student.grade}</td>
-                    <td className="px-6 py-4 text-sm text-slate-600">{student.course}</td>
-                    <td className="px-6 py-4 text-sm text-slate-500">{student.dateJoined}</td>
-                    <td className="px-6 py-4 text-sm text-center font-medium text-slate-700">{student.attendance}</td>
-                    <td className="px-6 py-4 text-sm">
+                  <TableRow key={student.id} className="hover:bg-slate-50/60 transition-colors">
+                    <TableCell className="px-6 py-4 text-sm font-semibold text-slate-550">{student.id}</TableCell>
+                    <TableCell className="px-6 py-4 text-sm font-semibold text-slate-800">{student.name}</TableCell>
+                    <TableCell className="px-6 py-4 text-sm text-slate-600">{student.grade}</TableCell>
+                    <TableCell className="px-6 py-4 text-sm text-slate-600">{student.course}</TableCell>
+                    <TableCell className="px-6 py-4 text-sm text-slate-500">{student.dateJoined}</TableCell>
+                    <TableCell className="px-6 py-4 text-sm text-center font-medium text-slate-700">{student.attendance}</TableCell>
+                    <TableCell className="px-6 py-4 text-sm">
                       <span className={cn(
                         "inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium border",
                         student.status === "Active"
@@ -82,18 +90,18 @@ export default function AdminStudentDirectory({ onBack }: AdminStudentDirectoryP
                         <span className={cn("w-1.5 h-1.5 rounded-full", student.status === "Active" ? "bg-[var(--brand-green)]" : "bg-red-500")} />
                         {student.status}
                       </span>
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 ))
               ) : (
-                <tr>
-                  <td colSpan={7} className="px-6 py-8 text-center text-slate-400 text-sm">
+                <TableRow>
+                  <TableCell colSpan={7} className="px-6 py-8 text-center text-slate-400 text-sm">
                     No students found matching your query.
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               )}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
       </div>
     </div>

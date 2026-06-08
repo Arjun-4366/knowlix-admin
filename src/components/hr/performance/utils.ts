@@ -5,7 +5,7 @@ export function formatDateLabel(value: string) {
 }
 
 export function formatScore(value: number) {
-  return `${value.toFixed(1)}/5`;
+  return `${value.toFixed(1)}/10`;
 }
 
 export function formatPercent(value: number) {

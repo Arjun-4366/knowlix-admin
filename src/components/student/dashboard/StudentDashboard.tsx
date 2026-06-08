@@ -138,6 +138,7 @@ export default function StudentDashboard() {
 
   // 2. Assignments
   const completedAssignments = dashboardData?.assignments?.completed || 0;
+  const pendingAssignments = dashboardData?.assignments?.pending || 0;
   const totalAssignments = dashboardData?.assignments?.total || 0;
   const assignmentsPercent = totalAssignments > 0 
     ? Math.round((completedAssignments / totalAssignments) * 100) 
@@ -151,7 +152,7 @@ export default function StudentDashboard() {
     .filter((f): f is NonNullable<typeof f> => !!f && !paidFeeIds.includes(f.id));
 
   // 4. Fees Outstandings from dashboard data
-  const dueAmount = unpaidUpcomingFees.reduce((sum, f) => sum + (f?.amount || 0), 0) || 0;
+  const dueAmount = dashboardData?.feesDue ?? (unpaidUpcomingFees.reduce((sum, f) => sum + (f?.amount || 0), 0) || 0);
   const earliestFee = unpaidUpcomingFees[0];
   const dueDate = earliestFee?.dueDate
     ? new Date(earliestFee.dueDate).toLocaleDateString("en-IN", {
@@ -354,6 +355,7 @@ export default function StudentDashboard() {
         scheduledCount={totalClasses}
         assignmentsPercent={assignmentsPercent}
         completedAssignments={completedAssignments}
+        pendingAssignments={pendingAssignments}
         totalAssignments={totalAssignments}
         averageScore={averageScore}
         rankInClass={1}

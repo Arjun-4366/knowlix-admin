@@ -91,6 +91,7 @@ export const ENDPOINTS = {
   GET_TUTOR: (id: string) => `${API_BASE_URL}/tutors/${id}`,
   ADD_GROWTH_POINT:`${API_BASE_URL}/growth/award`,
   GET_LEADERBOARD:`${API_BASE_URL}/growth/leaderboard`,
+  ASSIGN_STUDENTS_TO_TUTOR: (id: string) => `${API_BASE_URL}/tutors/${id}/assign-students`,
 
   // reports
   GET_REPORTS: `${API_BASE_URL}/reports`,
@@ -193,7 +194,12 @@ export const ENDPOINTS = {
     GET_HR_PERFOMANCE: `${API_BASE_URL}/hr/reports/performance`,
     CREATE_PERFOMANCE: `${API_BASE_URL}/hr/performance/create`,
     UPDATE_PERFOMANCE: (id: string) => `${API_BASE_URL}/hr/performance/${id}`,
-
     
+    // Admin HR management
+    ADMIN_HR_FETCH: `${API_BASE_URL}/admin/hr`,
+    ADMIN_HR_CREATE: `${API_BASE_URL}/admin/hr/create`,
+    ADMIN_HR_UPDATE_PASSWORD: (id: string) => `${API_BASE_URL}/admin/hr/${id}/set-password`,
+    ADMIN_HR_DELETE: (id: string) => `${API_BASE_URL}/admin/hr/${id}`,
+
 
 } as const; 

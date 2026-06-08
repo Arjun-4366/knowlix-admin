@@ -84,10 +84,6 @@ export default function ReportsFilters({
         <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
           {([
             { id: "tutor", label: "Tutor Performance" },
-            { id: "student", label: "Student Performance" },
-            { id: "attendance", label: "Attendance Reports" },
-            { id: "session", label: "Session Reports" },
-            { id: "revenue", label: "Revenue Reports" },
           ] as const).map((tab) => {
             const isActive = filters.type === tab.id;
             return (
@@ -228,105 +224,7 @@ export default function ReportsFilters({
           </>
         )}
 
-        {filters.type === "student" && (
-          <div>
-            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
-              Grade Level
-            </label>
-            <Select
-              value={filters.studentGrade}
-              onValueChange={(val) =>
-                setFilters((prev) => ({ ...prev, studentGrade: val }))
-              }
-            >
-              <SelectTrigger className="h-10 bg-slate-50/50 border-slate-200 rounded-xl text-xs font-semibold">
-                <SelectValue placeholder="All Grades" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all" className="text-xs">All Grades</SelectItem>
-                {["Grade 7", "Grade 8", "Grade 9", "Grade 10", "Grade 11", "Grade 12"].map((g) => (
-                  <SelectItem key={g} value={g} className="text-xs">
-                    {g}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        )}
 
-        {filters.type === "attendance" && (
-          <div>
-            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
-              Attendance Status
-            </label>
-            <Select
-              value={filters.attendanceStatus}
-              onValueChange={(val) =>
-                setFilters((prev) => ({ ...prev, attendanceStatus: val }))
-              }
-            >
-              <SelectTrigger className="h-10 bg-slate-50/50 border-slate-200 rounded-xl text-xs font-semibold">
-                <SelectValue placeholder="All Rates" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all" className="text-xs">All Rates</SelectItem>
-                <SelectItem value="high" className="text-xs">High (&gt; 90%)</SelectItem>
-                <SelectItem value="average" className="text-xs">Average (80% - 90%)</SelectItem>
-                <SelectItem value="low" className="text-xs">Low (&lt; 80%)</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        )}
-
-        {filters.type === "session" && (
-          <div>
-            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
-              Session Status
-            </label>
-            <Select
-              value={filters.sessionStatus}
-              onValueChange={(val) =>
-                setFilters((prev) => ({ ...prev, sessionStatus: val }))
-              }
-            >
-              <SelectTrigger className="h-10 bg-slate-50/50 border-slate-200 rounded-xl text-xs font-semibold">
-                <SelectValue placeholder="All Statuses" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all" className="text-xs">All Statuses</SelectItem>
-                <SelectItem value="Completed" className="text-xs">Completed</SelectItem>
-                <SelectItem value="Scheduled" className="text-xs">Scheduled</SelectItem>
-                <SelectItem value="Cancelled" className="text-xs">Cancelled</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        )}
-
-        {filters.type === "revenue" && (
-          <div>
-            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
-              Package Type
-            </label>
-            <Select
-              value={filters.revenuePackage}
-              onValueChange={(val) =>
-                setFilters((prev) => ({ ...prev, revenuePackage: val }))
-              }
-            >
-              <SelectTrigger className="h-10 bg-slate-50/50 border-slate-200 rounded-xl text-xs font-semibold">
-                <SelectValue placeholder="All Packages" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all" className="text-xs">All Packages</SelectItem>
-                <SelectItem value="1 Month" className="text-xs">1 Month</SelectItem>
-                <SelectItem value="2 Months" className="text-xs">2 Months</SelectItem>
-                <SelectItem value="3 Months" className="text-xs">3 Months</SelectItem>
-                <SelectItem value="6 Months" className="text-xs">6 Months</SelectItem>
-                <SelectItem value="1 Year" className="text-xs">1 Year</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        )}
 
         {/* Action Buttons */}
         <div className="flex gap-2 w-full md:col-start-4">

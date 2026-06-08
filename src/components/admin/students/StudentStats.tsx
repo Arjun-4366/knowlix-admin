@@ -3,6 +3,7 @@ import DashboardStatCard from "@/components/dashboard/shared/DashboardStatCard";
 
 export interface Student {
   id: string;
+  admissionNumber?: string;
   name: string;
   parentName: string;
   grade: string;

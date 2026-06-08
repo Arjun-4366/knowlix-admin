@@ -1,6 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
+import { getHRs, createHR, updateHRPassword, deleteHR } from "@/services/admin/hr/hr";
 
+import { QueryParams } from "@/types/queryParams";
 import {
   getHolidays,
   createHoliday,
@@ -44,6 +46,8 @@ import {
   ICreateHRNoticePayload,
   IHRNoticeQueryParams,
   IHRAttendanceQueryParams,
+  ICreateHrPayload,
+  IUpdateHrPasswordPayload,
 } from "@/types/admin/hr";
 
 // ── Query Keys ────────────────────────────────────────────────────────────────
@@ -262,13 +266,70 @@ export const useGetTutorHR = (id: string) => {
 export const useCreateTutorByHR = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: Record<string, unknown>) => createTutorByHR(data),
+    mutationFn: (data: Record<string, unknown> | FormData) => createTutorByHR(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: HR_TUTORS_KEY });
       toast.success("Tutor submitted for approval successfully");
     },
     onError: (err: any) => {
       const errMsg = err?.response?.data?.message || err.message || "Failed to submit tutor";
+      toast.error(errMsg);
+    },
+  });
+};
+
+// -- Admin HR Management Hooks ----------------------------------------------------------
+
+
+export const ADMIN_HRS_KEY = ["admin-hrs"] as const;
+
+export const useGetHRs = (params?: QueryParams) => {
+  return useQuery({
+    queryKey: [...ADMIN_HRS_KEY, params],
+    queryFn: () => getHRs(params),
+  });
+};
+
+export const useCreateHR = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: ICreateHrPayload) => createHR(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ADMIN_HRS_KEY });
+      toast.success("HR created successfully");
+    },
+    onError: (err: any) => {
+      const errMsg = err?.response?.data?.message || err.message || "Failed to create HR";
+      toast.error(errMsg);
+    },
+  });
+};
+
+export const useUpdateHRPassword = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: IUpdateHrPasswordPayload }) =>
+      updateHRPassword(id, data),
+    onSuccess: () => {
+      toast.success("Password updated successfully");
+    },
+    onError: (err: any) => {
+      const errMsg = err?.response?.data?.message || err.message || "Failed to update password";
+      toast.error(errMsg);
+    },
+  });
+};
+
+export const useDeleteHR = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => deleteHR(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ADMIN_HRS_KEY });
+      toast.success("HR deleted successfully");
+    },
+    onError: (err: any) => {
+      const errMsg = err?.response?.data?.message || err.message || "Failed to delete HR";
       toast.error(errMsg);
     },
   });

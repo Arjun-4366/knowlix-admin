@@ -11,6 +11,14 @@ import { useConfirmation } from "@/context/ConfirmationContext";
 import { ICareer } from "@/types/admin/career";
 import Loader from "@/components/shared/Loader";
 import { toast } from "react-hot-toast";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 export default function PositionsManager() {
   const { data: careerData, isLoading } = useGetCareersAdmin();
@@ -93,38 +101,38 @@ export default function PositionsManager() {
       </div>
 
       <div className="overflow-x-auto -mx-6">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="bg-gray-50/50 border-y border-gray-100">
-              <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Position</th>
-              <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Department</th>
-              <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider text-center">Status</th>
-              <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
+        <Table className="w-full text-left border-collapse">
+          <TableHeader>
+            <TableRow className="bg-gray-50/50 border-y border-gray-100">
+              <TableHead className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Position</TableHead>
+              <TableHead className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Department</TableHead>
+              <TableHead className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider text-center">Status</TableHead>
+              <TableHead className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody className="divide-y divide-gray-100">
             {careers.map((p) => (
-              <tr key={p.id} className="hover:bg-gray-50/50 transition-colors group">
-                <td className="px-6 py-4">
+              <TableRow key={p.id} className="hover:bg-gray-50/50 transition-colors group">
+                <TableCell className="px-6 py-4">
                   <p className="text-sm font-medium text-gray-700">{p.title}</p>
                   <div className="flex items-center gap-2 text-[10px] text-gray-400 font-medium mt-0.5">
                     <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> {p.location}</span>
                     <span>•</span>
                     <span className="flex items-center gap-1"><Briefcase className="w-3 h-3" /> {p.type}</span>
                   </div>
-                </td>
-                <td className="px-6 py-4">
+                </TableCell>
+                <TableCell className="px-6 py-4">
                   <span className="px-2 py-0.5 bg-blue-50 text-blue-600 rounded text-[10px] font-semibold uppercase tracking-tight">
                     {p.department}
                   </span>
-                </td>
-                <td className="px-6 py-4 text-center">
+                </TableCell>
+                <TableCell className="px-6 py-4 text-center">
                   <span className={`text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 rounded-full ${p.status === 'Active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
                     }`}>
                     {p.status ?? 'Active'}
                   </span>
-                </td>
-                <td className="px-6 py-4 text-right">
+                </TableCell>
+                <TableCell className="px-6 py-4 text-right">
                   <div className="flex justify-end gap-1">
                     <button
                       onClick={() => openModal(p)}
@@ -141,18 +149,18 @@ export default function PositionsManager() {
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             ))}
             {careers.length === 0 && (
-              <tr>
-                <td colSpan={4} className="px-6 py-20 text-center text-gray-400 font-medium italic">
+              <TableRow>
+                <TableCell colSpan={4} className="px-6 py-20 text-center text-gray-400 font-medium italic">
                   No job postings found. Click "Add Position" to get started.
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             )}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       </div>
 
       {/* Modal */}

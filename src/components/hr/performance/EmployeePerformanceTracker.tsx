@@ -43,6 +43,7 @@ interface EmployeePerformanceTrackerProps {
   coreValues: CoreValue[];
   selectedEmployeeId: string | null;
   onEmployeeSelect: (employeeId: string) => void;
+  onEditEvaluation?: (evalId: string) => void;
 }
 
 const reviewStatusClassMap: Record<ReviewStatus, string> = {
@@ -69,6 +70,7 @@ export default function EmployeePerformanceTracker({
   coreValues,
   selectedEmployeeId,
   onEmployeeSelect,
+  onEditEvaluation,
 }: EmployeePerformanceTrackerProps) {
   const selectedScorecard =
     scorecards.find((scorecard) => scorecard.employeeId === selectedEmployeeId) ??
@@ -242,7 +244,17 @@ export default function EmployeePerformanceTracker({
               </p>
             </div>
             {selectedScorecard && (
-              <ChevronRight className="w-4 h-4 text-slate-300 flex-shrink-0" />
+              <div className="flex items-center gap-2">
+                {onEditEvaluation && (
+                  <button 
+                    onClick={() => onEditEvaluation(selectedScorecard.id)}
+                    className="px-3 py-1.5 text-xs font-bold rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 transition-colors shadow-sm"
+                  >
+                    Edit
+                  </button>
+                )}
+                <ChevronRight className="w-4 h-4 text-slate-300 flex-shrink-0" />
+              </div>
             )}
           </div>
 
@@ -332,7 +344,7 @@ export default function EmployeePerformanceTracker({
                       <div className="h-2 rounded-full bg-slate-100 overflow-hidden">
                         <div
                           className="h-full rounded-full bg-gradient-to-r from-[var(--brand-green)] to-[var(--brand-light)]"
-                          style={{ width: `${Math.max(0, Math.min(score * 20, 100))}%` }}
+                          style={{ width: `${Math.max(0, Math.min(score * 10, 100))}%` }}
                         />
                       </div>
                       <p className="text-xs text-slate-600 leading-normal">

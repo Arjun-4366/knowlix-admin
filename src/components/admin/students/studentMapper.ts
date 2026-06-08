@@ -80,6 +80,7 @@ export const formatPackage = (packageValue?: string, customDetails?: string) => 
 
 export const mapApiStudentToStudent = (student: IStudent): Student => ({
   id: student.id,
+  admissionNumber: student.admissionNumber,
   name: student.studentName,
   parentName: student.parentName,
   grade: `Grade ${student.class}`,

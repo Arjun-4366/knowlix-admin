@@ -15,21 +15,32 @@ import {
   Users,
   ShieldCheck,
   Loader2,
+  Calendar,
+  MessageSquare,
+  Plus,
+  X,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useConfirmation } from "@/context/ConfirmationContext";
 
 import {
   useGetTutor,
-  useGetTutorPerformance,
   useApproveTutor,
   useUpdateTutorPermissions,
   useAwardGrowthPoints,
+  useAssignStudentsToTutor,
 } from "@/querys/admin/tutorQuery";
 import { useGetStudents } from "@/querys/admin/studentQuery";
 import { ITutor } from "@/types/admin/tutor";
@@ -77,20 +88,30 @@ function TutorDetailContent({ params }: PageProps) {
   const { confirm } = useConfirmation();
 
   // Queries
-  const { data: tutor, isLoading: isTutorLoading, isError } = useGetTutor(id);
-  const { data: performanceData, isLoading: isPerfLoading } = useGetTutorPerformance(id);
+  const { data: tutorDetails, isLoading: isTutorLoading, isError } = useGetTutor(id);
+  const tutor = tutorDetails?.tutor;
+  const performanceData = tutorDetails;
   const { data: studentsResponse, isLoading: isStudentsLoading } = useGetStudents();
 
   // Mutations
   const { mutateAsync: approveTutor, isPending: isApproving } = useApproveTutor();
   const { mutateAsync: updateTutorPermissions, isPending: isUpdatingPermissions } = useUpdateTutorPermissions();
   const { mutateAsync: awardGrowthPoints, isPending: isAwardingPoints } = useAwardGrowthPoints();
+  const { mutateAsync: assignStudents, isPending: isAssigning } = useAssignStudentsToTutor();
+
+  const [selectedStudentIds, setSelectedStudentIds] = useState<string[]>([]);
 
   const handleTogglePermission = async (key: keyof ITutor["permissions"]) => {
     if (!tutor) return;
+    const currentPermissions = tutor.permissions || {
+      canUploadNotes: false,
+      canEditNotes: false,
+      canShareMaterial: false,
+    };
+    
     const updatedPermissions = {
-      ...tutor.permissions,
-      [key]: !tutor.permissions[key],
+      ...currentPermissions,
+      [key]: !currentPermissions[key],
     };
     try {
       await updateTutorPermissions({ id, permissions: updatedPermissions });
@@ -135,6 +156,38 @@ function TutorDetailContent({ params }: PageProps) {
     if (!tutor || !studentsResponse?.data) return [];
     return studentsResponse.data.filter((s) => s.assignedTutorId === tutor.id);
   }, [tutor, studentsResponse]);
+
+  const unassignedStudents = useMemo(() => {
+    if (!tutor || !studentsResponse?.data) return [];
+    return studentsResponse.data.filter((s) => s.assignedTutorId !== tutor.id);
+  }, [tutor, studentsResponse]);
+
+  const handleAddStudent = async () => {
+    if (selectedStudentIds.length === 0 || !tutor) return;
+    try {
+      await assignStudents({ id, payload: { add: selectedStudentIds } });
+      setSelectedStudentIds([]);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleRemoveStudent = async (studentId: string) => {
+    if (!tutor) return;
+    confirm({
+      title: "Remove Student",
+      message: "Are you sure you want to remove this student from the tutor's workload?",
+      confirmText: "Remove",
+      variant: "danger",
+      onConfirm: async () => {
+        try {
+          await assignStudents({ id, payload: { remove: [studentId] } });
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    });
+  };
 
   if (isTutorLoading) {
     return (
@@ -357,7 +410,7 @@ function TutorDetailContent({ params }: PageProps) {
               </CardTitle>
             </div>
           </CardHeader>
-          <CardContent className="p-6 pt-4">
+          <CardContent className="p-6 pt-4 flex flex-col gap-4">
             {isStudentsLoading ? (
               <div className="space-y-2">
                 <Skeleton className="h-10 w-full rounded-xl" />
@@ -366,16 +419,28 @@ function TutorDetailContent({ params }: PageProps) {
             ) : assignedStudents.length > 0 ? (
               <div className="divide-y divide-slate-100 border border-slate-100 rounded-xl overflow-hidden max-h-[160px] overflow-y-auto">
                 {assignedStudents.map((s) => (
-                  <div key={s.id} className="p-3 flex items-center gap-2.5 hover:bg-slate-50/50">
-                    <div className="w-7 h-7 rounded-full bg-[var(--brand-light-green)] flex items-center justify-center font-bold text-[var(--brand-green)] text-xs flex-shrink-0">
-                      {s.studentName.charAt(0)}
+                  <div key={s.id} className="p-3 flex items-center justify-between hover:bg-slate-50/50 group">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-7 h-7 rounded-full bg-[var(--brand-light-green)] flex items-center justify-center font-bold text-[var(--brand-green)] text-xs flex-shrink-0">
+                        {s.studentName.charAt(0)}
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-slate-700">{s.studentName}</p>
+                        <p className="text-[10px] text-slate-400 font-semibold">
+                          Grade {s.class} • {s.courseType}
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-xs font-bold text-slate-700">{s.studentName}</p>
-                      <p className="text-[10px] text-slate-400 font-semibold">
-                        Grade {s.class} • {s.courseType}
-                      </p>
-                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      className="text-slate-400 opacity-0 group-hover:opacity-100 hover:text-red-600 hover:bg-red-50 transition-all rounded-full w-6 h-6"
+                      onClick={() => handleRemoveStudent(s.id)}
+                      disabled={isAssigning}
+                      title="Remove Student"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </Button>
                   </div>
                 ))}
               </div>
@@ -384,6 +449,143 @@ function TutorDetailContent({ params }: PageProps) {
                 No students currently assigned to this tutor.
               </p>
             )}
+
+            {isApproved && (
+              <div className="pt-2 mt-auto border-t border-slate-100 flex flex-col gap-2">
+                {selectedStudentIds.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5">
+                    {selectedStudentIds.map(id => {
+                      const student = unassignedStudents.find(s => s.id === id);
+                      if (!student) return null;
+                      return (
+                        <Badge key={id} variant="secondary" className="flex items-center gap-1 bg-slate-100 text-slate-700 hover:bg-slate-200 pr-1 border border-slate-200 text-[10px]">
+                          {student.studentName}
+                          <button onClick={() => setSelectedStudentIds(prev => prev.filter(s => s !== id))} className="text-slate-400 hover:text-red-500 rounded-full p-0.5 hover:bg-slate-200/50">
+                            <X className="w-3 h-3" />
+                          </button>
+                        </Badge>
+                      );
+                    })}
+                  </div>
+                )}
+                <div className="flex items-center gap-2">
+                  <Select
+                    value=""
+                    onValueChange={(val) => {
+                      if (val !== "none" && !selectedStudentIds.includes(val)) {
+                        setSelectedStudentIds(prev => [...prev, val]);
+                      }
+                    }}
+                    disabled={isAssigning}
+                  >
+                    <SelectTrigger className="h-8 text-xs font-semibold bg-slate-50/50 border-slate-200 rounded-lg flex-1">
+                      <SelectValue placeholder="Select students to assign..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {unassignedStudents.filter(s => !selectedStudentIds.includes(s.id)).length > 0 ? (
+                        unassignedStudents.filter(s => !selectedStudentIds.includes(s.id)).map(s => (
+                          <SelectItem key={s.id} value={s.id}>
+                            {s.studentName} (Grade {s.class})
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <SelectItem value="none" disabled>No available students</SelectItem>
+                      )}
+                    </SelectContent>
+                  </Select>
+                  <Button
+                    size="sm"
+                    className="h-8 bg-[var(--brand-green)] hover:bg-[var(--brand-mid)] text-white px-4 rounded-lg flex-shrink-0 font-bold"
+                    disabled={selectedStudentIds.length === 0 || isAssigning}
+                    onClick={handleAddStudent}
+                  >
+                    {isAssigning ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" />
+                    ) : null}
+                    Assign
+                  </Button>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Schedule & Remarks Row */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Schedule Slots */}
+        <Card className="bg-white border-slate-150 shadow-sm">
+          <CardHeader className="p-6 pb-3 border-b border-slate-100 bg-slate-50/50">
+            <div className="flex items-center gap-2">
+              <Calendar className="w-5 h-5 text-[var(--brand-green)]" />
+              <CardTitle className="font-bold text-slate-800 text-sm uppercase tracking-wider">
+                Weekly Schedule Slots
+              </CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent className="p-6 pt-4">
+            {tutor.slots && tutor.slots.length > 0 ? (
+              <div className="space-y-3">
+                {tutor.slots.map((slot, i) => (
+                  <div key={i} className="flex items-center justify-between p-3 rounded-xl border border-slate-100 bg-slate-50/30">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center font-bold text-slate-600 text-xs shadow-sm">
+                        {slot.day.substring(0, 3)}
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold text-slate-700">{slot.day}</p>
+                        <p className="text-xs text-slate-500">{slot.startTime} - {slot.endTime}</p>
+                      </div>
+                    </div>
+                    <Badge
+                      variant="outline"
+                      className={cn(
+                        "text-[10px] font-bold px-2 py-0.5",
+                        slot.filled ? "bg-amber-50 text-amber-700 border-amber-200" : "bg-[var(--brand-light-green)] text-[var(--brand-mid)] border-[var(--brand-green)]/20"
+                      )}
+                    >
+                      {slot.filled ? "Filled" : "Available"}
+                    </Badge>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-slate-500 italic">No slots assigned yet.</p>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Remarks */}
+        <Card className="bg-white border-slate-150 shadow-sm">
+          <CardHeader className="p-6 pb-3 border-b border-slate-100 bg-slate-50/50">
+            <div className="flex items-center gap-2">
+              <MessageSquare className="w-5 h-5 text-[var(--brand-green)]" />
+              <CardTitle className="font-bold text-slate-800 text-sm uppercase tracking-wider">
+                Admin Remarks
+              </CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent className="p-6 pt-4 space-y-4">
+            <div>
+              <p className="text-xs font-bold text-slate-500 uppercase mb-2 text-[10px]">Positive Remarks</p>
+              {tutor.positiveRemarks ? (
+                <div className="p-3 bg-green-50 text-green-800 text-sm rounded-xl border border-green-100 whitespace-pre-wrap">
+                  {tutor.positiveRemarks}
+                </div>
+              ) : (
+                <p className="text-sm text-slate-400 italic">No positive remarks recorded.</p>
+              )}
+            </div>
+            <div>
+              <p className="text-xs font-bold text-slate-500 uppercase mb-2 text-[10px]">Areas of Improvement</p>
+              {tutor.negativeRemarks ? (
+                <div className="p-3 bg-red-50 text-red-800 text-sm rounded-xl border border-red-100 whitespace-pre-wrap">
+                  {tutor.negativeRemarks}
+                </div>
+              ) : (
+                <p className="text-sm text-slate-400 italic">No areas of improvement recorded.</p>
+              )}
+            </div>
           </CardContent>
         </Card>
       </div>

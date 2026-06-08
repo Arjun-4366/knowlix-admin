@@ -27,6 +27,14 @@ import { ICareerApplication, ApplicationStatus } from "@/types/admin/career";
 import { useConfirmation } from "@/context/ConfirmationContext";
 import Loader from "@/components/shared/Loader";
 import { format } from "date-fns";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 const statusConfig: Record<
   ApplicationStatus,
@@ -120,36 +128,36 @@ export default function ApplicationsList() {
       </div>
 
       <div className="bg-white rounded-3xl border border-gray-100 overflow-hidden shadow-sm">
-        <table className="w-full text-sm text-left border-collapse">
-          <thead>
-            <tr className="border-b border-gray-50 bg-gray-50/50">
-              <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+        <Table className="w-full text-sm text-left border-collapse">
+          <TableHeader>
+            <TableRow className="border-b border-gray-50 bg-gray-50/50">
+              <TableHead className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
                 Candidate
-              </th>
-              <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+              </TableHead>
+              <TableHead className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
                 Position
-              </th>
-              <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+              </TableHead>
+              <TableHead className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
                 Date
-              </th>
-              <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider text-center">
+              </TableHead>
+              <TableHead className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider text-center">
                 Status
-              </th>
-              <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">
+              </TableHead>
+              <TableHead className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">
                 Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-50">
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody className="divide-y divide-gray-50">
             {filtered.map((app) => {
               const conf = statusConfig[app.status] || statusConfig.New;
               const StatusIcon = conf.icon;
               return (
-                <tr
+                <TableRow
                   key={app.id}
                   className="hover:bg-gray-50/50 transition-colors group"
                 >
-                  <td className="px-6 py-4">
+                  <TableCell className="px-6 py-4">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center font-bold text-gray-400 group-hover:bg-green-100 group-hover:text-green-600 transition-colors text-xs">
                         {app.name[0]}
@@ -161,26 +169,26 @@ export default function ApplicationsList() {
                         <p className="text-[10px] text-gray-400">{app.email}</p>
                       </div>
                     </div>
-                  </td>
-                  <td className="px-6 py-4">
+                  </TableCell>
+                  <TableCell className="px-6 py-4">
                     <p className="text-sm text-gray-600">
                       {getCareerTitle(app.careerId)}
                     </p>
-                  </td>
-                  <td className="px-6 py-4 text-gray-400 text-xs">
+                  </TableCell>
+                  <TableCell className="px-6 py-4 text-gray-400 text-xs">
                     {app.appliedAt
                       ? format(new Date(app.appliedAt), "MMM dd, yyyy")
                       : "N/A"}
-                  </td>
-                  <td className="px-6 py-4 text-center">
+                  </TableCell>
+                  <TableCell className="px-6 py-4 text-center">
                     <div
                       className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full ${conf.bg} ${conf.text} text-[10px] font-bold uppercase tracking-wider`}
                     >
                       <StatusIcon className="w-2.5 h-2.5" />
                       {app.status}
                     </div>
-                  </td>
-                  <td className="px-6 py-4 text-right">
+                  </TableCell>
+                  <TableCell className="px-6 py-4 text-right">
                     <div className="flex justify-end gap-1">
                       <button
                         onClick={() => openModal(app)}
@@ -197,22 +205,22 @@ export default function ApplicationsList() {
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               );
             })}
             {filtered.length === 0 && (
-              <tr>
-                <td
+              <TableRow>
+                <TableCell
                   colSpan={5}
                   className="text-center py-20 text-gray-400 italic font-medium"
                 >
                   No candidate applications found matching your criteria.
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             )}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       </div>
 
       {/* Profile Modal */}

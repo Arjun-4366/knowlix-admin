@@ -14,6 +14,14 @@ import { ICourse } from "@/types/admin/program";
 import { useGetPrograms } from "@/querys/admin/programQuery";
 import { useGetCoursesByProgram, useAddCourse, useUpdateCourse, useDeleteCourse } from "@/querys/admin/programQuery";
 import { useConfirmation } from "@/context/ConfirmationContext";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 const EMPTY: ICourse = { programId: "", title: "", description: "", grade: "", totalStudentsEnrolled: "", image: "" };
 
@@ -110,18 +118,18 @@ export default function CoursesManager() {
       {/* Table */}
       {!isLoading && !isError && programs.length > 0 && (
         <div className="overflow-x-auto -mx-6">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-gray-50 border-y border-gray-100">
+          <Table className="w-full text-left border-collapse">
+            <TableHeader>
+              <TableRow className="bg-gray-50 border-y border-gray-100">
                 {["Course", "Grade", "Students", "Actions"].map((h) => (
-                  <th key={h} className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">{h}</th>
+                  <TableHead key={h} className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">{h}</TableHead>
                 ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
+              </TableRow>
+            </TableHeader>
+            <TableBody className="divide-y divide-gray-100">
               {courses.map((c) => (
-                <tr key={c.id} className="hover:bg-gray-50/50 transition-colors group">
-                  <td className="px-6 py-4">
+                <TableRow key={c.id} className="hover:bg-gray-50/50 transition-colors group">
+                  <TableCell className="px-6 py-4">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-lg bg-gray-100 overflow-hidden relative flex-shrink-0">
                         {typeof c.image === "string" && c.image
@@ -134,26 +142,26 @@ export default function CoursesManager() {
                         <p className="text-xs text-gray-400 line-clamp-1 max-w-xs">{c.description}</p>
                       </div>
                     </div>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-500">{c.grade}</td>
-                  <td className="px-6 py-4 text-sm text-gray-500">{c.totalStudentsEnrolled}</td>
-                  <td className="px-6 py-4 text-right">
+                  </TableCell>
+                  <TableCell className="px-6 py-4 text-sm text-gray-500">{c.grade}</TableCell>
+                  <TableCell className="px-6 py-4 text-sm text-gray-500">{c.totalStudentsEnrolled}</TableCell>
+                  <TableCell className="px-6 py-4 text-right">
                     <div className="flex justify-end gap-1">
                       <button onClick={() => openModal(c)} className="p-1.5 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-md transition-all"><Pencil className="w-4 h-4" /></button>
                       <button onClick={() => c.id && handleDelete(c.id)} className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-all"><Trash2 className="w-4 h-4" /></button>
                     </div>
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ))}
               {courses.length === 0 && (
-                <tr>
-                  <td colSpan={4} className="px-6 py-12 text-center text-gray-400 italic">
+                <TableRow>
+                  <TableCell colSpan={4} className="px-6 py-12 text-center text-gray-400 italic">
                     No courses for this program yet.
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               )}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
       )}
 

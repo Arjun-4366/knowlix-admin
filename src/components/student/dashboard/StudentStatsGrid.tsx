@@ -9,6 +9,7 @@ interface StudentStatsGridProps {
   scheduledCount: number;
   assignmentsPercent: number;
   completedAssignments: number;
+  pendingAssignments: number;
   totalAssignments: number;
   averageScore: number;
   rankInClass: number;
@@ -23,6 +24,7 @@ export default function StudentStatsGrid({
   scheduledCount,
   assignmentsPercent,
   completedAssignments,
+  pendingAssignments,
   totalAssignments,
   averageScore,
   rankInClass,
@@ -46,7 +48,7 @@ export default function StudentStatsGrid({
         label="Assignments Completed"
         value={`${assignmentsPercent}%`}
         icon={<BookOpen className="w-6 h-6 text-[var(--brand-green)]" />}
-        badgeText="On Track"
+        badgeText={pendingAssignments > 0 ? `${pendingAssignments} Pending` : "On Track"}
         footerText={`${completedAssignments}/${totalAssignments} tasks submitted`}
       />
 
