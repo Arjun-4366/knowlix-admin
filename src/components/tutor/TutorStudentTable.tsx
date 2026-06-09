@@ -55,10 +55,10 @@ export default function TutorStudentTable({
 
   // Apply search query and filters
   const filteredStudents = students.filter((s) => {
-    const mappedType = mapCourseType(s.courseType);
+    const mappedType = mapCourseType(s.courseType || s.programName || "");
     const matchesSearch =
       s.studentName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      s.id?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      s.admissionNumber?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       mappedType.toLowerCase().includes(searchQuery.toLowerCase());
 
     const matchesCourse = courseFilter === "All" || mappedType === courseFilter;
@@ -174,7 +174,7 @@ export default function TutorStudentTable({
                 >
                   {/* Admission ID */}
                   <TableCell className="px-6 py-4 text-xs font-semibold text-slate-500 truncate">
-                    {student.id}
+                    {student.admissionNumber || "N/A"}
                   </TableCell>
 
                   {/* Student Name + Initials Avatar */}
@@ -195,7 +195,7 @@ export default function TutorStudentTable({
                   <TableCell className="px-6 py-4">
                     <div className="truncate">
                       <p className="text-sm font-bold text-slate-700 leading-none truncate">
-                        {mapCourseType(student.courseType)}
+                        {mapCourseType(student.courseType || student.programName || "")}
                       </p>
                     </div>
                   </TableCell>

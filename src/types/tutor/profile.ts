@@ -24,23 +24,24 @@ export interface ITutorProfilePayload {
   subjectEntries: ISubjectEntry[];
   subjects: string[];
   experience: string;
-  availability: string;
+  availability: string[];
   role: string;
   status: string;
   profileImage?: string;
   growthPoints: number;
   performanceScore: number;
-  permissions: ITutorPermissions;
+  permissions?: ITutorPermissions;
   positiveRemarks: string[] | null;
   negativeRemarks: string[] | null;
   syllabus: string[];
   slots: ISlotEntry[];
+  assignedStudentIds?: string[];
   createdAt: string;
   updatedAt: string;
 }
 
 export interface IUpdateTutorProfilePayload {
-  availability: string;
+  availability: string[];
   subjectEntries: ISubjectEntry[];
   syllabus: string[];
   slots: ISlotEntry[];

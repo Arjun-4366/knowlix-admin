@@ -17,13 +17,13 @@ export interface ITutorAttendanceResponse extends IApiResponse<ITutorAttendanceR
 
 export interface IMarkAttendanceRecordPayload {
   studentId: string;
-  sessionId?: string;
   date: string;
   status: "present" | "absent" | "late";
   remarks?: string;
 }
 
 export interface IMarkAttendancePayload {
+  sessionId?: string;
   records: IMarkAttendanceRecordPayload[];
 }
 

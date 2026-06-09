@@ -1,7 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Calendar, Award, CheckCircle2, AlertCircle, X, Save, Users, BookOpen } from "lucide-react";
+import {
+  Plus,
+  Calendar,
+  Award,
+  CheckCircle2,
+  AlertCircle,
+  X,
+  Save,
+  Users,
+  BookOpen,
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,15 +31,28 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useGetTutorExams, useCreateTutorExam, useUpdateTutorExamStatus } from "@/querys/tutor/examQuery";
+import {
+  useGetTutorExams,
+  useCreateTutorExam,
+  useUpdateTutorExamStatus,
+} from "@/querys/tutor/examQuery";
 import { useGetTutorStudents } from "@/querys/tutor/studentQuery";
 import { toast } from "react-hot-toast";
 
-const SUBJECT_OPTIONS = ["Mathematics", "Physics", "Chemistry", "English", "Social Studies", "Computer Science", "Biology"];
+const SUBJECT_OPTIONS = [
+  "Mathematics",
+  "Physics",
+  "Chemistry",
+  "English",
+  "Social Studies",
+  "Computer Science",
+  "Biology",
+];
 
 export default function TutorExamManager() {
   const { data: examsResponse, isLoading: loadingExams } = useGetTutorExams();
-  const { data: studentsResponse, isLoading: loadingStudents } = useGetTutorStudents();
+  const { data: studentsResponse, isLoading: loadingStudents } =
+    useGetTutorStudents();
   const { mutate: createExam, isPending: isCreating } = useCreateTutorExam();
   const { mutate: updateStatus } = useUpdateTutorExamStatus();
 
@@ -48,7 +71,7 @@ export default function TutorExamManager() {
 
   const toggleStudent = (id: string) => {
     setSelectedStudentIds((prev) =>
-      prev.includes(id) ? prev.filter((sid) => sid !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((sid) => sid !== id) : [...prev, id],
     );
   };
 
@@ -56,7 +79,9 @@ export default function TutorExamManager() {
     e.preventDefault();
 
     if (!newTitle.trim() || !newDate || selectedStudentIds.length === 0) {
-      toast.error("Please fill in all the required fields and select at least one student.");
+      toast.error(
+        "Please fill in all the required fields and select at least one student.",
+      );
       return;
     }
 
@@ -87,22 +112,24 @@ export default function TutorExamManager() {
         onError: () => {
           toast.error("Failed to schedule exam. Please try again.");
         },
-      }
+      },
     );
   };
 
-  const handleToggleStatus = (id: string, currentStatus: string) => {
-    const newStatus = currentStatus === "conducted" ? "pending" : "conducted";
+  const handleStatusChange = (
+    id: string,
+    newStatus: "pending" | "conducted" | "cancelled",
+  ) => {
     updateStatus(
       { id, data: { status: newStatus } },
       {
         onSuccess: () => {
-          toast.success("Exam status updated successfully!");
+          toast.success(`Exam status updated to ${newStatus}!`);
         },
         onError: () => {
           toast.error("Failed to update exam status.");
         },
-      }
+      },
     );
   };
 
@@ -180,7 +207,11 @@ export default function TutorExamManager() {
                     </SelectTrigger>
                     <SelectContent>
                       {SUBJECT_OPTIONS.map((sub) => (
-                        <SelectItem key={sub} value={sub} className="font-medium text-xs">
+                        <SelectItem
+                          key={sub}
+                          value={sub}
+                          className="font-medium text-xs"
+                        >
                           {sub}
                         </SelectItem>
                       ))}
@@ -229,7 +260,9 @@ export default function TutorExamManager() {
                   Assign To Students ({selectedStudentIds.length} selected)
                 </label>
                 {students.length === 0 ? (
-                  <p className="text-xs text-slate-400 font-semibold">No students in your roster.</p>
+                  <p className="text-xs text-slate-400 font-semibold">
+                    No students in your roster.
+                  </p>
                 ) : (
                   <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 max-h-[200px] overflow-y-auto pr-1">
                     {students.map((s) => {
@@ -245,10 +278,16 @@ export default function TutorExamManager() {
                               : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50"
                           }`}
                         >
-                          <div className={`w-4 h-4 rounded flex items-center justify-center flex-shrink-0 border ${
-                            selected ? "bg-[var(--brand-green)] border-[var(--brand-green)]" : "border-slate-300"
-                          }`}>
-                            {selected && <CheckCircle2 className="w-3 h-3 text-white" />}
+                          <div
+                            className={`w-4 h-4 rounded flex items-center justify-center flex-shrink-0 border ${
+                              selected
+                                ? "bg-[var(--brand-green)] border-[var(--brand-green)]"
+                                : "border-slate-300"
+                            }`}
+                          >
+                            {selected && (
+                              <CheckCircle2 className="w-3 h-3 text-white" />
+                            )}
                           </div>
                           <span className="truncate">{s.studentName}</span>
                         </button>
@@ -282,10 +321,7 @@ export default function TutorExamManager() {
         <Table className="table-fixed w-full">
           <TableHeader className="bg-slate-50/50">
             <TableRow>
-              <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[12%]">
-                Conducted
-              </TableHead>
-              <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[36%]">
+              <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[33%]">
                 Exam Title
               </TableHead>
               <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[18%]">
@@ -296,6 +332,9 @@ export default function TutorExamManager() {
               </TableHead>
               <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[16%]">
                 Max Marks
+              </TableHead>
+              <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[15%]">
+                Status
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -310,23 +349,16 @@ export default function TutorExamManager() {
                   <TableRow
                     key={exm.id}
                     className={`hover:bg-slate-50/60 transition-colors ${
-                      exm.status === "conducted" ? "bg-slate-50/30 text-slate-400" : ""
+                      exm.status === "conducted"
+                        ? "bg-slate-50/30 text-slate-400"
+                        : ""
                     }`}
                   >
-                    {/* Status Checkbox */}
-                    <TableCell className="px-6 py-4">
-                      <input
-                        type="checkbox"
-                        checked={exm.status === "conducted"}
-                        onChange={() => handleToggleStatus(exm.id, exm.status)}
-                        className="w-4.5 h-4.5 accent-[var(--brand-green)] border-slate-350 rounded-md cursor-pointer transition-all"
-                        title={exm.status === "conducted" ? "Mark Pending" : "Mark Conducted"}
-                      />
-                    </TableCell>
-
                     {/* Title and Subject */}
                     <TableCell className="px-6 py-4">
-                      <p className={`text-sm font-bold text-slate-700 leading-none truncate ${exm.status === "conducted" ? "line-through text-slate-400" : ""}`}>
+                      <p
+                        className={`text-sm font-bold text-slate-700 leading-none truncate ${exm.status === "conducted" ? "line-through text-slate-400" : ""}`}
+                      >
                         {exm.title}
                       </p>
                       <span className="text-[10px] text-slate-400 font-semibold block mt-1">
@@ -350,10 +382,14 @@ export default function TutorExamManager() {
                       <div className="flex items-center gap-1 mb-0.5">
                         <Users className="w-3 h-3 text-slate-400 flex-shrink-0" />
                         <span className="text-xs font-bold text-slate-700">
-                          {exm.studentIds.length} Student{exm.studentIds.length !== 1 ? "s" : ""}
+                          {exm.studentIds.length} Student
+                          {exm.studentIds.length !== 1 ? "s" : ""}
                         </span>
                       </div>
-                      <p className="text-[10px] text-slate-400 font-semibold truncate" title={namesList}>
+                      <p
+                        className="text-[10px] text-slate-400 font-semibold truncate"
+                        title={namesList}
+                      >
                         {namesList}
                       </p>
                     </TableCell>
@@ -362,8 +398,12 @@ export default function TutorExamManager() {
                     <TableCell className="px-6 py-4">
                       <div className="flex items-center justify-between gap-2">
                         <div>
-                          <span className="text-sm font-black text-slate-800">{exm.maxMarks}</span>
-                          <span className="text-[10px] text-slate-400 font-semibold block">marks</span>
+                          <span className="text-sm font-black text-slate-800">
+                            {exm.maxMarks}
+                          </span>
+                          <span className="text-[10px] text-slate-400 font-semibold block">
+                            marks
+                          </span>
                         </div>
                         {exm.status === "conducted" ? (
                           <Badge
@@ -372,15 +412,64 @@ export default function TutorExamManager() {
                           >
                             <CheckCircle2 className="w-3 h-3 mr-1" /> Conducted
                           </Badge>
+                        ) : exm.status === "cancelled" ? (
+                          <Badge
+                            variant="outline"
+                            className="bg-red-50 text-red-600 border-red-200 text-[10px] font-bold px-2 py-0.5 rounded-full"
+                          >
+                            <X className="w-3 h-3 mr-1" /> Cancelled
+                          </Badge>
                         ) : (
                           <Badge
                             variant="outline"
                             className="bg-[var(--brand-light-green)] text-[var(--brand-mid)] border-[var(--brand-light)]/20 text-[10px] font-bold px-2 py-0.5 rounded-full"
                           >
-                            <AlertCircle className="w-3 h-3 mr-1 text-[var(--brand-green)]" /> Scheduled
+                            <AlertCircle className="w-3 h-3 mr-1 text-[var(--brand-green)]" />{" "}
+                            Scheduled
                           </Badge>
                         )}
                       </div>
+                    </TableCell>
+                    {/* Status Dropdown */}
+                    <TableCell className="px-6 py-4">
+                      <Select
+                        value={exm.status}
+                        onValueChange={(
+                          val: "pending" | "conducted" | "cancelled",
+                        ) => handleStatusChange(exm.id, val)}
+                      >
+                        <SelectTrigger
+                          className={`h-8 text-xs font-bold rounded-lg border-0 shadow-none ring-1 ring-inset ${
+                            exm.status === "conducted"
+                              ? "bg-slate-50 text-slate-600 ring-slate-200"
+                              : exm.status === "cancelled"
+                                ? "bg-red-50 text-red-600 ring-red-200"
+                                : "bg-[var(--brand-light-green)]/30 text-[var(--brand-mid)] ring-[var(--brand-light)]/40"
+                          }`}
+                        >
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem
+                            value="pending"
+                            className="text-xs font-semibold"
+                          >
+                            Scheduled
+                          </SelectItem>
+                          <SelectItem
+                            value="conducted"
+                            className="text-xs font-semibold"
+                          >
+                            Conducted
+                          </SelectItem>
+                          <SelectItem
+                            value="cancelled"
+                            className="text-xs font-semibold text-red-600"
+                          >
+                            Cancelled
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
                     </TableCell>
                   </TableRow>
                 );

@@ -47,12 +47,12 @@ export default function TutorDashboard() {
     return `Student (#${studentId.slice(-4).toUpperCase()})`;
   };
 
-  const totalSlots = kpiData?.slots.total || 0;
-  const filledSlots = kpiData?.slots.filled || 0;
-  const availableSlots = kpiData?.slots.available || 0;
+  const totalSlots = kpiData?.slots?.total || 0;
+  const filledSlots = kpiData?.slots?.filled || 0;
+  const availableSlots = kpiData?.slots?.available || 0;
 
-  const todaySchedule = kpiData?.schedule.today || [];
-  const tomorrowSchedule = kpiData?.schedule.tomorrow || [];
+  const todaySchedule = kpiData?.schedule?.today || [];
+  const tomorrowSchedule = kpiData?.schedule?.tomorrow || [];
 
   const letters = ["G", "R", "O", "W", "T", "H"] as const;
 
@@ -79,20 +79,20 @@ export default function TutorDashboard() {
         />
         <DashboardStatCard
           label={`Sessions (${sessionPeriod.charAt(0).toUpperCase() + sessionPeriod.slice(1)})`}
-          value={sessionData?.sessions.total || 0}
+          value={sessionData?.sessions?.total || 0}
           icon={<Clock className="w-6 h-6 text-[var(--brand-green)]" />}
           badgeText="Class counts"
-          footerText={`${sessionData?.sessions.conducted || 0} completed · ${(sessionData?.sessions.total || 0) - (sessionData?.sessions.conducted || 0)} pending`}
+          footerText={`${sessionData?.sessions?.conducted || 0} completed · ${(sessionData?.sessions?.total || 0) - (sessionData?.sessions?.conducted || 0)} pending`}
         />
         <DashboardStatCard
           label={`Earnings (${sessionPeriod.charAt(0).toUpperCase() + sessionPeriod.slice(1)})`}
-          value={formatCurrency(sessionData?.totalEarnings.amount || 0, sessionData?.totalEarnings.currency)}
+          value={formatCurrency(sessionData?.totalEarnings?.amount || 0, sessionData?.totalEarnings?.currency)}
           icon={<DollarSign className="w-6 h-6 text-[var(--brand-green)]" />}
-          badgeText={sessionData?.totalEarnings.currency || "INR"}
-          footerText={`${sessionData?.sessions.total || 0} sessions · ${
-            sessionData?.sessions.total 
-              ? formatCurrency(sessionData.totalEarnings.amount / sessionData.sessions.total, sessionData.totalEarnings.currency)
-              : formatCurrency(0, sessionData?.totalEarnings.currency)
+          badgeText={sessionData?.totalEarnings?.currency || "INR"}
+          footerText={`${sessionData?.sessions?.total || 0} sessions · ${
+            sessionData?.sessions?.total 
+              ? formatCurrency((sessionData?.totalEarnings?.amount || 0) / sessionData.sessions.total, sessionData?.totalEarnings?.currency)
+              : formatCurrency(0, sessionData?.totalEarnings?.currency)
           } / session`}
         />
       </div>
@@ -154,28 +154,28 @@ export default function TutorDashboard() {
               <div className="flex items-center justify-center gap-1 mb-1">
                 <Star className="w-4 h-4 fill-[var(--brand-green)] text-[var(--brand-green)]" />
               </div>
-              <p className="text-2xl font-bold text-slate-800">{kpiData?.kpiPerformance.growthPoints || 0}</p>
+              <p className="text-2xl font-bold text-slate-800">{kpiData?.kpiPerformance?.growthPoints || 0}</p>
               <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mt-0.5">Growth Points</p>
             </div>
 
             {/* Attendance Rate */}
             <div className="p-4 rounded-xl border border-slate-100 bg-slate-50/40 text-center">
               <CheckCircle2 className="w-4 h-4 text-[var(--brand-green)] mx-auto mb-1" />
-              <p className="text-2xl font-bold text-slate-800">{Math.round(kpiData?.kpiPerformance.attendanceRate || 0)}%</p>
+              <p className="text-2xl font-bold text-slate-800">{Math.round(kpiData?.kpiPerformance?.attendanceRate || 0)}%</p>
               <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mt-0.5">Attendance Rate</p>
             </div>
 
             {/* Exams Conducted */}
             <div className="p-4 rounded-xl border border-slate-100 bg-slate-50/40 text-center">
               <FileText className="w-4 h-4 text-[var(--brand-green)] mx-auto mb-1" />
-              <p className="text-2xl font-bold text-slate-800">{kpiData?.exams.conducted || 0}</p>
+              <p className="text-2xl font-bold text-slate-800">{kpiData?.exams?.conducted || 0}</p>
               <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mt-0.5">Exams Conducted</p>
             </div>
 
             {/* Exams Pending */}
             <div className="p-4 rounded-xl border border-slate-100 bg-slate-50/40 text-center">
               <AlertCircle className="w-4 h-4 text-[var(--brand-green)] mx-auto mb-1" />
-              <p className="text-2xl font-bold text-slate-800">{kpiData?.exams.pending || 0}</p>
+              <p className="text-2xl font-bold text-slate-800">{kpiData?.exams?.pending || 0}</p>
               <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mt-0.5">Exams Pending</p>
             </div>
 
@@ -192,7 +192,7 @@ export default function TutorDashboard() {
           {/* Progress bars */}
           <div className="mt-6 space-y-3">
             {[
-              { label: "Attendance Rate", value: Math.round(kpiData?.kpiPerformance.attendanceRate || 0) },
+              { label: "Attendance Rate", value: Math.round(kpiData?.kpiPerformance?.attendanceRate || 0) },
               { label: "Slot Fill Rate", value: totalSlots > 0 ? Math.round((filledSlots / totalSlots) * 100) : 0 },
             ].map((bar) => (
               <div key={bar.label}>
@@ -215,7 +215,7 @@ export default function TutorDashboard() {
             <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">GROWTH Points Breakdown</p>
             <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
               {letters.map((letter) => {
-                const val = kpiData?.kpiPerformance.growthBreakdown?.[letter] || 0;
+                const val = kpiData?.kpiPerformance?.growthBreakdown?.[letter] || 0;
                 return (
                   <div key={letter} className="p-3 rounded-xl border border-slate-100 bg-slate-50 text-center">
                     <span className="text-sm font-black text-[var(--brand-green)]">{letter}</span>

@@ -10,9 +10,14 @@ export const getTutorAttendance = async (params?: QueryParams) => {
 };
 
 export const markTutorAttendance = async (payload: IMarkAttendancePayload) => {
+    const { sessionId, records } = payload;
+    let endpoint = ENDPOINTS.MARK_TUTOR_ATTENDANCE;
+    if (sessionId) {
+        endpoint += `?sessionId=${sessionId}`;
+    }
     const res = await apiClient.post<IApiResponse<{ count: number }>>(
-        ENDPOINTS.MARK_TUTOR_ATTENDANCE,
-        payload
+        endpoint,
+        { records }
     );
     return res.data;
 };

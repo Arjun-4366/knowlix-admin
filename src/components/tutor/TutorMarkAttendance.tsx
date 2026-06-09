@@ -76,15 +76,19 @@ export default function TutorMarkAttendance({ students, onSuccess }: TutorMarkAt
       const state = records[s.id] || { status: "present", remark: "" };
       return {
         studentId: s.id,
-        ...(selectedSession ? { sessionId: selectedSession.id } : {}),
         date: selectedDate,
         status: state.status,
         remarks: state.remark || "",
       };
     });
 
+    const payload = {
+      ...(selectedSession ? { sessionId: selectedSession.id } : {}),
+      records: recordsPayload
+    };
+
     markAttendance(
-      { records: recordsPayload },
+      payload,
       {
         onSuccess: () => {
           const reset: Record<string, { status: "present" | "absent" | "late"; remark: string }> = {};

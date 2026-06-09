@@ -33,7 +33,7 @@ export default function TutorProfilePage() {
 
   // Form states
   const [activeTab, setActiveTab] = useState("overview");
-  const [availability, setAvailability] = useState("");
+  const [availability, setAvailability] = useState<string[]>([]);
   const [subjectEntries, setSubjectEntries] = useState<ISubjectEntry[]>([]);
   const [syllabus, setSyllabus] = useState<string[]>([]);
   const [slots, setSlots] = useState<ISlotEntry[]>([]);
@@ -51,7 +51,7 @@ export default function TutorProfilePage() {
   // Sync profile data to local state once loaded
   useEffect(() => {
     if (profile) {
-      setAvailability(profile.availability || "");
+      setAvailability(profile.availability || []);
       setSubjectEntries(profile.subjectEntries || []);
       setSyllabus(profile.syllabus || []);
       setSlots(profile.slots || []);
@@ -270,7 +270,15 @@ export default function TutorProfilePage() {
 
                 <div className="pt-2">
                   <Label className="text-[10px] font-bold text-slate-450 uppercase tracking-wider">Availability Description</Label>
-                  <p className="text-sm font-semibold text-slate-700 mt-1 bg-slate-50 p-2.5 rounded-lg border border-slate-100">{availability || "No availability configured yet."}</p>
+                  <div className="flex flex-wrap gap-2 mt-1 bg-slate-50 p-2.5 rounded-lg border border-slate-100 min-h-[44px] items-center">
+                    {availability.length > 0 ? (
+                      availability.map((av) => (
+                        <Badge key={av} variant="secondary" className="bg-white border-slate-200 text-slate-700 font-semibold">{av}</Badge>
+                      ))
+                    ) : (
+                      <span className="text-sm font-semibold text-slate-500">No availability configured yet.</span>
+                    )}
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -290,6 +298,12 @@ export default function TutorProfilePage() {
                   </div>
                 </div>
                 <div>
+                  <Label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Assigned Students</Label>
+                  <p className="text-xs font-bold text-slate-700 mt-0.5">
+                    {profile.assignedStudentIds?.length || 0} Students
+                  </p>
+                </div>
+                <div>
                   <Label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Member Since</Label>
                   <p className="text-xs font-semibold text-slate-600 mt-0.5">
                     {new Date(profile.createdAt).toLocaleDateString("en-IN", {
@@ -304,20 +318,20 @@ export default function TutorProfilePage() {
                   <div className="space-y-1.5">
                     <div className="flex items-center justify-between text-xs">
                       <span className="text-slate-500 font-medium">Upload Study Notes</span>
-                      <Badge variant="outline" className={profile.permissions.canUploadNotes ? "bg-green-50 text-green-700 border-green-200" : "bg-slate-50 text-slate-400 border-slate-200"}>
-                        {profile.permissions.canUploadNotes ? "Yes" : "No"}
+                      <Badge variant="outline" className={profile.permissions?.canUploadNotes ? "bg-green-50 text-green-700 border-green-200" : "bg-slate-50 text-slate-400 border-slate-200"}>
+                        {profile.permissions?.canUploadNotes ? "Yes" : "No"}
                       </Badge>
                     </div>
                     <div className="flex items-center justify-between text-xs">
                       <span className="text-slate-500 font-medium">Edit Notes & Resources</span>
-                      <Badge variant="outline" className={profile.permissions.canEditNotes ? "bg-green-50 text-green-700 border-green-200" : "bg-slate-50 text-slate-400 border-slate-200"}>
-                        {profile.permissions.canEditNotes ? "Yes" : "No"}
+                      <Badge variant="outline" className={profile.permissions?.canEditNotes ? "bg-green-50 text-green-700 border-green-200" : "bg-slate-50 text-slate-400 border-slate-200"}>
+                        {profile.permissions?.canEditNotes ? "Yes" : "No"}
                       </Badge>
                     </div>
                     <div className="flex items-center justify-between text-xs">
                       <span className="text-slate-500 font-medium">Share Material with Students</span>
-                      <Badge variant="outline" className={profile.permissions.canShareMaterial ? "bg-green-50 text-green-700 border-green-200" : "bg-slate-50 text-slate-400 border-slate-200"}>
-                        {profile.permissions.canShareMaterial ? "Yes" : "No"}
+                      <Badge variant="outline" className={profile.permissions?.canShareMaterial ? "bg-green-50 text-green-700 border-green-200" : "bg-slate-50 text-slate-400 border-slate-200"}>
+                        {profile.permissions?.canShareMaterial ? "Yes" : "No"}
                       </Badge>
                     </div>
                   </div>
@@ -476,15 +490,29 @@ export default function TutorProfilePage() {
               </CardHeader>
               <CardContent className="p-6 space-y-4">
                 <div className="space-y-1.5">
-                  <Label htmlFor="availabilityInput" className="text-[10px] font-bold text-slate-450 uppercase tracking-wider">Availability Statement</Label>
-                  <Input
-                    id="availabilityInput"
-                    placeholder="e.g. Weekdays 9 AM - 6 PM"
-                    value={availability}
-                    onChange={(e) => setAvailability(e.target.value)}
-                    className="border-slate-200"
-                  />
-                  <p className="text-[10px] text-slate-400 mt-1 leading-normal">
+                  <Label htmlFor="availabilityInput" className="text-[10px] font-bold text-slate-450 uppercase tracking-wider">Availability Periods</Label>
+                  <div className="flex flex-wrap gap-2 pt-1">
+                    {["Morning", "Afternoon", "Evening", "Night"].map((opt) => {
+                      const isSelected = availability.includes(opt);
+                      return (
+                        <button
+                          key={opt}
+                          type="button"
+                          onClick={() => setAvailability((prev) => 
+                            prev.includes(opt) ? prev.filter((item) => item !== opt) : [...prev, opt]
+                          )}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-colors ${
+                            isSelected 
+                              ? "bg-[var(--brand-green)] text-white border-[var(--brand-green)]" 
+                              : "bg-white text-slate-600 border-slate-200 hover:border-slate-300"
+                          }`}
+                        >
+                          {opt}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <p className="text-[10px] text-slate-400 mt-2 leading-normal">
                     This displays on your public tutor profile cards so coordinators and parents know your general time slots at a glance.
                   </p>
                 </div>
