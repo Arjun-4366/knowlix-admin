@@ -28,22 +28,31 @@ const groupAttendanceRecords = (
     const dateString = rec.date ? rec.date.split("T")[0] : "";
     if (!dateString) return;
 
-    const studentName = studentMap.get(rec.studentId) || `Student (${rec.studentId})`;
+    // Extract ID and Name from populated object or fallback to string map
+    const actualStudentId = typeof rec.studentId === "object" ? rec.studentId.id : rec.studentId;
+    const studentName = typeof rec.studentId === "object" ? rec.studentId.studentName : studentMap.get(rec.studentId) || `Student (${rec.studentId})`;
+    
+    // Extract session info if available
+    const actualSessionId = rec.sessionId && typeof rec.sessionId === "object" ? rec.sessionId.id : rec.sessionId;
+    const sessionName = rec.sessionId && typeof rec.sessionId === "object" ? rec.sessionId.title : "Daily Attendance";
 
     const uiRecord = {
-      studentId: rec.studentId,
+      studentId: actualStudentId,
       studentName,
       status: rec.status,
       remark: rec.remarks || "",
     };
 
-    if (groups[dateString]) {
-      groups[dateString].records.push(uiRecord);
+    // Use sessionName in group if available, else standard fallback
+    const groupKey = actualSessionId ? `${dateString}-${actualSessionId}` : dateString;
+
+    if (groups[groupKey]) {
+      groups[groupKey].records.push(uiRecord);
       // Keep the latest createdAt to determine correct time
-      if (new Date(rec.createdAt) > new Date(groups[dateString].createdAt)) {
-        groups[dateString].createdAt = rec.createdAt;
+      if (new Date(rec.createdAt) > new Date(groups[groupKey].createdAt)) {
+        groups[groupKey].createdAt = rec.createdAt;
         try {
-          groups[dateString].time = new Date(rec.createdAt).toLocaleTimeString([], {
+          groups[groupKey].time = new Date(rec.createdAt).toLocaleTimeString([], {
             hour: "2-digit",
             minute: "2-digit",
           });
@@ -64,10 +73,10 @@ const groupAttendanceRecords = (
         // ignore
       }
 
-      groups[dateString] = {
-        id: dateString,
-        sessionId: "",
-        sessionName: "Daily Attendance",
+      groups[groupKey] = {
+        id: groupKey,
+        sessionId: actualSessionId || "",
+        sessionName: sessionName,
         date: dateString,
         time: recordTime,
         tutorName,

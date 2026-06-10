@@ -1,10 +1,12 @@
 import { IApiResponse } from "@/types/admin/api";
 
+import { IStudent } from "@/types/admin/student";
+
 export interface ITutorAttendanceRecord {
   id: string;
-  tutorId: string;
-  studentId: string;
-  sessionId: string;
+  tutorId: { id: string; name: string; email: string } | string;
+  studentId: IStudent | string;
+  sessionId: ITutorSession | string | null;
   date: string;
   status: "present" | "absent" | "late";
   remarks: string;

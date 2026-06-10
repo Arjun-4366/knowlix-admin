@@ -2,7 +2,7 @@ export type TutorExamStatus = "pending" | "conducted" | "cancelled";
 
 export interface ITutorExam {
   id: string;
-  tutorId: string;
+  tutorId: { id: string; name: string; email: string; phone?: string } | string;
   studentIds: string[];
   title: string;
   subject: string;

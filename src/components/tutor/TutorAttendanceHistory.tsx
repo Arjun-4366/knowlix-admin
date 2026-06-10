@@ -157,7 +157,7 @@ export default function TutorAttendanceHistory({ logs }: TutorAttendanceHistoryP
                     {/* Log Type */}
                     <TableCell className="px-6 py-4">
                       <p className="text-sm font-bold text-slate-700 leading-none truncate">
-                        Daily Attendance Log
+                        {log.sessionName || "Daily Attendance"}
                       </p>
                       <span className="text-[10px] text-slate-400 font-semibold block mt-1">
                         Logged by {log.tutorName}
@@ -223,7 +223,7 @@ export default function TutorAttendanceHistory({ logs }: TutorAttendanceHistoryP
                   Attendance Details
                 </span>
                 <h3 className="text-base font-bold text-slate-800 mt-2 font-heading">
-                  Daily Attendance Log
+                  {selectedLog.sessionName || "Daily Attendance"}
                 </h3>
                 <p className="text-xs text-slate-450 font-semibold mt-1">
                   Logged on {new Date(selectedLog.date).toLocaleDateString("en-US", {

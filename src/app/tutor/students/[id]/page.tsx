@@ -51,7 +51,7 @@ function TutorStudentDetailsContent({ params }: PageProps) {
 
   return (
     <TutorStudentDetails
-      student={student}
+      data={student}
       onBack={() => router.push("/tutor/students")}
     />
   );
