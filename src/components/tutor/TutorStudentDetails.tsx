@@ -291,7 +291,7 @@ export default function TutorStudentDetails({
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0 max-h-[300px] overflow-y-auto">
-            {exams.length > 0 ? (
+            {exams && exams.length > 0 ? (
               <div className="divide-y divide-slate-100">
                 {exams.map((exam) => (
                   <div key={exam.id} className="p-4 hover:bg-slate-50 transition-colors">
@@ -352,7 +352,7 @@ export default function TutorStudentDetails({
           </CardTitle>
         </CardHeader>
         <CardContent className="p-0 max-h-[350px] overflow-y-auto">
-          {attendanceBySessions.length > 0 ? (
+          {attendanceBySessions && attendanceBySessions.length > 0 ? (
             <div className="divide-y divide-slate-100">
               {attendanceBySessions
                 .flatMap((group) =>

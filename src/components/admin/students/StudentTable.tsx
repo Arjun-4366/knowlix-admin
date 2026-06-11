@@ -54,16 +54,13 @@ export default function StudentTable({
 
   const getStatusBadgeClass = (status: string) => {
     switch (status) {
-      case "Approved":
+      case "Admission Taken":
+      case "Course Completed":
         return "bg-[var(--brand-light-green)] text-[var(--brand-mid)] border-[var(--brand-light)]/20";
-      case "Pending Approval":
       case "Pending":
-      case "In Review":
         return "bg-slate-50 text-slate-650 border-slate-200/60";
       case "Inactive":
         return "bg-amber-50 text-amber-700 border-amber-200";
-      case "Rejected":
-        return "bg-slate-105 text-slate-500 border-slate-200";
       default:
         return "bg-slate-100 text-slate-700 border-slate-200";
     }
@@ -106,11 +103,10 @@ export default function StudentTable({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="All">All Statuses</SelectItem>
-                <SelectItem value="Pending Approval">Pending Approval</SelectItem>
-                <SelectItem value="In Review">In Review</SelectItem>
-                <SelectItem value="Approved">Approved</SelectItem>
-                <SelectItem value="Inactive">Inactive</SelectItem>
-                <SelectItem value="Rejected">Rejected</SelectItem>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="admission_taken">Admission Taken</SelectItem>
+                <SelectItem value="course_completed">Course Completed</SelectItem>
+                <SelectItem value="inactive">Inactive</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -204,12 +200,10 @@ export default function StudentTable({
                           <SelectValue placeholder={student.admissionStatus} />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="Pending Approval">Pending Approval</SelectItem>
-                          <SelectItem value="Pending">Pending</SelectItem>
-                          <SelectItem value="In Review">In Review</SelectItem>
-                          <SelectItem value="Approved">Approved</SelectItem>
-                          <SelectItem value="Inactive">Inactive</SelectItem>
-                          <SelectItem value="Rejected">Rejected</SelectItem>
+                          <SelectItem value="pending">Pending</SelectItem>
+                          <SelectItem value="admission_taken">Admission Taken</SelectItem>
+                          <SelectItem value="course_completed">Course Completed</SelectItem>
+                          <SelectItem value="inactive">Inactive</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>

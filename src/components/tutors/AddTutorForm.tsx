@@ -22,8 +22,12 @@ interface AddTutorFormProps {
 }
 
 const AVAILABILITY_OPTIONS = ["Morning", "Afternoon", "Evening"];
-const SUBJECT_OPTIONS = ["Math", "Physics", "Chemistry", "Biology", "English", "Science", "Computer Science"];
-const SYLLABUS_OPTIONS = ["CBSE", "ICSE", "State Board", "IB", "IGCSE"];
+const SUBJECT_OPTIONS = [
+  "ENGLISH", "MALAYALAM", "ARABIC", "HINDI", "FRENCH", "GERMAN", "SPANISH",
+  "MATHS", "SCIENCE", "Physics", "Chemistry", "Bio", "IT", "AI",
+  "Drawing", "Handwriting", "Communicative English", "Madarasa subject", "QURAN"
+];
+const SYLLABUS_OPTIONS = ["CBSE", "IGCSE", "ICSE", "IB", "KERALA STATE."];
 
 export default function AddTutorForm({
   onClose,
@@ -31,38 +35,59 @@ export default function AddTutorForm({
   isSubmitting = false,
   tutorToEdit,
 }: AddTutorFormProps) {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
+  const [name, setName] = useState(() => tutorToEdit?.name || "");
+  const [email, setEmail] = useState(() => tutorToEdit?.email || "");
+  const [phone, setPhone] = useState(() => tutorToEdit?.phone || "");
   const [password, setPassword] = useState("");
-  const [experience, setExperience] = useState("");
-  const [availability, setAvailability] = useState<string[]>([]);
-  const [role, setRole] = useState("subject_tutor");
-  const [status, setStatus] = useState<TutorStatus>("pending");
+
+  const [experience, setExperience] = useState(() => {
+    const expStr = tutorToEdit?.experience || "";
+    const expMatch = expStr.match(/\d+/);
+    if (expMatch) {
+      const num = parseInt(expMatch[0]);
+      return `${num} Year${num > 1 ? "s" : ""}`;
+    }
+    return expStr;
+  });
+
+  const [availability, setAvailability] = useState<string[]>(() => {
+    if (Array.isArray(tutorToEdit?.availability)) return tutorToEdit!.availability as string[];
+    if (typeof tutorToEdit?.availability === "string") {
+      return tutorToEdit.availability.split(",").map(a => a.trim()).filter(Boolean);
+    }
+    return [];
+  });
+
+  const [status, setStatus] = useState<TutorStatus>(() => {
+    const st = tutorToEdit?.status?.toLowerCase() || "pending";
+    return (st === "approved" || st === "pending" ? st : "pending") as TutorStatus;
+  });
 
   const [subjectEntries, setSubjectEntries] = useState<Array<{ name: string; syllabi: string[] }>>([]);
-  const [customSubjectInput, setCustomSubjectInput] = useState("");
-
-  // Permissions state
-  const [canUploadNotes, setCanUploadNotes] = useState(false);
-  const [canEditNotes, setCanEditNotes] = useState(false);
-  const [canShareMaterial, setCanShareMaterial] = useState(false);
 
   useEffect(() => {
     if (tutorToEdit) {
       setName(tutorToEdit.name || "");
       setEmail(tutorToEdit.email || "");
       setPhone(tutorToEdit.phone || "");
-      setExperience(tutorToEdit.experience || "");
-      setRole(tutorToEdit.role || "subject_tutor");
-      setStatus(tutorToEdit.status || "pending");
-      setCanUploadNotes(tutorToEdit.permissions?.canUploadNotes || false);
-      setCanEditNotes(tutorToEdit.permissions?.canEditNotes || false);
-      setCanShareMaterial(tutorToEdit.permissions?.canShareMaterial || false);
+
+      // Normalize experience
+      const expStr = tutorToEdit.experience || "";
+      const expMatch = expStr.match(/\d+/);
+      if (expMatch) {
+        const num = parseInt(expMatch[0]);
+        setExperience(`${num} Year${num > 1 ? "s" : ""}`);
+      } else {
+        setExperience(expStr);
+      }
+
+      // Normalize status
+      const st = tutorToEdit.status?.toLowerCase() || "pending";
+      setStatus((st === "approved" || st === "pending" ? st : "pending") as TutorStatus);
 
       // Load availability
       if (Array.isArray(tutorToEdit.availability)) {
-        setAvailability(tutorToEdit.availability);
+        setAvailability(tutorToEdit.availability as string[]);
       } else if (typeof tutorToEdit.availability === "string") {
         setAvailability(tutorToEdit.availability.split(",").map(a => a.trim()).filter(Boolean));
       } else {
@@ -70,16 +95,20 @@ export default function AddTutorForm({
       }
 
       // Load subject entries
+      let parsedEntries: Array<{ name: string; syllabi: string[] }> = [];
       if (tutorToEdit.subjectEntries) {
-        setSubjectEntries(tutorToEdit.subjectEntries);
+        parsedEntries = tutorToEdit.subjectEntries;
       } else if (tutorToEdit.subjects) {
-        setSubjectEntries(tutorToEdit.subjects.map(s => ({
+        parsedEntries = tutorToEdit.subjects.map(s => ({
           name: s,
           syllabi: tutorToEdit.syllabus || []
-        })));
-      } else {
-        setSubjectEntries([]);
+        }));
       }
+
+      setSubjectEntries(parsedEntries.map(e => {
+        const normalizedName = e.name.toLowerCase() === "math" ? "MATHS" : SUBJECT_OPTIONS.find(s => s.toLowerCase() === e.name.toLowerCase()) || e.name;
+        return { ...e, name: normalizedName };
+      }));
     }
   }, [tutorToEdit]);
 
@@ -114,14 +143,6 @@ export default function AddTutorForm({
     );
   };
 
-  const addCustomSubject = () => {
-    const trimmed = customSubjectInput.trim();
-    if (trimmed && !subjectEntries.some((e) => e.name.toLowerCase() === trimmed.toLowerCase())) {
-      setSubjectEntries((prev) => [...prev, { name: trimmed, syllabi: [] }]);
-      setCustomSubjectInput("");
-    }
-  };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !email || !experience || !phone || availability.length === 0 || subjectEntries.length === 0) {
@@ -136,13 +157,13 @@ export default function AddTutorForm({
       subjects: subjectEntries.map((e) => e.name),
       experience: experience.toLowerCase().includes("year") ? experience : `${experience} Years`,
       availability,
-      role,
+      role: tutorToEdit?.role || "subject_tutor",
       status,
       profileImage: tutorToEdit?.profileImage || "",
-      permissions: {
-        canUploadNotes,
-        canEditNotes,
-        canShareMaterial,
+      permissions: tutorToEdit?.permissions || {
+        canUploadNotes: false,
+        canEditNotes: false,
+        canShareMaterial: false,
       },
       syllabus: Array.from(new Set(subjectEntries.flatMap((e) => e.syllabi))),
       subjectEntries,
@@ -219,16 +240,24 @@ export default function AddTutorForm({
             />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs font-semibold text-slate-500">Experience (e.g. 5 Years) *</Label>
-            <Input
-              type="text"
-              required
+            <Label className="text-xs font-semibold text-slate-500">Experience *</Label>
+            <Select
+              key={`exp-${tutorToEdit?.id || "new"}`}
               disabled={isSubmitting}
-              placeholder="e.g. 5 years"
               value={experience}
-              onChange={(e) => setExperience(e.target.value)}
-              className="w-full bg-slate-50 focus:bg-white border-slate-200 rounded-xl"
-            />
+              onValueChange={setExperience}
+            >
+              <SelectTrigger className="w-full text-sm bg-slate-50 border border-slate-200 rounded-xl">
+                <SelectValue placeholder="Select Experience" />
+              </SelectTrigger>
+              <SelectContent>
+                {Array.from({ length: 30 }, (_, i) => i + 1).map((year) => (
+                  <SelectItem key={year} value={`${year} Year${year > 1 ? "s" : ""}`}>
+                    {year} Year{year > 1 ? "s" : ""}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
@@ -302,23 +331,6 @@ export default function AddTutorForm({
             })}
           </div>
 
-          <div className="flex gap-2 items-center">
-            <Input
-              type="text"
-              placeholder="Add custom subject..."
-              value={customSubjectInput}
-              onChange={(e) => setCustomSubjectInput(e.target.value)}
-              className="h-9 text-xs bg-slate-50 border-slate-200 rounded-xl"
-            />
-            <Button
-              type="button"
-              onClick={addCustomSubject}
-              className="h-9 px-3 text-xs bg-[var(--brand-green)] text-white rounded-xl"
-            >
-              Add
-            </Button>
-          </div>
-
           {subjectEntries.length > 0 && (
             <div className="space-y-3 bg-slate-50/50 p-4 border border-slate-150 rounded-2xl mt-2">
               <Label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
@@ -355,65 +367,23 @@ export default function AddTutorForm({
           )}
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-1.5">
-            <Label className="text-xs font-semibold text-slate-500">Staff Role *</Label>
-            <Select disabled={isSubmitting} value={role} onValueChange={setRole}>
-              <SelectTrigger className="w-full text-sm bg-slate-50 border border-slate-200 rounded-xl">
-                <SelectValue placeholder="Select Role" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="subject_tutor">Subject Tutor</SelectItem>
-                <SelectItem value="mentor_sales_bro">Mentor / Sales</SelectItem>
-                <SelectItem value="academic_coordinator">Academic Coordinator</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+        <div className="grid grid-cols-1 gap-4">
           <div className="space-y-1.5">
             <Label className="text-xs font-semibold text-slate-500">HR Status *</Label>
-            <Select disabled={isSubmitting} value={status} onValueChange={(val) => setStatus(val as any)}>
+            <Select
+              key={`status-${tutorToEdit?.id || "new"}`}
+              disabled={isSubmitting}
+              value={status}
+              onValueChange={(val) => setStatus(val as TutorStatus)}
+            >
               <SelectTrigger className="w-full text-sm bg-slate-50 border border-slate-200 rounded-xl">
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="pending">Pending HR</SelectItem>
                 <SelectItem value="approved">Approved</SelectItem>
-                <SelectItem value="rejected">Rejected</SelectItem>
               </SelectContent>
             </Select>
-          </div>
-        </div>
-
-        {/* Permissions Switches */}
-        <div className="pt-4 border-t border-slate-100 space-y-3">
-          <Label className="text-xs font-bold text-slate-600 uppercase tracking-wider block">
-            Workspace Permissions
-          </Label>
-          <div className="grid grid-cols-3 gap-3">
-            <div className="flex items-center justify-between p-3 rounded-xl border border-slate-200 bg-slate-50/50">
-              <span className="text-[10px] font-bold text-slate-600">Upload Notes</span>
-              <Switch
-                disabled={isSubmitting}
-                checked={canUploadNotes}
-                onCheckedChange={setCanUploadNotes}
-              />
-            </div>
-            <div className="flex items-center justify-between p-3 rounded-xl border border-slate-200 bg-slate-50/50">
-              <span className="text-[10px] font-bold text-slate-600">Edit Notes</span>
-              <Switch
-                disabled={isSubmitting}
-                checked={canEditNotes}
-                onCheckedChange={setCanEditNotes}
-              />
-            </div>
-            <div className="flex items-center justify-between p-3 rounded-xl border border-slate-200 bg-slate-50/50">
-              <span className="text-[10px] font-bold text-slate-600">Share Material</span>
-              <Switch
-                disabled={isSubmitting}
-                checked={canShareMaterial}
-                onCheckedChange={setCanShareMaterial}
-              />
-            </div>
           </div>
         </div>
 

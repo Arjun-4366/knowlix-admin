@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Star, CheckCircle2, Eye, Trash2, Pencil } from "lucide-react";
+import { Star, CheckCircle2, Eye, Trash2, Pencil, Users } from "lucide-react";
 import { ITutor } from "@/types/admin/tutor";
 
 interface TutorTableProps {
@@ -45,25 +45,28 @@ export default function TutorTable({
       <Table className="w-full">
         <TableHeader className="bg-slate-50/50">
           <TableRow>
-            <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[12%]">
+            <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[10%]">
               Tutor ID
             </TableHead>
-            <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[24%]">
+            <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[22%]">
               Name
             </TableHead>
-            <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[20%]">
+            <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[18%]">
               Subject Expertise
             </TableHead>
-            <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[12%]">
+            <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[10%]">
               Experience
             </TableHead>
-            <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[12%]">
+            <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[10%]">
               Availability
+            </TableHead>
+            <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[8%] text-center">
+              Students
             </TableHead>
             <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[12%]">
               GROWTH Points
             </TableHead>
-            <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right w-[8%]">
+            <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right w-[10%]">
               Actions
             </TableHead>
           </TableRow>
@@ -85,16 +88,35 @@ export default function TutorTable({
                     <div>
                       <p className="text-sm font-semibold text-slate-800">{tutor.name}</p>
                       <p className="text-xs text-slate-450">{tutor.email}</p>
+                      {tutor.phone && <p className="text-[10px] text-slate-400 mt-0.5">{tutor.phone}</p>}
                     </div>
                   </TableCell>
-                  <TableCell className="px-6 py-4 text-sm text-slate-700 font-semibold">
-                    {tutor.subjects && tutor.subjects.length > 0 ? tutor.subjects.join(", ") : "General"}
+                  <TableCell className="px-6 py-4 text-sm text-slate-700 font-semibold max-w-[200px]">
+                    <div className="flex flex-wrap gap-1">
+                      {tutor.subjectEntries && tutor.subjectEntries.length > 0
+                        ? tutor.subjectEntries.map((e, idx) => (
+                            <Badge key={idx} variant="outline" className="text-[10px] bg-slate-50 border-slate-200">
+                              {e.name} {e.syllabi.length > 0 ? `(${e.syllabi.join(", ")})` : ""}
+                            </Badge>
+                          ))
+                        : tutor.subjects && tutor.subjects.length > 0
+                        ? tutor.subjects.join(", ")
+                        : "General"}
+                    </div>
                   </TableCell>
                   <TableCell className="px-6 py-4 text-sm text-slate-650">
                     {tutor.experience}
                   </TableCell>
                   <TableCell className="px-6 py-4 text-sm text-slate-655">
                     {Array.isArray(tutor.availability) ? tutor.availability.join(", ") : tutor.availability}
+                  </TableCell>
+                  <TableCell className="px-6 py-4 text-center">
+                    <div className="flex items-center justify-center gap-1.5">
+                      <Users className="w-3.5 h-3.5 text-slate-400" />
+                      <span className="text-sm font-semibold text-slate-700">
+                        {tutor.assignedStudentIds?.length || 0}
+                      </span>
+                    </div>
                   </TableCell>
                   <TableCell className="px-6 py-4">
                     {hasPerformance ? (

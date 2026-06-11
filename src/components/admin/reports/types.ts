@@ -9,7 +9,6 @@ export interface DateRange {
 export interface ReportFiltersState {
   type: ReportType;
   dateRange: DateRange;
-  tutorTier: string;
   tutorId?: string;
 }
 

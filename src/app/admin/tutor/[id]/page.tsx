@@ -153,14 +153,14 @@ function TutorDetailContent({ params }: PageProps) {
 
   // Assigned students filter
   const assignedStudents = useMemo(() => {
-    if (!tutor || !studentsResponse?.data) return [];
-    return studentsResponse.data.filter((s) => s.assignedTutorId === tutor.id);
-  }, [tutor, studentsResponse]);
+    return tutorDetails?.assignedStudents || [];
+  }, [tutorDetails]);
 
   const unassignedStudents = useMemo(() => {
     if (!tutor || !studentsResponse?.data) return [];
-    return studentsResponse.data.filter((s) => s.assignedTutorId !== tutor.id);
-  }, [tutor, studentsResponse]);
+    const assignedIds = new Set((tutorDetails?.assignedStudents || []).map(s => s.id));
+    return studentsResponse.data.filter((s) => !assignedIds.has(s.id));
+  }, [tutor, studentsResponse, tutorDetails]);
 
   const handleAddStudent = async () => {
     if (selectedStudentIds.length === 0 || !tutor) return;
@@ -427,7 +427,7 @@ function TutorDetailContent({ params }: PageProps) {
                       <div>
                         <p className="text-xs font-bold text-slate-700">{s.studentName}</p>
                         <p className="text-[10px] text-slate-400 font-semibold">
-                          Grade {s.class} • {s.courseType}
+                          Grade {s.class} {s.courseType ? `• ${s.courseType}` : s.package ? `• ${s.package.replace("_", " ")}` : ""}
                         </p>
                       </div>
                     </div>
@@ -472,25 +472,21 @@ function TutorDetailContent({ params }: PageProps) {
                   <Select
                     value=""
                     onValueChange={(val) => {
-                      if (val !== "none" && !selectedStudentIds.includes(val)) {
+                      if (val && !selectedStudentIds.includes(val)) {
                         setSelectedStudentIds(prev => [...prev, val]);
                       }
                     }}
-                    disabled={isAssigning}
+                    disabled={isAssigning || unassignedStudents.filter(s => !selectedStudentIds.includes(s.id)).length === 0}
                   >
                     <SelectTrigger className="h-8 text-xs font-semibold bg-slate-50/50 border-slate-200 rounded-lg flex-1">
-                      <SelectValue placeholder="Select students to assign..." />
+                      <SelectValue placeholder={unassignedStudents.filter(s => !selectedStudentIds.includes(s.id)).length > 0 ? "Select students to assign..." : "No available students"} />
                     </SelectTrigger>
                     <SelectContent>
-                      {unassignedStudents.filter(s => !selectedStudentIds.includes(s.id)).length > 0 ? (
-                        unassignedStudents.filter(s => !selectedStudentIds.includes(s.id)).map(s => (
-                          <SelectItem key={s.id} value={s.id}>
-                            {s.studentName} (Grade {s.class})
-                          </SelectItem>
-                        ))
-                      ) : (
-                        <SelectItem value="none" disabled>No available students</SelectItem>
-                      )}
+                      {unassignedStudents.filter(s => !selectedStudentIds.includes(s.id)).map(s => (
+                        <SelectItem key={s.id} value={s.id}>
+                          {s.studentName} (Grade {s.class})
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   <Button
@@ -511,8 +507,42 @@ function TutorDetailContent({ params }: PageProps) {
         </Card>
       </div>
 
-      {/* Schedule & Remarks Row */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* Schedule, Remarks & Statistics Row */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Class Statistics */}
+        <Card className="bg-white border-slate-150 shadow-sm">
+          <CardHeader className="p-6 pb-3 border-b border-slate-100 bg-slate-50/50">
+            <div className="flex items-center gap-2">
+              <Check className="w-5 h-5 text-[var(--brand-green)]" />
+              <CardTitle className="font-bold text-slate-800 text-sm uppercase tracking-wider">
+                Class Statistics
+              </CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent className="p-6 pt-4 space-y-3.5">
+            <div className="flex justify-between items-center pb-2 border-b border-slate-100">
+              <span className="text-xs font-bold text-slate-500">Total Sessions</span>
+              <span className="text-sm font-bold text-slate-800">{tutorDetails?.totalSessions || 0}</span>
+            </div>
+            <div className="flex justify-between items-center pb-2 border-b border-slate-100">
+              <span className="text-xs font-bold text-slate-500">Conducted</span>
+              <span className="text-sm font-bold text-green-600">{tutorDetails?.conducted || 0}</span>
+            </div>
+            <div className="flex justify-between items-center pb-2 border-b border-slate-100">
+              <span className="text-xs font-bold text-slate-500">Not Conducted</span>
+              <span className="text-sm font-bold text-red-600">{tutorDetails?.notConducted || 0}</span>
+            </div>
+            <div className="flex justify-between items-center pb-2 border-b border-slate-100">
+              <span className="text-xs font-bold text-slate-500">Postponed</span>
+              <span className="text-sm font-bold text-amber-600">{tutorDetails?.postponed || 0}</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-xs font-bold text-slate-500">Attendance Rate</span>
+              <span className="text-sm font-bold text-blue-600">{tutorDetails?.attendanceRate || 0}%</span>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Schedule Slots */}
         <Card className="bg-white border-slate-150 shadow-sm">
           <CardHeader className="p-6 pb-3 border-b border-slate-100 bg-slate-50/50">
@@ -604,7 +634,7 @@ function TutorDetailContent({ params }: PageProps) {
               variant="outline"
               className="text-[10px] bg-[var(--brand-light-green)] border-[var(--brand-light)]/20 text-[var(--brand-mid)] px-2 py-0.5 rounded-md font-bold"
             >
-              Lifetime Growth Points: {tutor.growthPoints || 0}
+              Lifetime Growth Points: {tutorDetails?.totalGrowthPoints ?? tutor.growthPoints ?? 0}
             </Badge>
           </div>
           <p className="text-xs text-slate-400 mt-1">

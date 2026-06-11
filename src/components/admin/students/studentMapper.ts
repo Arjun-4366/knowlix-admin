@@ -28,23 +28,20 @@ export const formatAdmissionStatus = (status?: string) => {
 
   const normalized = status.toLowerCase();
 
-  if (normalized === "active" || normalized === "approved") {
-    return "Approved";
-  }
-
   if (normalized === "pending") {
     return "Pending";
   }
 
-  if (normalized === "in_review") {
-    return "In Review";
+  if (normalized === "admission_taken" || normalized === "active" || normalized === "approved") {
+    // Keep backward compat for older records
+    return "Admission Taken";
   }
 
-  if (normalized === "rejected") {
-    return "Rejected";
+  if (normalized === "course_completed") {
+    return "Course Completed";
   }
 
-  if (normalized === "inactive") {
+  if (normalized === "inactive" || normalized === "rejected") {
     return "Inactive";
   }
 
@@ -56,11 +53,16 @@ export const formatAdmissionStatus = (status?: string) => {
 };
 
 export const toAdmissionStatusPayload = (status: string) => {
-  if (status === "Approved") {
-    return "active";
+  if (status === "Admission Taken") {
+    return "admission_taken";
   }
-
-  return status.toLowerCase().replace(/\s+/g, "_");
+  if (status === "Course Completed") {
+    return "course_completed";
+  }
+  if (status === "Inactive") {
+    return "inactive";
+  }
+  return "pending";
 };
 
 export const formatPackage = (packageValue?: string, customDetails?: string) => {

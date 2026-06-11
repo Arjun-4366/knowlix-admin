@@ -42,7 +42,6 @@ const initialFilters: ReportFiltersState = {
     startDate: "2026-05-01",
     endDate: "2026-05-31",
   },
-  tutorTier: "all",
 };
 
 export default function ReportsDashboard() {
@@ -52,41 +51,41 @@ export default function ReportsDashboard() {
   const [hasGenerated, setHasGenerated] = useState(true);
 
   // React Query hook call to get real tutor reports
-  const { data: realReportsResponse } = useGetTutorPerformanceReport(
-    activeFilters.type === "tutor" ? activeFilters.tutorId : undefined
+  const { data: realReportsResponse, refetch } = useGetTutorPerformanceReport(
+    activeFilters.type === "tutor" ? activeFilters.tutorId : undefined,
+    activeFilters.dateRange.startDate,
+    activeFilters.dateRange.endDate
   );
-
-  // Filtered lists
-  const [filteredTutors, setFilteredTutors] = useState<TutorPerformanceReport[]>([]);
 
   // Generate Report execution
   const handleGenerate = () => {
     setIsGenerating(true);
     setHasGenerated(false);
 
-    setTimeout(() => {
-      // Set active filters to trigger query hook
+    if (JSON.stringify(filters) === JSON.stringify(activeFilters)) {
+      refetch().finally(() => {
+        setIsGenerating(false);
+        setHasGenerated(true);
+        toast.success(`${getReportLabel(filters.type)} generated successfully!`);
+      });
+    } else {
       setActiveFilters(filters);
-
-      // Perform filtering
-      const { type, tutorTier } = filters;
-
-      if (type === "tutor") {
-        // Since we are using react-query for real data, the filtering is handled by the hook
-        // We could apply local filtering on `realReportsResponse` if needed,
-        // but for now the hook fetches based on `activeFilters.tutorId`.
-      }
-
-      setIsGenerating(false);
-      setHasGenerated(true);
-      toast.success(`${getReportLabel(type)} generated successfully!`);
-    }, 900);
+    }
   };
+
+  useEffect(() => {
+    if (isGenerating && JSON.stringify(filters) === JSON.stringify(activeFilters)) {
+      refetch().finally(() => {
+        setIsGenerating(false);
+        setHasGenerated(true);
+        toast.success(`${getReportLabel(filters.type)} generated successfully!`);
+      });
+    }
+  }, [activeFilters]);
 
   const handleReset = () => {
     setFilters(initialFilters);
     setActiveFilters(initialFilters);
-    setFilteredTutors([]);
     toast.success("Filters reset to default.");
   };
 
@@ -106,7 +105,7 @@ export default function ReportsDashboard() {
       csvContent += "Tutor ID,Tutor Name,Role,Growth Points,Performance Score,G,H,O,R,T,W,Total Sessions,Conducted Sessions,Attendance Rate (%)\n";
       const realData = realReportsResponse?.data ?? [];
       realData.forEach((t) => {
-        csvContent += `"${t.tutorId}","${t.name}","${t.role}",${t.growthPoints},${t.performanceScore},${t.growthBreakdown.G},${t.growthBreakdown.H},${t.growthBreakdown.O},${t.growthBreakdown.R},${t.growthBreakdown.T},${t.growthBreakdown.W},${t.totalSessions},${t.conductedSessions},${t.attendanceRate}\n`;
+        csvContent += `"${t.tutorId}","${t.name}","${t.role || ""}",${t.growthPoints},${t.performanceScore},${t.growthBreakdown?.G || 0},${t.growthBreakdown?.H || 0},${t.growthBreakdown?.O || 0},${t.growthBreakdown?.R || 0},${t.growthBreakdown?.T || 0},${t.growthBreakdown?.W || 0},${t.totalSessions},${t.conductedSessions},${t.attendanceRate}\n`;
       });
     }
 
@@ -120,10 +119,6 @@ export default function ReportsDashboard() {
     link.click();
     document.body.removeChild(link);
     toast.success("CSV export download started.");
-  };
-
-  const handlePrint = () => {
-    window.print();
   };
 
   return (
@@ -162,15 +157,6 @@ export default function ReportsDashboard() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={handlePrint}
-                className="bg-white border-slate-200 text-slate-650 hover:text-slate-900 rounded-xl text-xs font-semibold cursor-pointer"
-              >
-                <Printer className="w-3.5 h-3.5 mr-1.5" />
-                Print / Save PDF
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
                 onClick={handleExportCSV}
                 className="bg-white border-slate-200 text-slate-650 hover:text-slate-900 rounded-xl text-xs font-semibold cursor-pointer"
               >
@@ -199,22 +185,6 @@ export default function ReportsDashboard() {
         </div>
       )}
 
-      {/* Signature & Audit section visible only during standard print */}
-      <div className="hidden print:block pt-12 text-center mt-12 border-t border-slate-200 text-xs text-slate-500">
-        <div className="grid grid-cols-2 gap-8 max-w-lg mx-auto">
-          <div>
-            <div className="border-b border-slate-300 pb-8 mb-2"></div>
-            <p className="font-bold text-slate-700">Lead Academic Coordinator</p>
-            <p className="text-[10px] text-slate-400 mt-0.5">Knowlix Administration Board</p>
-          </div>
-          <div>
-            <div className="border-b border-slate-300 pb-8 mb-2"></div>
-            <p className="font-bold text-slate-700">System Auditor Signature</p>
-            <p className="text-[10px] text-slate-400 mt-0.5">Verified & Secured Stamp</p>
-          </div>
-        </div>
-        <p className="text-[9px] text-slate-400 mt-10">This report has been automatically compiled by the Knowlix Analytics engine. Date generated: {new Date().toLocaleString("en-IN")}.</p>
-      </div>
     </div>
   );
 }

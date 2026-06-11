@@ -16,6 +16,24 @@ export interface ITutorPermissions {
   canShareMaterial: boolean;
 }
 
+export interface IAssignedStudent {
+  id: string;
+  admissionNumber?: string;
+  studentName: string;
+  email: string;
+  phone: string;
+  parentName?: string;
+  class?: string;
+  place?: string;
+  syllabus?: string;
+  package?: string;
+  admissionStatus?: string;
+  totalFee?: number;
+  paidAmount?: number;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 export interface ITutorProfilePayload {
   id: string;
   name: string;
@@ -35,7 +53,7 @@ export interface ITutorProfilePayload {
   negativeRemarks: string[] | null;
   syllabus: string[];
   slots: ISlotEntry[];
-  assignedStudentIds?: string[];
+  assignedStudentIds?: IAssignedStudent[] | string[];
   createdAt: string;
   updatedAt: string;
 }

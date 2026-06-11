@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useGetTutorProfile } from "@/querys/tutor/profileQuery";
+import { useTutorStore } from "@/store/tutorStore";
 
 type NavChild = { name: string; href: string };
 type NavItem = {
@@ -42,7 +43,17 @@ interface Props {
 
 export default function TutorSidebar({ collapsed }: Props) {
   const pathname = usePathname();
-  const { data: profile } = useGetTutorProfile();
+  const { data: profileResponse } = useGetTutorProfile();
+  const profile = profileResponse;
+  const setProfile = useTutorStore((s) => s.setProfile);
+
+  // Populate the global store when profile is loaded
+  useEffect(() => {
+    if (profile) {
+      setProfile(profile);
+    }
+  }, [profile, setProfile]);
+
   const [openDropdowns, setOpenDropdowns] = useState<Record<string, boolean>>(() => {
     const initial: Record<string, boolean> = {};
     nav.forEach((item) => {

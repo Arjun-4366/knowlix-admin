@@ -1,4 +1,4 @@
-import { useState, useRef, type FormEvent } from "react";
+import { useState, useRef, useEffect, type FormEvent } from "react";
 import { CheckCircle, FileText, X, Upload, ExternalLink } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { Badge } from "@/components/ui/badge";
@@ -14,8 +14,12 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { ButtonLoader } from "@/components/shared/Loader";
-import { ICreateStudentPayload, IStudentDocuments, IStudent } from "@/types/admin/student";
-import { useGetTutors } from "@/querys/admin/tutorQuery";
+import {
+  ICreateStudentPayload,
+  IStudentDocuments,
+  IStudent,
+} from "@/types/admin/student";
+import { useGetPrograms, useGetCoursesByProgram } from "@/querys/admin/programQuery";
 import { useGetMentors } from "@/querys/admin/mentorQuery";
 import { useGetCoordinators } from "@/querys/admin/coordinatorQuery";
 
@@ -101,7 +105,9 @@ function CertificateUploadField({
                 {getFileName(value)}
               </p>
               <p className="text-[10px] text-slate-450 mt-0.5">
-                {isFile ? formatFileSize((value as File).size) : "Cloud Document"}
+                {isFile
+                  ? formatFileSize((value as File).size)
+                  : "Cloud Document"}
               </p>
             </div>
           </div>
@@ -203,34 +209,67 @@ export default function AddStudentForm({
   isSubmitting = false,
   studentToEdit,
 }: AddStudentFormProps) {
-  const { data: tutorsResponse } = useGetTutors();
   const { data: mentorsResponse } = useGetMentors();
   const { data: coordinatorsResponse } = useGetCoordinators();
+  const { data: programsResponse } = useGetPrograms();
 
-  const tutorsList = tutorsResponse?.data ?? [];
   const mentorsList = mentorsResponse?.data ?? [];
   const coordinatorsList = coordinatorsResponse?.data ?? [];
+  const programsList = programsResponse?.programs ?? [];
 
-  const [studentName, setStudentName] = useState(studentToEdit?.studentName ?? "");
+  const [studentName, setStudentName] = useState(
+    studentToEdit?.studentName ?? "",
+  );
   const [parentName, setParentName] = useState(studentToEdit?.parentName ?? "");
   const [studentClass, setStudentClass] = useState(studentToEdit?.class ?? "8");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [place, setPlace] = useState(studentToEdit?.place ?? "");
-  const [courseType, setCourseType] = useState(studentToEdit?.courseType ?? "Online Tuition");
-  const [packageValue, setPackageValue] = useState(studentToEdit?.package ?? "3_months");
-  const [customPackageDetails, setCustomPackageDetails] = useState(studentToEdit?.customPackageDetails ?? "");
-  const [documents, setDocuments] = useState<IStudentDocuments>(studentToEdit?.documents ?? emptyDocuments);
-  const [coordinatorName, setCoordinatorName] = useState(studentToEdit?.coordinatorName ?? "");
-  const [admissionStatus, setAdmissionStatus] = useState(studentToEdit?.admissionStatus ?? "active");
-  const [assignedTutorId, setAssignedTutorId] = useState(studentToEdit?.assignedTutorId ?? "");
-  const [assignedMentorId, setAssignedMentorId] = useState(studentToEdit?.assignedMentorId ?? "");
-  const [assignedCoordinatorId, setAssignedCoordinatorId] = useState(studentToEdit?.assignedCoordinatorId ?? "");
+  const [programId, setProgramId] = useState(studentToEdit?.programId ?? "");
+  const [courseId, setCourseId] = useState(studentToEdit?.courseId ?? "");
 
-  const setDocumentValue = (key: keyof IStudentDocuments, value: string | File) => {
+  const { data: coursesResponse } = useGetCoursesByProgram(programId);
+  const coursesList = coursesResponse?.courses ?? [];
+  const [packageValue, setPackageValue] = useState(
+    studentToEdit?.package ?? "3_months",
+  );
+  
+  const [customYears, setCustomYears] = useState(
+    studentToEdit?.customPackageDetails?.match(/(\d+)\s*year/)?.[1] || "0"
+  );
+  const [customMonths, setCustomMonths] = useState(
+    studentToEdit?.customPackageDetails?.match(/(\d+)\s*month/)?.[1] || "0"
+  );
+
+  const [customPackageDetails, setCustomPackageDetails] = useState(
+    studentToEdit?.customPackageDetails ?? "",
+  );
+  const [documents, setDocuments] = useState<IStudentDocuments>(
+    studentToEdit?.documents ?? emptyDocuments,
+  );
+  const [coordinatorName, setCoordinatorName] = useState(
+    studentToEdit?.coordinatorName ?? "",
+  );
+  const [admissionStatus, setAdmissionStatus] = useState(
+    studentToEdit?.admissionStatus ?? "active",
+  );
+
+  const [assignedMentorId, setAssignedMentorId] = useState(
+    studentToEdit?.assignedMentorId ?? "",
+  );
+  const [assignedCoordinatorId, setAssignedCoordinatorId] = useState(
+    studentToEdit?.assignedCoordinatorId ?? "",
+  );
+
+  const setDocumentValue = (
+    key: keyof IStudentDocuments,
+    value: string | File,
+  ) => {
     setDocuments((current) => ({ ...current, [key]: value }));
   };
+
+  const isOnlineSchool = programsList.find((p) => p.id === programId)?.title?.toLowerCase().includes("online school");
 
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
@@ -242,12 +281,21 @@ export default function AddStudentForm({
       (!studentToEdit && !password.trim()) ||
       !place.trim() ||
       !coordinatorName.trim() ||
-      !assignedTutorId.trim() ||
+      !programId.trim() ||
+      !courseId.trim() ||
       !assignedMentorId.trim() ||
       !assignedCoordinatorId.trim()
     ) {
       toast.error("Please fill all required student and assignment fields.");
       return;
+    }
+
+    let finalCustomDetails = customPackageDetails.trim();
+    if (packageValue === "custom") {
+      const parts = [];
+      if (customYears !== "0") parts.push(`${customYears} year${customYears !== "1" ? "s" : ""}`);
+      if (customMonths !== "0") parts.push(`${customMonths} month${customMonths !== "1" ? "s" : ""}`);
+      finalCustomDetails = parts.join(" ");
     }
 
     onSubmit({
@@ -258,13 +306,15 @@ export default function AddStudentForm({
       phone: phone.trim(),
       password,
       place: place.trim(),
-      courseType,
+      courseType: programsList.find(p => p.id === programId)?.title || "",
+      programId: programId.trim(),
+      courseId: courseId.trim(),
       package: packageValue,
-      customPackageDetails: customPackageDetails.trim(),
-      documents,
+      customPackageDetails: finalCustomDetails,
+      documents: isOnlineSchool ? documents : emptyDocuments,
       coordinatorName: coordinatorName.trim(),
       admissionStatus,
-      assignedTutorId: assignedTutorId.trim(),
+      assignedTutorId: "",
       assignedMentorId: assignedMentorId.trim(),
       assignedCoordinatorId: assignedCoordinatorId.trim(),
     });
@@ -348,9 +398,15 @@ export default function AddStudentForm({
                     Phone
                   </Label>
                   <Input
+                    type="number"
                     value={phone}
-                    onChange={(event) => setPhone(event.target.value)}
-                    placeholder="+91..."
+                    onChange={(event) => {
+                      const val = event.target.value;
+                      if (/^\d*$/.test(val)) {
+                        setPhone(val);
+                      }
+                    }}
+                    placeholder="9876543210"
                     className="rounded-xl border-slate-200 bg-slate-50 focus:bg-white"
                   />
                 </div>
@@ -380,7 +436,9 @@ export default function AddStudentForm({
                   <SelectValue placeholder="Class" />
                 </SelectTrigger>
                 <SelectContent>
-                  {Array.from({ length: 12 }, (_, index) => String(index + 1)).map((value) => (
+                  {Array.from({ length: 12 }, (_, index) =>
+                    String(index + 1),
+                  ).map((value) => (
                     <SelectItem key={value} value={value}>
                       Class {value}
                     </SelectItem>
@@ -404,16 +462,36 @@ export default function AddStudentForm({
 
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold text-slate-550">
-                Course Type *
+                Program *
               </Label>
-              <Select value={courseType} onValueChange={setCourseType}>
+              <Select value={programId} onValueChange={(val) => { setProgramId(val); setCourseId(""); }}>
                 <SelectTrigger className="rounded-xl border-slate-200 bg-slate-50">
-                  <SelectValue placeholder="Course Type" />
+                  <SelectValue placeholder="Select Program" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Online Tuition">Online Tuition</SelectItem>
-                  <SelectItem value="Online School">Online School</SelectItem>
-                  <SelectItem value="Hybrid Learning">Hybrid Learning</SelectItem>
+                  {programsList.map((prog) => (
+                    <SelectItem key={prog.id} value={prog.id!}>
+                      {prog.title}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold text-slate-550">
+                Course *
+              </Label>
+              <Select disabled={!programId} value={courseId} onValueChange={setCourseId}>
+                <SelectTrigger className="rounded-xl border-slate-200 bg-slate-50">
+                  <SelectValue placeholder="Select Course" />
+                </SelectTrigger>
+                <SelectContent>
+                  {coursesList.map((course) => (
+                    <SelectItem key={course.id} value={course.id!}>
+                      {course.title}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -441,57 +519,87 @@ export default function AddStudentForm({
               <Label className="text-xs font-semibold text-slate-550">
                 Admission Status *
               </Label>
-              <Select value={admissionStatus} onValueChange={setAdmissionStatus}>
+              <Select
+                value={admissionStatus}
+                onValueChange={setAdmissionStatus}
+              >
                 <SelectTrigger className="rounded-xl border-slate-200 bg-slate-50">
                   <SelectValue placeholder="Admission Status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="admission_taken">
+                    Admission Taken
+                  </SelectItem>
                   <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="course_completed">
+                    Course Completed
+                  </SelectItem>
                   <SelectItem value="inactive">Inactive</SelectItem>
-                  <SelectItem value="rejected">Rejected</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
 
-          <div className="space-y-1.5">
-            <Label className="text-xs font-semibold text-slate-550">
-              Custom Package Details
-            </Label>
-            <Textarea
-              value={customPackageDetails}
-              onChange={(event) => setCustomPackageDetails(event.target.value)}
-              placeholder="Optional notes for custom package"
-              className="rounded-xl border-slate-200 bg-slate-50 focus:bg-white"
-            />
-          </div>
+          {packageValue === "custom" && (
+            <div className="space-y-1.5 col-span-1 md:col-span-2">
+              <Label className="text-xs font-semibold text-slate-550">
+                Custom Package Duration
+              </Label>
+              <div className="grid grid-cols-2 gap-4">
+                <Select value={customYears} onValueChange={setCustomYears}>
+                  <SelectTrigger className="rounded-xl border-slate-200 bg-slate-50">
+                    <SelectValue placeholder="Years" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="0">0 Years</SelectItem>
+                    <SelectItem value="1">1 Year</SelectItem>
+                    <SelectItem value="2">2 Years</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select value={customMonths} onValueChange={setCustomMonths}>
+                  <SelectTrigger className="rounded-xl border-slate-200 bg-slate-50">
+                    <SelectValue placeholder="Months" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="0">0 Months</SelectItem>
+                    {Array.from({ length: 12 }, (_, i) => String(i + 1)).map((m) => (
+                      <SelectItem key={m} value={m}>
+                        {m} Month{m !== "1" && "s"}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          )}
         </div>
 
-        <div className="space-y-4 pt-5">
-          <div className="flex items-center justify-between">
-            <h4 className="text-sm font-bold uppercase tracking-wider text-slate-750">
-              Documents
-            </h4>
-            <Badge
-              variant="outline"
-              className="rounded-full border-[var(--brand-light)]/20 bg-[var(--brand-light-green)] px-2 py-0.5 text-[10px] font-bold uppercase text-[var(--brand-mid)]"
-            >
-              File Upload
-            </Badge>
-          </div>
+        {isOnlineSchool && (
+          <div className="space-y-4 pt-5">
+            <div className="flex items-center justify-between">
+              <h4 className="text-sm font-bold uppercase tracking-wider text-slate-750">
+                Documents
+              </h4>
+              <Badge
+                variant="outline"
+                className="rounded-full border-[var(--brand-light)]/20 bg-[var(--brand-light-green)] px-2 py-0.5 text-[10px] font-bold uppercase text-[var(--brand-mid)]"
+              >
+                File Upload
+              </Badge>
+            </div>
 
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            {documentFields.map((field) => (
-              <CertificateUploadField
-                key={field.key}
-                label={field.label}
-                value={documents[field.key]}
-                onChange={(value) => setDocumentValue(field.key, value)}
-              />
-            ))}
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              {documentFields.map((field) => (
+                <CertificateUploadField
+                  key={field.key}
+                  label={field.label}
+                  value={documents[field.key]}
+                  onChange={(value) => setDocumentValue(field.key, value)}
+                />
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         <div className="space-y-4 pt-5">
           <h4 className="text-sm font-bold uppercase tracking-wider text-slate-750">
@@ -506,7 +614,7 @@ export default function AddStudentForm({
                 value={assignedCoordinatorId}
                 onValueChange={(val) => {
                   setAssignedCoordinatorId(val);
-                  const selected = coordinatorsList.find(c => c.id === val);
+                  const selected = coordinatorsList.find((c) => c.id === val);
                   if (selected) {
                     setCoordinatorName(selected.name);
                   }
@@ -518,46 +626,34 @@ export default function AddStudentForm({
                 <SelectContent>
                   {coordinatorsList.map((coordinator) => (
                     <SelectItem key={coordinator.id} value={coordinator.id}>
-                      {coordinator.name} ({coordinator.designation} - {coordinator.department})
+                      {coordinator.name} ({coordinator.designation} -{" "}
+                      {coordinator.department})
                     </SelectItem>
                   ))}
-                  {assignedCoordinatorId && !coordinatorsList.some(c => c.id === assignedCoordinatorId) && (
-                    <SelectItem value={assignedCoordinatorId}>
-                      {coordinatorName ? `${coordinatorName} (ID: ${assignedCoordinatorId})` : `ID: ${assignedCoordinatorId}`}
-                    </SelectItem>
-                  )}
+                  {assignedCoordinatorId &&
+                    !coordinatorsList.some(
+                      (c) => c.id === assignedCoordinatorId,
+                    ) && (
+                      <SelectItem value={assignedCoordinatorId}>
+                        {coordinatorName
+                          ? `${coordinatorName} (ID: ${assignedCoordinatorId})`
+                          : `ID: ${assignedCoordinatorId}`}
+                      </SelectItem>
+                    )}
                 </SelectContent>
               </Select>
             </div>
 
-            <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-slate-550">
-                Assigned Tutor *
-              </Label>
-              <Select value={assignedTutorId} onValueChange={setAssignedTutorId}>
-                <SelectTrigger className="rounded-xl border-slate-200 bg-slate-50">
-                  <SelectValue placeholder="Select Tutor" />
-                </SelectTrigger>
-                <SelectContent>
-                  {tutorsList.map((tutor) => (
-                    <SelectItem key={tutor.id} value={tutor.id}>
-                      {tutor.name} ({tutor.subjects ? tutor.subjects.join(", ") : "No subjects"})
-                    </SelectItem>
-                  ))}
-                  {assignedTutorId && !tutorsList.some(t => t.id === assignedTutorId) && (
-                    <SelectItem value={assignedTutorId}>
-                      {studentToEdit?.assignedTutorId ? `ID: ${studentToEdit.assignedTutorId}` : assignedTutorId}
-                    </SelectItem>
-                  )}
-                </SelectContent>
-              </Select>
-            </div>
+
 
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold text-slate-550">
                 Assigned Mentor *
               </Label>
-              <Select value={assignedMentorId} onValueChange={setAssignedMentorId}>
+              <Select
+                value={assignedMentorId}
+                onValueChange={setAssignedMentorId}
+              >
                 <SelectTrigger className="rounded-xl border-slate-200 bg-slate-50">
                   <SelectValue placeholder="Select Mentor" />
                 </SelectTrigger>
@@ -567,11 +663,14 @@ export default function AddStudentForm({
                       {mentor.name} ({mentor.designation} - {mentor.department})
                     </SelectItem>
                   ))}
-                  {assignedMentorId && !mentorsList.some(m => m.id === assignedMentorId) && (
-                    <SelectItem value={assignedMentorId}>
-                      {studentToEdit?.assignedMentorId ? `ID: ${studentToEdit.assignedMentorId}` : assignedMentorId}
-                    </SelectItem>
-                  )}
+                  {assignedMentorId &&
+                    !mentorsList.some((m) => m.id === assignedMentorId) && (
+                      <SelectItem value={assignedMentorId}>
+                        {studentToEdit?.assignedMentorId
+                          ? `ID: ${studentToEdit.assignedMentorId}`
+                          : assignedMentorId}
+                      </SelectItem>
+                    )}
                 </SelectContent>
               </Select>
             </div>
@@ -593,7 +692,13 @@ export default function AddStudentForm({
             className="rounded-xl bg-[var(--brand-green)] px-5 py-2.5 text-white shadow-md shadow-green-600/10 hover:bg-[var(--brand-mid)]"
             disabled={isSubmitting}
           >
-            {isSubmitting ? <ButtonLoader /> : (studentToEdit ? "Update Student" : "Save Student")}
+            {isSubmitting ? (
+              <ButtonLoader />
+            ) : studentToEdit ? (
+              "Update Student"
+            ) : (
+              "Save Student"
+            )}
           </Button>
         </div>
       </form>

@@ -26,8 +26,8 @@ const nav: NavItem[] = [
   { name: "Tutors", href: "/admin/tutor", icon: GraduationCap },
   { name: "Mentors", href: "/admin/mentors", icon: UserCheck },
   { name: "Coordinators", href: "/admin/coordinators", icon: Briefcase },
-  { name: "Notice Board", href: "/admin/notices", icon: MessageSquare },
-  { name: "Assignments", href: "/admin/assignments", icon: BookOpen },
+  // { name: "Notice Board", href: "/admin/notices", icon: MessageSquare },
+  // { name: "Assignments", href: "/admin/assignments", icon: BookOpen },
   { name: "Reports", href: "/admin/reports", icon: BarChart3 },
   { name: "HR Team", href: "/admin/hr", icon: UserCog },
   {

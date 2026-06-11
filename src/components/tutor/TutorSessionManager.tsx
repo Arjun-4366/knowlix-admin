@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Plus, Calendar, Video, Clock, Users, BookOpen, CheckCircle2, AlertCircle, X, Save, ExternalLink, Edit2, Trash2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Plus, Calendar, Video, Clock, Users, CheckCircle2, AlertCircle, X, Save, ExternalLink, Edit2, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,12 +23,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useGetSessions, useCreateTutorSession, useUpdateTutorSession, useDeleteTutorSession } from "@/querys/tutor/attendanceQuery";
-import { useGetTutorStudents } from "@/querys/tutor/studentQuery";
 import { TutorSessionType, ITutorSession } from "@/types/tutor/attendance";
 import { useConfirmation } from "@/context/ConfirmationContext";
+import { useTutorStore } from "@/store/tutorStore";
 import { toast } from "react-hot-toast";
 
-const SUBJECT_OPTIONS = ["Mathematics", "Physics", "Chemistry", "English", "Social Studies", "Computer Science", "Biology"];
 
 // Helper to convert ISO UTC timestamp to local format for datetime-local input
 const formatIsoToDatetimeLocal = (isoString: string): string => {
@@ -46,17 +45,22 @@ const formatIsoToDatetimeLocal = (isoString: string): string => {
 export default function TutorSessionManager() {
   const { confirm } = useConfirmation();
   const { data: sessionsResponse, isLoading: loadingSessions } = useGetSessions();
-  const { data: studentsResponse, isLoading: loadingStudents } = useGetTutorStudents();
   const { mutate: createSession, isPending: isCreating } = useCreateTutorSession();
   const { mutate: updateSession, isPending: isUpdating } = useUpdateTutorSession();
   const { mutate: deleteSession } = useDeleteTutorSession();
 
+  // Pull subjects and assigned students from the global tutor store
+  const storeSubjects = useTutorStore((s) => s.subjects);
+  const storeAssignedStudents = useTutorStore((s) => s.assignedStudents);
+
+  console.log("stored subject",storeSubjects);
+  console.log("assigned students",storeAssignedStudents);
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingSessionId, setEditingSessionId] = useState<string | null>(null);
   
   // Form States
   const [title, setTitle] = useState("");
-  const [subject, setSubject] = useState(SUBJECT_OPTIONS[0]);
+  const [subject, setSubject] = useState("");
   const [sessionType, setSessionType] = useState<TutorSessionType>("group");
   const [meetLink, setMeetLink] = useState("");
   const [scheduledAt, setScheduledAt] = useState("");
@@ -64,15 +68,18 @@ export default function TutorSessionManager() {
   const [notes, setNotes] = useState("");
   const [selectedStudentIds, setSelectedStudentIds] = useState<string[]>([]);
 
+  // Sync default subject once store subjects load (profile populates asynchronously)
+  useEffect(() => {
+    if (storeSubjects.length > 0 && !subject) {
+      setSubject(storeSubjects[0]);
+    }
+  }, [storeSubjects]);
+
   const sessions = sessionsResponse?.data || [];
-  const students = studentsResponse?.data || [];
+  // Use store's assigned students (fully populated with names)
+  const activeStudents = storeAssignedStudents;
 
-  // Filter out to only show active/approved assigned students
-  const activeStudents = students.filter(
-    (s) => s.admissionStatus?.toLowerCase() === "approved" || s.admissionStatus?.toLowerCase() === "active"
-  );
-
-  const studentMap = new Map(students.map((s) => [s.id, s.studentName]));
+  const studentMap = new Map(activeStudents.map((s) => [s.id, s.studentName]));
 
   const toggleStudent = (id: string) => {
     setSelectedStudentIds((prev) =>
@@ -119,7 +126,7 @@ export default function TutorSessionManager() {
 
   const handleCancel = () => {
     setTitle("");
-    setSubject(SUBJECT_OPTIONS[0]);
+    setSubject(storeSubjects[0] || "");
     setSessionType("group");
     setMeetLink("");
     setScheduledAt("");
@@ -202,7 +209,7 @@ export default function TutorSessionManager() {
     cancelled: "bg-red-50 text-red-700 border-red-200",
   };
 
-  const isLoading = loadingSessions || loadingStudents;
+  const isLoading = loadingSessions;
   const isSubmitting = isCreating || isUpdating;
 
   if (isLoading) {
@@ -272,12 +279,12 @@ export default function TutorSessionManager() {
                   <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
                     Subject
                   </label>
-                  <Select value={subject} onValueChange={setSubject}>
+                  <Select value={subject} onValueChange={setSubject} disabled={storeSubjects.length === 0}>
                     <SelectTrigger className="h-10 bg-white border-slate-200 rounded-xl text-sm font-medium">
-                      <SelectValue placeholder="Select Subject" />
+                      <SelectValue placeholder={storeSubjects.length === 0 ? "Loading subjects..." : "Select Subject"} />
                     </SelectTrigger>
                     <SelectContent>
-                      {SUBJECT_OPTIONS.map((sub) => (
+                      {storeSubjects.map((sub) => (
                         <SelectItem key={sub} value={sub} className="font-medium text-xs">
                           {sub}
                         </SelectItem>

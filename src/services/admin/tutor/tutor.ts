@@ -71,7 +71,7 @@ export const getLeaderboard = async () => {
 };
 
 export const assignStudentsToTutor = async (id: string, payload: IAssignStudentsPayload) => {
-  const res = await apiClient.post<IApiResponse<any>>(ENDPOINTS.ASSIGN_STUDENTS_TO_TUTOR(id), payload);
+  const res = await apiClient.put<IApiResponse<any>>(ENDPOINTS.ASSIGN_STUDENTS_TO_TUTOR(id), payload);
   return res.data;
 };
 
