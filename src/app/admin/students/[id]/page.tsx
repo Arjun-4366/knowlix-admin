@@ -91,8 +91,8 @@ function StudentDetailsContent({ params }: PageProps) {
   useEffect(() => {
     if (student) {
       setAssignedTutorId(student.assignedTutorId || "");
-      setAssignedMentorId(student.assignedMentorId || "");
-      setAssignedCoordinatorId(student.assignedCoordinatorId || "");
+      setAssignedMentorId(student.mentorId || "");
+      setAssignedCoordinatorId(student.coordinatorId || "");
       setCoordinatorName(student.coordinatorName || "");
     }
   }, [student]);
@@ -114,8 +114,8 @@ function StudentDetailsContent({ params }: PageProps) {
         data: {
           coordinatorName,
           assignedTutorId,
-          assignedMentorId,
-          assignedCoordinatorId,
+          mentorId: assignedMentorId,
+          coordinatorId: assignedCoordinatorId,
         },
       });
     } catch (error) {

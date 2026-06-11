@@ -36,22 +36,6 @@ export default function StudentTable({
   onViewStudent,
   onEditStudent,
 }: StudentTableProps) {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState("All");
-  const [courseFilter, setCourseFilter] = useState("All");
-
-  const filteredStudents = students.filter((s) => {
-    const matchesSearch =
-      s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      s.coordinatorName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (s.courseName && s.courseName.toLowerCase().includes(searchQuery.toLowerCase()));
-
-    const matchesStatus = statusFilter === "All" || s.admissionStatus === statusFilter;
-    const matchesCourse = courseFilter === "All" || s.courseType === courseFilter;
-
-    return matchesSearch && matchesStatus && matchesCourse;
-  });
-
   const getStatusBadgeClass = (status: string) => {
     switch (status) {
       case "Admission Taken":
@@ -68,51 +52,6 @@ export default function StudentTable({
 
   return (
     <div className="space-y-4">
-      {/* Search & Filter Header Bar */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-50/50 p-4 rounded-2xl border border-slate-100">
-        <div className="relative flex-1 max-w-xl">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 z-10" />
-          <Input
-            type="text"
-            placeholder="Search name or coordinator..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 h-10 bg-white border border-slate-200 rounded-xl"
-          />
-        </div>
-
-        <div className="flex flex-wrap items-center gap-3">
-          <div>
-            <Select value={courseFilter} onValueChange={setCourseFilter}>
-              <SelectTrigger className="h-9 text-xs font-semibold bg-white border-slate-200 rounded-xl">
-                <SelectValue placeholder="All Courses" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="All">All Courses</SelectItem>
-                <SelectItem value="Online School">Online School</SelectItem>
-                <SelectItem value="Online Tuition">Online Tuition</SelectItem>
-                <SelectItem value="Hybrid Learning">Hybrid Learning</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="h-9 text-xs font-semibold bg-white border-slate-200 rounded-xl">
-                <SelectValue placeholder="All Statuses" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="All">All Statuses</SelectItem>
-                <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="admission_taken">Admission Taken</SelectItem>
-                <SelectItem value="course_completed">Course Completed</SelectItem>
-                <SelectItem value="inactive">Inactive</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-      </div>
-
       {/* Directory Table */}
       <div className="bg-white border border-slate-150 rounded-2xl shadow-sm overflow-hidden">
         <Table className="table-fixed">
@@ -130,11 +69,12 @@ export default function StudentTable({
               <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[20%]">
                 Course / Program
               </TableHead>
-              <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[18%]">
-                Coordinator
-              </TableHead>
+             
               <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[14%]">
                 Status
+              </TableHead>
+              <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[12%]">
+                Pending Fee
               </TableHead>
               <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right w-[10%]">
                 Actions
@@ -142,8 +82,8 @@ export default function StudentTable({
             </TableRow>
           </TableHeader>
           <TableBody className="divide-y divide-slate-100">
-            {filteredStudents.length > 0 ? (
-              filteredStudents.map((student) => (
+            {students.length > 0 ? (
+              students.map((student) => (
                 <TableRow
                   key={student.id}
                   className="hover:bg-slate-50/60 transition-colors"
@@ -171,24 +111,14 @@ export default function StudentTable({
                   <TableCell className="px-6 py-4">
                     <p className="text-sm font-bold text-slate-700 truncate">
                       {student.courseName ? `${student.courseName} / ` : ""}
-                      {student.courseType === "Online School"
-                        ? "OS"
-                        : student.courseType === "Online Tuition"
-                        ? "OT"
-                        : student.courseType === "Hybrid Learning"
-                        ? "HL"
-                        : student.courseType}
+                      {student.programName || student.courseType}
                     </p>
-                  </TableCell>
-                  <TableCell className="px-6 py-4">
-                    <span className="text-sm font-semibold text-slate-650 truncate block">
-                      {student.coordinatorName}
-                    </span>
                   </TableCell>
                   <TableCell className="px-6 py-4">
                     <div className="flex items-center gap-1">
                       <Select
-                        value={student.admissionStatus}
+                        key={`status-${student.id}-${student.rawAdmissionStatus}`}
+                        value={student.rawAdmissionStatus}
                         onValueChange={(val) => onUpdateStatus(student.id, val)}
                       >
                         <SelectTrigger
@@ -207,6 +137,11 @@ export default function StudentTable({
                         </SelectContent>
                       </Select>
                     </div>
+                  </TableCell>
+                  <TableCell className="px-6 py-4">
+                    <span className="text-sm font-semibold text-slate-700">
+                      ₹{Math.max(0, (student.totalFee || 0) - (student.paidAmount || 0))}
+                    </span>
                   </TableCell>
                   <TableCell className="px-6 py-4 text-sm text-right">
                     <div className="flex items-center justify-end gap-2.5">
@@ -244,7 +179,7 @@ export default function StudentTable({
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={7}
+                  colSpan={8}
                   className="px-6 py-12 text-center text-slate-400 text-sm"
                 >
                   No students matching the current filters.

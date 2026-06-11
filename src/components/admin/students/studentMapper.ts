@@ -53,13 +53,13 @@ export const formatAdmissionStatus = (status?: string) => {
 };
 
 export const toAdmissionStatusPayload = (status: string) => {
-  if (status === "Admission Taken") {
+  if (status === "Admission Taken" || status === "admission_taken") {
     return "admission_taken";
   }
-  if (status === "Course Completed") {
+  if (status === "Course Completed" || status === "course_completed") {
     return "course_completed";
   }
-  if (status === "Inactive") {
+  if (status === "Inactive" || status === "inactive") {
     return "inactive";
   }
   return "pending";
@@ -90,10 +90,14 @@ export const mapApiStudentToStudent = (student: IStudent): Student => ({
   courseType: student.courseType,
   courseName: "",
   subjectTutor: student.assignedTutorId || "Not assigned",
-  mentorSalesBro: student.assignedMentorId || "Not assigned",
+  mentorSalesBro: student.mentorId || "Not assigned",
   packageSelection: formatPackage(student.package, student.customPackageDetails),
   customPackageDuration: student.customPackageDetails,
   documentsSubmitted: getSubmittedDocumentLabels(student.documents),
   coordinatorName: student.coordinatorName,
   admissionStatus: formatAdmissionStatus(student.admissionStatus),
+  rawAdmissionStatus: student.admissionStatus || "pending",
+  programName: student.programName || "",
+  totalFee: student.totalFee || 0,
+  paidAmount: student.paidAmount || 0,
 });

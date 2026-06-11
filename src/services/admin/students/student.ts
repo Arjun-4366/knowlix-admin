@@ -31,14 +31,19 @@ export const createStudent = async (data: ICreateStudentPayload) => {
     if (data.phone) formData.append("phone", data.phone);
     if (data.password) formData.append("password", data.password);
     formData.append("place", data.place);
-    formData.append("courseType", data.courseType);
+    if (data.courseType) formData.append("courseType", data.courseType);
     formData.append("package", data.package);
     if (data.customPackageDetails) formData.append("customPackageDetails", data.customPackageDetails);
-    formData.append("coordinatorName", data.coordinatorName);
     formData.append("admissionStatus", data.admissionStatus);
-    formData.append("assignedTutorId", data.assignedTutorId);
-    formData.append("assignedMentorId", data.assignedMentorId);
-    formData.append("assignedCoordinatorId", data.assignedCoordinatorId);
+    
+    if (data.mentorId) formData.append("mentorId", data.mentorId);
+    if (data.coordinatorId) formData.append("coordinatorId", data.coordinatorId);
+    if (data.programId) formData.append("programId", data.programId);
+    if (data.courseId) formData.append("courseId", data.courseId);
+    if (data.syllabus) formData.append("syllabus", data.syllabus);
+    
+    if (data.totalFee !== undefined) formData.append("totalFee", data.totalFee.toString());
+    if (data.paidAmount !== undefined) formData.append("paidAmount", data.paidAmount.toString());
 
     if (data.documents) {
         if (data.documents.birthCertificate) {
@@ -75,11 +80,15 @@ export const updateStudent = async (id: string, data: IUpdateStudentPayload) => 
     if (data.courseType) formData.append("courseType", data.courseType);
     if (data.package) formData.append("package", data.package);
     if (data.customPackageDetails !== undefined) formData.append("customPackageDetails", data.customPackageDetails);
-    if (data.coordinatorName) formData.append("coordinatorName", data.coordinatorName);
     if (data.admissionStatus) formData.append("admissionStatus", data.admissionStatus);
-    if (data.assignedTutorId !== undefined) formData.append("assignedTutorId", data.assignedTutorId || "");
-    if (data.assignedMentorId !== undefined) formData.append("assignedMentorId", data.assignedMentorId || "");
-    if (data.assignedCoordinatorId !== undefined) formData.append("assignedCoordinatorId", data.assignedCoordinatorId || "");
+    if (data.mentorId) formData.append("mentorId", data.mentorId);
+    if (data.coordinatorId) formData.append("coordinatorId", data.coordinatorId);
+    if (data.programId) formData.append("programId", data.programId);
+    if (data.courseId) formData.append("courseId", data.courseId);
+    if (data.syllabus) formData.append("syllabus", data.syllabus);
+    
+    if (data.totalFee !== undefined) formData.append("totalFee", data.totalFee.toString());
+    if (data.paidAmount !== undefined) formData.append("paidAmount", data.paidAmount.toString());
 
     if (data.documents) {
         if (data.documents.birthCertificate) {

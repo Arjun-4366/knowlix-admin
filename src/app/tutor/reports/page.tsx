@@ -37,6 +37,10 @@ const initialStudents: Student[] = [
     subjectTutor: "Dr. Ramesh Prasad",
     mentorSalesBro: "Sarah Jenkins",
     admissionStatus: "Approved",
+    rawAdmissionStatus: "approved",
+    programName: "Online School",
+    totalFee: 50000,
+    paidAmount: 10000,
   },
   {
     id: "STU-106",
@@ -52,6 +56,10 @@ const initialStudents: Student[] = [
     subjectTutor: "Dr. Ramesh Prasad",
     mentorSalesBro: "Sarah Jenkins",
     admissionStatus: "Approved",
+    rawAdmissionStatus: "approved",
+    programName: "Online School",
+    totalFee: 60000,
+    paidAmount: 20000,
   },
 ];
 

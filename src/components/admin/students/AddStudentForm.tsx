@@ -245,6 +245,12 @@ export default function AddStudentForm({
   const [customPackageDetails, setCustomPackageDetails] = useState(
     studentToEdit?.customPackageDetails ?? "",
   );
+  const [totalFee, setTotalFee] = useState<number | "">(
+    studentToEdit?.totalFee ?? ""
+  );
+  const [paidAmount, setPaidAmount] = useState<number | "">(
+    studentToEdit?.paidAmount ?? ""
+  );
   const [documents, setDocuments] = useState<IStudentDocuments>(
     studentToEdit?.documents ?? emptyDocuments,
   );
@@ -256,10 +262,10 @@ export default function AddStudentForm({
   );
 
   const [assignedMentorId, setAssignedMentorId] = useState(
-    studentToEdit?.assignedMentorId ?? "",
+    studentToEdit?.mentorId ?? "",
   );
   const [assignedCoordinatorId, setAssignedCoordinatorId] = useState(
-    studentToEdit?.assignedCoordinatorId ?? "",
+    studentToEdit?.coordinatorId ?? "",
   );
 
   const setDocumentValue = (
@@ -312,11 +318,11 @@ export default function AddStudentForm({
       package: packageValue,
       customPackageDetails: finalCustomDetails,
       documents: isOnlineSchool ? documents : emptyDocuments,
-      coordinatorName: coordinatorName.trim(),
       admissionStatus,
-      assignedTutorId: "",
-      assignedMentorId: assignedMentorId.trim(),
-      assignedCoordinatorId: assignedCoordinatorId.trim(),
+      totalFee: totalFee === "" ? 0 : Number(totalFee),
+      paidAmount: paidAmount === "" ? 0 : Number(paidAmount),
+      mentorId: assignedMentorId.trim(),
+      coordinatorId: assignedCoordinatorId.trim(),
     });
   };
 
@@ -520,6 +526,7 @@ export default function AddStudentForm({
                 Admission Status *
               </Label>
               <Select
+                key={`status-${studentToEdit?.id || "new"}`}
                 value={admissionStatus}
                 onValueChange={setAdmissionStatus}
               >
@@ -537,6 +544,32 @@ export default function AddStudentForm({
                   <SelectItem value="inactive">Inactive</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold text-slate-550">
+                Total Fee (₹)
+              </Label>
+              <Input
+                type="number"
+                value={totalFee}
+                onChange={(e) => setTotalFee(e.target.value === "" ? "" : Number(e.target.value))}
+                placeholder="25000"
+                className="rounded-xl border-slate-200 bg-slate-50 focus:bg-white"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold text-slate-550">
+                Paid Amount (₹)
+              </Label>
+              <Input
+                type="number"
+                value={paidAmount}
+                onChange={(e) => setPaidAmount(e.target.value === "" ? "" : Number(e.target.value))}
+                placeholder="5000"
+                className="rounded-xl border-slate-200 bg-slate-50 focus:bg-white"
+              />
             </div>
           </div>
 
@@ -666,8 +699,8 @@ export default function AddStudentForm({
                   {assignedMentorId &&
                     !mentorsList.some((m) => m.id === assignedMentorId) && (
                       <SelectItem value={assignedMentorId}>
-                        {studentToEdit?.assignedMentorId
-                          ? `ID: ${studentToEdit.assignedMentorId}`
+                        {studentToEdit?.coordinatorId
+                          ? `ID: ${studentToEdit.mentorId}`
                           : assignedMentorId}
                       </SelectItem>
                     )}

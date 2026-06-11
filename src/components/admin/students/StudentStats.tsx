@@ -17,6 +17,10 @@ export interface Student {
   documentsSubmitted: string[];
   coordinatorName: string;
   admissionStatus: string;
+  rawAdmissionStatus: string;
+  programName: string;
+  totalFee: number;
+  paidAmount: number;
 }
 
 interface StudentStatsProps {

@@ -1,4 +1,5 @@
 import { IApiResponse } from "@/types/admin/api";
+import { IAssignedStudent } from "@/types/tutor/profile";
 
 export interface ITutorPermissions {
   canUploadNotes: boolean;
@@ -74,6 +75,7 @@ export interface ITutorDetailsData {
   totalGrowthPoints: number;
   totalSessions: number;
   tutor: ITutor;
+  assignedStudents?: IAssignedStudent[];
 }
 
 export type ITutorDetailsResponse = IApiResponse<ITutorDetailsData>;

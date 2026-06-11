@@ -26,6 +26,8 @@ export interface IAssignedStudent {
   class?: string;
   place?: string;
   syllabus?: string;
+  courseType?: string;
+  programName?: string;
   package?: string;
   admissionStatus?: string;
   totalFee?: number;
