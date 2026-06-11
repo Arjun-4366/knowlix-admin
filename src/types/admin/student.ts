@@ -33,7 +33,9 @@ export interface IStudent {
   admissionStatus: StudentAdmissionStatus;
   assignedTutorId: string | null;
   mentorId: string | null;
+  assignedMentorId?: string | null;
   coordinatorId: string | null;
+  assignedCoordinatorId?: string | null;
   programId?: string | null;
   programName?: string | null;
   courseId?: string | null;

@@ -91,8 +91,8 @@ function StudentDetailsContent({ params }: PageProps) {
   useEffect(() => {
     if (student) {
       setAssignedTutorId(student.assignedTutorId || "");
-      setAssignedMentorId(student.mentorId || "");
-      setAssignedCoordinatorId(student.coordinatorId || "");
+      setAssignedMentorId(student.assignedMentorId || student.mentorId || "");
+      setAssignedCoordinatorId(student.assignedCoordinatorId || student.coordinatorId || "");
       setCoordinatorName(student.coordinatorName || "");
     }
   }, [student]);
@@ -182,11 +182,11 @@ function StudentDetailsContent({ params }: PageProps) {
                 variant="outline"
                 className="rounded-md border border-slate-200 bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-500"
               >
-                {student.id}
+                {student.admissionNumber || student.id}
               </Badge>
             </div>
             <p className="mt-1 text-sm font-semibold text-slate-550">
-              {student.courseType} / Grade {student.class}
+              {student.courseName ? `${student.courseName} (${student.programName})` : (student.programName || student.courseType)} / Grade {student.class}
             </p>
           </div>
         </div>
@@ -212,6 +212,7 @@ function StudentDetailsContent({ params }: PageProps) {
               Modify Status
             </span>
             <Select
+              key={`status-${student.admissionStatus}`}
               value={student.admissionStatus}
               onValueChange={handleUpdateStatus}
               disabled={isUpdating}
@@ -220,11 +221,10 @@ function StudentDetailsContent({ params }: PageProps) {
                 <SelectValue placeholder={displayStatus} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="active">Active</SelectItem>
                 <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="in_review">In Review</SelectItem>
+                <SelectItem value="admission_taken">Admission Taken</SelectItem>
+                <SelectItem value="course_completed">Course Completed</SelectItem>
                 <SelectItem value="inactive">Inactive</SelectItem>
-                <SelectItem value="rejected">Rejected</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -255,7 +255,7 @@ function StudentDetailsContent({ params }: PageProps) {
                 Course / Program
               </span>
               <span className="text-sm font-semibold text-slate-700">
-                {student.courseType}
+                {student.courseName ? `${student.courseName} (${student.programName})` : (student.programName || student.courseType)}
               </span>
             </div>
             <div>
@@ -266,6 +266,21 @@ function StudentDetailsContent({ params }: PageProps) {
                 {formatPackage(student.package, student.customPackageDetails)}
               </span>
             </div>
+            {(student.totalFee !== undefined) && (
+              <div>
+                <span className="block text-[10px] font-bold uppercase text-slate-400">
+                  Fee Status
+                </span>
+                <span className="text-sm font-semibold text-slate-700">
+                  Paid: ₹{student.paidAmount || 0} / Total: ₹{student.totalFee}
+                  {student.totalFee > (student.paidAmount || 0) && (
+                    <span className="ml-2 text-[var(--brand-green)] font-bold">
+                      (₹{student.totalFee - (student.paidAmount || 0)} Pending)
+                    </span>
+                  )}
+                </span>
+              </div>
+            )}
           </CardContent>
         </Card>
 
