@@ -111,7 +111,7 @@ export default function PayrollManager() {
     initialPayrollAdjustments
   );
 
-  const { data: tutorsRes, isLoading: tutorsLoading } = useGetTutorsHR();
+  const { data: tutorsRes, isLoading: tutorsLoading } = useGetTutorsHR({ limit: 1000 });
   const { data: salaryReportRes, isLoading: salaryReportLoading } = useGetSalaryReport();
 
   const employees = tutorsRes?.data ? (tutorsRes.data as any[]).map(mapTutorToEmployee) : [];

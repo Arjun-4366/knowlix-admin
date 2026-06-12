@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Search } from "lucide-react";
 import DashboardHeader from "@/components/dashboard/shared/DashboardHeader";
 import TutorTable from "@/components/tutors/TutorTable";
@@ -13,21 +13,25 @@ interface AdminTutorDirectoryProps {
 
 export default function AdminTutorDirectory({ onBack }: AdminTutorDirectoryProps) {
   const [searchQuery, setSearchQuery] = useState("");
-  const { data: tutorsResponse, isLoading } = useGetTutors();
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const limit = 20;
 
-  const tutorsList = useMemo(() => {
-    return tutorsResponse?.data ?? [];
-  }, [tutorsResponse]);
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+      setPage(1);
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
 
-  const filteredTutors = useMemo(() => {
-    return tutorsList.filter((tutor) => {
-      const matchesSearch =
-        tutor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        tutor.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (tutor.subjects && tutor.subjects.some(s => s.toLowerCase().includes(searchQuery.toLowerCase())));
-      return matchesSearch;
-    });
-  }, [tutorsList, searchQuery]);
+  const { data: tutorsResponse, isLoading } = useGetTutors({
+    limit,
+    page,
+    search: debouncedSearch || undefined,
+  });
+
+  const filteredTutors = tutorsResponse?.data ?? [];
 
   const searchAction = (
     <div className="relative w-full">
@@ -54,7 +58,30 @@ export default function AdminTutorDirectory({ onBack }: AdminTutorDirectoryProps
       {isLoading ? (
         <TutorTableSkeleton />
       ) : (
-        <TutorTable tutors={filteredTutors} />
+        <>
+          <TutorTable tutors={filteredTutors} />
+          <div className="flex items-center justify-between mt-4 bg-white p-4 rounded-xl border border-slate-150 shadow-sm">
+            <span className="text-sm text-slate-500 font-medium">
+              Showing page {page} (Total {tutorsResponse?.total || 0})
+            </span>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setPage(p => Math.max(1, p - 1))}
+                disabled={page === 1}
+                className="px-3 py-1.5 text-sm font-medium border border-slate-200 rounded-lg disabled:opacity-50 hover:bg-slate-50"
+              >
+                Previous
+              </button>
+              <button
+                onClick={() => setPage(p => p + 1)}
+                disabled={(tutorsResponse?.data?.length || 0) < limit}
+                className="px-3 py-1.5 text-sm font-medium border border-slate-200 rounded-lg disabled:opacity-50 hover:bg-slate-50"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        </>
       )}
     </div>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, Suspense } from "react";
+import { useState, useMemo, Suspense, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, Search, Trophy, Star, Eye } from "lucide-react";
 import DashboardHeader from "@/components/dashboard/shared/DashboardHeader";
@@ -42,9 +42,17 @@ import {
 import { ICreateTutorPayload, ITutor, ILeaderboardItem } from "@/types/admin/tutor";
 import { Skeleton } from "@/components/ui/skeleton";
 
+const SUBJECT_OPTIONS = [
+  "ENGLISH", "MALAYALAM", "ARABIC", "HINDI", "FRENCH", "GERMAN", "SPANISH",
+  "MATHS", "SCIENCE", "Physics", "Chemistry", "Bio", "IT", "AI",
+  "Drawing", "Handwriting", "Communicative English", "Madarasa subject", "QURAN"
+];
+
 function TutorsContent() {
   const { confirm } = useConfirmation();
-  const { data: tutorsResponse, isLoading } = useGetTutors();
+  
+  // We need to access debounced search, subject, and experience. But hook calls cannot be inside useMemo, so we define them at the top.
+  // We'll fix the hook ordering in the next chunk.
   const { data: leaderboardResponse, isLoading: isLeaderboardLoading } = useGetLeaderboard();
   const { mutateAsync: createTutor, isPending: isCreating } = useCreateTutor();
   const { mutateAsync: updateTutor, isPending: isUpdating } = useUpdateTutor();
@@ -55,8 +63,34 @@ function TutorsContent() {
 
   // Search & Filter State
   const [searchQuery, setSearchQuery] = useState("");
-  const [subjectFilter, setSubjectFilter] = useState("All");
-  const [expFilter, setExpFilter] = useState("All");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [subjectFilter, setSubjectFilter] = useState("all");
+  const [expFilter, setExpFilter] = useState("all");
+  const [page, setPage] = useState(1);
+  const limit = 20;
+
+  // Debounce search
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+      setPage(1); // reset to first page on search
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
+
+  // Reset page when filters change
+  useEffect(() => {
+    setPage(1);
+  }, [subjectFilter, expFilter, activeTab]);
+
+  const { data: tutorsResponse, isLoading } = useGetTutors({
+    limit,
+    page,
+    search: debouncedSearch || undefined,
+    subject: subjectFilter !== "all" ? subjectFilter : undefined,
+    experience: expFilter || undefined,
+    approved: activeTab === "active" ? "true" : undefined
+  });
 
   // Modal State
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -140,34 +174,8 @@ function TutorsContent() {
   }, [tutorsList]);
 
   // Filter & Search Logic
-  const filteredTutors = useMemo(() => {
-    return tutorsList.filter((tutor) => {
-      const matchesTab = activeTab === "active" ? tutor.status === "approved" : tutor.status === "pending";
-
-      const matchesSearch =
-        tutor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        tutor.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (tutor.subjects && tutor.subjects.some(s => s.toLowerCase().includes(searchQuery.toLowerCase())));
-
-      const matchesSubject =
-        subjectFilter === "All" ||
-        (tutor.subjects && tutor.subjects.some(s => s.toLowerCase().includes(subjectFilter.toLowerCase())));
-
-      let matchesExp = true;
-      if (expFilter === "<5") {
-        const yrs = parseInt(tutor.experience) || 0;
-        matchesExp = yrs < 5;
-      } else if (expFilter === "5-10") {
-        const yrs = parseInt(tutor.experience) || 0;
-        matchesExp = yrs >= 5 && yrs <= 10;
-      } else if (expFilter === ">10") {
-        const yrs = parseInt(tutor.experience) || 0;
-        matchesExp = yrs > 10;
-      }
-
-      return matchesTab && matchesSearch && matchesSubject && matchesExp;
-    });
-  }, [tutorsList, activeTab, searchQuery, subjectFilter, expFilter]);
+  // Using server-side pagination, so we do not filter the list anymore, except for standard checks or just returning directly.
+  const filteredTutors = tutorsList;
 
   return (
     <div className="space-y-8 w-full relative pb-10">
@@ -247,31 +255,30 @@ function TutorsContent() {
 
             <div className="flex flex-wrap items-center gap-3">
               <Select value={subjectFilter} onValueChange={setSubjectFilter}>
-                <SelectTrigger className="h-9 text-xs font-semibold bg-white border-slate-200 rounded-xl">
+                <SelectTrigger className="w-full sm:w-48 h-9 text-xs font-semibold bg-white border-slate-200 rounded-xl">
                   <SelectValue placeholder="All Subject Expertise" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="All">All Subject Expertise</SelectItem>
-                  <SelectItem value="Physics">Physics</SelectItem>
-                  <SelectItem value="Mathematics">Mathematics</SelectItem>
-                  <SelectItem value="Maths">Maths</SelectItem>
-                  <SelectItem value="English">English</SelectItem>
-                  <SelectItem value="Biology">Biology</SelectItem>
-                  <SelectItem value="Chemistry">Chemistry</SelectItem>
-                  <SelectItem value="Science">Science</SelectItem>
-                  <SelectItem value="Computer Science">Computer Science</SelectItem>
+                  <SelectItem value="all">All Subject Expertise</SelectItem>
+                  {SUBJECT_OPTIONS.map((subj) => (
+                    <SelectItem key={subj} value={subj}>
+                      {subj}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
 
               <Select value={expFilter} onValueChange={setExpFilter}>
-                <SelectTrigger className="h-9 text-xs font-semibold bg-white border-slate-200 rounded-xl">
+                <SelectTrigger className="w-full sm:w-48 h-9 text-xs font-semibold bg-white border-slate-200 rounded-xl">
                   <SelectValue placeholder="All Experiences" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="All">All Experiences</SelectItem>
-                  <SelectItem value="<5">Less than 5 years</SelectItem>
-                  <SelectItem value="5-10">5 to 10 years</SelectItem>
-                  <SelectItem value=">10">More than 10 years</SelectItem>
+                  <SelectItem value="all">All Experiences</SelectItem>
+                  {Array.from({ length: 30 }, (_, i) => i + 1).map((year) => (
+                    <SelectItem key={year} value={`${year} Year${year > 1 ? "s" : ""}`}>
+                      {year} Year{year > 1 ? "s" : ""}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -290,6 +297,29 @@ function TutorsContent() {
                 onEditTutor={handleEditTutor}
                 onDeleteTutor={handleDeleteTutor}
               />
+              <div className="flex items-center justify-between mt-4 bg-white p-4 rounded-xl border border-slate-150 shadow-sm">
+                <span className="text-sm text-slate-500 font-medium">
+                  Showing page {page} (Total {tutorsResponse?.total || 0})
+                </span>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPage(p => Math.max(1, p - 1))}
+                    disabled={page === 1}
+                  >
+                    Previous
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPage(p => p + 1)}
+                    disabled={(tutorsResponse?.data?.length || 0) < limit}
+                  >
+                    Next
+                  </Button>
+                </div>
+              </div>
             </TabsContent>
             <TabsContent value="recruitment" forceMount className="data-[state=inactive]:hidden mt-0">
               <TutorTable
@@ -298,6 +328,29 @@ function TutorsContent() {
                 onEditTutor={handleEditTutor}
                 onDeleteTutor={handleDeleteTutor}
               />
+              <div className="flex items-center justify-between mt-4 bg-white p-4 rounded-xl border border-slate-150 shadow-sm">
+                <span className="text-sm text-slate-500 font-medium">
+                  Showing page {page} (Total {tutorsResponse?.total || 0})
+                </span>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPage(p => Math.max(1, p - 1))}
+                    disabled={page === 1}
+                  >
+                    Previous
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPage(p => p + 1)}
+                    disabled={(tutorsResponse?.data?.length || 0) < limit}
+                  >
+                    Next
+                  </Button>
+                </div>
+              </div>
             </TabsContent>
             <TabsContent value="leaderboard" forceMount className="data-[state=inactive]:hidden mt-0">
               <LeaderboardTable

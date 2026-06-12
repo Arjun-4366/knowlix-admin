@@ -248,7 +248,7 @@ export const useGetTurnoverAnalytics = () => {
 };
 
 // ── Tutors Hooks ──────────────────────────────────────────────────────────────
-export const useGetTutorsHR = (params?: { status?: string }) => {
+export const useGetTutorsHR = (params?: QueryParams & { status?: string }) => {
   return useQuery({
     queryKey: [...HR_TUTORS_KEY, params],
     queryFn: () => getTutorsHR(params),

@@ -75,7 +75,7 @@ function StudentDetailsContent({ params }: PageProps) {
   const { data: documentResponse } = useGetStudentDocuments(id);
   const { mutateAsync: updateStudent, isPending: isUpdating } = useUpdateStudent();
 
-  const { data: tutorsResponse } = useGetTutors();
+  const { data: tutorsResponse } = useGetTutors({ limit: 100, approved: "true" });
   const { data: mentorsResponse } = useGetMentors();
   const { data: coordinatorsResponse } = useGetCoordinators();
 

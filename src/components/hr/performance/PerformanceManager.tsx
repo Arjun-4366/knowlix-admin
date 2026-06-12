@@ -104,7 +104,7 @@ export default function PerformanceManager() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [updateModalEvaluationId, setUpdateModalEvaluationId] = useState<string | null>(null);
 
-  const { data: tutorsRes, isLoading: tutorsLoading } = useGetTutorsHR();
+  const { data: tutorsRes, isLoading: tutorsLoading } = useGetTutorsHR({ limit: 1000 });
   const { data: evaluationsRes, isLoading: evaluationsLoading } = useGetTutorEvaluations();
   const createEvaluationMutation = useCreateTutorEvaluation();
   const updateEvaluationMutation = useUpdateTutorEvaluation();

@@ -129,7 +129,7 @@ function toAttendanceRecord(r: any): EnrichedAttendanceRecord {
 export default function AttendanceManager() {
   const [selectedDate, setSelectedDate] = useState(DEFAULT_ATTENDANCE_DATE);
 
-  const { data: tutorsRes, isLoading: tutorsLoading } = useGetTutorsHR();
+  const { data: tutorsRes, isLoading: tutorsLoading } = useGetTutorsHR({ limit: 1000 });
   const { data: attendanceRes, isLoading: attendanceLoading } = useGetHRTutorAttendance();
   const { data: holidaysRes, isLoading: holidaysLoading } = useGetHolidays();
 

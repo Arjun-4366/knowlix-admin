@@ -77,7 +77,7 @@ export default function EmployeeManager() {
   const [showFormModal, setShowFormModal] = useState(false);
   const [editEmployee, setEditEmployee] = useState<Employee | null>(null);
 
-  const { data: tutorsRes, isLoading } = useGetTutorsHR();
+  const { data: tutorsRes, isLoading } = useGetTutorsHR({ limit: 1000 });
   const createTutorMutation = useCreateTutorByHR();
 
   const employees = tutorsRes?.data ? (tutorsRes.data as any[]).map(mapTutorToEmployee) : [];

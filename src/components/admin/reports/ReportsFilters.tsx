@@ -28,7 +28,7 @@ export default function ReportsFilters({
   onReset,
   isGenerating,
 }: ReportsFiltersProps) {
-  const { data: tutorsResponse } = useGetTutors();
+  const { data: tutorsResponse } = useGetTutors({ limit: 1000 });
   const tutors = tutorsResponse?.data ?? [];
 
   const handleTypeChange = (type: ReportType) => {
