@@ -28,6 +28,7 @@ export interface ITutor {
   negativeRemarks?: string | null;
   slots?: ITutorSlot[] | null;
   assignedStudentIds?: string[] | null;
+  permissions?: ITutorPermissions;
   createdAt: string;
   updatedAt: string;
   rank?: number;
