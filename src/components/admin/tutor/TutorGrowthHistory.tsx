@@ -56,23 +56,23 @@ export function TutorGrowthHistory({ tutorId }: TutorGrowthHistoryProps) {
             </CardTitle>
           </div>
           <div className="flex items-center gap-3">
-            <Select value={month} onValueChange={setMonth}>
+            <Select value={month || "all"} onValueChange={(v) => setMonth(v === "all" ? "" : v)}>
               <SelectTrigger className="w-[140px] h-8 text-xs font-semibold bg-white border-slate-200">
                 <SelectValue placeholder="All Months" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Months</SelectItem>
+                <SelectItem value="all">All Months</SelectItem>
                 {months.map((m) => (
                   <SelectItem key={m} value={m}>{m}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
-            <Select value={year} onValueChange={setYear}>
+            <Select value={year || "all"} onValueChange={(v) => setYear(v === "all" ? "" : v)}>
               <SelectTrigger className="w-[120px] h-8 text-xs font-semibold bg-white border-slate-200">
                 <SelectValue placeholder="All Years" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Years</SelectItem>
+                <SelectItem value="all">All Years</SelectItem>
                 {years.map((y) => (
                   <SelectItem key={y} value={y}>{y}</SelectItem>
                 ))}
@@ -114,7 +114,7 @@ export function TutorGrowthHistory({ tutorId }: TutorGrowthHistoryProps) {
                       </div>
                     </TableCell>
                     <TableCell className="px-6 py-4 text-sm text-slate-600 font-medium capitalize">
-                      {item.evaluationArea.replace(/_/g, " ")}
+                      {item.evaluationArea?.replace(/_/g, " ") ?? "—"}
                     </TableCell>
                     <TableCell className="text-center text-sm font-semibold text-slate-700">{item.G}</TableCell>
                     <TableCell className="text-center text-sm font-semibold text-slate-700">{item.R}</TableCell>

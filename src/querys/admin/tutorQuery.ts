@@ -125,6 +125,7 @@ export const useAwardGrowthPoints = () => {
       queryClient.invalidateQueries({ queryKey: TUTORS_KEY });
       queryClient.invalidateQueries({ queryKey: [...TUTOR_KEY, variables.tutorId] });
       queryClient.invalidateQueries({ queryKey: [...TUTOR_PERFORMANCE_KEY, variables.tutorId] });
+      queryClient.invalidateQueries({ queryKey: GROWTH_HISTORY_KEY });
       toast.success("Growth points awarded successfully");
     },
     onError: () => toast.error("Failed to award growth points"),

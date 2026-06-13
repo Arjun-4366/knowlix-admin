@@ -35,6 +35,12 @@ export interface ITutor {
   subjectEntries?: Array<{ name: string; syllabi: string[] }>;
 }
 
+export interface ITutorPermissions {
+  canUploadNotes: boolean;
+  canEditNotes: boolean;
+  canShareMaterial: boolean;
+}
+
 export interface ICreateTutorPayload {
   name: string;
   password?: string;
@@ -46,6 +52,7 @@ export interface ICreateTutorPayload {
   role: string;
   status: TutorStatus;
   profileImage: string;
+  permissions: ITutorPermissions;
   syllabus?: string[];
   subjectEntries?: Array<{ name: string; syllabi: string[] }>;
 }
@@ -75,9 +82,15 @@ export type ITutorDetailsResponse = IApiResponse<ITutorDetailsData>;
 
 export interface IAwardGrowthPointsPayload {
   tutorId: string;
-  category: string;
+  month: string;
+  year: number;
   evaluationArea: string;
-  points: number;
+  G: number;
+  R: number;
+  O: number;
+  W: number;
+  T: number;
+  H: number;
   description: string;
 }
 

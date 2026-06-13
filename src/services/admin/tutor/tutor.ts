@@ -55,7 +55,7 @@ export const getTutorPerformance = async (id: string) => {
 };
 
 export const awardGrowthPoints = async (data: IAwardGrowthPointsPayload) => {
-  const res = await apiClient.post<IApiResponse<any>>(ENDPOINTS.ADD_GROWTH_POINT, data);
+  const res = await apiClient.post<IApiResponse<any>>(ENDPOINTS.ADD_GROWTH_POINT, [data]);
   return res.data;
 };
 

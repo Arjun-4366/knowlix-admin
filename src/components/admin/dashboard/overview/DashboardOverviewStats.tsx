@@ -80,7 +80,7 @@ export default function DashboardOverviewStats({
   onViewChange,
 }: DashboardOverviewStatsProps) {
   return (
-    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 2xl:grid-cols-4">
+    <div className="grid grid-cols-1 gap-6 sm:grid-cols-3 2xl:grid-cols-4">
       <DashboardStatCard
         label="Total Tutors"
         value={dashboardData?.totalTutors ?? 0}
@@ -105,18 +105,7 @@ export default function DashboardOverviewStats({
         onClick={() => onViewChange("students")}
       />
 
-      <DashboardStatCard
-        label="Monthly Revenue"
-        value={formatRevenue(dashboardData)}
-        icon={<DollarSign className="h-6 w-6" />}
-        badgeText={formatMonthLabel(dashboardData?.monthlyRevenue?.month)}
-        footerText={
-          dashboardData?.monthlyRevenue?.amount
-            ? "Calculated dynamically"
-            : "No revenue recorded this month"
-        }
-      />
-
+     
       <DashboardStatCard
         label="Active Sessions"
         value={dashboardData?.todaySessions?.total ?? 0}
