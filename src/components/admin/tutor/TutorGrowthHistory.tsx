@@ -92,7 +92,6 @@ export function TutorGrowthHistory({ tutorId }: TutorGrowthHistoryProps) {
               <TableHeader className="bg-slate-50">
                 <TableRow className="border-slate-100 hover:bg-slate-50">
                   <TableHead className="text-xs font-bold text-slate-500 whitespace-nowrap px-6 py-3">Date</TableHead>
-                  <TableHead className="text-xs font-bold text-slate-500 whitespace-nowrap px-6 py-3">Area</TableHead>
                   <TableHead className="text-xs font-bold text-slate-500 whitespace-nowrap text-center">G</TableHead>
                   <TableHead className="text-xs font-bold text-slate-500 whitespace-nowrap text-center">R</TableHead>
                   <TableHead className="text-xs font-bold text-slate-500 whitespace-nowrap text-center">O</TableHead>
@@ -111,9 +110,6 @@ export function TutorGrowthHistory({ tutorId }: TutorGrowthHistoryProps) {
                         <span className="text-sm font-semibold text-slate-700">{item.month} {item.year}</span>
                         <span className="text-[10px] text-slate-400">{format(new Date(item.awardedAt), "MMM d, yyyy")}</span>
                       </div>
-                    </TableCell>
-                    <TableCell className="px-6 py-4 text-sm text-slate-600 font-medium capitalize">
-                      {item.evaluationArea?.replace(/_/g, " ") ?? "—"}
                     </TableCell>
                     <TableCell className="text-center text-sm font-semibold text-slate-700">{item.G}</TableCell>
                     <TableCell className="text-center text-sm font-semibold text-slate-700">{item.R}</TableCell>
