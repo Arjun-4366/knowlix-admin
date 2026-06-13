@@ -148,6 +148,9 @@ export const ENDPOINTS = {
   CREATE_ASSIGNMENTS:`${API_BASE_URL}/tutor/assignments/create`,
   EVALUATE_ASSIGNMENTS:(id:string)=>`${API_BASE_URL}/tutor/assignments/${id}/evaluate`,
 
+  //notices
+  GET_TUTOR_NOTICES: `${API_BASE_URL}/tutor/notices`,
+
   //exams
   GET_TUTOR_EXAMS: `${API_BASE_URL}/tutor/exams/fetch`,
   CREATE_EXAM: `${API_BASE_URL}/tutor/exams/create`,

@@ -29,12 +29,15 @@ export function TutorWorkloadCard({ tutorId, isApproved, assignedStudents }: Tut
   const [selectedStudentIds, setSelectedStudentIds] = useState<string[]>([]);
 
   const { data: studentsResponse, isLoading: isStudentsLoading } = useGetStudents();
+
   const { mutateAsync: assignStudents, isPending: isAssigning } = useAssignStudentsToTutor();
+
+  console.log("students", studentsResponse);
 
   const unassignedStudents = useMemo(() => {
     if (!studentsResponse?.data) return [];
     const assignedIds = new Set(assignedStudents.map((s) => s.id));
-    return studentsResponse.data.filter((s) => !assignedIds.has(s.id));
+    return studentsResponse.data.filter((s) => !assignedIds.has(s.id) && s.admissionStatus === "admission_taken");
   }, [studentsResponse, assignedStudents]);
 
   const availableToSelect = unassignedStudents.filter((s) => !selectedStudentIds.includes(s.id));

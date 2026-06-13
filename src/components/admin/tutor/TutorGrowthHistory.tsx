@@ -101,7 +101,6 @@ export function TutorGrowthHistory({ tutorId }: TutorGrowthHistoryProps) {
                   <TableHead className="text-xs font-bold text-slate-500 whitespace-nowrap text-center">H</TableHead>
                   <TableHead className="text-xs font-bold text-slate-500 whitespace-nowrap text-center">Total</TableHead>
                   <TableHead className="text-xs font-bold text-slate-500 whitespace-nowrap px-6 py-3">Description</TableHead>
-                  <TableHead className="text-xs font-bold text-slate-500 whitespace-nowrap px-6 py-3">Awarded By</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -130,9 +129,7 @@ export function TutorGrowthHistory({ tutorId }: TutorGrowthHistoryProps) {
                     <TableCell className="px-6 py-4 text-sm text-slate-600 max-w-[200px] truncate" title={item.description}>
                       {item.description}
                     </TableCell>
-                    <TableCell className="px-6 py-4 text-sm text-slate-500 truncate max-w-[150px]" title={item.awardedBy}>
-                      {item.awardedBy}
-                    </TableCell>
+                   
                   </TableRow>
                 ))}
               </TableBody>
