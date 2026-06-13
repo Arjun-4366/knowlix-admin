@@ -8,11 +8,11 @@ import {
   ITutorResponse,
   ITutorsResponse,
   IUpdateTutorPayload,
-  ITutorPermissions,
   IAwardGrowthPointsPayload,
   ILeaderboardResponse,
   ITutorDetailsResponse,
   IAssignStudentsPayload,
+  IGrowthHistoryResponse,
 } from "@/types/admin/tutor";
 
 export const getTutors = async (params?: QueryParams) => {
@@ -45,13 +45,7 @@ export const approveTutor = async (id: string, status: "approved" | "rejected" =
   return res.data;
 };
 
-export const updateTutorPermissions = async (id: string, permissions: ITutorPermissions) => {
-  const res = await apiClient.put<IApiResponse<ITutorPermissions>>(
-    ENDPOINTS.UPDATE_TUTOR_PERMISSIONS(id),
-    permissions
-  );
-  return res.data;
-};
+
 
 export const getTutorPerformance = async (id: string) => {
   const res = await apiClient.get<IApiResponse<any>>(
@@ -75,3 +69,7 @@ export const assignStudentsToTutor = async (id: string, payload: IAssignStudents
   return res.data;
 };
 
+export const getGrowthHistory = async (params: { tutorId: string; month?: string; year?: number }) => {
+  const res = await apiClient.get<IGrowthHistoryResponse>(ENDPOINTS.GET_GROWTH_HISTORY, { params });
+  return res.data;
+};

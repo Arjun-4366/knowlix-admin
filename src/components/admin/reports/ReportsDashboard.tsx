@@ -6,8 +6,8 @@ import {
   TutorPerformanceReport,
 } from "./types";
 import ReportsFilters from "./ReportsFilters";
-import { useGetTutorPerformanceReport } from "@/querys/admin/reportsQuery";
-import { ITutorPerformanceReportItem } from "@/types/admin/reports";
+import { useGetTutorPerformanceReport, useGetStudentPerformanceReport, useGetAttendanceReport } from "@/querys/admin/reportsQuery";
+import { ITutorPerformanceReportItem, IStudentPerformanceReportItem, IAttendanceReportResponse } from "@/types/admin/reports";
 import {
   TrendingUp,
   Users,
@@ -51,8 +51,18 @@ export default function ReportsDashboard() {
   const [hasGenerated, setHasGenerated] = useState(true);
 
   // React Query hook call to get real tutor reports
-  const { data: realReportsResponse, refetch } = useGetTutorPerformanceReport(
+  const { data: realReportsResponse, refetch: refetchTutor } = useGetTutorPerformanceReport(
     activeFilters.type === "tutor" ? activeFilters.tutorId : undefined,
+    activeFilters.dateRange.startDate,
+    activeFilters.dateRange.endDate
+  );
+
+  const { data: studentReportsResponse, refetch: refetchStudent } = useGetStudentPerformanceReport(
+    activeFilters.dateRange.startDate,
+    activeFilters.dateRange.endDate
+  );
+
+  const { data: attendanceResponse, refetch: refetchAttendance } = useGetAttendanceReport(
     activeFilters.dateRange.startDate,
     activeFilters.dateRange.endDate
   );
@@ -63,7 +73,12 @@ export default function ReportsDashboard() {
     setHasGenerated(false);
 
     if (JSON.stringify(filters) === JSON.stringify(activeFilters)) {
-      refetch().finally(() => {
+      let fetchFn: any = async () => {};
+      if (filters.type === "tutor") fetchFn = refetchTutor;
+      if (filters.type === "student_performance") fetchFn = refetchStudent;
+      if (filters.type === "attendance") fetchFn = refetchAttendance;
+      
+      fetchFn().finally(() => {
         setIsGenerating(false);
         setHasGenerated(true);
         toast.success(`${getReportLabel(filters.type)} generated successfully!`);
@@ -75,7 +90,12 @@ export default function ReportsDashboard() {
 
   useEffect(() => {
     if (isGenerating && JSON.stringify(filters) === JSON.stringify(activeFilters)) {
-      refetch().finally(() => {
+      let fetchFn: any = async () => {};
+      if (filters.type === "tutor") fetchFn = refetchTutor;
+      if (filters.type === "student_performance") fetchFn = refetchStudent;
+      if (filters.type === "attendance") fetchFn = refetchAttendance;
+
+      fetchFn().finally(() => {
         setIsGenerating(false);
         setHasGenerated(true);
         toast.success(`${getReportLabel(filters.type)} generated successfully!`);
@@ -91,7 +111,18 @@ export default function ReportsDashboard() {
 
   // Helper to fetch report names
   const getReportLabel = (type: string) => {
-    return "Tutor Performance Report";
+    switch (type) {
+      case "tutor":
+        return "Tutor Performance Report";
+      case "student_performance":
+        return "Student Performance Report";
+      case "attendance":
+        return "Attendance Report";
+      case "session":
+        return "Session Report";
+      default:
+        return "Report";
+    }
   };
 
   // CSV Export utility
@@ -107,6 +138,24 @@ export default function ReportsDashboard() {
       realData.forEach((t) => {
         csvContent += `"${t.tutorId}","${t.name}","${t.role || ""}",${t.growthPoints},${t.performanceScore},${t.growthBreakdown?.G || 0},${t.growthBreakdown?.H || 0},${t.growthBreakdown?.O || 0},${t.growthBreakdown?.R || 0},${t.growthBreakdown?.T || 0},${t.growthBreakdown?.W || 0},${t.totalSessions},${t.conductedSessions},${t.attendanceRate}\n`;
       });
+    } else if (type === "student_performance") {
+      fileName = "student_performance_report.csv";
+      csvContent += "Student ID,Student Name,Parent Name,Class,Package,Admission Status,Total Sessions,Conducted,Not Conducted,Postponed\n";
+      const realData = studentReportsResponse?.data ?? [];
+      realData.forEach((s) => {
+        csvContent += `"${s.studentId}","${s.studentName}","${s.parentName}","${s.class}","${s.package}","${s.admissionStatus}",${s.totalSessions},${s.conducted},${s.notConducted},${s.postponed}\n`;
+      });
+    } else if (type === "attendance") {
+      fileName = "attendance_summary_report.csv";
+      csvContent += "Attendance Rate,Total,Conducted,Not Conducted,Postponed\n";
+      if (attendanceResponse) {
+        csvContent += `${attendanceResponse.attendanceRate}%,${attendanceResponse.total},${attendanceResponse.conducted},${attendanceResponse.notConducted},${attendanceResponse.postponed}\n`;
+      }
+    }
+
+    if (!csvContent) {
+      toast.error("No data available for export.");
+      return;
     }
 
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
@@ -172,16 +221,28 @@ export default function ReportsDashboard() {
               Visual Highlights & Summary
             </h3>
             {filters.type === "tutor" && <RealTutorVisuals data={realReportsResponse?.data ?? []} />}
+            {filters.type === "student_performance" && <StudentPerformanceVisuals data={studentReportsResponse?.data ?? []} />}
+            {filters.type === "attendance" && <AttendanceVisuals data={attendanceResponse} />}
           </div>
 
           {/* Detail Table */}
-          <div className="bg-white border border-slate-100 rounded-2xl shadow-sm overflow-hidden">
-            <div className="px-6 py-5 border-b border-slate-50">
-              <h3 className="text-sm font-bold text-slate-800">Detailed Dataset</h3>
-              <p className="text-xs text-slate-400 mt-1">Tabular breakdown of the generated report parameters.</p>
+          {filters.type === "tutor" || filters.type === "student_performance" || filters.type === "attendance" ? (
+            <div className="bg-white border border-slate-100 rounded-2xl shadow-sm overflow-hidden">
+              <div className="px-6 py-5 border-b border-slate-50">
+                <h3 className="text-sm font-bold text-slate-800">Detailed Dataset</h3>
+                <p className="text-xs text-slate-400 mt-1">Tabular breakdown of the generated report parameters.</p>
+              </div>
+              {filters.type === "tutor" && <RealTutorTable data={realReportsResponse?.data ?? []} />}
+              {filters.type === "student_performance" && <StudentPerformanceTable data={studentReportsResponse?.data ?? []} />}
+              {filters.type === "attendance" && <AttendanceTable data={attendanceResponse?.data ?? []} />}
             </div>
-            {filters.type === "tutor" && <RealTutorTable data={realReportsResponse?.data ?? []} />}
-          </div>
+          ) : (
+            <div className="bg-white border border-slate-100 rounded-2xl p-12 text-center shadow-sm">
+              <p className="text-sm text-slate-500 font-semibold">
+                {getReportLabel(filters.type)} data structure is pending. Output will be rendered here.
+              </p>
+            </div>
+          )}
         </div>
       )}
 
@@ -347,3 +408,125 @@ function KPICard({ label, value, icon }: { label: string; value: string | number
   );
 }
 
+function StudentPerformanceVisuals({ data }: { data: IStudentPerformanceReportItem[] }) {
+  if (data.length === 0) return <div className="text-xs text-slate-400 text-center py-6">No data to display.</div>;
+
+  const totalStudents = data.length;
+  const completed = data.filter(d => d.admissionStatus === "course_completed").length;
+  const admitted = data.filter(d => d.admissionStatus === "admission_taken").length;
+  const pending = data.filter(d => d.admissionStatus === "pending").length;
+
+  return (
+    <div className="space-y-4">
+      <p className="text-xs font-semibold text-slate-500">Student admissions overview:</p>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
+        <KPICard label="Total Students" value={totalStudents} icon={<Users className="w-5 h-5 text-blue-500" />} />
+        <KPICard label="Course Completed" value={completed} icon={<CheckCircle className="w-5 h-5 text-emerald-500" />} />
+        <KPICard label="Active Admissions" value={admitted} icon={<Star className="w-5 h-5 text-[var(--brand-green)]" />} />
+        <KPICard label="Pending Admissions" value={pending} icon={<AlertCircle className="w-5 h-5 text-orange-500" />} />
+      </div>
+    </div>
+  );
+}
+
+function StudentPerformanceTable({ data }: { data: IStudentPerformanceReportItem[] }) {
+  const formatStatus = (status: string) => {
+    switch (status) {
+      case "course_completed":
+        return <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100 border-transparent text-[10px]">Completed</Badge>;
+      case "admission_taken":
+        return <Badge className="bg-[var(--brand-light-green)] text-[var(--brand-green)] hover:bg-[var(--brand-light-green)] border-transparent text-[10px]">Admitted</Badge>;
+      case "pending":
+        return <Badge className="bg-orange-100 text-orange-700 hover:bg-orange-100 border-transparent text-[10px]">Pending</Badge>;
+      default:
+        return <Badge variant="outline" className="text-[10px] text-slate-500">{status}</Badge>;
+    }
+  };
+
+  const formatPackage = (pkg: string) => {
+    return pkg.split("_").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+  };
+
+  return (
+    <div className="overflow-x-auto w-full">
+      <Table className="w-full">
+        <TableHeader className="bg-slate-50/50">
+          <TableRow>
+            <TableHead className="px-5 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Student Name</TableHead>
+            <TableHead className="px-5 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Class & Package</TableHead>
+            <TableHead className="px-5 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">Status</TableHead>
+            <TableHead className="px-5 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">Total Sessions</TableHead>
+            <TableHead className="px-5 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">Conducted</TableHead>
+            <TableHead className="px-5 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">Not Conducted</TableHead>
+            <TableHead className="px-5 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Postponed</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody className="divide-y divide-slate-100">
+          {data.length > 0 ? (
+            data.map((student) => (
+              <TableRow key={student.studentId} className="hover:bg-slate-50/60 transition-colors">
+                <TableCell className="px-5 py-4">
+                  <p className="text-xs font-bold text-slate-800 leading-none">{student.studentName}</p>
+                  <span className="text-[10px] text-slate-400 font-semibold mt-1 block truncate">Parent: {student.parentName}</span>
+                </TableCell>
+                <TableCell className="px-5 py-4">
+                  <p className="text-xs font-bold text-slate-700 leading-none">Class {student.class}</p>
+                  <span className="text-[10px] text-slate-500 font-medium mt-1 block truncate">{formatPackage(student.package)}</span>
+                </TableCell>
+                <TableCell className="px-5 py-4 text-center">
+                  {formatStatus(student.admissionStatus)}
+                </TableCell>
+                <TableCell className="px-5 py-4 text-xs text-center font-bold text-slate-700">
+                  {student.totalSessions}
+                </TableCell>
+                <TableCell className="px-5 py-4 text-xs text-center font-bold text-blue-600">
+                  {student.conducted}
+                </TableCell>
+                <TableCell className="px-5 py-4 text-xs text-center font-bold text-red-500">
+                  {student.notConducted}
+                </TableCell>
+                <TableCell className="px-5 py-4 text-xs font-bold text-right text-orange-500">
+                  {student.postponed}
+                </TableCell>
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan={7} className="px-5 py-12 text-center text-slate-400 text-xs">
+                No student performance records match the selected filter presets.
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+    </div>
+  );
+}
+
+function AttendanceVisuals({ data }: { data: IAttendanceReportResponse | undefined }) {
+  if (!data) return <div className="text-xs text-slate-400 text-center py-6">No data to display.</div>;
+
+  return (
+    <div className="space-y-4">
+      <p className="text-xs font-semibold text-slate-500">Attendance and session summary:</p>
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-5">
+        <KPICard label="Attendance Rate" value={`${data.attendanceRate}%`} icon={<Percent className="w-5 h-5 text-purple-500" />} />
+        <KPICard label="Total Sessions" value={data.total} icon={<Calendar className="w-5 h-5 text-slate-500" />} />
+        <KPICard label="Conducted" value={data.conducted} icon={<CheckCircle className="w-5 h-5 text-emerald-500" />} />
+        <KPICard label="Not Conducted" value={data.notConducted} icon={<AlertCircle className="w-5 h-5 text-red-500" />} />
+        <KPICard label="Postponed" value={data.postponed} icon={<Clock className="w-5 h-5 text-orange-500" />} />
+      </div>
+    </div>
+  );
+}
+
+function AttendanceTable({ data }: { data: any[] }) {
+  // Currently the JSON payload provides data: null for the array.
+  // We will display a placeholder indicating that detailed table records are pending.
+  return (
+    <div className="p-12 text-center">
+      <p className="text-sm text-slate-500 font-semibold mb-2">Detailed Records Unavailable</p>
+      <p className="text-xs text-slate-400">The attendance report currently aggregates top-level metrics. Detailed row-by-row data structure is pending.</p>
+    </div>
+  );
+}

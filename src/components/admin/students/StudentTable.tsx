@@ -86,7 +86,8 @@ export default function StudentTable({
               students.map((student) => (
                 <TableRow
                   key={student.id}
-                  className="hover:bg-slate-50/60 transition-colors"
+                  className="hover:bg-slate-100 transition-colors cursor-pointer"
+                  onClick={() => onViewStudent(student)}
                 >
                   <TableCell className="px-6 py-4 text-sm font-semibold text-slate-500 truncate">
                     {student.admissionNumber || "Pending"}
@@ -114,7 +115,7 @@ export default function StudentTable({
                       {student.programName || student.courseType}
                     </p>
                   </TableCell>
-                  <TableCell className="px-6 py-4">
+                  <TableCell className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
                     <div className="flex items-center gap-1">
                       <Select
                         key={`status-${student.id}-${student.rawAdmissionStatus}`}
@@ -143,12 +144,12 @@ export default function StudentTable({
                       ₹{Math.max(0, (student.totalFee || 0) - (student.paidAmount || 0))}
                     </span>
                   </TableCell>
-                  <TableCell className="px-6 py-4 text-sm text-right">
+                  <TableCell className="px-6 py-4 text-sm text-right" onClick={(e) => e.stopPropagation()}>
                     <div className="flex items-center justify-end gap-2.5">
                       <Button
                         variant="ghost"
                         size="icon-sm"
-                        onClick={() => onViewStudent(student)}
+                        onClick={(e) => { e.stopPropagation(); onViewStudent(student); }}
                         title="View Details"
                         className="rounded-lg text-slate-400 hover:text-[var(--brand-green)] hover:bg-slate-50"
                       >

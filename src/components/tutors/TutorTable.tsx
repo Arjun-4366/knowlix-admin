@@ -79,7 +79,8 @@ export default function TutorTable({
               return (
                 <TableRow
                   key={tutor.id}
-                  className="hover:bg-slate-50/60 transition-colors"
+                  className="hover:bg-slate-100 transition-colors cursor-pointer"
+                  onClick={() => router.push(`/admin/tutor/${tutor.id}`)}
                 >
                   <TableCell className="px-6 py-4 text-sm font-semibold text-slate-550 truncate max-w-[120px]" title={tutor.id}>
                     {tutor.id.substring(tutor.id.length - 8)}
@@ -136,7 +137,7 @@ export default function TutorTable({
                       </Badge>
                     )}
                   </TableCell>
-                  <TableCell className="px-6 py-4 text-sm text-right">
+                  <TableCell className="px-6 py-4 text-sm text-right" onClick={(e) => e.stopPropagation()}>
                     <div className="flex justify-end items-center gap-1.5">
                       {tutor.status === "pending" && onApproveTutor && (
                         <Button
@@ -154,7 +155,7 @@ export default function TutorTable({
                         variant="ghost"
                         size="icon-sm"
                         type="button"
-                        onClick={() => router.push(`/admin/tutor/${tutor.id}`)}
+                        onClick={(e) => { e.stopPropagation(); router.push(`/admin/tutor/${tutor.id}`); }}
                         title="View Tutor Details"
                         className="rounded-lg text-slate-400 hover:text-[var(--brand-green)] hover:bg-slate-50"
                       >

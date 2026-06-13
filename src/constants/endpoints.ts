@@ -91,6 +91,7 @@ export const ENDPOINTS = {
   GET_TUTOR: (id: string) => `${API_BASE_URL}/tutors/${id}`,
   ADD_GROWTH_POINT:`${API_BASE_URL}/growth/award`,
   GET_LEADERBOARD:`${API_BASE_URL}/growth/leaderboard`,
+  GET_GROWTH_HISTORY: `${API_BASE_URL}/growth/history`,
   ASSIGN_STUDENTS_TO_TUTOR: (id: string) => `${API_BASE_URL}/tutors/${id}/assign-students`,
 
   // reports

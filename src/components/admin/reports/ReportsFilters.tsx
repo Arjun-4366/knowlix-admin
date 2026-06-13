@@ -81,16 +81,19 @@ export default function ReportsFilters({
         <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">
           Select Report Type
         </label>
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
           {([
             { id: "tutor", label: "Tutor Performance" },
+            { id: "student_performance", label: "Student Performance" },
+            { id: "attendance", label: "Attendance" },
+            { id: "session", label: "Session" },
           ] as const).map((tab) => {
             const isActive = filters.type === tab.id;
             return (
               <button
                 key={tab.id}
                 type="button"
-                onClick={() => handleTypeChange(tab.id)}
+                onClick={() => handleTypeChange(tab.id as ReportType)}
                 className={`py-3 px-4 rounded-xl text-xs font-bold border transition-all text-center cursor-pointer ${
                   isActive
                     ? "bg-[var(--brand-green)] text-white border-[var(--brand-green)] shadow-md shadow-green-600/10"

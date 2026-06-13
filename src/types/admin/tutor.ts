@@ -1,11 +1,6 @@
 import { IApiResponse } from "@/types/admin/api";
 import { IAssignedStudent } from "@/types/tutor/profile";
 
-export interface ITutorPermissions {
-  canUploadNotes: boolean;
-  canEditNotes: boolean;
-  canShareMaterial: boolean;
-}
 
 export type TutorStatus = "pending" | "approved" | "rejected" | string;
 
@@ -33,7 +28,6 @@ export interface ITutor {
   negativeRemarks?: string | null;
   slots?: ITutorSlot[] | null;
   assignedStudentIds?: string[] | null;
-  permissions: ITutorPermissions;
   createdAt: string;
   updatedAt: string;
   rank?: number;
@@ -52,7 +46,6 @@ export interface ICreateTutorPayload {
   role: string;
   status: TutorStatus;
   profileImage: string;
-  permissions: ITutorPermissions;
   syllabus?: string[];
   subjectEntries?: Array<{ name: string; syllabi: string[] }>;
 }
@@ -105,4 +98,24 @@ export interface IAssignStudentsPayload {
   remove?: string[];
 }
 
+export interface IGrowthHistoryItem {
+  id: string;
+  tutorId: string;
+  month: string;
+  year: number;
+  evaluationArea: string;
+  G: number;
+  R: number;
+  O: number;
+  W: number;
+  T: number;
+  H: number;
+  totalPoints: number;
+  description: string;
+  awardedBy: string;
+  awardedAt: string;
+}
 
+export interface IGrowthHistoryResponse extends IApiResponse<IGrowthHistoryItem[]> {
+  total?: number;
+}

@@ -1,4 +1,4 @@
-export type ReportType = "tutor";
+export type ReportType = "tutor" | "student_performance" | "attendance" | "session";
 
 export interface DateRange {
   startDate: string;

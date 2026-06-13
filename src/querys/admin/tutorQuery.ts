@@ -10,12 +10,11 @@ import {
   getTutorPerformance,
   getTutors,
   updateTutor,
-  updateTutorPermissions,
   assignStudentsToTutor,
+  getGrowthHistory,
 } from "@/services/admin/tutor/tutor";
 import {
   ICreateTutorPayload,
-  ITutorPermissions,
   IUpdateTutorPayload,
   IAwardGrowthPointsPayload,
   ILeaderboardResponse,
@@ -27,6 +26,7 @@ const TUTORS_KEY = ["tutors"] as const;
 const TUTOR_KEY = ["tutor"] as const;
 const TUTOR_PERFORMANCE_KEY = ["tutor-performance"] as const;
 const LEADERBOARD_KEY = ["leaderboard"] as const;
+const GROWTH_HISTORY_KEY = ["growth-history"] as const;
 
 export const useGetLeaderboard = () => {
   return useQuery({
@@ -115,19 +115,6 @@ export const useApproveTutor = () => {
   });
 };
 
-export const useUpdateTutorPermissions = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({ id, permissions }: { id: string; permissions: ITutorPermissions }) =>
-      updateTutorPermissions(id, permissions),
-    onSuccess: (_response, variables) => {
-      queryClient.invalidateQueries({ queryKey: [...TUTOR_KEY, variables.id] });
-      toast.success("Permissions updated successfully");
-    },
-    onError: () => toast.error("Failed to update permissions"),
-  });
-};
 
 export const useAwardGrowthPoints = () => {
   const queryClient = useQueryClient();
@@ -157,5 +144,13 @@ export const useAssignStudentsToTutor = () => {
       toast.success("Students assigned successfully");
     },
     onError: () => toast.error("Failed to assign students"),
+  });
+};
+
+export const useGetGrowthHistory = (params: { tutorId: string; month?: string; year?: number }) => {
+  return useQuery({
+    queryKey: [...GROWTH_HISTORY_KEY, params],
+    queryFn: () => getGrowthHistory(params),
+    enabled: !!params.tutorId,
   });
 };

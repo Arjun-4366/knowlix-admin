@@ -13,7 +13,6 @@ import {
   Clock,
   Mail,
   Users,
-  ShieldCheck,
   Loader2,
   Calendar,
   MessageSquare,
@@ -23,7 +22,6 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
@@ -38,12 +36,13 @@ import { useConfirmation } from "@/context/ConfirmationContext";
 import {
   useGetTutor,
   useApproveTutor,
-  useUpdateTutorPermissions,
   useAwardGrowthPoints,
   useAssignStudentsToTutor,
 } from "@/querys/admin/tutorQuery";
 import { useGetStudents } from "@/querys/admin/studentQuery";
 import { ITutor } from "@/types/admin/tutor";
+import { TutorGrowthHistory } from "@/components/admin/tutor/TutorGrowthHistory";
+import { TutorPerformanceCard } from "@/components/admin/tutor/TutorPerformanceCard";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -95,45 +94,12 @@ function TutorDetailContent({ params }: PageProps) {
 
   // Mutations
   const { mutateAsync: approveTutor, isPending: isApproving } = useApproveTutor();
-  const { mutateAsync: updateTutorPermissions, isPending: isUpdatingPermissions } = useUpdateTutorPermissions();
   const { mutateAsync: awardGrowthPoints, isPending: isAwardingPoints } = useAwardGrowthPoints();
   const { mutateAsync: assignStudents, isPending: isAssigning } = useAssignStudentsToTutor();
 
   const [selectedStudentIds, setSelectedStudentIds] = useState<string[]>([]);
 
-  const handleTogglePermission = async (key: keyof ITutor["permissions"]) => {
-    if (!tutor) return;
-    const currentPermissions = tutor.permissions || {
-      canUploadNotes: false,
-      canEditNotes: false,
-      canShareMaterial: false,
-    };
-    
-    const updatedPermissions = {
-      ...currentPermissions,
-      [key]: !currentPermissions[key],
-    };
-    try {
-      await updateTutorPermissions({ id, permissions: updatedPermissions });
-    } catch (e) {
-      console.error(e);
-    }
-  };
 
-  const handleUpdateRating = async (category: string, value: number) => {
-    if (!tutor) return;
-    try {
-      await awardGrowthPoints({
-        tutorId: id,
-        category,
-        evaluationArea: "admin_evaluation",
-        points: value,
-        description: `Awarded ${value} points for category ${category}`,
-      });
-    } catch (e) {
-      console.error(e);
-    }
-  };
 
   const handleApprove = () => {
     if (!tutor) return;
@@ -271,7 +237,7 @@ function TutorDetailContent({ params }: PageProps) {
                       : "bg-amber-50 text-amber-700 border-amber-200"
                   )}
                 >
-                  {tutor.status === "pending" ? "Awaiting HR" : tutor.status}
+                  {tutor.status === "pending" ? "Awaiting HR" : tutor.status.charAt(0).toUpperCase() + tutor.status.slice(1)}
                 </Badge>
               </div>
               <p className="text-sm text-slate-500 font-semibold mt-1 flex items-center gap-1.5">
@@ -358,47 +324,13 @@ function TutorDetailContent({ params }: PageProps) {
               <span className="block text-[10px] uppercase font-bold text-slate-400">Availability</span>
               <span className="text-sm font-semibold text-slate-700 flex items-center gap-1.5 mt-0.5">
                 <Clock className="w-3.5 h-3.5 text-slate-400" />
-                {tutor.availability}
+                {Array.isArray(tutor.availability) ? tutor.availability.join(", ") : tutor.availability}
               </span>
             </div>
           </CardContent>
         </Card>
 
-        {/* Access Permissions */}
-        <Card className="bg-white border-slate-150 shadow-sm">
-          <CardHeader className="p-6 pb-3 border-b border-slate-100 bg-slate-50/50">
-            <div className="flex items-center gap-2">
-              <ShieldCheck className="w-5 h-5 text-[var(--brand-green)]" />
-              <CardTitle className="font-bold text-slate-800 text-sm uppercase tracking-wider">
-                Access Control
-              </CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent className="p-6 pt-4 space-y-3">
-            {[
-              { key: "canUploadNotes" as const, label: "Upload Notes & Documents" },
-              { key: "canEditNotes" as const, label: "Edit / Delete Study Notes" },
-              { key: "canShareMaterial" as const, label: "Share Study Materials" },
-            ].map((perm) => (
-              <div
-                key={perm.key}
-                className={cn(
-                  "flex items-center justify-between p-3 rounded-xl border transition-all",
-                  tutor.permissions?.[perm.key]
-                    ? "border-[var(--brand-green)]/35 bg-[var(--brand-light-green)]/10"
-                    : "border-slate-200 bg-slate-50/30"
-                )}
-              >
-                <span className="text-xs font-bold text-slate-700">{perm.label}</span>
-                <Switch
-                  disabled={!isApproved || isUpdatingPermissions}
-                  checked={tutor.permissions?.[perm.key] || false}
-                  onCheckedChange={() => handleTogglePermission(perm.key)}
-                />
-              </div>
-            ))}
-          </CardContent>
-        </Card>
+
 
         {/* Assigned Students */}
         <Card className="bg-white border-slate-150 shadow-sm">
@@ -621,75 +553,15 @@ function TutorDetailContent({ params }: PageProps) {
       </div>
 
       {/* G-R-O-W-T-H Performance Ratings */}
-      <Card className="bg-white border-slate-150 shadow-sm">
-        <CardHeader className="p-6 pb-4 border-b border-slate-100 bg-slate-50/50">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Star className="w-5 h-5 text-[var(--brand-green)]" />
-              <CardTitle className="font-bold text-slate-800 text-sm uppercase tracking-wider">
-                Performance Rating — G-R-O-W-T-H
-              </CardTitle>
-            </div>
-            <Badge
-              variant="outline"
-              className="text-[10px] bg-[var(--brand-light-green)] border-[var(--brand-light)]/20 text-[var(--brand-mid)] px-2 py-0.5 rounded-md font-bold"
-            >
-              Lifetime Growth Points: {tutorDetails?.totalGrowthPoints ?? tutor.growthPoints ?? 0}
-            </Badge>
-          </div>
-          <p className="text-xs text-slate-400 mt-1">
-            Click stars to award growth points under specific evaluation criteria.
-          </p>
-        </CardHeader>
-        <CardContent className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {GROWTH_METRICS.map((metric) => {
-              const currentCategoryPoints = performanceData?.growthBreakdown?.[metric.key] || 0;
-              // Map continuous points scale to star visual levels (1 to 5)
-              const mappedStars = Math.min(5, Math.max(0, currentCategoryPoints));
+      <TutorPerformanceCard
+        tutorId={id}
+        isApproved={isApproved}
+        performanceData={performanceData}
+        totalGrowthPoints={tutorDetails?.totalGrowthPoints ?? tutor.growthPoints ?? 0}
+      />
 
-              return (
-                <div
-                  key={metric.key}
-                  className="flex items-center justify-between p-4 rounded-xl border border-slate-100 bg-slate-50/40 gap-4"
-                >
-                  <div>
-                    <span className="block text-xs font-bold text-slate-750">
-                      {metric.label}
-                    </span>
-                    <span className="block text-[10px] text-slate-400 mt-0.5">
-                      {metric.desc}
-                    </span>
-                    <span className="text-[9px] font-bold text-[var(--brand-green)] mt-1 block">
-                      Category Total: {currentCategoryPoints} pts
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-1 flex-shrink-0">
-                    {[1, 2, 3, 4, 5].map((val) => (
-                      <button
-                        key={val}
-                        type="button"
-                        disabled={!isApproved || isAwardingPoints}
-                        onClick={() => handleUpdateRating(metric.key, val)}
-                        className="disabled:opacity-40 disabled:cursor-not-allowed hover:scale-110 transition-transform cursor-pointer"
-                      >
-                        <Star
-                          className={cn(
-                            "w-5 h-5",
-                            val <= mappedStars
-                              ? "fill-[var(--brand-green)] text-[var(--brand-green)]"
-                              : "text-slate-200"
-                          )}
-                        />
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </CardContent>
-      </Card>
+      {/* Growth History Component */}
+      <TutorGrowthHistory tutorId={id} />
     </div>
   );
 }
