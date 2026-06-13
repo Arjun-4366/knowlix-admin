@@ -255,17 +255,17 @@ export default function AddStudentForm({
     studentToEdit?.documents ?? emptyDocuments,
   );
   const [coordinatorName, setCoordinatorName] = useState(
-    studentToEdit?.coordinatorName ?? "",
+    studentToEdit?.coordinator?.name || studentToEdit?.coordinatorName || "",
   );
   const [admissionStatus, setAdmissionStatus] = useState(
     studentToEdit?.admissionStatus ?? "active",
   );
 
   const [assignedMentorId, setAssignedMentorId] = useState(
-    studentToEdit?.mentorId ?? "",
+    studentToEdit?.mentor?.id || studentToEdit?.assignedMentorId || studentToEdit?.mentorId || "",
   );
   const [assignedCoordinatorId, setAssignedCoordinatorId] = useState(
-    studentToEdit?.coordinatorId ?? "",
+    studentToEdit?.coordinator?.id || studentToEdit?.assignedCoordinatorId || studentToEdit?.coordinatorId || "",
   );
 
   const setDocumentValue = (
@@ -638,74 +638,60 @@ export default function AddStudentForm({
           <h4 className="text-sm font-bold uppercase tracking-wider text-slate-750">
             Assignments
           </h4>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-1">
             <div className="space-y-1.5 md:col-span-2">
               <Label className="text-xs font-semibold text-slate-555">
                 Assigned Admissions Coordinator *
               </Label>
-              <Select
+              <select
                 value={assignedCoordinatorId}
-                onValueChange={(val) => {
+                onChange={(e) => {
+                  const val = e.target.value;
                   setAssignedCoordinatorId(val);
                   const selected = coordinatorsList.find((c) => c.id === val);
-                  if (selected) {
-                    setCoordinatorName(selected.name);
-                  }
+                  if (selected) setCoordinatorName(selected.name);
                 }}
+                className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-[var(--brand-green)]"
               >
-                <SelectTrigger className="rounded-xl border-slate-200 bg-slate-50">
-                  <SelectValue placeholder="Select Coordinator" />
-                </SelectTrigger>
-                <SelectContent>
-                  {coordinatorsList.map((coordinator) => (
-                    <SelectItem key={coordinator.id} value={coordinator.id}>
-                      {coordinator.name} ({coordinator.designation} -{" "}
-                      {coordinator.department})
-                    </SelectItem>
+                <option value="">Select Coordinator</option>
+                {studentToEdit?.coordinator && (
+                  <option value={studentToEdit.coordinator.id}>
+                    {studentToEdit.coordinator.name}{studentToEdit.coordinator.designation ? ` (${studentToEdit.coordinator.designation} - ${studentToEdit.coordinator.department ?? ""})` : ""}
+                  </option>
+                )}
+                {coordinatorsList
+                  .filter((c) => c.id !== studentToEdit?.coordinator?.id)
+                  .map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name} ({c.designation} - {c.department})
+                    </option>
                   ))}
-                  {assignedCoordinatorId &&
-                    !coordinatorsList.some(
-                      (c) => c.id === assignedCoordinatorId,
-                    ) && (
-                      <SelectItem value={assignedCoordinatorId}>
-                        {coordinatorName
-                          ? `${coordinatorName} (ID: ${assignedCoordinatorId})`
-                          : `ID: ${assignedCoordinatorId}`}
-                      </SelectItem>
-                    )}
-                </SelectContent>
-              </Select>
+              </select>
             </div>
-
-
 
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold text-slate-550">
                 Assigned Mentor *
               </Label>
-              <Select
+              <select
                 value={assignedMentorId}
-                onValueChange={setAssignedMentorId}
+                onChange={(e) => setAssignedMentorId(e.target.value)}
+                className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-[var(--brand-green)]"
               >
-                <SelectTrigger className="rounded-xl border-slate-200 bg-slate-50">
-                  <SelectValue placeholder="Select Mentor" />
-                </SelectTrigger>
-                <SelectContent>
-                  {mentorsList.map((mentor) => (
-                    <SelectItem key={mentor.id} value={mentor.id}>
-                      {mentor.name} ({mentor.designation} - {mentor.department})
-                    </SelectItem>
+                <option value="">Select Mentor</option>
+                {studentToEdit?.mentor && (
+                  <option value={studentToEdit.mentor.id}>
+                    {studentToEdit.mentor.name}{studentToEdit.mentor.designation ? ` (${studentToEdit.mentor.designation} - ${studentToEdit.mentor.department ?? ""})` : ""}
+                  </option>
+                )}
+                {mentorsList
+                  .filter((m) => m.id !== studentToEdit?.mentor?.id)
+                  .map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.name} ({m.designation} - {m.department})
+                    </option>
                   ))}
-                  {assignedMentorId &&
-                    !mentorsList.some((m) => m.id === assignedMentorId) && (
-                      <SelectItem value={assignedMentorId}>
-                        {studentToEdit?.coordinatorId
-                          ? `ID: ${studentToEdit.mentorId}`
-                          : assignedMentorId}
-                      </SelectItem>
-                    )}
-                </SelectContent>
-              </Select>
+              </select>
             </div>
           </div>
         </div>

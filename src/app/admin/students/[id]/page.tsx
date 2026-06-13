@@ -25,13 +25,11 @@ import {
   useGetStudentDocuments,
   useUpdateStudent,
 } from "@/querys/admin/studentQuery";
-import { useGetTutors } from "@/querys/admin/tutorQuery";
 import { useGetMentors } from "@/querys/admin/mentorQuery";
 import { useGetCoordinators } from "@/querys/admin/coordinatorQuery";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -75,25 +73,21 @@ function StudentDetailsContent({ params }: PageProps) {
   const { data: documentResponse } = useGetStudentDocuments(id);
   const { mutateAsync: updateStudent, isPending: isUpdating } = useUpdateStudent();
 
-  const { data: tutorsResponse } = useGetTutors({ limit: 100, approved: "true" });
   const { data: mentorsResponse } = useGetMentors();
   const { data: coordinatorsResponse } = useGetCoordinators();
 
-  const tutorsList = tutorsResponse?.data ?? [];
   const mentorsList = mentorsResponse?.data ?? [];
   const coordinatorsList = coordinatorsResponse?.data ?? [];
 
-  const [assignedTutorId, setAssignedTutorId] = useState("");
   const [assignedMentorId, setAssignedMentorId] = useState("");
   const [assignedCoordinatorId, setAssignedCoordinatorId] = useState("");
   const [coordinatorName, setCoordinatorName] = useState("");
 
   useEffect(() => {
     if (student) {
-      setAssignedTutorId(student.assignedTutorId || "");
-      setAssignedMentorId(student.assignedMentorId || student.mentorId || "");
-      setAssignedCoordinatorId(student.assignedCoordinatorId || student.coordinatorId || "");
-      setCoordinatorName(student.coordinatorName || "");
+      setAssignedMentorId(student.mentor?.id || student.assignedMentorId || student.mentorId || "");
+      setAssignedCoordinatorId(student.coordinator?.id || student.assignedCoordinatorId || student.coordinatorId || "");
+      setCoordinatorName(student.coordinator?.name || student.coordinatorName || "");
     }
   }, [student]);
 
@@ -105,7 +99,7 @@ function StudentDetailsContent({ params }: PageProps) {
     }
   };
 
-  const handleAssignmentSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleAssignmentSubmit = async (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     try {
@@ -113,7 +107,6 @@ function StudentDetailsContent({ params }: PageProps) {
         id,
         data: {
           coordinatorName,
-          assignedTutorId,
           mentorId: assignedMentorId,
           coordinatorId: assignedCoordinatorId,
         },
@@ -327,98 +320,89 @@ function StudentDetailsContent({ params }: PageProps) {
             <div className="flex items-center gap-2">
               <User className="h-5 w-5 text-[var(--brand-green)]" />
               <CardTitle className="text-sm font-bold uppercase tracking-wider text-slate-800">
-                Staff Assignments
+                Team & Assignments
               </CardTitle>
             </div>
           </CardHeader>
           <CardContent className="p-6 pt-3">
-            <form className="space-y-3" onSubmit={handleAssignmentSubmit}>
+            <form id="assignments-form" className="space-y-3" onSubmit={handleAssignmentSubmit}>
               <div className="space-y-1.5">
                 <Label className="text-[10px] font-bold uppercase text-slate-400">
                   Assigned Admissions Coordinator
                 </Label>
-                <Select
+                <select
                   value={assignedCoordinatorId}
-                  onValueChange={(val) => {
+                  onChange={(e) => {
+                    const val = e.target.value;
                     setAssignedCoordinatorId(val);
-                    const selected = coordinatorsList.find((c) => c.id === val);
-                    if (selected) {
-                      setCoordinatorName(selected.name);
-                    }
+                    const selected = coordinatorsList.find((c) => c.id === val) ?? (student?.coordinator?.id === val ? student.coordinator : null);
+                    if (selected) setCoordinatorName(selected.name);
                   }}
+                  className="h-9 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-[var(--brand-green)]"
                 >
-                  <SelectTrigger className="h-9 rounded-xl border border-slate-200 bg-slate-50 text-xs">
-                    <SelectValue placeholder="Select Coordinator" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {coordinatorsList.map((coordinator) => (
-                      <SelectItem key={coordinator.id} value={coordinator.id}>
-                        {coordinator.name} ({coordinator.designation})
-                      </SelectItem>
+                  <option value="">Select Coordinator</option>
+                  {student?.coordinator && (
+                    <option value={student.coordinator.id}>
+                      {student.coordinator.name}{student.coordinator.designation ? ` (${student.coordinator.designation})` : ""}
+                    </option>
+                  )}
+                  {coordinatorsList
+                    .filter((c) => c.id !== student?.coordinator?.id)
+                    .map((c) => (
+                      <option key={c.id} value={c.id}>{c.name} ({c.designation})</option>
                     ))}
-                    {assignedCoordinatorId && !coordinatorsList.some((c) => c.id === assignedCoordinatorId) && (
-                      <SelectItem value={assignedCoordinatorId}>
-                        {coordinatorName ? `${coordinatorName} (ID: ${assignedCoordinatorId})` : `ID: ${assignedCoordinatorId}`}
-                      </SelectItem>
-                    )}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-1.5">
-                <Label className="text-[10px] font-bold uppercase text-slate-400">
-                  Assigned Tutor
-                </Label>
-                <Select value={assignedTutorId} onValueChange={setAssignedTutorId}>
-                  <SelectTrigger className="h-9 rounded-xl border border-slate-200 bg-slate-50 text-xs">
-                    <SelectValue placeholder="Select Tutor" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {tutorsList.map((tutor) => (
-                      <SelectItem key={tutor.id} value={tutor.id}>
-                        {tutor.name} ({tutor.subjects ? tutor.subjects.join(", ") : "No subjects"})
-                      </SelectItem>
-                    ))}
-                    {assignedTutorId && !tutorsList.some((t) => t.id === assignedTutorId) && (
-                      <SelectItem value={assignedTutorId}>
-                        ID: {assignedTutorId}
-                      </SelectItem>
-                    )}
-                  </SelectContent>
-                </Select>
+                </select>
               </div>
 
               <div className="space-y-1.5">
                 <Label className="text-[10px] font-bold uppercase text-slate-400">
                   Assigned Mentor
                 </Label>
-                <Select value={assignedMentorId} onValueChange={setAssignedMentorId}>
-                  <SelectTrigger className="h-9 rounded-xl border border-slate-200 bg-slate-50 text-xs">
-                    <SelectValue placeholder="Select Mentor" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {mentorsList.map((mentor) => (
-                      <SelectItem key={mentor.id} value={mentor.id}>
-                        {mentor.name} ({mentor.designation})
-                      </SelectItem>
+                <select
+                  value={assignedMentorId}
+                  onChange={(e) => setAssignedMentorId(e.target.value)}
+                  className="h-9 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-[var(--brand-green)]"
+                >
+                  <option value="">Select Mentor</option>
+                  {student?.mentor && (
+                    <option value={student.mentor.id}>
+                      {student.mentor.name}{student.mentor.designation ? ` (${student.mentor.designation})` : ""}
+                    </option>
+                  )}
+                  {mentorsList
+                    .filter((m) => m.id !== student?.mentor?.id)
+                    .map((m) => (
+                      <option key={m.id} value={m.id}>{m.name} ({m.designation})</option>
                     ))}
-                    {assignedMentorId && !mentorsList.some((m) => m.id === assignedMentorId) && (
-                      <SelectItem value={assignedMentorId}>
-                        ID: {assignedMentorId}
-                      </SelectItem>
-                    )}
-                  </SelectContent>
-                </Select>
+                </select>
               </div>
 
-              <Button
-                type="submit"
-                disabled={isUpdating}
-                className="h-9 w-full rounded-xl bg-[var(--brand-green)] text-xs font-bold text-white hover:bg-[var(--brand-mid)]"
-              >
-                {isUpdating ? <ButtonLoader /> : "Update Assignments"}
-              </Button>
             </form>
+
+            {student.tutors && student.tutors.length > 0 && (
+              <div className="mt-4 pt-4 border-t border-slate-100 space-y-2">
+                <p className="text-[10px] font-bold uppercase text-slate-400">Assigned Tutors</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {student.tutors.map((t) => (
+                    <span
+                      key={t.id}
+                      className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[var(--brand-light-green)] text-[var(--brand-mid)] border border-[var(--brand-green)]/20"
+                    >
+                      {t.name}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <Button
+              type="submit"
+              form="assignments-form"
+              disabled={isUpdating}
+              className="mt-4 h-9 w-full rounded-xl bg-[var(--brand-green)] text-xs font-bold text-white hover:bg-[var(--brand-mid)]"
+            >
+              {isUpdating ? <ButtonLoader /> : "Update Assignments"}
+            </Button>
           </CardContent>
         </Card>
       </div>

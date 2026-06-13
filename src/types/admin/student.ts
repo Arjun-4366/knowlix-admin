@@ -16,6 +16,16 @@ export type StudentAdmissionStatus =
   | "in_review"
   | string;
 
+export interface IStudentStaffMember {
+  id: string;
+  name: string;
+  email?: string;
+  phone?: string;
+  department?: string;
+  designation?: string;
+  status?: string;
+}
+
 export interface IStudent {
   id: string;
   admissionNumber?: string;
@@ -29,13 +39,17 @@ export interface IStudent {
   package: string;
   customPackageDetails?: string;
   documents: IStudentDocuments;
-  coordinatorName: string;
+  coordinatorName?: string | null;
+  mentorName?: string | null;
   admissionStatus: StudentAdmissionStatus;
-  assignedTutorId: string | null;
-  mentorId: string | null;
+  assignedTutorId?: string | null;
+  mentorId?: string | null;
   assignedMentorId?: string | null;
-  coordinatorId: string | null;
+  coordinatorId?: string | null;
   assignedCoordinatorId?: string | null;
+  coordinator?: IStudentStaffMember | null;
+  mentor?: IStudentStaffMember | null;
+  tutors?: Array<{ id: string; name: string }> | null;
   programId?: string | null;
   programName?: string | null;
   courseId?: string | null;
