@@ -2,7 +2,7 @@ import { ENDPOINTS } from "@/constants/endpoints";
 import { apiClient } from "@/constants/apiClient";
 import { QueryParams } from "@/types/queryParams";
 import { IApiResponse } from "@/types/admin/api";
-import { ITutorAttendanceResponse, IMarkAttendancePayload, ITutorSessionsResponse, ICreateSessionPayload, ITutorSession } from "@/types/tutor/attendance";
+import { ITutorAttendanceResponse, IMarkAttendancePayload, ITutorSessionsResponse, ICreateSessionPayload, IUpdateSessionPayload, ITutorSession } from "@/types/tutor/attendance";
 
 export const getTutorAttendance = async (params?: QueryParams) => {
     const res = await apiClient.get<ITutorAttendanceResponse>(ENDPOINTS.GET_TUTOR_ATTENDANCE, { params });
@@ -35,7 +35,7 @@ export const createTutorSession = async (payload: ICreateSessionPayload) => {
     return res.data;
 };
 
-export const updateTutorSession = async (id: string, payload: ICreateSessionPayload) => {
+export const updateTutorSession = async (id: string, payload: IUpdateSessionPayload) => {
     const res = await apiClient.put<IApiResponse<ITutorSession>>(
         ENDPOINTS.UPDATE_SESSION(id),
         payload

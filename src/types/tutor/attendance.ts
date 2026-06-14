@@ -64,4 +64,8 @@ export interface ICreateSessionPayload {
   notes: string;
 }
 
+export interface IUpdateSessionPayload extends Partial<ICreateSessionPayload> {
+  status?: string;
+}
+
 

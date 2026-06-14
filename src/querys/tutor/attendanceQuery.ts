@@ -1,6 +1,6 @@
 import { getTutorAttendance, markTutorAttendance, getSessions, createTutorSession, updateTutorSession, deleteTutorSession } from "@/services/tutor/attendance";
 import { QueryParams } from "@/types/queryParams";
-import { IMarkAttendancePayload, ICreateSessionPayload } from "@/types/tutor/attendance";
+import { IMarkAttendancePayload, ICreateSessionPayload, IUpdateSessionPayload } from "@/types/tutor/attendance";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 const TUTOR_ATTENDANCE_KEY = ["tutor-attendance"] as const;
@@ -43,7 +43,7 @@ export const useCreateTutorSession = () => {
 export const useUpdateTutorSession = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: ICreateSessionPayload }) => updateTutorSession(id, data),
+    mutationFn: ({ id, data }: { id: string; data: IUpdateSessionPayload }) => updateTutorSession(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: TUTOR_SESSIONS_KEY });
     },
