@@ -94,7 +94,7 @@ export const mapApiStudentToStudent = (student: IStudent): Student => ({
   packageSelection: formatPackage(student.package, student.customPackageDetails),
   customPackageDuration: student.customPackageDetails,
   documentsSubmitted: getSubmittedDocumentLabels(student.documents),
-  coordinatorName: student.coordinatorName,
+  coordinatorName: student.coordinatorName ?? "",
   admissionStatus: formatAdmissionStatus(student.admissionStatus),
   rawAdmissionStatus: student.admissionStatus || "pending",
   programName: student.programName || "",
