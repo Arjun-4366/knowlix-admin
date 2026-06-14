@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useDebounce } from "@/hooks/useDebounce";
 import { Search, Eye, Trash2, Calendar, FileText, X, Printer, GraduationCap, Award } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -34,6 +35,7 @@ export default function TutorReportHistory({ reports, onDeleteReport }: TutorRep
 
   // Filter states
   const [searchQuery, setSearchQuery] = useState("");
+  const debouncedSearch = useDebounce(searchQuery);
   const [templateFilter, setTemplateFilter] = useState<string>("all");
 
   // Selected report for the detailed overlay modal
@@ -71,7 +73,7 @@ export default function TutorReportHistory({ reports, onDeleteReport }: TutorRep
 
   // Filtered reports
   const filteredReports = reports.filter((r) => {
-    const matchesSearch = r.studentName.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = r.studentName.toLowerCase().includes(debouncedSearch.toLowerCase());
     const matchesTemplate = templateFilter === "all" || r.templateId === templateFilter;
     return matchesSearch && matchesTemplate;
   });

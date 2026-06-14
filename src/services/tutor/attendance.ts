@@ -2,7 +2,7 @@ import { ENDPOINTS } from "@/constants/endpoints";
 import { apiClient } from "@/constants/apiClient";
 import { QueryParams } from "@/types/queryParams";
 import { IApiResponse } from "@/types/admin/api";
-import { ITutorAttendanceRecord, ITutorAttendanceResponse, IMarkAttendancePayload, ITutorSessionsResponse, ICreateSessionPayload, ITutorSession } from "@/types/tutor/attendance";
+import { ITutorAttendanceResponse, IMarkAttendancePayload, ITutorSessionsResponse, ICreateSessionPayload, ITutorSession } from "@/types/tutor/attendance";
 
 export const getTutorAttendance = async (params?: QueryParams) => {
     const res = await apiClient.get<ITutorAttendanceResponse>(ENDPOINTS.GET_TUTOR_ATTENDANCE, { params });

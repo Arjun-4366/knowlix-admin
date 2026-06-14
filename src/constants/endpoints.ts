@@ -8,7 +8,6 @@ export const ENDPOINTS = {
   ADMIN_DASHBOARD: `${API_BASE_URL}/dashboard`,
 
   //website//
-
   //about
   ABOUT: `${API_BASE_URL}/about/fetch`,
   ABOUT_CREATE: `${API_BASE_URL}/about/create`,
@@ -114,6 +113,7 @@ export const ENDPOINTS = {
   // TUTOR
   //dashboard
   GET_TUTOR_DASHBOARD:`${API_BASE_URL}/tutor/dashboard`,
+  GET_TUTOR_SALARY:`${API_BASE_URL}/tutor/salary/fetch`,
   
   // profile
   TUTOR_PROFILE:`${API_BASE_URL}/tutor/profile`,

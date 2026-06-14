@@ -7,6 +7,7 @@ import { useGetSessions } from "@/querys/tutor/attendanceQuery";
 interface TutorSessionSelectorProps {
   selectedSessionId: string | null;
   onSelect: (session: ITutorSession | null) => void;
+  date?: "today" | "yesterday";
 }
 
 const STATUS_STYLES: Record<string, string> = {
@@ -16,8 +17,8 @@ const STATUS_STYLES: Record<string, string> = {
   cancelled: "bg-red-50 text-red-700 border-red-200",
 };
 
-export default function TutorSessionSelector({ selectedSessionId, onSelect }: TutorSessionSelectorProps) {
-  const { data: sessionsResponse, isLoading } = useGetSessions();
+export default function TutorSessionSelector({ selectedSessionId, onSelect, date }: TutorSessionSelectorProps) {
+  const { data: sessionsResponse, isLoading } = useGetSessions(date ? { date } : undefined);
   const sessions = sessionsResponse?.data || [];
 
   if (isLoading) {

@@ -5,14 +5,14 @@ import { useRouter } from "next/navigation";
 import {
   Users, BookOpen, Clock, DollarSign, BarChart3,
   FileText, MessageSquare, Calendar, CheckCircle2,
-  AlertCircle, ChevronRight, Star, TrendingUp,
+  AlertCircle, ChevronRight, Star,
 } from "lucide-react";
 import DashboardStatCard from "@/components/dashboard/shared/DashboardStatCard";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { useGetTutorDashboard } from "@/querys/tutor/dashboardQuery";
+import { useGetTutorDashboard, useGetTutorSalary } from "@/querys/tutor/dashboardQuery";
 
 // ─── Helpers ───────────────────────────────────────────────────────────────
 
@@ -24,15 +24,30 @@ const formatCurrency = (amount: number, currency: string = "INR") => {
   }).format(amount);
 };
 
+const SESSION_STATUS_STYLES: Record<string, string> = {
+  conducted: "bg-[var(--brand-light-green)] text-[var(--brand-mid)] border-[var(--brand-light)]/20",
+  completed: "bg-slate-100 text-slate-600 border-slate-200",
+  not_conducted: "bg-red-50 text-red-600 border-red-200",
+  scheduled: "bg-blue-50 text-blue-600 border-blue-200",
+};
+
+const SALARY_STATUS_STYLES: Record<string, string> = {
+  paid: "bg-[var(--brand-light-green)] text-[var(--brand-mid)] border-[var(--brand-light)]/20",
+  partial: "bg-amber-50 text-amber-700 border-amber-200",
+  pending: "bg-red-50 text-red-700 border-red-200",
+};
+
 // ─── Component ───────────────────────────────────────────────────────────────
 
 export default function TutorDashboard() {
   const router = useRouter();
   const [sessionPeriod, setSessionPeriod] = useState<"weekly" | "monthly" | "yearly">("weekly");
   const [kpiPeriod, setKpiPeriod] = useState<"weekly" | "monthly" | "yearly">("weekly");
+  const [showSalary, setShowSalary] = useState(false);
 
   const { data: sessionData, isLoading: isSessionLoading } = useGetTutorDashboard({ period: sessionPeriod });
   const { data: kpiData, isLoading: isKpiLoading } = useGetTutorDashboard({ period: kpiPeriod });
+  const { data: salaryData } = useGetTutorSalary();
 
   if (isSessionLoading || isKpiLoading) {
     return (
@@ -42,17 +57,14 @@ export default function TutorDashboard() {
     );
   }
 
-  const getStudentName = (studentId: string) => {
-    if (!studentId) return "Student";
-    return `Student (#${studentId.slice(-4).toUpperCase()})`;
-  };
-
   const totalSlots = kpiData?.slots?.total || 0;
   const filledSlots = kpiData?.slots?.filled || 0;
   const availableSlots = kpiData?.slots?.available || 0;
 
   const todaySchedule = kpiData?.schedule?.today || [];
   const tomorrowSchedule = kpiData?.schedule?.tomorrow || [];
+
+  const latestSalary = salaryData?.[0] ?? null;
 
   const letters = ["G", "R", "O", "W", "T", "H"] as const;
 
@@ -75,7 +87,7 @@ export default function TutorDashboard() {
           value={sessionData?.totalAssignments || 0}
           icon={<BookOpen className="w-6 h-6 text-[var(--brand-green)]" />}
           badgeText="Active"
-        footerText="Across all students"
+          footerText="Across all students"
         />
         <DashboardStatCard
           label={`Sessions (${sessionPeriod.charAt(0).toUpperCase() + sessionPeriod.slice(1)})`}
@@ -84,17 +96,75 @@ export default function TutorDashboard() {
           badgeText="Class counts"
           footerText={`${sessionData?.sessions?.conducted || 0} completed · ${(sessionData?.sessions?.total || 0) - (sessionData?.sessions?.conducted || 0)} pending`}
         />
-        <DashboardStatCard
-          label={`Earnings (${sessionPeriod.charAt(0).toUpperCase() + sessionPeriod.slice(1)})`}
-          value={formatCurrency(sessionData?.totalEarnings?.amount || 0, sessionData?.totalEarnings?.currency)}
-          icon={<DollarSign className="w-6 h-6 text-[var(--brand-green)]" />}
-          badgeText={sessionData?.totalEarnings?.currency || "INR"}
-          footerText={`${sessionData?.sessions?.total || 0} sessions · ${
-            sessionData?.sessions?.total 
-              ? formatCurrency((sessionData?.totalEarnings?.amount || 0) / sessionData.sessions.total, sessionData?.totalEarnings?.currency)
-              : formatCurrency(0, sessionData?.totalEarnings?.currency)
-          } / session`}
-        />
+
+        {/* ── Earnings / Salary Toggle Card ── */}
+        <div className="w-full bg-white rounded-2xl border border-slate-100 p-5 flex flex-col justify-between relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[var(--brand-green)] to-[var(--brand-light)]" />
+
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-[var(--brand-light-green)]">
+              <DollarSign className="w-6 h-6 text-[var(--brand-green)]" />
+            </div>
+            <div className="flex items-center gap-2">
+              {showSalary ? (
+                <span className={cn(
+                  "text-xs font-semibold px-2.5 py-1 rounded-full border capitalize",
+                  SALARY_STATUS_STYLES[latestSalary?.status || "pending"] ?? SALARY_STATUS_STYLES.pending
+                )}>
+                  {latestSalary?.status || "—"}
+                </span>
+              ) : (
+                <span className="text-xs font-semibold px-2.5 py-1 rounded-full border bg-[var(--brand-light-green)] text-[var(--brand-mid)] border-[var(--brand-light)]/20">
+                  {sessionData?.totalEarnings?.currency || "INR"}
+                </span>
+              )}
+              <button
+                onClick={() => setShowSalary((s) => !s)}
+                title={showSalary ? "Switch to Earnings" : "Switch to Salary"}
+                className="w-8 h-8 rounded-xl flex items-center justify-center border border-slate-200 hover:bg-slate-50 transition-colors cursor-pointer"
+              >
+                <ChevronRight className={cn("w-4 h-4 text-slate-500 transition-transform duration-200", showSalary && "rotate-180")} />
+              </button>
+            </div>
+          </div>
+
+          {!showSalary ? (
+            <div>
+              <p className="text-3xl font-bold font-heading text-slate-800">
+                {formatCurrency(sessionData?.totalEarnings?.received || 0, sessionData?.totalEarnings?.currency)}
+              </p>
+              <p className="text-sm font-semibold text-slate-650 mt-1">
+                Earnings ({sessionPeriod.charAt(0).toUpperCase() + sessionPeriod.slice(1)})
+              </p>
+              <p className="text-xs mt-3 text-slate-450 font-semibold">
+                Pending: {formatCurrency(sessionData?.totalEarnings?.pending || 0, sessionData?.totalEarnings?.currency)}
+              </p>
+            </div>
+          ) : (
+            <div>
+              {latestSalary ? (
+                <>
+                  <p className="text-3xl font-bold font-heading text-slate-800">
+                    {formatCurrency(latestSalary.totalAmount)}
+                  </p>
+                  <p className="text-sm font-semibold text-slate-650 mt-1">
+                    Salary — {latestSalary.month} {latestSalary.year}
+                  </p>
+                  <div className="text-xs mt-3 text-slate-450 font-semibold space-y-0.5">
+                    <p>Paid: {formatCurrency(latestSalary.paidAmount)}</p>
+                    <p>Pending: {formatCurrency(latestSalary.pendingAmount)}</p>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <p className="text-3xl font-bold font-heading text-slate-400">—</p>
+                  <p className="text-sm font-semibold text-slate-650 mt-1">Salary</p>
+                  <p className="text-xs mt-3 text-slate-400 font-semibold">No salary records found</p>
+                </>
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* ── Period Filter Tabs (shared for Sessions + Earnings) ── */}
@@ -112,7 +182,6 @@ export default function TutorDashboard() {
               </TabsTrigger>
             ))}
           </TabsList>
-          {/* No TabsContent needed — data is derived from state above */}
           {["weekly", "monthly", "yearly"].map((p) => (
             <TabsContent key={p} value={p} />
           ))}
@@ -230,7 +299,7 @@ export default function TutorDashboard() {
 
       {/* ── Schedule + Slot Availability ── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Class Messages / Schedule */}
+        {/* Class Schedule */}
         <div className="lg:col-span-2">
           <Card className="bg-white border-slate-150 shadow-sm h-full">
             <CardHeader className="p-6 pb-0 border-b border-slate-100">
@@ -255,7 +324,8 @@ export default function TutorDashboard() {
                       <p className="text-xs text-gray-500 py-4 text-center">No sessions scheduled for today.</p>
                     ) : (
                       todaySchedule.map((s, i) => {
-                        const time = new Date(s.scheduledAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                        const time = new Date(s.scheduledAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+                        const statusStyle = SESSION_STATUS_STYLES[s.status] ?? SESSION_STATUS_STYLES.scheduled;
                         return (
                           <div key={s.id || i} className="flex items-center gap-3 p-3 rounded-xl border border-slate-100 hover:bg-slate-50/50 transition-colors">
                             <div className="w-16 text-center flex-shrink-0">
@@ -264,16 +334,12 @@ export default function TutorDashboard() {
                             </div>
                             <div className="w-px h-8 bg-slate-200 flex-shrink-0" />
                             <div className="flex-1 min-w-0">
-                              <p className="text-sm font-bold text-slate-800 truncate">{getStudentName(s.studentId)}</p>
+                              <p className="text-sm font-bold text-slate-800 truncate">{s.title}</p>
                               <p className="text-xs text-slate-450 font-semibold capitalize">{s.subject}</p>
                             </div>
                             <Badge variant="outline" className={cn(
                               "text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0 capitalize",
-                              s.status === "conducted"
-                                ? "bg-[var(--brand-light-green)] text-[var(--brand-mid)] border-[var(--brand-light)]/20"
-                                : s.status === "postponed"
-                                ? "bg-amber-50 text-amber-600 border-amber-200"
-                                : "bg-blue-50 text-blue-600 border-blue-200"
+                              statusStyle
                             )}>
                               {s.status.replace("_", " ")}
                             </Badge>
@@ -289,7 +355,8 @@ export default function TutorDashboard() {
                       <p className="text-xs text-gray-500 py-4 text-center">No sessions scheduled for tomorrow.</p>
                     ) : (
                       tomorrowSchedule.map((s, i) => {
-                        const time = new Date(s.scheduledAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                        const time = new Date(s.scheduledAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+                        const statusStyle = SESSION_STATUS_STYLES[s.status] ?? SESSION_STATUS_STYLES.scheduled;
                         return (
                           <div key={s.id || i} className="flex items-center gap-3 p-3 rounded-xl border border-slate-100 hover:bg-slate-50/50 transition-colors">
                             <div className="w-16 text-center flex-shrink-0">
@@ -298,16 +365,12 @@ export default function TutorDashboard() {
                             </div>
                             <div className="w-px h-8 bg-slate-200 flex-shrink-0" />
                             <div className="flex-1 min-w-0">
-                              <p className="text-sm font-bold text-slate-800 truncate">{getStudentName(s.studentId)}</p>
+                              <p className="text-sm font-bold text-slate-800 truncate">{s.title}</p>
                               <p className="text-xs text-slate-450 font-semibold capitalize">{s.subject}</p>
                             </div>
                             <Badge variant="outline" className={cn(
                               "text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0 capitalize",
-                              s.status === "conducted"
-                                ? "bg-[var(--brand-light-green)] text-[var(--brand-mid)] border-[var(--brand-light)]/20"
-                                : s.status === "postponed"
-                                ? "bg-amber-50 text-amber-600 border-amber-200"
-                                : "bg-blue-50 text-blue-600 border-blue-200"
+                              statusStyle
                             )}>
                               {s.status.replace("_", " ")}
                             </Badge>
@@ -333,7 +396,6 @@ export default function TutorDashboard() {
             </div>
           </CardHeader>
           <CardContent className="p-6 pt-4 space-y-4">
-            {/* Summary */}
             <div className="grid grid-cols-2 gap-3">
               <div className="p-3 rounded-xl border border-[var(--brand-green)]/30 bg-[var(--brand-light-green)]/10 text-center">
                 <p className="text-xl font-bold text-[var(--brand-green)]">{availableSlots}</p>
@@ -345,7 +407,6 @@ export default function TutorDashboard() {
               </div>
             </div>
 
-            {/* Overall fill rate */}
             <div className="pt-2 border-t border-slate-100">
               <div className="flex justify-between items-center">
                 <span className="text-xs font-semibold text-slate-500">Fill Rate</span>

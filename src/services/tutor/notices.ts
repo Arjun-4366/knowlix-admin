@@ -1,6 +1,7 @@
 import { apiClient } from "@/constants/apiClient";
 import { ENDPOINTS } from "@/constants/endpoints";
 import { IApiResponse } from "@/types/admin/api";
+import { QueryParams } from "@/types/queryParams";
 
 export interface ITutorAnnouncement {
   id: string;
@@ -27,9 +28,11 @@ export interface ITutorNotice {
 export interface ITutorNoticesData {
   announcements: ITutorAnnouncement[];
   notices: ITutorNotice[];
+  totalAnnouncements?: number;
+  totalNotices?: number;
 }
 
-export const getTutorNotices = async () => {
-  const res = await apiClient.get<IApiResponse<ITutorNoticesData>>(ENDPOINTS.GET_TUTOR_NOTICES);
+export const getTutorNotices = async (params?: QueryParams) => {
+  const res = await apiClient.get<IApiResponse<ITutorNoticesData>>(ENDPOINTS.GET_TUTOR_NOTICES, { params });
   return res.data.data;
 };

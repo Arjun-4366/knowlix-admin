@@ -20,14 +20,16 @@ export interface ITutorDashboardKpiPerformance {
 
 export interface ITutorSession {
   id: string;
-  studentId: string;
   tutorId: string;
+  type: string;
+  studentIds: string[];
+  title: string;
   subject: string;
+  meetLink: string;
   scheduledAt: string;
   durationMinutes: number;
-  status: "conducted" | "not_conducted" | "postponed";
-  postponeReason?: string;
-  tutorRemarks?: string;
+  status: "scheduled" | "conducted" | "not_conducted" | "completed";
+  notes: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -49,8 +51,9 @@ export interface ITutorDashboardSlots {
 }
 
 export interface ITutorDashboardTotalEarnings {
-  amount: number;
   currency: string;
+  pending: number;
+  received: number;
 }
 
 export interface ITutorDashboardPayload {
@@ -62,4 +65,19 @@ export interface ITutorDashboardPayload {
   totalAssignments: number;
   totalEarnings: ITutorDashboardTotalEarnings;
   totalStudents: number;
+}
+
+export interface ITutorSalary {
+  id: string;
+  tutorId: string;
+  month: string;
+  year: number;
+  totalAmount: number;
+  paidAmount: number;
+  pendingAmount: number;
+  status: "paid" | "partial" | "pending";
+  remarks: string;
+  paymentDate: string;
+  createdAt: string;
+  updatedAt: string;
 }

@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Award, Search, Trash2, Check, Sparkles, X } from "lucide-react";
+import { Award, Search, Trash2, Check, Sparkles, X, Lock } from "lucide-react";
+import { useDebounce } from "@/hooks/useDebounce";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -63,13 +64,13 @@ export default function TutorEvaluationManager({
   const [selectedStudentId, setSelectedStudentId] = useState("");
   const [assessmentType, setAssessmentType] = useState<"Assignment" | "Exam">("Assignment");
   const [selectedAssessmentId, setSelectedAssessmentId] = useState("");
-  const [maxMarks, setMaxMarks] = useState("100");
   const [obtainedMarks, setObtainedMarks] = useState("");
   const [grade, setGrade] = useState("A");
   const [remarks, setRemarks] = useState("");
 
   // Search filter for history
   const [searchQuery, setSearchQuery] = useState("");
+  const debouncedSearch = useDebounce(searchQuery);
   const [showForm, setShowForm] = useState(false);
 
   // Pre-fill student dropdown if students are available
@@ -110,7 +111,7 @@ export default function TutorEvaluationManager({
     if (!studentObj || !assessmentObj) return;
 
     const obt = parseFloat(obtainedMarks);
-    const max = parseFloat(maxMarks);
+    const max = assessmentObj.maxMarks;
 
     if (obt > max) {
       toast.error("Obtained marks cannot exceed maximum marks.");
@@ -203,8 +204,8 @@ export default function TutorEvaluationManager({
   // Filter history list
   const filteredEvaluations = evaluations.filter((ev) => {
     const matchesSearch =
-      ev.studentName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      ev.assessmentTitle.toLowerCase().includes(searchQuery.toLowerCase());
+      ev.studentName.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+      ev.assessmentTitle.toLowerCase().includes(debouncedSearch.toLowerCase());
     return matchesSearch;
   });
 
@@ -323,19 +324,17 @@ export default function TutorEvaluationManager({
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {/* Maximum Marks */}
+                  {/* Maximum Marks — locked from the selected assessment */}
                   <div className="space-y-1">
                     <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
                       Maximum Marks
                     </label>
-                    <Input
-                      type="number"
-                      min="1"
-                      value={maxMarks}
-                      onChange={(e) => setMaxMarks(e.target.value)}
-                      className="h-10 bg-white border border-slate-200 rounded-xl text-sm"
-                      required
-                    />
+                    <div className="h-10 flex items-center justify-between px-3 bg-slate-50 border border-slate-200 rounded-xl">
+                      <span className="text-sm font-bold text-slate-700">
+                        {currentAssessments.find((a) => a.id === selectedAssessmentId)?.maxMarks ?? "—"}
+                      </span>
+                      <Lock className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+                    </div>
                   </div>
 
                   {/* Obtained Marks */}

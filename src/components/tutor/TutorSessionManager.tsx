@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { Plus, Calendar, Video, Clock, Users, CheckCircle2, AlertCircle, X, Save, ExternalLink, Edit2, Trash2 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -42,9 +41,21 @@ const formatIsoToDatetimeLocal = (isoString: string): string => {
   return `${yyyy}-${MM}-${dd}T${hh}:${mm}`;
 };
 
+type SessionFilter = "today" | "yesterday" | "active";
+
+const SESSION_FILTERS: { label: string; value: SessionFilter }[] = [
+  { label: "Today", value: "today" },
+  { label: "Yesterday", value: "yesterday" },
+  { label: "Active", value: "active" },
+];
+
 export default function TutorSessionManager() {
   const { confirm } = useConfirmation();
-  const { data: sessionsResponse, isLoading: loadingSessions } = useGetSessions();
+  const [sessionFilter, setSessionFilter] = useState<SessionFilter>("today");
+
+  const sessionParams = { date: sessionFilter };
+
+  const { data: sessionsResponse, isLoading: loadingSessions } = useGetSessions(sessionParams);
   const { mutate: createSession, isPending: isCreating } = useCreateTutorSession();
   const { mutate: updateSession, isPending: isUpdating } = useUpdateTutorSession();
   const { mutate: deleteSession } = useDeleteTutorSession();
@@ -53,8 +64,6 @@ export default function TutorSessionManager() {
   const storeSubjects = useTutorStore((s) => s.subjects);
   const storeAssignedStudents = useTutorStore((s) => s.assignedStudents);
 
-  console.log("stored subject",storeSubjects);
-  console.log("assigned students",storeAssignedStudents);
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingSessionId, setEditingSessionId] = useState<string | null>(null);
   
@@ -204,9 +213,28 @@ export default function TutorSessionManager() {
 
   const STATUS_STYLES: Record<string, string> = {
     scheduled: "bg-blue-50 text-blue-700 border-blue-200",
-    ongoing: "bg-[var(--brand-light-green)] text-[var(--brand-mid)] border-[var(--brand-light)]/20",
     completed: "bg-slate-100 text-slate-600 border-slate-200",
-    cancelled: "bg-red-50 text-red-700 border-red-200",
+    conducted: "bg-[var(--brand-light-green)] text-[var(--brand-mid)] border-[var(--brand-light)]/20",
+    not_conducted: "bg-red-50 text-red-700 border-red-200",
+  };
+
+  const STATUS_LABELS: Record<string, string> = {
+    scheduled: "Scheduled",
+    conducted: "Conducted",
+    completed: "Completed",
+    not_conducted: "Not Conducted",
+  };
+
+  const UPDATABLE_STATUSES = ["conducted","completed","not_conducted"] as const;
+
+  const handleStatusChange = (sessionId: string, newStatus: string) => {
+    updateSession(
+      { id: sessionId, data: { status: newStatus } },
+      {
+        onSuccess: () => toast.success("Session status updated."),
+        onError: () => toast.error("Failed to update status."),
+      }
+    );
   };
 
   const isLoading = loadingSessions;
@@ -440,6 +468,24 @@ export default function TutorSessionManager() {
         </Card>
       )}
 
+      {/* ── Filters ── */}
+      <div className="flex items-center gap-2 flex-wrap">
+        {SESSION_FILTERS.map((f) => (
+          <button
+            key={f.value}
+            type="button"
+            onClick={() => setSessionFilter(f.value)}
+            className={`px-4 py-1.5 rounded-full text-xs font-bold border transition-all cursor-pointer ${
+              sessionFilter === f.value
+                ? "bg-[var(--brand-green)] text-white border-[var(--brand-green)] shadow-sm"
+                : "bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50"
+            }`}
+          >
+            {f.label}
+          </button>
+        ))}
+      </div>
+
       {/* ── Table of Scheduled Sessions ── */}
       <div className="bg-white border border-slate-150 rounded-2xl shadow-sm overflow-hidden">
         <Table className="table-fixed w-full">
@@ -540,14 +586,38 @@ export default function TutorSessionManager() {
                       </a>
                     </TableCell>
 
-                    {/* Status Badge */}
+                    {/* Status — inline dropdown for actionable statuses */}
                     <TableCell className="px-6 py-4">
-                      <Badge
-                        variant="outline"
-                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full border shadow-sm capitalize ${statusStyle}`}
-                      >
-                        {session.status}
-                      </Badge>
+                      {session.status === "scheduled" ? (
+                        <select
+                          defaultValue=""
+                          disabled={isUpdating}
+                          onChange={(e) => {
+                            if (e.target.value) handleStatusChange(session.id, e.target.value);
+                          }}
+                          className={`text-[10px] font-bold px-2 py-1 rounded-full border shadow-sm cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--brand-green)]/30 appearance-none pr-5 ${statusStyle}`}
+                        >
+                          <option value="" disabled>Scheduled</option>
+                          {UPDATABLE_STATUSES.map((s) => (
+                            <option key={s} value={s} className="bg-white text-slate-700">
+                              {STATUS_LABELS[s]}
+                            </option>
+                          ))}
+                        </select>
+                      ) : (
+                        <select
+                          value={session.status}
+                          disabled={isUpdating}
+                          onChange={(e) => handleStatusChange(session.id, e.target.value)}
+                          className={`text-[10px] font-bold px-2 py-1 rounded-full border shadow-sm cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--brand-green)]/30 appearance-none pr-5 ${statusStyle}`}
+                        >
+                          {UPDATABLE_STATUSES.map((s) => (
+                            <option key={s} value={s} className="bg-white text-slate-700">
+                              {STATUS_LABELS[s]}
+                            </option>
+                          ))}
+                        </select>
+                      )}
                     </TableCell>
 
                     {/* Actions Column: Edit / Delete */}

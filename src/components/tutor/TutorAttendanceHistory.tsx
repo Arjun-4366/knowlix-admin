@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useDebounce } from "@/hooks/useDebounce";
 import { Search, Eye, Calendar, FileSpreadsheet, X, CheckCircle2, XCircle, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -17,23 +18,29 @@ import { AttendanceLog } from "./TutorAttendanceStats";
 
 interface TutorAttendanceHistoryProps {
   logs: AttendanceLog[];
+  date: string;
+  onDateChange: (v: string) => void;
+  search: string;
+  onSearchChange: (v: string) => void;
 }
 
-export default function TutorAttendanceHistory({ logs }: TutorAttendanceHistoryProps) {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [dateFilter, setDateFilter] = useState("");
+export default function TutorAttendanceHistory({
+  logs,
+  date,
+  onDateChange,
+  search,
+  onSearchChange,
+}: TutorAttendanceHistoryProps) {
   const [selectedLog, setSelectedLog] = useState<AttendanceLog | null>(null);
+  const [searchInput, setSearchInput] = useState(search);
+  const debouncedSearch = useDebounce(searchInput, 400);
 
-  // Filter logs
-  const filteredLogs = logs.filter((log) => {
-    // Search within student names in this log's records
-    const matchesSearch = searchQuery
-      ? log.records.some((r) => r.studentName.toLowerCase().includes(searchQuery.toLowerCase()))
-      : true;
-    const matchesDate = !dateFilter || log.date === dateFilter;
+  useEffect(() => {
+    onSearchChange(debouncedSearch);
+  }, [debouncedSearch]);
 
-    return matchesSearch && matchesDate;
-  });
+  // Filtering is handled server-side; logs are already filtered
+  const filteredLogs = logs;
 
   const getBreakdown = (log: AttendanceLog) => {
     let p = 0, a = 0, l = 0;
@@ -77,8 +84,8 @@ export default function TutorAttendanceHistory({ logs }: TutorAttendanceHistoryP
           <Input
             type="text"
             placeholder="Search by student name..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
             className="w-full pl-10 h-10 bg-white border border-slate-200 rounded-xl text-sm"
           />
         </div>
@@ -89,20 +96,20 @@ export default function TutorAttendanceHistory({ logs }: TutorAttendanceHistoryP
             <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 z-10" />
             <Input
               type="date"
-              value={dateFilter}
-              onChange={(e) => setDateFilter(e.target.value)}
+              value={date}
+              onChange={(e) => onDateChange(e.target.value)}
               className="pl-9 h-10 bg-white border border-slate-200 rounded-xl text-xs font-semibold w-[160px]"
             />
           </div>
 
           {/* Clear Filter Button */}
-          {(dateFilter || searchQuery) && (
+          {(date || searchInput) && (
             <Button
               variant="ghost"
               size="sm"
               onClick={() => {
-                setDateFilter("");
-                setSearchQuery("");
+                onDateChange("");
+                setSearchInput("");
               }}
               className="h-10 text-xs font-semibold hover:bg-slate-100 rounded-xl px-3 cursor-pointer"
             >

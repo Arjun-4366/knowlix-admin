@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { CheckCircle2, XCircle, Clock, Calendar, Save, UserCheck } from "lucide-react";
+import { CheckCircle2, XCircle, Clock, Save, UserCheck } from "lucide-react";
 import { IStudent } from "@/types/admin/student";
 import { ITutorSession } from "@/types/tutor/attendance";
 import { Input } from "@/components/ui/input";
@@ -20,7 +20,7 @@ export default function TutorMarkAttendance({ students, onSuccess }: TutorMarkAt
   const { mutate: markAttendance, isPending } = useMarkTutorAttendance();
 
   const [selectedSession, setSelectedSession] = useState<ITutorSession | null>(null);
-  const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().split("T")[0]);
+  const [selectedDate, setSelectedDate] = useState<"today" | "yesterday">("today");
   const [records, setRecords] = useState<Record<string, { status: "present" | "absent" | "late"; remark: string }>>({});
 
   // All approved/active students the tutor can mark attendance for
@@ -51,9 +51,6 @@ export default function TutorMarkAttendance({ students, onSuccess }: TutorMarkAt
   // When a session is selected, also pre-fill the date from scheduledAt
   const handleSessionSelect = (session: ITutorSession | null) => {
     setSelectedSession(session);
-    if (session?.scheduledAt) {
-      setSelectedDate(session.scheduledAt.split("T")[0]);
-    }
   };
 
   const handleStatusChange = (studentId: string, status: "present" | "absent" | "late") => {
@@ -64,7 +61,7 @@ export default function TutorMarkAttendance({ students, onSuccess }: TutorMarkAt
     setRecords((prev) => ({ ...prev, [studentId]: { ...prev[studentId], remark } }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (activeStudents.length === 0) {
@@ -84,7 +81,7 @@ export default function TutorMarkAttendance({ students, onSuccess }: TutorMarkAt
 
     const payload = {
       ...(selectedSession ? { sessionId: selectedSession.id } : {}),
-      records: recordsPayload
+      records: recordsPayload,
     };
 
     markAttendance(
@@ -120,22 +117,21 @@ export default function TutorMarkAttendance({ students, onSuccess }: TutorMarkAt
             <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
               Session Date
             </label>
-            <div className="relative">
-              <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 z-10" />
-              <Input
-                type="date"
-                value={selectedDate}
-                onChange={(e) => setSelectedDate(e.target.value)}
-                className="pl-10 h-11 bg-white border border-slate-200 rounded-xl"
-                max={new Date().toISOString().split("T")[0]}
-              />
-            </div>
+            <select
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value as "today" | "yesterday")}
+              className="h-11 w-full bg-white border border-slate-200 rounded-xl text-sm px-3 font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-[var(--brand-green)]/30"
+            >
+              <option value="today">Today</option>
+              <option value="yesterday">Yesterday</option>
+            </select>
           </div>
 
           {/* Session Selector */}
           <TutorSessionSelector
             selectedSessionId={selectedSession?.id ?? null}
             onSelect={handleSessionSelect}
+            date={selectedDate}
           />
 
           {/* Session selected info banner */}

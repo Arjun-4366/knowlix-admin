@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Award, X } from "lucide-react";
+import { Award, X, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -138,12 +138,10 @@ export default function TutorEvaluateAssignmentModal({
               </div>
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Max Marks</label>
-                <Input
-                  type="number"
-                  value={assignment.maxMarks}
-                  disabled
-                  className="h-10 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-400"
-                />
+                <div className="h-10 flex items-center justify-between px-3 bg-slate-50 border border-slate-200 rounded-xl">
+                  <span className="text-sm font-bold text-slate-700">{assignment.maxMarks}</span>
+                  <Lock className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+                </div>
               </div>
             </div>
 

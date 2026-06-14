@@ -1,9 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import { Search, Eye } from "lucide-react";
+import { Search, Eye, Loader2 } from "lucide-react";
 import { IStudent } from "@/types/admin/student";
-import { cn } from "@/lib/utils";
+import { IProgram } from "@/types/admin/program";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,76 +20,28 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-
-// Helper to map DB course types to the specified UI Course Types
-const mapCourseType = (type: string) => {
-  switch (type?.toLowerCase()) {
-    case "online_school":
-    case "online school":
-      return "Online School";
-    case "online_tuition":
-    case "online tuition":
-      return "Online Tuition";
-    case "foundation_course":
-    case "hybrid learning":
-      return "Foundation Course";
-    default:
-      return "Other Courses";
-  }
-};
 
 interface TutorStudentTableProps {
   students: IStudent[];
   onViewStudent: (id: string) => void;
+  programs: IProgram[];
+  search: string;
+  onSearchChange: (value: string) => void;
+  programId: string;
+  onProgramChange: (value: string) => void;
+  isLoading?: boolean;
 }
 
 export default function TutorStudentTable({
   students,
   onViewStudent,
+  programs,
+  search,
+  onSearchChange,
+  programId,
+  onProgramChange,
+  isLoading = false,
 }: TutorStudentTableProps) {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [courseFilter, setCourseFilter] = useState("All");
-  const [statusFilter, setStatusFilter] = useState("All");
-
-  // Apply search query and filters
-  const filteredStudents = students.filter((s) => {
-    const mappedType = mapCourseType(s.courseType || s.programName || "");
-    const matchesSearch =
-      s.studentName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      s.admissionNumber?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      mappedType.toLowerCase().includes(searchQuery.toLowerCase());
-
-    const matchesCourse = courseFilter === "All" || mappedType === courseFilter;
-    
-    const dbStatus = s.admissionStatus?.toLowerCase();
-    const matchesStatus =
-      statusFilter === "All" ||
-      (statusFilter === "Approved" && (dbStatus === "approved" || dbStatus === "active")) ||
-      (statusFilter === "In Review" && dbStatus === "in_review") ||
-      (statusFilter === "Pending Approval" && (dbStatus === "pending" || dbStatus === "pending_approval")) ||
-      (statusFilter === "Rejected" && dbStatus === "rejected");
-
-    return matchesSearch && matchesCourse && matchesStatus;
-  });
-
-  const getStatusBadgeClass = (status: string) => {
-    switch (status?.toLowerCase()) {
-      case "approved":
-      case "active":
-        return "bg-[var(--brand-light-green)] text-[var(--brand-mid)] border-[var(--brand-light)]/20";
-      case "pending":
-      case "in review":
-      case "in_review":
-      case "pending_approval":
-        return "bg-slate-50 text-slate-650 border-slate-200/60";
-      case "rejected":
-        return "bg-red-50 text-red-700 border-red-200";
-      default:
-        return "bg-slate-100 text-slate-700 border-slate-200";
-    }
-  };
-
   return (
     <div className="space-y-4">
       {/* ── Search & Filter Controls ── */}
@@ -99,66 +50,54 @@ export default function TutorStudentTable({
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 z-10" />
           <Input
             type="text"
-            placeholder="Search student name, ID or course..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search by name, email, phone or admission no..."
+            value={search}
+            onChange={(e) => onSearchChange(e.target.value)}
             className="w-full pl-10 h-10 bg-white border border-slate-200 rounded-xl"
           />
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
-          {/* Course Type Filter */}
-          <Select value={courseFilter} onValueChange={setCourseFilter}>
-            <SelectTrigger className="h-10 text-xs font-semibold bg-white border-slate-200 rounded-xl w-[160px]">
-              <SelectValue placeholder="All Courses" />
+          <Select value={programId || "__all__"} onValueChange={(v) => onProgramChange(v === "__all__" ? "" : v)}>
+            <SelectTrigger className="h-10 text-xs font-semibold bg-white border-slate-200 rounded-xl w-[200px]">
+              <SelectValue placeholder="All Programs" />
             </SelectTrigger>
             <SelectContent className="bg-white border border-slate-150 rounded-xl shadow-lg">
-              <SelectItem value="All">All Courses</SelectItem>
-              <SelectItem value="Online School">Online School</SelectItem>
-              <SelectItem value="Online Tuition">Online Tuition</SelectItem>
-              <SelectItem value="Foundation Course">Foundation Course</SelectItem>
-              <SelectItem value="Other Courses">Other Courses</SelectItem>
-            </SelectContent>
-          </Select>
-
-          {/* Status Filter */}
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="h-10 text-xs font-semibold bg-white border-slate-200 rounded-xl w-[150px]">
-              <SelectValue placeholder="All Statuses" />
-            </SelectTrigger>
-            <SelectContent className="bg-white border border-slate-150 rounded-xl shadow-lg">
-              <SelectItem value="All">All Statuses</SelectItem>
-              <SelectItem value="Approved">Approved</SelectItem>
-              <SelectItem value="In Review">In Review</SelectItem>
-              <SelectItem value="Pending Approval">Pending Approval</SelectItem>
-              <SelectItem value="Rejected">Rejected</SelectItem>
+              <SelectItem value="__all__">All Programs</SelectItem>
+              {programs.map((p) => (
+                <SelectItem key={p.id} value={p.id!}>
+                  {p.title}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
       </div>
 
       {/* ── Student Roster Table ── */}
-      <div className="bg-white border border-slate-150 rounded-2xl shadow-sm overflow-hidden">
+      <div className="relative bg-white border border-slate-150 rounded-2xl shadow-sm overflow-hidden">
+        {isLoading && (
+          <div className="absolute inset-0 bg-white/60 backdrop-blur-[1px] z-10 flex items-center justify-center rounded-2xl">
+            <Loader2 className="w-6 h-6 text-[var(--brand-green)] animate-spin" />
+          </div>
+        )}
         <Table className="table-fixed w-full">
           <TableHeader className="bg-slate-50/50">
             <TableRow>
               <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[22%]">
                 Admission ID / No
               </TableHead>
-              <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[25%]">
+              <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[28%]">
                 Student Name
               </TableHead>
-              <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[22%]">
-                Course Type
+              <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[25%]">
+                Program
               </TableHead>
-              <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[18%]">
-                Package Details
+              <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[15%]">
+                Package
               </TableHead>
               <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[12%]">
-                Class / Grade
-              </TableHead>
-              <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[16%]">
-                Status
+                Class
               </TableHead>
               <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right w-[10%]">
                 Actions
@@ -166,8 +105,8 @@ export default function TutorStudentTable({
             </TableRow>
           </TableHeader>
           <TableBody className="divide-y divide-slate-100">
-            {filteredStudents.length > 0 ? (
-              filteredStudents.map((student) => (
+            {students.length > 0 ? (
+              students.map((student) => (
                 <TableRow
                   key={student.id}
                   className="hover:bg-slate-50/60 transition-colors"
@@ -177,54 +116,37 @@ export default function TutorStudentTable({
                     {student.admissionNumber || "N/A"}
                   </TableCell>
 
-                  {/* Student Name + Initials Avatar */}
+                  {/* Student Name + Avatar */}
                   <TableCell className="px-6 py-4">
                     <div className="flex items-center gap-3 overflow-hidden">
                       <div className="w-8 h-8 rounded-full bg-[var(--brand-light-green)] flex items-center justify-center font-bold text-[var(--brand-green)] text-xs flex-shrink-0 border border-[var(--brand-light)]/20 shadow-sm">
                         {student.studentName?.charAt(0).toUpperCase()}
                       </div>
-                      <div className="truncate">
-                        <p className="text-sm font-semibold text-slate-800 leading-none truncate">
-                          {student.studentName}
-                        </p>
-                      </div>
-                    </div>
-                  </TableCell>
-
-                  {/* Course Type */}
-                  <TableCell className="px-6 py-4">
-                    <div className="truncate">
-                      <p className="text-sm font-bold text-slate-700 leading-none truncate">
-                        {mapCourseType(student.courseType || student.programName || "")}
+                      <p className="text-sm font-semibold text-slate-800 leading-none truncate">
+                        {student.studentName}
                       </p>
                     </div>
                   </TableCell>
 
-                  {/* Package Details */}
+                  {/* Program */}
+                  <TableCell className="px-6 py-4">
+                    <p className="text-sm font-bold text-slate-700 leading-none truncate">
+                      {student.programName || "—"}
+                    </p>
+                  </TableCell>
+
+                  {/* Package */}
                   <TableCell className="px-6 py-4">
                     <span className="text-xs font-bold text-slate-500 capitalize truncate block">
-                      {student.package?.replace("_", " ")}
+                      {student.package?.replace("_", " ") || "—"}
                     </span>
                   </TableCell>
 
                   {/* Class */}
                   <TableCell className="px-6 py-4">
                     <span className="text-sm font-semibold text-slate-650 truncate block">
-                      Class {student.class}
+                      {student.class ? `Class ${student.class}` : "—"}
                     </span>
-                  </TableCell>
-
-                  {/* Status */}
-                  <TableCell className="px-6 py-4">
-                    <Badge
-                      variant="outline"
-                      className={cn(
-                        "text-[10px] font-bold px-2.5 py-0.5 rounded-full border shadow-sm capitalize",
-                        getStatusBadgeClass(student.admissionStatus)
-                      )}
-                    >
-                      {student.admissionStatus}
-                    </Badge>
                   </TableCell>
 
                   {/* Actions */}
@@ -246,10 +168,10 @@ export default function TutorStudentTable({
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={7}
+                  colSpan={6}
                   className="px-6 py-12 text-center text-slate-450 text-sm"
                 >
-                  No students matching the current filters.
+                  No students found.
                 </TableCell>
               </TableRow>
             )}

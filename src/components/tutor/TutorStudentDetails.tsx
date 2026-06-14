@@ -2,19 +2,16 @@
 
 import {
   ArrowLeft,
-  FileText,
-  CheckCircle,
   GraduationCap,
   MapPin,
   User,
   Package,
-  ShieldAlert,
 } from "lucide-react";
 import { ITutorStudentDetailData } from "@/services/tutor/students";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { CheckCircle2, AlertCircle, X, Clock, XCircle } from "lucide-react";
+import { CheckCircle2, Clock, XCircle } from "lucide-react";
 
 interface TutorStudentDetailsProps {
   data: ITutorStudentDetailData;
@@ -32,24 +29,37 @@ export default function TutorStudentDetails({
       case "active":
         return "bg-[var(--brand-light-green)] text-[var(--brand-mid)] border-[var(--brand-light)]/20";
       case "pending":
-      case "in review":
       case "in_review":
       case "pending_approval":
-        return "bg-slate-50 text-slate-650 border-slate-200/60";
+        return "bg-amber-50 text-amber-700 border-amber-200";
       case "rejected":
+      case "suspended":
         return "bg-red-50 text-red-700 border-red-200";
+      case "course_completed":
+      case "completed":
+      case "inactive":
+        return "bg-slate-100 text-slate-600 border-slate-200";
       default:
         return "bg-slate-100 text-slate-700 border-slate-200";
     }
   };
 
-  const submittedDocs: string[] = [];
-  if (student.documents?.birthCertificate) submittedDocs.push("Birth Certificate");
-  if (student.documents?.transferCertificate) submittedDocs.push("Transfer Certificate");
-  if (student.documents?.previousAcademicRecord) submittedDocs.push("Previous Academic Records");
-  if (student.documents?.identificationDocument) submittedDocs.push("Identification Documents");
-
-  const docsProgress = submittedDocs.length;
+  const formatStatus = (status: string) => {
+    if (!status) return "—";
+    const map: Record<string, string> = {
+      approved: "Approved",
+      active: "Active",
+      in_review: "In Review",
+      pending_approval: "Pending Approval",
+      pending: "Pending",
+      rejected: "Rejected",
+      course_completed: "Course Completed",
+      completed: "Completed",
+      suspended: "Suspended",
+      inactive: "Inactive",
+    };
+    return map[status.toLowerCase()] ?? status.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+  };
 
   return (
     <div className="space-y-6 pb-12 relative max-w-5xl">
@@ -87,10 +97,10 @@ export default function TutorStudentDetails({
         <div className="flex flex-col sm:items-end gap-1 pt-4 border-t md:border-t-0 md:pt-0">
           <span className="block text-[10px] uppercase font-bold text-slate-400">Admission Status</span>
           <Badge variant="outline" className={cn(
-            "inline-flex px-3 py-1 rounded-full text-xs font-bold border mt-1 shadow-sm h-6 capitalize",
+            "inline-flex px-3 py-1 rounded-full text-xs font-bold border mt-1 shadow-sm h-6",
             getStatusBadgeClass(student.admissionStatus)
           )}>
-            {student.admissionStatus}
+            {formatStatus(student.admissionStatus)}
           </Badge>
         </div>
       </Card>
@@ -178,80 +188,6 @@ export default function TutorStudentDetails({
           </CardContent>
         </Card>
       </div>
-
-      {/* Document Checklist Panel */}
-      <Card className="bg-white border-slate-150 p-6 space-y-5 shadow-sm">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
-          <div className="flex items-center gap-2">
-            <FileText className="w-5 h-5 text-[var(--brand-green)]" />
-            <div>
-              <CardTitle className="font-bold text-slate-800 text-sm uppercase tracking-wider">Document Checklist</CardTitle>
-              <p className="text-xs text-slate-400 mt-0.5">Documents submitted by student/parent and verified by coordinator.</p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3 self-start sm:self-center">
-            <div className="text-right">
-              <span className="text-xs font-bold text-slate-700">{docsProgress} / 4 Submitted</span>
-            </div>
-            <div className="w-24 bg-slate-100 h-2 rounded-full overflow-hidden">
-              <div
-                className="bg-[var(--brand-green)] h-full rounded-full transition-all duration-500"
-                style={{ width: `${(docsProgress / 4) * 100}%` }}
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {["Birth Certificate", "Transfer Certificate", "Previous Academic Records", "Identification Documents"].map((doc) => {
-            const isSubmitted = submittedDocs.includes(doc);
-
-            return (
-              <div
-                key={doc}
-                className={cn(
-                  "p-4 rounded-xl border flex items-center justify-between transition-all",
-                  isSubmitted
-                    ? "border-[var(--brand-green)]/35 bg-[var(--brand-light-green)]/15"
-                    : "border-slate-200 bg-slate-50/50"
-                )}
-              >
-                <div className="flex items-center gap-3">
-                  <div className={cn(
-                    "w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 border",
-                    isSubmitted
-                      ? "bg-[var(--brand-light-green)] text-[var(--brand-green)] border-[var(--brand-light)]/20"
-                      : "bg-white text-slate-400 border-slate-200"
-                  )}>
-                    <FileText className="w-4.5 h-4.5" />
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-bold text-slate-700">{doc}</h4>
-                    <p className="text-[10px] text-slate-450 mt-0.5">
-                      {isSubmitted ? "Verified" : "Pending upload"}
-                    </p>
-                  </div>
-                </div>
-
-                <div>
-                  {isSubmitted ? (
-                    <Badge variant="outline" className="inline-flex items-center gap-1 text-xs font-bold text-[var(--brand-green)] bg-[var(--brand-light-green)] px-2.5 py-1 rounded-lg border border-[var(--brand-light)]/20 shadow-sm h-7">
-                      <CheckCircle className="w-3.5 h-3.5" />
-                      Verified
-                    </Badge>
-                  ) : (
-                    <Badge variant="outline" className="inline-flex items-center gap-1 text-xs font-semibold text-slate-455 bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200 shadow-sm h-7">
-                      <ShieldAlert className="w-3.5 h-3.5" />
-                      Pending
-                    </Badge>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </Card>
 
       {/* Attendance Summary & Exams section */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">

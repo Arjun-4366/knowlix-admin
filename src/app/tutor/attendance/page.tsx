@@ -92,9 +92,14 @@ const groupAttendanceRecords = (
 
 function TutorAttendanceContent() {
   const [activeTab, setActiveTab] = useState("mark");
+  const [historyDate, setHistoryDate] = useState("");
+  const [historySearch, setHistorySearch] = useState("");
 
   const { data: studentsResponse, isLoading: loadingStudents } = useGetTutorStudents();
   const { data: attendanceResponse, isLoading: loadingAttendance } = useGetTutorAttendance();
+  const { data: filteredAttendanceResponse } = useGetTutorAttendance(
+    historyDate || historySearch ? { date: historyDate || undefined, search: historySearch || undefined } : undefined
+  );
   const { data: profileResponse, isLoading: loadingProfile } = useGetTutorProfile();
 
   if (loadingStudents || loadingAttendance || loadingProfile) {
@@ -111,6 +116,10 @@ function TutorAttendanceContent() {
 
   // Transform flat backend records to grouped UI AttendanceLog format
   const logs = groupAttendanceRecords(rawRecords, students, tutorName);
+
+  // History uses filtered API response when filters are active, otherwise full data
+  const historyRaw = (historyDate || historySearch) ? (filteredAttendanceResponse?.data || []) : rawRecords;
+  const historyLogs = groupAttendanceRecords(historyRaw, students, tutorName);
 
   return (
     <div className="space-y-8 w-full pb-10">
@@ -154,7 +163,13 @@ function TutorAttendanceContent() {
         </TabsContent>
 
         <TabsContent value="history" className="mt-0 outline-none">
-          <TutorAttendanceHistory logs={logs} />
+          <TutorAttendanceHistory
+            logs={historyLogs}
+            date={historyDate}
+            onDateChange={setHistoryDate}
+            search={historySearch}
+            onSearchChange={setHistorySearch}
+          />
         </TabsContent>
       </Tabs>
     </div>
