@@ -1,57 +1,64 @@
 "use client";
 
-import { FileSpreadsheet, Award, Calendar, AlertCircle } from "lucide-react";
+import { FileSpreadsheet, Award, BookOpen, AlertCircle } from "lucide-react";
 import DashboardStatCard from "@/components/dashboard/shared/DashboardStatCard";
-import { Student } from "@/components/admin/students/StudentStats";
 
-export interface ProgressReport {
+export interface ReportStudent {
+  id: string;
+  name: string;
+  programName: string;
+  admissionNo: string;
+}
+
+export interface SubjectMark {
+  subject: string;
+  faMax: number;
+  faScored: number;
+  saMax: number;
+  saScored: number;
+}
+
+export interface GradeCardReport {
   id: string;
   studentId: string;
   studentName: string;
-  templateId: "monthly" | "term-end" | "weekly";
-  templateName: string;
+  programName: string;
+  admissionNo: string;
+  reportType: "monthly" | "five-month" | "annual";
+  reportTypeName: string;
   period: string;
-  attendanceRate: number;
-  academicScores: { subject: string; score: number }[];
-  behavioralRatings: {
-    attentiveness: "Excellent" | "Good" | "Needs Improvement";
-    participation: "Excellent" | "Good" | "Needs Improvement";
-    homeworkPunctuality: "Excellent" | "Good" | "Needs Improvement";
-  };
-  tutorFeedback: string;
-  overallGrade: string;
+  academicYear: string;
+  examTitle: string;
+  subjects: SubjectMark[];
+  issueDate: string;
   generatedAt: string;
-  tutorName: string;
 }
 
+export type ProgressReport = GradeCardReport;
+
 interface TutorReportStatsProps {
-  reports: ProgressReport[];
-  students: Student[];
+  reports: GradeCardReport[];
+  students: ReportStudent[];
+}
+
+export function calcGrade(scored: number, max: number): string {
+  if (max === 0) return "-";
+  const pct = (scored / max) * 100;
+  if (pct >= 91) return "A1";
+  if (pct >= 81) return "A2";
+  if (pct >= 71) return "B1";
+  if (pct >= 61) return "B2";
+  if (pct >= 51) return "C1";
+  if (pct >= 41) return "C2";
+  if (pct >= 33) return "D";
+  return "E";
 }
 
 export default function TutorReportStats({ reports, students }: TutorReportStatsProps) {
   const totalReports = reports.length;
-
-  // Calculate Average Attendance Rate across reports
-  let avgAttendance = 0;
-  if (totalReports > 0) {
-    const sum = reports.reduce((acc, r) => acc + (r.attendanceRate || 0), 0);
-    avgAttendance = Math.round((sum / totalReports) * 10) / 10;
-  }
-
-  // Calculate pending reviews: students who do not have a report generated
   const studentsWithReports = new Set(reports.map((r) => r.studentId));
   const pendingReviewsCount = students.filter((s) => !studentsWithReports.has(s.id)).length;
-
-  // Top Performing Grade/Student or Subject
-  // Let's determine the percentage of A+ and A grades
-  const highGradesCount = reports.filter(
-    (r) => r.overallGrade === "A+" || r.overallGrade === "A" || r.overallGrade === "O"
-  ).length;
-  const topClassPerformance =
-    totalReports > 0
-      ? `${Math.round((highGradesCount / totalReports) * 100)}% A/A+`
-      : "N/A";
+  const totalSubjects = reports.reduce((acc, r) => acc + r.subjects.length, 0);
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -60,33 +67,32 @@ export default function TutorReportStats({ reports, students }: TutorReportStats
         value={totalReports}
         icon={<FileSpreadsheet className="w-6 h-6 text-[var(--brand-green)]" />}
         badgeText="All Time"
-        footerText="Reports successfully stored"
+        footerText="Reports saved to API"
       />
 
       <DashboardStatCard
-        label="Overall Quality Rate"
-        value={topClassPerformance}
+        label="Total Students"
+        value={students.length}
         icon={<Award className="w-6 h-6 text-[var(--brand-green)]" />}
-        badgeText="Academic Quality"
-        footerText="Percentage of A/A+ reports"
+        badgeText="Enrolled"
+        footerText="Active student list"
       />
 
       <DashboardStatCard
-        label="Avg Report Attendance"
-        value={`${avgAttendance}%`}
-        icon={<Calendar className="w-6 h-6 text-[var(--brand-green)]" />}
-        badgeText="Avg Presence"
-        footerText="Average presence in active reports"
+        label="Total Subjects Entered"
+        value={totalSubjects}
+        icon={<BookOpen className="w-6 h-6 text-[var(--brand-green)]" />}
+        badgeText="Across Reports"
+        footerText="Subjects across all reports"
       />
 
       <DashboardStatCard
-        label="Pending Student Reviews"
+        label="Pending Reviews"
         value={pendingReviewsCount}
         icon={<AlertCircle className="w-6 h-6 text-amber-600" />}
         badgeText="Needs Report"
-        footerText="Students without active reports"
+        footerText="Students without reports"
       />
     </div>
   );
 }
-

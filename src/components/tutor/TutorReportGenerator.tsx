@@ -1,10 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Award, ClipboardCheck, Sparkles, Check, RefreshCw, BookOpen } from "lucide-react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { useState, useEffect, useRef } from "react";
+import { Plus, Trash2, Download, Settings2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -15,578 +13,487 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "react-hot-toast";
+import { jsPDF } from "jspdf";
+import html2canvas from "html2canvas";
 
-import { ProgressReport } from "./TutorReportStats";
-import { Student } from "@/components/admin/students/StudentStats";
-import { Evaluation } from "./TutorAssessmentStats";
-
-interface AttendanceLog {
-  id: string;
-  studentId: string;
-  studentName: string;
-  date: string;
-  status: "Present" | "Absent" | "Late";
-  tutorName: string;
-}
+import { GradeCardReport, SubjectMark, ReportStudent, calcGrade } from "./TutorReportStats";
+import GradeCardPreview from "./GradeCardPreview";
+import { useCreateProgressReport } from "@/querys/tutor/progressQuery";
+import { IProgressSubject } from "@/types/tutor/progress";
 
 interface TutorReportGeneratorProps {
-  students: Student[];
-  attendanceLogs: AttendanceLog[];
-  evaluations: Evaluation[];
-  activeTemplateId: "monthly" | "term-end" | "weekly";
-  setActiveTemplateId: (id: "monthly" | "term-end" | "weekly") => void;
-  onGenerateReport: (report: ProgressReport) => void;
+  students: ReportStudent[];
+  activeTemplateId: "monthly" | "five-month" | "annual";
+  setActiveTemplateId: (id: "monthly" | "five-month" | "annual") => void;
+  onGenerateReport: (report: GradeCardReport) => void;
 }
 
-const BEHAVIORAL_OPTIONS = ["Excellent", "Good", "Needs Improvement"] as const;
-const GRADE_OPTIONS = ["A+", "A", "B", "C", "D", "F"] as const;
+const MONTHS = [
+  "January","February","March","April","May","June",
+  "July","August","September","October","November","December",
+];
+
+function emptySubject(): SubjectMark {
+  return { subject: "", faMax: 0, faScored: 0, saMax: 0, saScored: 0 };
+}
+
+function gradeColor(g: string) {
+  if (g === "A1" || g === "A2") return "bg-emerald-50 text-emerald-700 border-emerald-200";
+  if (g === "B1" || g === "B2") return "bg-blue-50 text-blue-700 border-blue-200";
+  if (g === "C1" || g === "C2") return "bg-amber-50 text-amber-700 border-amber-200";
+  return "bg-rose-50 text-rose-700 border-rose-200";
+}
 
 export default function TutorReportGenerator({
   students,
-  attendanceLogs,
-  evaluations,
   activeTemplateId,
   setActiveTemplateId,
   onGenerateReport,
 }: TutorReportGeneratorProps) {
-  // Filter approved students assigned to Dr. Ramesh Prasad
-  const myStudents = students.filter(
-    (s) => s.subjectTutor === "Dr. Ramesh Prasad" && s.admissionStatus === "Approved"
-  );
+  const previewRef = useRef<HTMLDivElement>(null);
+  const createReport = useCreateProgressReport();
 
-  // Form states
-  const [selectedStudentId, setSelectedStudentId] = useState("");
+  const now = new Date();
+  const [selectedStudentId, setSelectedStudentId] = useState(students[0]?.id ?? "");
+  const [selectedMonth, setSelectedMonth] = useState(MONTHS[now.getMonth()]);
+  const [academicYear, setAcademicYear] = useState(`${now.getFullYear() - 1}-${now.getFullYear()}`);
   const [period, setPeriod] = useState("");
-  const [attendanceRate, setAttendanceRate] = useState<number>(95);
-  const [behavioral, setBehavioral] = useState({
-    attentiveness: "Excellent" as typeof BEHAVIORAL_OPTIONS[number],
-    participation: "Good" as typeof BEHAVIORAL_OPTIONS[number],
-    homeworkPunctuality: "Excellent" as typeof BEHAVIORAL_OPTIONS[number],
-  });
-  const [tutorFeedback, setTutorFeedback] = useState("");
-  const [overallGrade, setOverallGrade] = useState<string>("A");
-  const [customScores, setCustomScores] = useState<{ subject: string; score: number }[]>([]);
+  const [examTitle, setExamTitle] = useState("");
+  const [issueDate, setIssueDate] = useState(now.toISOString().split("T")[0]);
+  const [subjects, setSubjects] = useState<SubjectMark[]>([emptySubject()]);
+  const [downloading, setDownloading] = useState(false);
 
-  // Derived state or calculations for selected student
-  const [calculatedAttendance, setCalculatedAttendance] = useState<number | null>(null);
-  const [calculatedAvgScore, setCalculatedAvgScore] = useState<number | null>(null);
-  const [studentEvalList, setStudentEvalList] = useState<Evaluation[]>([]);
+  const isAnnual = activeTemplateId === "annual";
+  const isSaving = createReport.isPending;
 
-  // Set default student & period
+  // Auto-populate period and exam title when inputs change
   useEffect(() => {
-    if (myStudents.length > 0 && !selectedStudentId) {
-      setSelectedStudentId(myStudents[0].id);
-    }
-  }, [myStudents, selectedStudentId]);
-
-  useEffect(() => {
-    if (!period) {
-      const now = new Date();
-      const monthNames = [
-        "January", "February", "March", "April", "May", "June",
-        "July", "August", "September", "October", "November", "December"
-      ];
-      setPeriod(`${monthNames[now.getMonth()]} ${now.getFullYear()}`);
-    }
-  }, [period]);
-
-  // Recalculate stats whenever student or database changes
-  useEffect(() => {
-    if (!selectedStudentId) return;
-
-    // 1. Calculate Attendance
-    const studentLogs = attendanceLogs.filter((l) => l.studentId === selectedStudentId);
-    if (studentLogs.length > 0) {
-      const presentCount = studentLogs.filter((l) => l.status === "Present" || l.status === "Late").length;
-      const rate = Math.round((presentCount / studentLogs.length) * 100);
-      setCalculatedAttendance(rate);
-      setAttendanceRate(rate);
+    if (activeTemplateId === "monthly") {
+      const p = `${selectedMonth} ${now.getFullYear()}`;
+      setPeriod(p);
+      setExamTitle(`Monthly Progress – ${p}`);
+    } else if (activeTemplateId === "five-month") {
+      setPeriod(academicYear);
+      setExamTitle(`5-Month Progress – ${academicYear}`);
     } else {
-      setCalculatedAttendance(null);
-      setAttendanceRate(95); // fallback/realistic starting value
+      setPeriod(academicYear);
+      setExamTitle(`Annual Examination – ${academicYear}`);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTemplateId, selectedMonth, academicYear]);
 
-    // 2. Fetch and Calculate Evaluation Averages
-    const studentEvls = evaluations.filter((e) => e.studentId === selectedStudentId);
-    setStudentEvalList(studentEvls);
-
-    if (studentEvls.length > 0) {
-      const totalPct = studentEvls.reduce((sum, e) => {
-        const pct = e.maxMarks > 0 ? (e.obtainedMarks / e.maxMarks) * 100 : 0;
-        return sum + pct;
-      }, 0);
-      const avgPct = Math.round(totalPct / studentEvls.length);
-      setCalculatedAvgScore(avgPct);
-
-      // Auto-assign overall grade based on average
-      if (avgPct >= 90) setOverallGrade("A+");
-      else if (avgPct >= 80) setOverallGrade("A");
-      else if (avgPct >= 70) setOverallGrade("B");
-      else if (avgPct >= 60) setOverallGrade("C");
-      else if (avgPct >= 50) setOverallGrade("D");
-      else setOverallGrade("F");
-
-      // Extract subject scores
-      const extracted = studentEvls.map((e) => ({
-        subject: e.assessmentTitle,
-        score: Math.round((e.obtainedMarks / e.maxMarks) * 100),
-      }));
-      setCustomScores(extracted);
-    } else {
-      setCalculatedAvgScore(null);
-      setOverallGrade("A");
-      // Pre-fill some default subject nodes for high-fidelity if student has no recorded evaluations
-      const studentObj = myStudents.find((s) => s.id === selectedStudentId);
-      const course = studentObj?.courseType || "Foundation Course";
-      setCustomScores([
-        { subject: `${course} Assessment 1`, score: 85 },
-        { subject: `Classroom Quiz`, score: 90 },
-      ]);
+  useEffect(() => {
+    if (students.length > 0 && !selectedStudentId) {
+      setSelectedStudentId(students[0].id);
     }
-  }, [selectedStudentId, attendanceLogs, evaluations]);
+  }, [students, selectedStudentId]);
 
-  // Quick feedback templates
-  const FEEDBACK_PRESETS = [
-    {
-      label: "Excellent",
-      text: "Demonstrates an exceptional understanding of course topics. Participates actively and completes all tasks with high accuracy.",
-      grade: "A+",
-    },
-    {
-      label: "Good Work",
-      text: "Shows consistent effort and solid comprehension of theoretical details. Keep up the good work!",
-      grade: "A",
-    },
-    {
-      label: "Progressing",
-      text: "Good engagement in sessions. Performance is steady, though additional practice in homework problems will help solidify understanding.",
-      grade: "B",
-    },
-    {
-      label: "Needs Focus",
-      text: "Active in class, but needs to pay closer attention to assignment deadlines and review fundamental topics for better results.",
-      grade: "C",
-    },
-  ];
+  const selectedStudent = students.find((s) => s.id === selectedStudentId);
 
-  const applyPreset = (presetText: string, presetGrade: string) => {
-    setTutorFeedback(presetText);
-    setOverallGrade(presetGrade);
+  const liveReport: GradeCardReport = {
+    id: "preview",
+    studentId: selectedStudentId,
+    studentName: selectedStudent?.name ?? "",
+    programName: selectedStudent?.programName ?? "",
+    admissionNo: selectedStudent?.admissionNo ?? "",
+    reportType: activeTemplateId,
+    reportTypeName:
+      activeTemplateId === "monthly"
+        ? "Monthly Progress Report"
+        : activeTemplateId === "five-month"
+        ? "5-Month Progress Report"
+        : "Annual / Yearly Report",
+    period,
+    academicYear,
+    examTitle,
+    subjects,
+    issueDate,
+    generatedAt: new Date().toISOString(),
   };
 
-  const handleScoreChange = (index: number, newScore: number) => {
-    const updated = [...customScores];
-    updated[index].score = Math.min(100, Math.max(0, newScore));
-    setCustomScores(updated);
-  };
+  function updateSubject(i: number, field: keyof SubjectMark, value: string | number) {
+    setSubjects((prev) => prev.map((s, idx) => (idx === i ? { ...s, [field]: value } : s)));
+  }
 
-  const addCustomSubject = () => {
-    setCustomScores([...customScores, { subject: "New Assessment", score: 80 }]);
-  };
+  function removeSubject(i: number) {
+    if (subjects.length === 1) return;
+    setSubjects((prev) => prev.filter((_, idx) => idx !== i));
+  }
 
-  const removeCustomSubject = (index: number) => {
-    const updated = customScores.filter((_, i) => i !== index);
-    setCustomScores(updated);
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!selectedStudentId) {
-      toast.error("Please select a student.");
-      return;
+  async function handleDownloadPDF() {
+    if (!previewRef.current) return;
+    if (!selectedStudentId) { toast.error("Please select a student."); return; }
+    setDownloading(true);
+    try {
+      // Render at a fixed narrow width so text fills more of the A4 page.
+      // The UI preview may be 800–1000px wide; at 520px the same content
+      // scales up ~1.5× when stretched to A4's 190mm content area.
+      const PDF_RENDER_WIDTH = 520;
+      const canvas = await html2canvas(previewRef.current, {
+        scale: 3,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: "#ffffff",
+        windowWidth: PDF_RENDER_WIDTH,
+        onclone: (clonedDoc, element) => {
+          // Strip external CSS — grade card is 100% inline styles so this is safe.
+          // Prevents html2canvas choking on modern color functions (lab, oklch, etc.).
+          clonedDoc.querySelectorAll('link[rel="stylesheet"], style').forEach((el) => el.remove());
+          clonedDoc.documentElement.style.background = "#ffffff";
+          clonedDoc.body.style.background = "#ffffff";
+          // Force narrow width so text is proportionally larger in the PDF output.
+          (element as HTMLElement).style.width = `${PDF_RENDER_WIDTH}px`;
+          (element as HTMLElement).style.minWidth = `${PDF_RENDER_WIDTH}px`;
+          (element as HTMLElement).style.maxWidth = `${PDF_RENDER_WIDTH}px`;
+        },
+      });
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+      const pw = pdf.internal.pageSize.getWidth();
+      const ph = pdf.internal.pageSize.getHeight();
+      const iw = pw - 20;
+      const ih = (canvas.height / canvas.width) * iw;
+      pdf.addImage(imgData, "PNG", 10, 10, iw, Math.min(ih, ph - 20));
+      pdf.save(
+        `GradeCard_${selectedStudent?.name ?? "Student"}_${period}.pdf`
+          .replace(/\s+/g, "_")
+          .replace(/[^a-zA-Z0-9_.-]/g, "")
+      );
+      toast.success("PDF downloaded!");
+    } catch (err) {
+      console.error("PDF generation error:", err);
+      toast.error("Failed to generate PDF.");
+    } finally {
+      setDownloading(false);
     }
+  }
 
-    const studentObj = myStudents.find((s) => s.id === selectedStudentId);
-    if (!studentObj) return;
+  async function handleSave() {
+    if (!selectedStudentId) { toast.error("Please select a student."); return; }
 
-    const templateNames = {
-      "monthly": "Monthly Academic Check",
-      "term-end": "Term-End Summary",
-      "weekly": "Weekly Performance Slip",
-    };
+    // Map UI SubjectMark[] → API IProgressSubject[]
+    const apiSubjects: IProgressSubject[] = subjects.map((s) => {
+      const tMax = isAnnual ? s.faMax + s.saMax : s.faMax;
+      const tScored = isAnnual ? s.faScored + s.saScored : s.faScored;
+      const grade = tMax > 0 ? calcGrade(tScored, tMax) : "E";
+      const sub: IProgressSubject = {
+        subjectName: s.subject,
+        fa: { maxMarks: s.faMax, scoredMarks: s.faScored },
+        totalMax: tMax,
+        totalScored: tScored,
+        grade,
+      };
+      if (isAnnual) sub.sa = { maxMarks: s.saMax, scoredMarks: s.saScored };
+      return sub;
+    });
 
-    const newReport: ProgressReport = {
-      id: `REP-${Date.now()}`,
-      studentId: studentObj.id,
-      studentName: studentObj.name,
-      templateId: activeTemplateId,
-      templateName: templateNames[activeTemplateId],
-      period,
-      attendanceRate,
-      academicScores: customScores,
-      behavioralRatings: { ...behavioral },
-      tutorFeedback: tutorFeedback.trim() || "No comments entered by tutor.",
-      overallGrade,
-      generatedAt: new Date().toISOString(),
-      tutorName: "Dr. Ramesh Prasad",
-    };
-
-    onGenerateReport(newReport);
-    toast.success(`Progress Report generated for ${studentObj.name}!`);
-
-    // Clear feedback comments
-    setTutorFeedback("");
-  };
+    try {
+      await createReport.mutateAsync({
+        studentId: selectedStudentId,
+        reportType: activeTemplateId,
+        academicYear,
+        examTitle,
+        subjects: apiSubjects,
+      });
+      onGenerateReport({ ...liveReport, id: `REP-${Date.now()}` });
+      toast.success(`Report saved for ${selectedStudent?.name}!`);
+    } catch {
+      toast.error("Failed to save report. Please try again.");
+    }
+  }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-      {/* ── Configuration Form ── */}
-      <form onSubmit={handleSubmit} className="lg:col-span-3 space-y-6">
-        <Card className="bg-white border-slate-150 shadow-sm">
-          <CardHeader className="p-6 pb-4 border-b border-slate-100 bg-slate-50/50">
-            <CardTitle className="text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
-              <ClipboardCheck className="w-4.5 h-4.5 text-[var(--brand-green)]" />
-              Configure Progress Report
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-6 space-y-5">
-            {/* Student and Template selects */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                  Select Student
-                </label>
-                {myStudents.length > 0 ? (
-                  <Select value={selectedStudentId} onValueChange={setSelectedStudentId}>
-                    <SelectTrigger className="h-10 bg-white border-slate-200 rounded-xl text-sm font-medium">
-                      <SelectValue placeholder="Select Student" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {myStudents.map((s) => (
-                        <SelectItem key={s.id} value={s.id} className="text-xs font-medium">
-                          {s.name} ({s.id})
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                ) : (
-                  <div className="h-10 flex items-center px-3 border border-dashed border-red-200 bg-red-50 text-xs text-red-500 rounded-xl font-semibold">
-                    No approved students found
-                  </div>
-                )}
-              </div>
+    <div className="space-y-6">
+      {/* ── TOP ROW: Config (left) + Preview (right) ── */}
+      <div className="grid grid-cols-1 xl:grid-cols-5 gap-6 items-start">
 
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                  Select Template Layout
-                </label>
+        {/* LEFT: Config Panel */}
+        <div className="xl:col-span-2">
+          <div className="bg-white border border-slate-150 rounded-2xl shadow-sm overflow-hidden">
+            <div className="px-5 py-4 border-b border-slate-100 bg-slate-50/60 flex items-center gap-2">
+              <Settings2 className="w-4 h-4 text-[var(--brand-green)]" />
+              <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                Report Configuration
+              </span>
+            </div>
+            <div className="p-5 space-y-4">
+
+              {/* Report Type */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Report Type</label>
                 <Select
                   value={activeTemplateId}
-                  onValueChange={(val) => setActiveTemplateId(val as "monthly" | "term-end" | "weekly")}
+                  onValueChange={(v) => setActiveTemplateId(v as "monthly" | "five-month" | "annual")}
                 >
-                  <SelectTrigger className="h-10 bg-white border-slate-200 rounded-xl text-sm font-medium">
-                    <SelectValue placeholder="Select Template" />
+                  <SelectTrigger className="h-9 bg-white border-slate-200 rounded-lg text-sm font-medium">
+                    <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="monthly" className="text-xs">Monthly Academic Check</SelectItem>
-                    <SelectItem value="term-end" className="text-xs">Term-End Summary</SelectItem>
-                    <SelectItem value="weekly" className="text-xs">Weekly Performance Slip</SelectItem>
+                    <SelectItem value="monthly" className="text-sm">Monthly Progress</SelectItem>
+                    <SelectItem value="five-month" className="text-sm">5-Month Progress</SelectItem>
+                    <SelectItem value="annual" className="text-sm">Annual Report</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-            </div>
 
-            {/* Period and Overall Grade */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                  Reporting Period / Term
-                </label>
+              {/* Month (only for Monthly) */}
+              {activeTemplateId === "monthly" && (
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Month</label>
+                  <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+                    <SelectTrigger className="h-9 bg-white border-slate-200 rounded-lg text-sm font-medium">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {MONTHS.map((m) => (
+                        <SelectItem key={m} value={m} className="text-sm">{m}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+
+              {/* Academic Year */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Academic Year</label>
                 <Input
-                  type="text"
-                  placeholder="e.g. May 2026, Semester 1, Week 2"
-                  value={period}
-                  onChange={(e) => setPeriod(e.target.value)}
-                  className="h-10 bg-white border border-slate-200 rounded-xl text-sm"
-                  required
+                  value={academicYear}
+                  onChange={(e) => setAcademicYear(e.target.value)}
+                  placeholder="2025-2026"
+                  className="h-9 border-slate-200 rounded-lg text-sm"
                 />
               </div>
 
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                  Overall Performance Grade
-                </label>
-                <Select value={overallGrade} onValueChange={setOverallGrade}>
-                  <SelectTrigger className="h-10 bg-white border-slate-200 rounded-xl text-sm font-semibold">
-                    <SelectValue placeholder="Select Grade" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {GRADE_OPTIONS.map((g) => (
-                      <SelectItem key={g} value={g} className="text-xs font-bold">
-                        Grade {g}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            {/* Attendance Rate Configurator */}
-            <div className="bg-slate-50/60 border border-slate-150 rounded-xl p-4 space-y-3">
-              <div className="flex items-center justify-between">
-                <div>
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                    Attendance Summary
-                  </span>
-                  <p className="text-xs font-medium text-slate-600 mt-0.5">
-                    {calculatedAttendance !== null ? (
-                      <span className="text-[var(--brand-green)] font-bold flex items-center gap-0.5 mt-0.5">
-                        <Sparkles className="w-3 h-3 fill-[var(--brand-green)]" />
-                        Calculated attendance is {calculatedAttendance}%
-                      </span>
-                    ) : (
-                      "No log history. Adjust sliding rate manually."
+              {/* Student */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Student</label>
+                {students.length > 0 ? (
+                  <>
+                    <Select value={selectedStudentId} onValueChange={setSelectedStudentId}>
+                      <SelectTrigger className="h-9 bg-white border-slate-200 rounded-lg text-sm font-medium">
+                        <SelectValue placeholder="Select student" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {students.map((s) => (
+                          <SelectItem key={s.id} value={s.id} className="text-sm">
+                            {s.name} ({s.admissionNo})
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {selectedStudent && (
+                      <p className="text-[10px] text-slate-400 font-medium px-1">
+                        Program: <span className="font-semibold text-slate-600">{selectedStudent.programName || "—"}</span>
+                        {" "}· Adm: <span className="font-semibold text-slate-600">{selectedStudent.admissionNo}</span>
+                      </p>
                     )}
-                  </p>
-                </div>
-                <Badge className="bg-slate-900 text-white border-none rounded-lg h-7 px-3 text-sm font-bold">
-                  {attendanceRate}%
-                </Badge>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <span className="text-xs text-slate-450 font-bold">0%</span>
-                <input
-                  type="range"
-                  min="0"
-                  max="100"
-                  value={attendanceRate}
-                  onChange={(e) => setAttendanceRate(parseInt(e.target.value))}
-                  className="flex-1 accent-[var(--brand-green)] h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer"
-                />
-                <span className="text-xs text-slate-450 font-bold">100%</span>
-              </div>
-            </div>
-
-            {/* Behavioral Aspect Ratings */}
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">
-                Behavioral Aspects
-              </label>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                {/* Attentiveness */}
-                <div className="space-y-1">
-                  <span className="text-[10px] font-bold text-slate-400 block">Attentiveness</span>
-                  <Select
-                    value={behavioral.attentiveness}
-                    onValueChange={(val) =>
-                      setBehavioral({
-                        ...behavioral,
-                        attentiveness: val as typeof BEHAVIORAL_OPTIONS[number],
-                      })
-                    }
-                  >
-                    <SelectTrigger className="h-9 bg-white text-xs border-slate-200 rounded-lg">
-                      <SelectValue placeholder="Attentiveness" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {BEHAVIORAL_OPTIONS.map((o) => (
-                        <SelectItem key={o} value={o} className="text-xs">
-                          {o}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Participation */}
-                <div className="space-y-1">
-                  <span className="text-[10px] font-bold text-slate-400 block">Class Participation</span>
-                  <Select
-                    value={behavioral.participation}
-                    onValueChange={(val) =>
-                      setBehavioral({
-                        ...behavioral,
-                        participation: val as typeof BEHAVIORAL_OPTIONS[number],
-                      })
-                    }
-                  >
-                    <SelectTrigger className="h-9 bg-white text-xs border-slate-200 rounded-lg">
-                      <SelectValue placeholder="Participation" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {BEHAVIORAL_OPTIONS.map((o) => (
-                        <SelectItem key={o} value={o} className="text-xs">
-                          {o}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Punctuality */}
-                <div className="space-y-1">
-                  <span className="text-[10px] font-bold text-slate-400 block">Homework Punctuality</span>
-                  <Select
-                    value={behavioral.homeworkPunctuality}
-                    onValueChange={(val) =>
-                      setBehavioral({
-                        ...behavioral,
-                        homeworkPunctuality: val as typeof BEHAVIORAL_OPTIONS[number],
-                      })
-                    }
-                  >
-                    <SelectTrigger className="h-9 bg-white text-xs border-slate-200 rounded-lg">
-                      <SelectValue placeholder="Punctuality" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {BEHAVIORAL_OPTIONS.map((o) => (
-                        <SelectItem key={o} value={o} className="text-xs">
-                          {o}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </div>
-
-            {/* Qualitative Feedback Area & Presets */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
-                  Tutor Remarks & Feedback
-                </label>
-                <span className="text-[10px] text-slate-400 font-bold">Quick Presets:</span>
-              </div>
-
-              {/* Presets Row */}
-              <div className="flex flex-wrap gap-1.5 mb-2">
-                {FEEDBACK_PRESETS.map((preset, idx) => (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => applyPreset(preset.text, preset.grade)}
-                    className="text-[10px] font-bold px-2.5 py-1 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-900 hover:text-white transition-all cursor-pointer shadow-sm active:scale-95"
-                  >
-                    {preset.label}
-                  </button>
-                ))}
-              </div>
-
-              <Textarea
-                placeholder="Write customized qualitative feedback for this student..."
-                value={tutorFeedback}
-                onChange={(e) => setTutorFeedback(e.target.value)}
-                className="min-h-[100px] bg-white border border-slate-200 rounded-xl text-sm"
-                required
-              />
-            </div>
-
-            {/* Issue Button */}
-            <Button
-              type="submit"
-              disabled={!selectedStudentId}
-              className="w-full bg-[var(--brand-green)] hover:bg-[var(--brand-green)]/90 text-white font-bold h-11 rounded-xl flex items-center justify-center gap-2 shadow-md cursor-pointer disabled:opacity-50 disabled:pointer-events-none"
-            >
-              <Check className="w-5 h-5" /> Generate & Save Progress Report
-            </Button>
-          </CardContent>
-        </Card>
-      </form>
-
-      {/* ── Academic scores calculation display column ── */}
-      <div className="lg:col-span-2 space-y-6">
-        <Card className="bg-white border-slate-150 shadow-sm">
-          <CardHeader className="p-6 pb-4 border-b border-slate-100 bg-slate-50/50">
-            <CardTitle className="text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
-              <BookOpen className="w-4 h-4 text-[var(--brand-green)]" />
-              Academic Scores Manager
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-6 space-y-4">
-            <div className="space-y-1">
-              <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">
-                Assessment Database
-              </p>
-              <p className="text-xs text-slate-500 leading-normal">
-                {calculatedAvgScore !== null ? (
-                  <span className="text-[var(--brand-green)] font-bold flex items-center gap-0.5">
-                    <Sparkles className="w-3.5 h-3.5 fill-[var(--brand-green)]" />
-                    Student has {studentEvalList.length} evaluation sheets. Avg: {calculatedAvgScore}%
-                  </span>
+                  </>
                 ) : (
-                  "No evaluations recorded. Using realistic course metrics below."
+                  <div className="h-9 flex items-center px-3 border border-dashed border-amber-200 bg-amber-50 text-xs text-amber-600 rounded-lg font-semibold">
+                    No students found
+                  </div>
                 )}
-              </p>
+              </div>
+
+              {/* Exam Title */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Exam Title</label>
+                <Input
+                  value={examTitle}
+                  onChange={(e) => setExamTitle(e.target.value)}
+                  placeholder="Monthly Progress – June 2026"
+                  className="h-9 border-slate-200 rounded-lg text-sm"
+                />
+              </div>
+
+              {/* Issue Date */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Issue Date</label>
+                <Input
+                  type="date"
+                  value={issueDate}
+                  onChange={(e) => setIssueDate(e.target.value)}
+                  className="h-9 border-slate-200 rounded-lg text-sm"
+                />
+              </div>
+
+              {/* Save button */}
+              <Button
+                onClick={handleSave}
+                disabled={!selectedStudentId || isSaving}
+                className="w-full bg-slate-900 hover:bg-slate-700 text-white font-bold h-9 rounded-xl cursor-pointer disabled:opacity-50 text-sm"
+              >
+                {isSaving ? "Saving…" : "Save Report"}
+              </Button>
             </div>
+          </div>
+        </div>
 
-            {/* Editable Subjects grid */}
-            <div className="space-y-3">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                Subjects & Scores (0 - 100)
-              </span>
+        {/* RIGHT: Live Preview */}
+        <div className="xl:col-span-3 space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-[var(--brand-green)] animate-pulse" />
+              <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">Live Preview</span>
+            </div>
+            <Button
+              onClick={handleDownloadPDF}
+              disabled={!selectedStudentId || downloading}
+              className="bg-[var(--brand-green)] hover:bg-[var(--brand-green)]/90 text-white font-bold h-9 px-4 rounded-xl flex items-center gap-2 cursor-pointer disabled:opacity-50 text-xs"
+            >
+              <Download className="w-3.5 h-3.5" />
+              {downloading ? "Generating…" : "Download PDF"}
+            </Button>
+          </div>
 
-              <div className="space-y-2 max-h-[240px] overflow-y-auto pr-1">
-                {customScores.map((item, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center gap-2 bg-slate-50 border border-slate-150 rounded-xl p-2.5"
-                  >
-                    <input
-                      type="text"
-                      value={item.subject}
-                      onChange={(e) => {
-                        const updated = [...customScores];
-                        updated[index].subject = e.target.value;
-                        setCustomScores(updated);
-                      }}
-                      className="flex-1 bg-transparent border-none text-xs font-semibold focus:outline-none focus:ring-0 text-slate-850 px-1"
-                      placeholder="Subject/Assessment"
-                    />
+          <div className="rounded-2xl overflow-hidden shadow-sm">
+            <div ref={previewRef}>
+              <GradeCardPreview report={liveReport} />
+            </div>
+          </div>
+        </div>
+      </div>
 
-                    <div className="flex items-center gap-1.5 w-20">
+      {/* ── BOTTOM: Subjects & Marks Entry ── */}
+      <div className="bg-white border border-slate-150 rounded-2xl shadow-sm overflow-hidden">
+        <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/60 flex items-center justify-between">
+          <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+            Subjects &amp; Marks Entry
+          </span>
+          <button
+            type="button"
+            onClick={() => setSubjects((prev) => [...prev, emptySubject()])}
+            className="flex items-center gap-1.5 text-xs font-bold text-[var(--brand-green)] hover:text-[var(--brand-green)]/80 transition-colors cursor-pointer"
+          >
+            <Plus className="w-3.5 h-3.5" /> Add Subject
+          </button>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="bg-slate-50/60 border-b border-slate-100">
+                <th className="px-5 py-3 text-left text-[10px] font-bold text-slate-500 uppercase tracking-wider w-[28%]">
+                  Subject
+                </th>
+                <th className="px-4 py-3 text-center text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                  FA Max
+                </th>
+                <th className="px-4 py-3 text-center text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                  FA Scored
+                </th>
+                {isAnnual && (
+                  <>
+                    <th className="px-4 py-3 text-center text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                      SA Max
+                    </th>
+                    <th className="px-4 py-3 text-center text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                      SA Scored
+                    </th>
+                  </>
+                )}
+                <th className="px-4 py-3 text-center text-[10px] font-bold text-teal-500 uppercase tracking-wider">
+                  Total Max
+                </th>
+                <th className="px-4 py-3 text-center text-[10px] font-bold text-teal-500 uppercase tracking-wider">
+                  Total Scored
+                </th>
+                <th className="px-4 py-3 text-center text-[10px] font-bold text-[var(--brand-green)] uppercase tracking-wider">
+                  Grade
+                </th>
+                <th className="px-3 py-3 w-8" />
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-50">
+              {subjects.map((s, i) => {
+                const tMax = isAnnual ? s.faMax + s.saMax : s.faMax;
+                const tScored = isAnnual ? s.faScored + s.saScored : s.faScored;
+                const grade = tMax > 0 ? calcGrade(tScored, tMax) : "—";
+                return (
+                  <tr key={i} className="hover:bg-slate-50/40 transition-colors">
+                    <td className="px-5 py-2.5">
+                      <Input
+                        value={s.subject}
+                        onChange={(e) => updateSubject(i, "subject", e.target.value)}
+                        placeholder="e.g. English"
+                        className="h-8 border-slate-200 rounded-lg text-sm font-semibold bg-white"
+                      />
+                    </td>
+                    <td className="px-4 py-2.5">
                       <Input
                         type="number"
-                        min="0"
-                        max="100"
-                        value={item.score}
-                        onChange={(e) => handleScoreChange(index, parseInt(e.target.value) || 0)}
-                        className="w-14 h-7 text-xs font-bold text-center border-slate-200 bg-white rounded-md p-1"
+                        min={0}
+                        value={s.faMax || ""}
+                        onChange={(e) => updateSubject(i, "faMax", parseInt(e.target.value) || 0)}
+                        placeholder="40"
+                        className="h-8 border-slate-200 rounded-lg text-sm text-center bg-white w-20 mx-auto block"
                       />
-                      <span className="text-xs text-slate-450 font-bold">%</span>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() => removeCustomSubject(index)}
-                      className="text-slate-400 hover:text-red-500 transition-colors text-xs font-bold px-1"
-                      title="Remove row"
-                    >
-                      ×
-                    </button>
-                  </div>
-                ))}
-              </div>
-
-              <button
-                type="button"
-                onClick={addCustomSubject}
-                className="w-full py-1.5 px-3 border border-dashed border-slate-350 hover:border-[var(--brand-green)] hover:text-[var(--brand-green)] text-xs text-slate-500 font-bold rounded-xl transition-all cursor-pointer"
-              >
-                + Add Subject / Test Score
-              </button>
-            </div>
-
-            {/* Calculations review */}
-            <div className="bg-slate-50 border border-slate-150 rounded-xl p-3 space-y-1">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                Calculated Report Average
-              </span>
-              <div className="flex items-center justify-between">
-                <span className="text-base font-black text-slate-800">
-                  {customScores.length > 0
-                    ? `${Math.round(customScores.reduce((sum, s) => sum + s.score, 0) / customScores.length)}%`
-                    : "0%"}
-                </span>
-                <span className="text-xs text-slate-500 font-medium">
-                  Maps to overall Grade <span className="font-bold text-[var(--brand-green)]">{overallGrade}</span>
-                </span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+                    </td>
+                    <td className="px-4 py-2.5">
+                      <Input
+                        type="number"
+                        min={0}
+                        value={s.faScored || ""}
+                        onChange={(e) => updateSubject(i, "faScored", parseInt(e.target.value) || 0)}
+                        placeholder="35"
+                        className="h-8 border-slate-200 rounded-lg text-sm text-center bg-white w-20 mx-auto block"
+                      />
+                    </td>
+                    {isAnnual && (
+                      <>
+                        <td className="px-4 py-2.5">
+                          <Input
+                            type="number"
+                            min={0}
+                            value={s.saMax || ""}
+                            onChange={(e) => updateSubject(i, "saMax", parseInt(e.target.value) || 0)}
+                            placeholder="60"
+                            className="h-8 border-slate-200 rounded-lg text-sm text-center bg-white w-20 mx-auto block"
+                          />
+                        </td>
+                        <td className="px-4 py-2.5">
+                          <Input
+                            type="number"
+                            min={0}
+                            value={s.saScored || ""}
+                            onChange={(e) => updateSubject(i, "saScored", parseInt(e.target.value) || 0)}
+                            placeholder="50"
+                            className="h-8 border-slate-200 rounded-lg text-sm text-center bg-white w-20 mx-auto block"
+                          />
+                        </td>
+                      </>
+                    )}
+                    {/* Auto-calculated columns */}
+                    <td className="px-4 py-2.5 text-center">
+                      <span className="text-sm font-bold text-teal-600">{tMax || 0}</span>
+                    </td>
+                    <td className="px-4 py-2.5 text-center">
+                      <span className="text-sm font-bold text-teal-600">{tScored || 0}</span>
+                    </td>
+                    <td className="px-4 py-2.5 text-center">
+                      <Badge
+                        variant="outline"
+                        className={`text-xs font-bold px-2 py-0.5 border ${gradeColor(grade)}`}
+                      >
+                        {grade}
+                      </Badge>
+                    </td>
+                    <td className="px-3 py-2.5">
+                      <button
+                        type="button"
+                        onClick={() => removeSubject(i)}
+                        disabled={subjects.length === 1}
+                        className="p-1 rounded text-slate-300 hover:text-red-500 transition-colors disabled:opacity-20 disabled:pointer-events-none cursor-pointer"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

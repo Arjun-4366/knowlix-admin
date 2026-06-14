@@ -193,6 +193,12 @@ export const ENDPOINTS = {
     GET_HR_PERFORMANCE_REPORT: `${API_BASE_URL}/hr/reports/performance`,
     GET_HR_TURNOVER: `${API_BASE_URL}/hr/reports/turnover`,
 
+    // Progress Reports (Tutor)
+    TUTOR_PROGRESS_CREATE: `${API_BASE_URL}/tutor/progress/create`,
+    TUTOR_PROGRESS_FETCH: `${API_BASE_URL}/tutor/progress/fetch`,
+    TUTOR_PROGRESS_UPDATE: (id: string) => `${API_BASE_URL}/tutor/progress/${id}`,
+    TUTOR_PROGRESS_DELETE: (id: string) => `${API_BASE_URL}/tutor/progress/${id}`,
+
     // Legacy aliases (kept for backwards compat)
     GET_HR_ATTENDANCE: `${API_BASE_URL}/hr/reports/attendance`,
     GET_HR_PERFOMANCE: `${API_BASE_URL}/hr/reports/performance`,
