@@ -22,8 +22,8 @@ export const getStudentDashboard = async (params?: QueryParams) => {
 };
 
 export const getStudentNotices = async (params?: QueryParams) => {
-  const res = await apiClient.get<IApiResponse<IStudentNoticesResponse>>(ENDPOINTS.GET_STUDENT_NOTICES, { params });
-  return res.data.data;
+  const res = await apiClient.get<IStudentNoticesResponse & { status: string }>(ENDPOINTS.GET_STUDENT_NOTICES, { params });
+  return res.data;
 };
 
 export const queryStudentChatbot = async (message: string) => {

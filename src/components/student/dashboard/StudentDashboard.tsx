@@ -235,7 +235,7 @@ export default function StudentDashboard() {
     });
 
   return (
-    <div className="space-y-8 max-w-6xl relative pb-10">
+    <div className="space-y-8 max-w-7xl relative pb-10">
       {/* Welcome Banner */}
       <div className="bg-gradient-to-r from-[var(--brand-dark)] to-[var(--brand-mid)] rounded-2xl p-6 md:p-8 text-white relative overflow-hidden shadow-lg border border-white/5">
         {/* Background visual accents */}
@@ -251,8 +251,9 @@ export default function StudentDashboard() {
               Hello, {studentName}! 👋
             </h1>
             <p className="text-white/70 text-sm mt-1.5 max-w-xl">
-              You are currently enrolled in **{courseType}** for **{classGrade}
-              **. Keep up the excellent work!
+              You are currently enrolled in{" "}
+              <span className="text-white font-semibold">{courseType}</span> for{" "}
+              <span className="text-white font-semibold">Grade {classGrade}</span>. Keep up the excellent work!
             </p>
           </div>
 
@@ -294,21 +295,13 @@ export default function StudentDashboard() {
         {/* Left Column: Progress & Assignments */}
         <div className="lg:col-span-2 space-y-8">
           <StudentProgressReportWidget progressList={subjectProgress} />
-
           <StudentAssignmentsWidget
             assignments={mappedAssignments}
             onSubmitFile={handleAssignmentSubmitRedirect}
           />
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <StudentUpcomingClassesWidget
-              classes={mappedUpcomingClasses}
-            />
-
-            <StudentBillingWidget summary={feesSummaryData} />
-          </div>
         </div>
 
-        {/* Right Column: Attendance Ring, Upcoming Live Classes & Billing history */}
+        {/* Right Column: Attendance, Upcoming Classes & Billing */}
         <div className="space-y-8">
           <StudentAttendanceWidget
             rate={attendanceRate}
@@ -316,6 +309,8 @@ export default function StudentDashboard() {
             absent={absentCount}
             history={attendanceHistory}
           />
+          <StudentUpcomingClassesWidget classes={mappedUpcomingClasses} />
+          <StudentBillingWidget summary={feesSummaryData} />
         </div>
       </div>
 

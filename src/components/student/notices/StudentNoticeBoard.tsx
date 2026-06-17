@@ -1,226 +1,208 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Megaphone, Calendar, User, Search, Filter } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Megaphone, FileText, Calendar, Search, Filter, ChevronLeft, ChevronRight, Bell } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import DashboardHeader from "@/components/dashboard/shared/DashboardHeader";
-import { Notice } from "@/components/admin/notices/AdminNoticeManager";
-
-const CATEGORY_OPTIONS = ["General", "Exam", "Holiday", "Event", "Urgent"];
-
-const initialNotices: Notice[] = [
-  {
-    id: "NTC-1",
-    title: "Summer Vacation Schedule 2026",
-    content: "The academy will remain closed for summer holidays from June 10th to June 25th, 2026. Regular online and hybrid classes will resume from June 26th. Please ensure your homework assignments are submitted before the closing date.",
-    category: "Holiday",
-    targetGrade: "All Grades",
-    date: "2026-05-20",
-    authorName: "Administrator",
-    authorRole: "Admin"
-  },
-  {
-    id: "NTC-2",
-    title: "Maths Midterm Practice Session",
-    content: "Dr. Ramesh Prasad will conduct a special limits & continuity doubt-solving session this Saturday from 4 PM to 6 PM. Attendance is highly recommended for Grade 10 students.",
-    category: "General",
-    targetGrade: "Grade 10",
-    date: "2026-05-22",
-    authorName: "Dr. Ramesh Prasad",
-    authorRole: "Tutor"
-  },
-  {
-    id: "NTC-3",
-    title: "Final Assessment Timetable Release",
-    content: "The final exam timetable for Term 1 has been uploaded under your exams section. Please check dates, duration, and exam instructions. Reach out to your coordinators for any conflicts.",
-    category: "Exam",
-    targetGrade: "Grade 12",
-    date: "2026-05-18",
-    authorName: "Administrator",
-    authorRole: "Admin"
-  }
-];
-
 import { useGetStudentNotices } from "@/querys/student/studentQuery";
 
+type CategoryFilter = "all" | "announcement" | "notice";
+
+const LIMIT = 12;
+
+const PRIORITY_STYLES: Record<string, string> = {
+  high: "bg-red-50 text-red-700 border-red-100",
+  medium: "bg-amber-50 text-amber-700 border-amber-100",
+  low: "bg-slate-50 text-slate-600 border-slate-200",
+};
+
 export default function StudentNoticeBoard() {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [category, setCategory] = useState<CategoryFilter>("all");
+  const [page, setPage] = useState(1);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const storedUser = typeof window !== "undefined" ? localStorage.getItem("user") : null;
-  const user = storedUser ? JSON.parse(storedUser) : null;
-  const studentGrade = user?.class || "Grade 10";
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      setDebouncedSearch(search);
+      setPage(1);
+    }, 400);
+    return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
+  }, [search]);
 
-  const { data, isLoading } = useGetStudentNotices();
+  const handleCategoryChange = (val: CategoryFilter) => {
+    setCategory(val);
+    setPage(1);
+  };
 
-  const noticesList: Notice[] = [];
-  if (data) {
-    if (data.announcements) {
-      data.announcements.forEach((ann) => {
-        noticesList.push({
-          id: ann.id,
-          title: ann.title,
-          content: ann.content,
-          category: "General",
-          targetGrade: "All Grades",
-          date: ann.publishedAt || ann.createdAt,
-          authorName: ann.authorRole === "admin" ? "Administrator" : "Staff",
-          authorRole: ann.authorRole === "admin" ? "Admin" : "Tutor",
-        });
-      });
-    }
+  const queryParams = {
+    ...(debouncedSearch ? { search: debouncedSearch } : {}),
+    ...(category !== "all" ? { category } : {}),
+    page,
+    limit: LIMIT,
+  };
 
-    if (data.notices) {
-      data.notices.forEach((ntc) => {
-        noticesList.push({
-          id: ntc.id,
-          title: ntc.title,
-          content: ntc.content,
-          category: ntc.priority === "high" ? "Urgent" : "General",
-          targetGrade: ntc.department ? `Dept: ${ntc.department}` : "All Grades",
-          date: ntc.createdAt,
-          authorName: ntc.authorRole === "admin" ? "Administrator" : "Staff",
-          authorRole: ntc.authorRole === "admin" ? "Admin" : "Tutor",
-        });
-      });
-    }
-  }
+  const { data, isLoading } = useGetStudentNotices(queryParams);
 
-  // Fallback to initialNotices if no data is returned from API yet
-  const activeNotices = data ? noticesList : initialNotices;
-
-  // Filter notices to only those matching student's grade or "All Grades"
-  const studentNotices = activeNotices.filter(
-    (n) => n.targetGrade === "All Grades" || n.targetGrade === studentGrade || n.targetGrade.startsWith("Dept:")
-  );
-
-  // Apply search and category filter
-  const filteredNotices = studentNotices.filter((n) => {
-    const matchesSearch =
-      n.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      n.content.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === "all" || n.category === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
+  const items = data?.data || [];
+  const pagination = data?.pagination;
+  const totalPages = pagination?.totalPages || 1;
+  const total = pagination?.total || 0;
 
   return (
-    <div className="space-y-6 w-full pb-10">
+    <div className="space-y-6 pb-10">
       <DashboardHeader
         title="Notice Board"
-        description="Stay updated with the latest notices, announcements, and timetables published by academy admins and your tutors."
+        description="Stay updated with the latest notices and announcements from the academy."
       />
 
-      {/* Control Panel */}
-      <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
-        {/* Search & Filters */}
-        <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
-          <div className="relative flex-1 md:flex-initial min-w-[240px]">
+      {/* Controls */}
+      <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
+        <div className="flex flex-wrap items-center gap-3 flex-1">
+          {/* Search */}
+          <div className="relative flex-1 min-w-[220px]">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <Input
               type="text"
-              placeholder="Search notices..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search by title or content..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
               className="pl-9 h-10 bg-white border border-slate-200 rounded-xl text-sm"
             />
           </div>
 
-          <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-            <SelectTrigger className="h-10 w-[150px] bg-white border-slate-200 rounded-xl text-xs font-semibold text-slate-700">
-              <div className="flex items-center gap-1.5">
-                <Filter className="w-3.5 h-3.5 text-slate-400" />
-                <SelectValue placeholder="Category" />
-              </div>
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all" className="font-semibold text-xs text-slate-700">All Categories</SelectItem>
-              {CATEGORY_OPTIONS.map((cat) => (
-                <SelectItem key={cat} value={cat} className="font-semibold text-xs text-slate-700">
-                  {cat}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          {/* Category filter pills */}
+          <div className="flex items-center gap-1.5">
+            <Filter className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+            {(["all", "announcement", "notice"] as CategoryFilter[]).map((cat) => (
+              <button
+                key={cat}
+                type="button"
+                onClick={() => handleCategoryChange(cat)}
+                className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-all cursor-pointer ${
+                  category === cat
+                    ? "bg-[var(--brand-green)] text-white border-[var(--brand-green)] shadow-sm"
+                    : "bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50"
+                }`}
+              >
+                {cat === "all" ? "All" : cat === "announcement" ? "Announcements" : "Notices"}
+              </button>
+            ))}
+          </div>
         </div>
 
-        {/* Info Badge */}
-        <Badge className="bg-[var(--brand-light-green)] text-[var(--brand-mid)] border-[var(--brand-light)]/20 px-3 py-1 rounded-full text-xs font-bold shadow-none">
-          Displaying updates for {studentGrade}
-        </Badge>
+        {total > 0 && (
+          <span className="text-xs font-semibold text-slate-400 flex-shrink-0">
+            {total} result{total !== 1 ? "s" : ""}
+          </span>
+        )}
       </div>
 
-      {/* Notices Grid */}
+      {/* Content */}
       {isLoading ? (
-        <div className="flex items-center justify-center min-h-[30vh] w-full">
+        <div className="flex items-center justify-center min-h-[30vh]">
           <div className="w-8 h-8 border-4 border-[var(--brand-green)] border-t-transparent rounded-full animate-spin" />
         </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredNotices.length > 0 ? (
-            filteredNotices.map((notice) => {
-              let catColor = "bg-slate-100 text-slate-650 border-slate-200";
-              if (notice.category === "Urgent") catColor = "bg-red-50 text-red-700 border-red-150";
-              else if (notice.category === "Exam") catColor = "bg-amber-50 text-amber-700 border-amber-150";
-              else if (notice.category === "Holiday") catColor = "bg-blue-50 text-blue-700 border-blue-150";
-              else if (notice.category === "Event") catColor = "bg-purple-50 text-purple-700 border-purple-150";
-
-              return (
-                <Card
-                  key={notice.id}
-                  className="bg-white border border-slate-150 rounded-2xl shadow-sm hover:shadow-md transition-all flex flex-col justify-between overflow-hidden"
-                >
-                  <CardContent className="p-6 space-y-4 flex-1">
-                    {/* Category */}
-                    <div className="flex gap-1.5">
-                      <Badge variant="outline" className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${catColor}`}>
-                        {notice.category}
-                      </Badge>
-                      <Badge variant="outline" className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-slate-50 border-slate-200 text-slate-600">
-                        {notice.targetGrade}
-                      </Badge>
-                    </div>
-
-                    {/* Title & Content */}
-                    <div className="space-y-2">
-                      <h3 className="text-sm font-bold text-slate-800 leading-tight">
-                        {notice.title}
-                      </h3>
-                      <p className="text-xs text-slate-600 leading-relaxed whitespace-pre-line">
-                        {notice.content}
-                      </p>
-                    </div>
-                  </CardContent>
-
-                  {/* Footer with Metadata */}
-                  <div className="px-6 py-4 bg-slate-50/50 border-t border-slate-100 rounded-b-2xl flex items-center justify-between text-[10px] font-semibold text-slate-450">
-                    <div className="flex items-center gap-1.5">
-                      <User className="w-3.5 h-3.5 text-slate-400" />
-                      <span className="truncate max-w-[150px]">
-                        {notice.authorName} ({notice.authorRole})
-                      </span>
-                    </div>
-
-                    <div className="flex items-center gap-1">
-                      <Calendar className="w-3.5 h-3.5 text-slate-400" />
-                      <span>
-                        {new Date(notice.date).toLocaleDateString("en-US", {
-                          month: "short",
-                          day: "numeric",
-                        })}
-                      </span>
-                    </div>
-                  </div>
-                </Card>
-              );
-            })
-          ) : (
-            <div className="col-span-full py-16 bg-white border border-slate-150 rounded-2xl shadow-sm text-center text-slate-450 text-sm font-medium">
-              No notices published for your grade at this time.
-            </div>
+      ) : items.length === 0 ? (
+        <div className="flex flex-col items-center justify-center min-h-[30vh] bg-white border border-slate-150 rounded-2xl shadow-sm">
+          <Bell className="w-10 h-10 text-slate-200 mb-3" />
+          <p className="text-sm font-semibold text-slate-400">No notices found</p>
+          {debouncedSearch && (
+            <p className="text-xs text-slate-400 mt-1">Try a different search term</p>
           )}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          {items.map((item) => (
+            <Card
+              key={item.id}
+              className="bg-white border border-slate-150 rounded-2xl shadow-sm hover:shadow-md transition-all flex flex-col overflow-hidden"
+            >
+              <CardContent className="p-5 space-y-3 flex-1">
+                {/* Badges */}
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <Badge
+                    variant="outline"
+                    className={`text-[9px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 ${
+                      item.category === "announcement"
+                        ? "bg-blue-50 text-blue-700 border-blue-100"
+                        : "bg-purple-50 text-purple-700 border-purple-100"
+                    }`}
+                  >
+                    {item.category === "announcement"
+                      ? <Megaphone className="w-2.5 h-2.5" />
+                      : <FileText className="w-2.5 h-2.5" />
+                    }
+                    {item.category === "announcement" ? "Announcement" : "Notice"}
+                  </Badge>
+
+                  <Badge
+                    variant="outline"
+                    className={`text-[9px] font-bold px-2 py-0.5 rounded-full capitalize ${PRIORITY_STYLES[item.priority] || PRIORITY_STYLES.low}`}
+                  >
+                    {item.priority}
+                  </Badge>
+
+                  {item.department && (
+                    <Badge variant="outline" className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-slate-50 text-slate-500 border-slate-200">
+                      {item.department}
+                    </Badge>
+                  )}
+                </div>
+
+                {/* Title & Content */}
+                <div className="space-y-1.5">
+                  <h3 className="text-sm font-bold text-slate-800 leading-tight">{item.title}</h3>
+                  <p className="text-xs text-slate-500 leading-relaxed line-clamp-3">{item.content}</p>
+                </div>
+              </CardContent>
+
+              {/* Footer */}
+              <div className="px-5 py-3 bg-slate-50/50 border-t border-slate-100 flex items-center justify-between text-[10px] font-semibold text-slate-400">
+                <span className="capitalize bg-slate-100 px-2 py-0.5 rounded-full text-slate-500">
+                  {item.audience}
+                </span>
+                <div className="flex items-center gap-1">
+                  <Calendar className="w-3 h-3" />
+                  {new Date(item.createdAt).toLocaleDateString("en-IN", {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
+      )}
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-3 pt-2">
+          <Button
+            variant="outline"
+            onClick={() => setPage((p) => p - 1)}
+            disabled={page <= 1}
+            className="h-9 px-4 rounded-xl text-xs font-bold border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-40 cursor-pointer"
+          >
+            <ChevronLeft className="w-4 h-4 mr-1" /> Previous
+          </Button>
+          <span className="text-xs font-bold text-slate-500 px-2">
+            {page} / {totalPages}
+          </span>
+          <Button
+            variant="outline"
+            onClick={() => setPage((p) => p + 1)}
+            disabled={page >= totalPages}
+            className="h-9 px-4 rounded-xl text-xs font-bold border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-40 cursor-pointer"
+          >
+            Next <ChevronRight className="w-4 h-4 ml-1" />
+          </Button>
         </div>
       )}
     </div>

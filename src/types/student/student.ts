@@ -79,34 +79,30 @@ export interface IFeeRecord {
   updatedAt: string;
 }
 
-export interface IAnnouncement {
+export interface INoticeItem {
   id: string;
+  category: "announcement" | "notice";
   title: string;
   content: string;
   authorId: string;
-  authorRole: string;
-  targetAudience: "all" | "tutors" | "students" | "hr" | "staff";
+  department?: string;
+  audience: string;
+  priority: "low" | "medium" | "high";
   isPublished: boolean;
-  publishedAt?: string;
   createdAt: string;
   updatedAt: string;
 }
 
-export interface INotice {
-  id: string;
-  title: string;
-  content: string;
-  authorId: string;
-  authorRole: string;
-  department?: string;
-  priority: "low" | "medium" | "high";
-  createdAt: string;
-  updatedAt: string;
+export interface INoticesPagination {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
 }
 
 export interface IStudentNoticesResponse {
-  announcements: IAnnouncement[] | null;
-  notices: INotice[] | null;
+  data: INoticeItem[];
+  pagination: INoticesPagination;
 }
 
 export interface IMeetSession {
