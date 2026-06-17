@@ -14,6 +14,7 @@ import {
   IMonthlyTrend,
   IStudentFeesResponse,
   IStudentFeeStatusResponse,
+  IStudentProfile,
 } from "@/types/student/student";
 
 export const getStudentDashboard = async (params?: QueryParams) => {
@@ -76,5 +77,10 @@ export const getStudentFees = async (params?: QueryParams) => {
 
 export const getStudentFeesStatus = async (params?: QueryParams) => {
   const res = await apiClient.get<IApiResponse<IStudentFeeStatusResponse>>(ENDPOINTS.GET_STUDENT_FEES_STATUS, { params });
+  return res.data.data;
+};
+
+export const getStudentProfile = async () => {
+  const res = await apiClient.get<IApiResponse<IStudentProfile>>(ENDPOINTS.GET_STUDENT_PROFILE);
   return res.data.data;
 };

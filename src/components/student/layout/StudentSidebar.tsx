@@ -11,6 +11,7 @@ import {
   Calendar,
   Award,
   CreditCard,
+  UserCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -118,37 +119,39 @@ export default function StudentSidebar({ collapsed }: Props) {
         })}
       </nav>
 
-      {/* User footer */}
-      <div
-        className="border-t border-white/10 flex-shrink-0"
+      {/* My Profile footer link */}
+      <Link
+        href="/student/profile"
+        title={collapsed ? "My Profile" : undefined}
+        className={cn(
+          "border-t border-white/10 flex-shrink-0 flex items-center gap-3 transition-all",
+          pathname === "/student/profile" ? "bg-white/10" : "hover:bg-white/5"
+        )}
         style={{
-          padding: collapsed ? "16px 0" : "16px",
-          display: "flex",
+          padding: collapsed ? "16px 0" : "14px 16px",
           justifyContent: collapsed ? "center" : "flex-start",
-          transition: "padding 300ms ease",
+          transition: "padding 300ms ease, background 150ms ease",
         }}
       >
-        <div className="flex items-center gap-3">
-          <div
-            className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0"
-            style={{ background: "var(--brand-green)" }}
-          >
-            S
-          </div>
-          <div
-            className="overflow-hidden"
-            style={{
-              opacity: collapsed ? 0 : 1,
-              maxWidth: collapsed ? 0 : "150px",
-              transition: "opacity 200ms ease, max-width 300ms ease",
-              whiteSpace: "nowrap",
-            }}
-          >
-            <p className="text-white text-xs font-semibold">Student</p>
-            <p className="text-white/45 text-xs">student@knowlix.in</p>
-          </div>
+        <div
+          className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0 flex-shrink-0"
+          style={{ background: "var(--brand-green)" }}
+        >
+          <UserCircle className="w-4 h-4" />
         </div>
-      </div>
+        <div
+          className="overflow-hidden"
+          style={{
+            opacity: collapsed ? 0 : 1,
+            maxWidth: collapsed ? 0 : "150px",
+            transition: "opacity 200ms ease, max-width 300ms ease",
+            whiteSpace: "nowrap",
+          }}
+        >
+          <p className="text-white text-xs font-semibold">My Profile</p>
+          <p className="text-white/45 text-[10px]">View account details</p>
+        </div>
+      </Link>
     </aside>
   );
 }

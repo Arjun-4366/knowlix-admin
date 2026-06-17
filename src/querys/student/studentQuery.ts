@@ -13,6 +13,7 @@ import {
   getStudentResultsAnalytics,
   getStudentFees,
   getStudentFeesStatus,
+  getStudentProfile,
 } from "@/services/student/student";
 
 const STUDENT_KEYS = {
@@ -26,6 +27,7 @@ const STUDENT_KEYS = {
   resultsAnalytics: ["student-results-analytics"] as const,
   fees: ["student-fees"] as const,
   feesStatus: ["student-fees-status"] as const,
+  profile: ["student-profile"] as const,
 };
 
 export const useGetStudentDashboard = (params?: QueryParams) => {
@@ -115,5 +117,12 @@ export const useGetStudentFeesStatus = (params?: QueryParams) => {
   return useQuery({
     queryKey: [...STUDENT_KEYS.feesStatus, params],
     queryFn: () => getStudentFeesStatus(params),
+  });
+};
+
+export const useGetStudentProfile = () => {
+  return useQuery({
+    queryKey: STUDENT_KEYS.profile,
+    queryFn: () => getStudentProfile(),
   });
 };

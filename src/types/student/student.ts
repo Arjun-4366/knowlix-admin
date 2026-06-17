@@ -191,11 +191,27 @@ export interface IExamResult {
   enteredAt: string;
 }
 
-export interface IResultWithExam extends IExamResult {
-  examTitle: string;
+export interface IPopulatedExam {
+  id: string;
+  tutorId: { id: string; name: string };
+  studentIds: string[];
+  title: string;
   subject: string;
-  maxMarks: number;
   examDate: string;
+  status: string;
+  maxMarks: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface IResultWithExam {
+  id: string;
+  examId: IPopulatedExam;
+  studentId: string;
+  marksObtained: number;
+  grade?: string;
+  remarks?: string;
+  enteredAt: string;
   percentage: number;
 }
 
@@ -226,4 +242,38 @@ export interface IStudentFeeStatusResponse {
   currentMonth?: IFeeRecord;
   overdue: IFeeRecord[];
   upcoming: IFeeRecord[];
+}
+
+export interface IStudentDocuments {
+  birthCertificate?: string;
+  transferCertificate?: string;
+  previousAcademicRecord?: string;
+  identificationDocument?: string;
+}
+
+export interface IStudentProfile {
+  id: string;
+  admissionNumber: string;
+  studentName: string;
+  email: string;
+  phone: string;
+  parentName: string;
+  class: string;
+  place: string;
+  programId?: string;
+  programName?: string;
+  courseId?: string;
+  courseName?: string;
+  syllabus?: string;
+  package?: string;
+  documents?: IStudentDocuments;
+  admissionStatus: string;
+  totalFee?: number;
+  paidAmount?: number;
+  assignedMentorId?: string;
+  mentorName?: string;
+  assignedCoordinatorId?: string;
+  coordinatorName?: string;
+  createdAt: string;
+  updatedAt: string;
 }

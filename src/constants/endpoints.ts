@@ -109,6 +109,7 @@ export const ENDPOINTS = {
   GET_STUDENT_RESULTS_ANALYTICS: `${API_BASE_URL}/student/results/analytics`,
   GET_STUDENT_FEES: `${API_BASE_URL}/student/fees`,
   GET_STUDENT_FEES_STATUS: `${API_BASE_URL}/student/fees/status`,
+  GET_STUDENT_PROFILE:`${API_BASE_URL}/student/profile`,
 
   // TUTOR
   //dashboard
