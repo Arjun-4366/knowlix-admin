@@ -32,8 +32,8 @@ export const queryStudentChatbot = async (message: string) => {
 };
 
 export const getStudentSchedule = async (params?: QueryParams) => {
-  const res = await apiClient.get<IApiResponse<IStudentScheduleResponse>>(ENDPOINTS.GET_STUDENT_SCHEDULE, { params });
-  return res.data.data;
+  const res = await apiClient.get<IStudentScheduleResponse & { status: string }>(ENDPOINTS.GET_STUDENT_SCHEDULE, { params });
+  return res.data;
 };
 
 export const getStudentAssignments = async (params?: QueryParams) => {

@@ -136,10 +136,8 @@ export interface IExam {
 }
 
 export interface IStudentScheduleResponse {
-  today: ISession[] | null;
-  upcoming: ISession[] | null;
-  mentorMeetings: IMeetSession[] | null;
-  examTimetable: IExam[] | null;
+  data: IMeetSession[];
+  pagination: INoticesPagination;
 }
 
 export interface IAssignment {

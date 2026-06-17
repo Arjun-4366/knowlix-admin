@@ -1,411 +1,263 @@
 "use client";
 
-import { useState } from "react";
-import { Calendar, Clock, Video, User, BookOpen, AlertCircle, CheckCircle2, ChevronRight, Plus } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Calendar, Clock, Video, BookOpen, Search, Filter, ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { toast } from "react-hot-toast";
+import { Input } from "@/components/ui/input";
 import DashboardHeader from "@/components/dashboard/shared/DashboardHeader";
-
-interface ClassSession {
-  id: string;
-  subject: string;
-  topic: string;
-  tutor: string;
-  date: string;
-  time: string;
-  status: "Active" | "Scheduled" | "Completed";
-  meetingLink?: string;
-}
-
-interface MentorMeeting {
-  id: string;
-  mentor: string;
-  date: string;
-  time: string;
-  agenda: string;
-  status: "Scheduled" | "Requested" | "Completed";
-}
-
-interface ExamSchedule {
-  id: string;
-  subject: string;
-  examType: string;
-  date: string;
-  time: string;
-  syllabus: string;
-}
-
-const mockClasses: ClassSession[] = [
-  { id: "CLS-401", subject: "Mathematics", topic: "Integration & Calculus Core", tutor: "Dr. Ramesh Prasad", date: "Today", time: "16:00 - 17:00", status: "Active", meetingLink: "https://zoom.us/mock/math-integration" },
-  { id: "CLS-402", subject: "Physics", topic: "Thermodynamics Theory", tutor: "Dr. Ramesh Prasad", date: "Tomorrow", time: "17:30 - 18:30", status: "Scheduled" },
-  { id: "CLS-403", subject: "Chemistry", topic: "Chemical Equilibrium Intro", tutor: "Vikram Malhotra", date: "2026-05-25", time: "15:00 - 16:00", status: "Scheduled" },
-  { id: "CLS-404", subject: "Computer Science", topic: "Object Oriented Design", tutor: "David Miller", date: "2026-05-26", time: "18:00 - 19:30", status: "Scheduled" },
-  { id: "CLS-400", subject: "Mathematics", topic: "Differentiation Rules Practice", tutor: "Dr. Ramesh Prasad", date: "Yesterday", time: "16:00 - 17:00", status: "Completed" }
-];
-
-const mockMeetings: MentorMeeting[] = [
-  { id: "MTG-01", mentor: "Sarah Jenkins", date: "2026-05-26", time: "14:00 - 14:30", agenda: "Academic Performance Check-in", status: "Scheduled" },
-  { id: "MTG-02", mentor: "Sarah Jenkins", date: "2026-05-12", time: "11:00 - 11:30", agenda: "Career Path & Subject Selections", status: "Completed" }
-];
-
-const mockExams: ExamSchedule[] = [
-  { id: "EXM-101", subject: "Mathematics", examType: "Mid-Term Assessment", date: "2026-05-28", time: "10:00 AM - 11:30 AM", syllabus: "Calculus (Limits, Differentiation) & Coordinate Geometry" },
-  { id: "EXM-102", subject: "Physics", examType: "Monthly Quiz 3", date: "2026-06-03", time: "02:00 PM - 02:45 PM", syllabus: "Kinematics & Laws of Motion" }
-];
-
 import { useGetStudentSchedule } from "@/querys/student/studentQuery";
-import { useEffect } from "react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 
-const isToday = (date: Date) => {
+type FilterType = "all" | "today" | "upcoming" | "past";
+
+const LIMIT = 4;
+
+const formatTime = (date: Date) =>
+  date.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: false });
+
+const formatDate = (iso: string) => {
+  const d = new Date(iso);
   const today = new Date();
-  return date.getDate() === today.getDate() &&
-    date.getMonth() === today.getMonth() &&
-    date.getFullYear() === today.getFullYear();
-};
-
-const isTomorrow = (date: Date) => {
   const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  return date.getDate() === tomorrow.getDate() &&
-    date.getMonth() === tomorrow.getMonth() &&
-    date.getFullYear() === tomorrow.getFullYear();
+  tomorrow.setDate(today.getDate() + 1);
+
+  if (d.toDateString() === today.toDateString()) return "Today";
+  if (d.toDateString() === tomorrow.toDateString()) return "Tomorrow";
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 };
 
-const formatTime = (date: Date) => {
-  return date.toLocaleTimeString("en-US", {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  });
+const isSessionActive = (scheduledAt: string, durationMinutes: number) => {
+  const start = new Date(scheduledAt).getTime();
+  const end = start + durationMinutes * 60000;
+  const now = Date.now();
+  return now >= start && now <= end;
 };
 
 export default function StudentSchedule() {
-  const [classes, setClasses] = useState<ClassSession[]>(mockClasses);
-  const [meetings, setMeetings] = useState<MentorMeeting[]>(mockMeetings);
-  const [exams, setExams] = useState<ExamSchedule[]>(mockExams);
-
-  const { data, isLoading } = useGetStudentSchedule();
+  const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [filter, setFilter] = useState<FilterType>("all");
+  const [page, setPage] = useState(1);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    if (data) {
-      // Map classes
-      const allSessions = [...(data.today || []), ...(data.upcoming || [])];
-      const mappedClasses = allSessions.map((session) => {
-        const scheduledTime = new Date(session.scheduledAt);
-        const endTime = new Date(scheduledTime.getTime() + (session.durationMinutes || 60) * 60000);
-        
-        const now = new Date();
-        let status: "Active" | "Scheduled" | "Completed" = "Scheduled";
-        if (now >= scheduledTime && now <= endTime) {
-          status = "Active";
-        } else if (now > endTime || session.status === "conducted") {
-          status = "Completed";
-        }
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      setDebouncedSearch(search);
+      setPage(1);
+    }, 400);
+    return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
+  }, [search]);
 
-        return {
-          id: session.id,
-          subject: session.subject,
-          topic: session.tutorRemarks || "Daily Tutoring Session",
-          tutor: "Dr. Ramesh Prasad",
-          date: isToday(scheduledTime)
-            ? "Today"
-            : isTomorrow(scheduledTime)
-            ? "Tomorrow"
-            : scheduledTime.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
-          time: `${formatTime(scheduledTime)} - ${formatTime(endTime)}`,
-          status,
-          meetingLink: `https://zoom.us/mock/session-${session.id}`,
-        };
-      });
-      setClasses(mappedClasses);
-
-      // Map mentor meetings
-      const mappedMeetings = (data.mentorMeetings || []).map((meet) => {
-        const scheduledTime = new Date(meet.scheduledAt);
-        const endTime = new Date(scheduledTime.getTime() + (meet.durationMinutes || 30) * 60000);
-        
-        return {
-          id: meet.id,
-          mentor: meet.tutorName || "Sarah Jenkins",
-          date: scheduledTime.toISOString().split("T")[0],
-          time: `${formatTime(scheduledTime)} - ${formatTime(endTime)}`,
-          agenda: meet.title || "Academic Performance Check-in",
-          status: meet.status === "completed" ? ("Completed" as const) : ("Scheduled" as const),
-        };
-      });
-      setMeetings(mappedMeetings);
-
-      // Map exams
-      const mappedExams = (data.examTimetable || []).map((ex) => {
-        const examTime = new Date(ex.examDate);
-        const endTime = new Date(examTime.getTime() + 90 * 60000); // 90 min default
-        
-        return {
-          id: ex.id,
-          subject: ex.subject,
-          examType: ex.title || "Monthly Quiz",
-          date: examTime.toISOString().split("T")[0],
-          time: `${formatTime(examTime)} - ${formatTime(endTime)}`,
-          syllabus: `${ex.subject} Course Syllabus & Mid-Term Topics`,
-        };
-      });
-      setExams(mappedExams);
-    }
-  }, [data]);
-
-  const handleJoinClass = (cls: ClassSession) => {
-    if (cls.status === "Active") {
-      toast.success(`Joining live class: ${cls.subject} (${cls.topic})`);
-      window.open(cls.meetingLink, "_blank");
-    } else {
-      toast.error("This class is not live yet.");
-    }
+  const handleFilterChange = (val: FilterType) => {
+    setFilter(val);
+    setPage(1);
   };
 
-  const handleRequestMeeting = () => {
-    const newMtg: MentorMeeting = {
-      id: `MTG-${Date.now()}`,
-      mentor: "Sarah Jenkins",
-      date: new Date().toISOString().split("T")[0],
-      time: "15:00 - 15:30 (Requested)",
-      agenda: "Syllabus Catch-up & General Doubts",
-      status: "Requested"
-    };
+  const queryParams = {
+    ...(debouncedSearch ? { search: debouncedSearch } : {}),
+    ...(filter !== "all" ? { filter } : {}),
+    page,
+    limit: LIMIT,
+  };
 
-    setMeetings([newMtg, ...meetings]);
-    toast.success("Mentor meeting requested successfully!");
+  const { data, isLoading } = useGetStudentSchedule(queryParams);
+
+  const sessions = data?.data || [];
+  const totalPages = data?.pagination?.totalPages || 1;
+  const total = data?.pagination?.total || 0;
+
+  const FILTER_LABELS: Record<FilterType, string> = {
+    all: "All",
+    today: "Today",
+    upcoming: "Upcoming",
+    past: "Past",
   };
 
   return (
     <div className="space-y-6 w-full pb-10">
       <DashboardHeader
         title="My Schedule"
-        description="View your live classes, upcoming sessions, tutor meetings, and exam schedules."
+        description="View your upcoming and past tutoring sessions."
       />
 
+      {/* Controls */}
+      <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
+        <div className="flex flex-wrap items-center gap-3 flex-1">
+          {/* Search */}
+          <div className="relative flex-1 min-w-[220px]">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <Input
+              type="text"
+              placeholder="Search by title or subject..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-9 h-10 bg-white border border-slate-200 rounded-xl text-sm"
+            />
+          </div>
+
+          {/* Filter pills */}
+          <div className="flex items-center gap-1.5">
+            <Filter className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+            {(["all", "today", "upcoming", "past"] as FilterType[]).map((f) => (
+              <button
+                key={f}
+                type="button"
+                onClick={() => handleFilterChange(f)}
+                className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-all cursor-pointer ${
+                  filter === f
+                    ? "bg-[var(--brand-green)] text-white border-[var(--brand-green)] shadow-sm"
+                    : "bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50"
+                }`}
+              >
+                {FILTER_LABELS[f]}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {total > 0 && (
+          <span className="text-xs font-semibold text-slate-400 flex-shrink-0">
+            {total} session{total !== 1 ? "s" : ""}
+          </span>
+        )}
+      </div>
+
+      {/* Content */}
       {isLoading ? (
         <div className="flex items-center justify-center min-h-[40vh] w-full">
           <div className="w-8 h-8 border-4 border-[var(--brand-green)] border-t-transparent rounded-full animate-spin" />
         </div>
+      ) : sessions.length === 0 ? (
+        <div className="flex flex-col items-center justify-center min-h-[30vh] bg-white border border-slate-150 rounded-2xl shadow-sm">
+          <CalendarDays className="w-10 h-10 text-slate-200 mb-3" />
+          <p className="text-sm font-semibold text-slate-400">No sessions found</p>
+          {debouncedSearch && (
+            <p className="text-xs text-slate-400 mt-1">Try a different search term</p>
+          )}
+        </div>
       ) : (
-        <Tabs defaultValue="classes">
-          <div className="flex justify-between items-center mb-6">
-            <TabsList className="flex gap-1 bg-white border border-slate-200 rounded-xl p-1 w-fit">
-              <TabsTrigger
-                value="classes"
-                className="rounded-lg text-xs px-4 py-2 font-bold data-[state=active]:shadow-none data-[state=active]:text-white cursor-pointer"
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {sessions.map((session) => {
+            const scheduledDate = new Date(session.scheduledAt);
+            const endDate = new Date(scheduledDate.getTime() + (session.durationMinutes || 60) * 60000);
+            const active = isSessionActive(session.scheduledAt, session.durationMinutes || 60);
+            const isCompleted = session.status === "completed";
+            const isCancelled = session.status === "cancelled";
+
+            let statusLabel = active ? "Live Now" : "Scheduled";
+            if (isCompleted) statusLabel = "Completed";
+            if (isCancelled) statusLabel = "Cancelled";
+
+            let statusCls = "bg-amber-50 text-amber-700 border-amber-100";
+            if (active) statusCls = "bg-emerald-50 text-emerald-700 border-emerald-100 border-2 animate-pulse";
+            if (isCompleted) statusCls = "bg-slate-100 text-slate-500 border-slate-200";
+            if (isCancelled) statusCls = "bg-rose-50 text-rose-700 border-rose-100";
+
+            return (
+              <Card
+                key={session.id}
+                className={`bg-white border rounded-2xl shadow-sm transition-all hover:shadow-md flex flex-col justify-between overflow-hidden ${
+                  active ? "border-[var(--brand-green)] ring-1 ring-[var(--brand-green)]/15" : "border-slate-150"
+                }`}
               >
-                Classes & Sessions
-              </TabsTrigger>
-              <TabsTrigger
-                value="meetings"
-                className="rounded-lg text-xs px-4 py-2 font-bold data-[state=active]:shadow-none data-[state=active]:text-white cursor-pointer"
-              >
-                Mentor Meetings
-              </TabsTrigger>
-              <TabsTrigger
-                value="exams"
-                className="rounded-lg text-xs px-4 py-2 font-bold data-[state=active]:shadow-none data-[state=active]:text-white cursor-pointer"
-              >
-                Exam Timetable
-              </TabsTrigger>
-            </TabsList>
-
-            <Button
-              onClick={handleRequestMeeting}
-              className="bg-[var(--brand-green)] hover:bg-[var(--brand-green)]/90 text-white font-bold text-xs px-4 py-2.5 rounded-xl flex items-center gap-1.5 cursor-pointer shadow-sm"
-            >
-              <Plus className="w-3.5 h-3.5" /> Book Mentor Session
-            </Button>
-          </div>
-
-          {/* Classes Tab */}
-          <TabsContent value="classes" className="mt-0 outline-none space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {classes.map((cls) => {
-                const isActive = cls.status === "Active";
-                const isCompleted = cls.status === "Completed";
-                
-                let statusBadge = "bg-amber-50 text-amber-700 border-amber-100";
-                if (isActive) statusBadge = "bg-emerald-50 text-emerald-700 border-emerald-100 border-2 animate-pulse";
-                if (isCompleted) statusBadge = "bg-slate-100 text-slate-500 border-slate-200";
-
-                return (
-                  <Card
-                    key={cls.id}
-                    className={`bg-white border rounded-2xl shadow-sm transition-all hover:shadow-md flex flex-col justify-between overflow-hidden ${
-                      isActive ? "border-[var(--brand-green)] ring-1 ring-[var(--brand-green)]/15" : "border-slate-150"
-                    }`}
-                  >
-                    <CardContent className="p-6 space-y-4">
-                      <div className="flex justify-between items-center">
-                        <Badge variant="outline" className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${statusBadge}`}>
-                          {cls.status}
-                        </Badge>
-                        <span className="text-[10px] text-slate-400 font-bold">{cls.id}</span>
-                      </div>
-
-                      <div>
-                        <span className="text-[10px] text-slate-455 font-bold uppercase tracking-wider block">{cls.subject}</span>
-                        <h3 className="text-sm font-bold text-slate-800 leading-tight mt-0.5">{cls.topic}</h3>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-4 text-xs font-semibold text-slate-650 bg-slate-50 p-3 rounded-xl border border-slate-100">
-                        <div className="flex items-center gap-1.5">
-                          <Calendar className="w-4 h-4 text-slate-400 flex-shrink-0" />
-                          <span className="truncate">{cls.date}</span>
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                          <Clock className="w-4 h-4 text-slate-400 flex-shrink-0" />
-                          <span className="truncate">{cls.time}</span>
-                        </div>
-                      </div>
-                    </CardContent>
-
-                    <div className="px-6 py-4 bg-slate-50/50 border-t border-slate-100 flex items-center justify-between">
-                      <div className="flex items-center gap-1.5 text-[10px] font-semibold text-slate-550">
-                        <User className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
-                        <span className="truncate">{cls.tutor}</span>
-                      </div>
-
-                      {isCompleted ? (
-                        <Badge className="bg-slate-100 text-slate-400 text-[10px] font-bold px-2 py-0.5 rounded-full shadow-none border border-slate-200/50">
-                          Class Attended
-                        </Badge>
-                      ) : (
-                        <Button
-                          onClick={() => handleJoinClass(cls)}
-                          className={`h-8 text-[10px] px-3 font-bold rounded-xl flex items-center gap-1.5 cursor-pointer transition-all ${
-                            isActive
-                              ? "bg-[var(--brand-green)] hover:bg-[var(--brand-green)]/90 text-white shadow-sm"
-                              : "bg-slate-100 hover:bg-slate-200 text-slate-650"
-                          }`}
-                        >
-                          <Video className="w-3.5 h-3.5" /> Join Room
-                        </Button>
-                      )}
-                    </div>
-                  </Card>
-                );
-              })}
-            </div>
-          </TabsContent>
-
-          {/* Mentor Meetings Tab */}
-          <TabsContent value="meetings" className="mt-0 outline-none space-y-4">
-            <div className="bg-white border border-slate-150 rounded-2xl shadow-sm overflow-hidden">
-              <div className="overflow-x-auto">
-                <Table className="w-full text-left border-collapse">
-                  <TableHeader>
-                    <TableRow className="bg-slate-50/50 border-b border-slate-150">
-                      <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Mentor</TableHead>
-                      <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Agenda / Focus</TableHead>
-                      <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Scheduled Date</TableHead>
-                      <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Time Slot</TableHead>
-                      <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Status</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody className="divide-y divide-slate-100">
-                    {meetings.map((mtg) => (
-                      <TableRow key={mtg.id} className="hover:bg-slate-50/40 transition-colors text-xs font-semibold text-slate-650">
-                        <TableCell className="px-6 py-4">
-                          <div className="flex items-center gap-2">
-                            <div className="w-6 h-6 rounded-full bg-[var(--brand-green)] text-white text-[9px] font-bold flex items-center justify-center">
-                              {mtg.mentor.substring(0, 1)}
-                            </div>
-                            <span className="font-bold text-slate-800">{mtg.mentor}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell className="px-6 py-4 text-slate-705">{mtg.agenda}</TableCell>
-                        <TableCell className="px-6 py-4">
-                          {new Date(mtg.date).toLocaleDateString("en-US", {
-                            month: "short",
-                            day: "numeric",
-                            year: "numeric"
-                          })}
-                        </TableCell>
-                        <TableCell className="px-6 py-4">{mtg.time}</TableCell>
-                        <TableCell className="px-6 py-4 text-right">
-                          <Badge
-                            variant="outline"
-                            className={`text-[9px] font-bold py-0.5 px-2 border rounded-full ${
-                              mtg.status === "Scheduled"
-                                ? "bg-emerald-50 text-emerald-700 border-emerald-100"
-                                : mtg.status === "Requested"
-                                ? "bg-amber-50 text-amber-700 border-amber-100"
-                                : "bg-slate-100 text-slate-500 border-slate-200"
-                            }`}
-                          >
-                            {mtg.status}
-                          </Badge>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            </div>
-          </TabsContent>
-
-          {/* Exams Tab */}
-          <TabsContent value="exams" className="mt-0 outline-none space-y-4">
-            <div className="grid grid-cols-1 gap-6">
-              {exams.map((exm) => (
-                <Card key={exm.id} className="bg-white border border-slate-150 rounded-2xl shadow-sm overflow-hidden flex flex-col md:flex-row">
-                  {/* Visual Left accent */}
-                  <div className="md:w-48 bg-slate-50/50 p-6 border-b md:border-b-0 md:border-r border-slate-150 flex flex-col justify-center items-center text-center">
-                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">{exm.id}</span>
-                    <div className="w-12 h-12 rounded-2xl bg-[var(--brand-light-green)] flex items-center justify-center mt-2 border border-[var(--brand-light)]/20">
-                      <BookOpen className="w-6 h-6 text-[var(--brand-green)]" />
-                    </div>
-                    <span className="text-sm font-black text-slate-800 mt-2 block">{exm.subject}</span>
+                <CardContent className="p-6 space-y-4">
+                  <div className="flex justify-between items-center">
+                    <Badge variant="outline" className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${statusCls}`}>
+                      {statusLabel}
+                    </Badge>
+                    <Badge variant="outline" className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-slate-50 text-slate-500 border-slate-200 capitalize">
+                      {session.type}
+                    </Badge>
                   </div>
 
-                  {/* Main Details */}
-                  <div className="flex-1 p-6 space-y-4">
-                    <div className="flex flex-col md:flex-row justify-between md:items-center gap-2">
-                      <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wide">{exm.examType}</h3>
-                      <div className="flex flex-wrap gap-3 text-xs font-semibold text-slate-600">
-                        <div className="flex items-center gap-1">
-                          <Calendar className="w-4 h-4 text-slate-400" />
-                          <span>
-                            {new Date(exm.date).toLocaleDateString("en-US", {
-                              month: "short",
-                              day: "numeric",
-                              year: "numeric"
-                            })}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Clock className="w-4 h-4 text-slate-400" />
-                          <span>{exm.time}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="bg-slate-50 border border-slate-100 rounded-xl p-4">
-                      <span className="text-[9px] font-bold text-slate-450 uppercase tracking-wider block">Exam Syllabus</span>
-                      <p className="text-xs text-slate-650 mt-1 font-semibold leading-relaxed">
-                        {exm.syllabus}
+                  <div>
+                    {session.subject && (
+                      <span className="text-[10px] text-slate-450 font-bold uppercase tracking-wider block">
+                        {session.subject}
+                      </span>
+                    )}
+                    <h3 className="text-sm font-bold text-slate-800 leading-tight mt-0.5">
+                      {session.title}
+                    </h3>
+                    {session.notes && (
+                      <p className="text-[11px] text-slate-500 mt-1 line-clamp-2 leading-relaxed">
+                        {session.notes}
                       </p>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 text-xs font-semibold text-slate-650 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                    <div className="flex items-center gap-1.5">
+                      <Calendar className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                      <span className="truncate">{formatDate(session.scheduledAt)}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <Clock className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                      <span className="truncate">
+                        {formatTime(scheduledDate)} - {formatTime(endDate)}
+                      </span>
                     </div>
                   </div>
-                </Card>
-              ))}
-            </div>
-          </TabsContent>
-        </Tabs>
+                </CardContent>
+
+                <div className="px-6 py-4 bg-slate-50/50 border-t border-slate-100 flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 text-[10px] font-semibold text-slate-500">
+                    <BookOpen className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+                    <span>{session.durationMinutes || 60} min</span>
+                  </div>
+
+                  {isCompleted || isCancelled ? (
+                    <Badge className={`text-[10px] font-bold px-2 py-0.5 rounded-full shadow-none border ${
+                      isCompleted ? "bg-slate-100 text-slate-400 border-slate-200" : "bg-rose-50 text-rose-400 border-rose-100"
+                    }`}>
+                      {isCompleted ? "Session Ended" : "Cancelled"}
+                    </Badge>
+                  ) : (
+                    <a
+                      href={session.meetLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`h-8 text-[10px] px-3 font-bold rounded-xl flex items-center gap-1.5 transition-all ${
+                        active
+                          ? "bg-[var(--brand-green)] hover:bg-[var(--brand-green)]/90 text-white shadow-sm"
+                          : "bg-slate-100 hover:bg-slate-200 text-slate-650"
+                      }`}
+                    >
+                      <Video className="w-3.5 h-3.5" /> Join Room
+                    </a>
+                  )}
+                </div>
+              </Card>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-3 pt-2">
+          <Button
+            variant="outline"
+            onClick={() => setPage((p) => p - 1)}
+            disabled={page <= 1}
+            className="h-9 px-4 rounded-xl text-xs font-bold border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-40 cursor-pointer"
+          >
+            <ChevronLeft className="w-4 h-4 mr-1" /> Previous
+          </Button>
+          <span className="text-xs font-bold text-slate-500 px-2">
+            {page} / {totalPages}
+          </span>
+          <Button
+            variant="outline"
+            onClick={() => setPage((p) => p + 1)}
+            disabled={page >= totalPages}
+            className="h-9 px-4 rounded-xl text-xs font-bold border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-40 cursor-pointer"
+          >
+            Next <ChevronRight className="w-4 h-4 ml-1" />
+          </Button>
+        </div>
       )}
     </div>
   );
