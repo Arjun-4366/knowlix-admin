@@ -12,8 +12,7 @@ import {
   getStudentResultsGrades,
   getStudentResultsAnalytics,
   getStudentFees,
-  getStudentFeesWithSummary,
-  getStudentFeesStatus
+  getStudentFeesStatus,
 } from "@/services/student/student";
 
 const STUDENT_KEYS = {
@@ -26,7 +25,6 @@ const STUDENT_KEYS = {
   resultsGrades: ["student-results-grades"] as const,
   resultsAnalytics: ["student-results-analytics"] as const,
   fees: ["student-fees"] as const,
-  feesWithSummary: ["student-fees-summary"] as const,
   feesStatus: ["student-fees-status"] as const,
 };
 
@@ -110,13 +108,6 @@ export const useGetStudentFees = (params?: QueryParams) => {
   return useQuery({
     queryKey: [...STUDENT_KEYS.fees, params],
     queryFn: () => getStudentFees(params),
-  });
-};
-
-export const useGetStudentFeesWithSummary = (params?: QueryParams) => {
-  return useQuery({
-    queryKey: [...STUDENT_KEYS.feesWithSummary, params],
-    queryFn: () => getStudentFeesWithSummary(params),
   });
 };
 

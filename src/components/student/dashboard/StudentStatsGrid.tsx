@@ -14,8 +14,6 @@ interface StudentStatsGridProps {
   averageScore: number;
   rankInClass: number;
   dueAmount: number;
-  dueDate: string;
-  onPayClick: () => void;
 }
 
 export default function StudentStatsGrid({
@@ -29,8 +27,6 @@ export default function StudentStatsGrid({
   averageScore,
   rankInClass,
   dueAmount,
-  dueDate,
-  onPayClick,
 }: StudentStatsGridProps) {
   const isPaid = dueAmount <= 0;
 
@@ -65,9 +61,7 @@ export default function StudentStatsGrid({
         value={isPaid ? "Paid" : `₹${dueAmount.toLocaleString("en-IN")}`}
         icon={<CreditCard className="w-6 h-6 text-[var(--brand-green)]" />}
         badgeText={isPaid ? "Cleared" : "Pending"}
-        footerText={isPaid ? "No outstanding bills" : `Due by ${dueDate}`}
-        footerLink={!isPaid}
-        onClick={!isPaid ? onPayClick : undefined}
+        footerText={isPaid ? "No outstanding bills" : "Outstanding balance"}
       />
     </div>
   );

@@ -13,7 +13,7 @@ import {
   ISubjectGrade,
   IMonthlyTrend,
   IStudentFeesResponse,
-  IStudentFeeStatusResponse
+  IStudentFeeStatusResponse,
 } from "@/types/student/student";
 
 export const getStudentDashboard = async (params?: QueryParams) => {
@@ -70,36 +70,8 @@ export const getStudentResultsAnalytics = async (params?: QueryParams) => {
 };
 
 export const getStudentFees = async (params?: QueryParams) => {
-  const res = await apiClient.get<IApiResponse<IFeeRecord[]>>(ENDPOINTS.GET_STUDENT_FEES, { params });
-  // The backend fees endpoint returns total, summary, and data.
-  // Wait, let's look at getStudentFees:
-  // student_fees_handler.go: GetMyFees returns: {"status":"success", "total":n, "summary": {...}, "data": [fees]}
-  // So res.data is {"status":"success", "total":n, "summary": {...}, "data": [fees]}
-  // But wait, res.data.data is the array of fee records!
-  // So returning res.data.data gives the list of fee records, which is perfect.
-  // Let's also implement a method that returns the entire response so we can get summary counts too if needed.
+  const res = await apiClient.get<IApiResponse<IStudentFeesResponse>>(ENDPOINTS.GET_STUDENT_FEES, { params });
   return res.data.data;
-};
-
-export interface IFeeRecord {
-  id: string;
-  studentId: string;
-  amount: number;
-  currency: string;
-  month: string;
-  dueDate: string;
-  paidAt?: string;
-  status: "pending" | "paid" | "overdue" | "waived";
-  paymentMethod?: string;
-  transactionId?: string;
-  remarks?: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export const getStudentFeesWithSummary = async (params?: QueryParams) => {
-  const res = await apiClient.get<IStudentFeesResponse>(ENDPOINTS.GET_STUDENT_FEES, { params });
-  return res.data;
 };
 
 export const getStudentFeesStatus = async (params?: QueryParams) => {

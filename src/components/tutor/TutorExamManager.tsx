@@ -38,6 +38,7 @@ import {
 } from "@/querys/tutor/examQuery";
 import { useGetTutorStudents } from "@/querys/tutor/studentQuery";
 import { toast } from "react-hot-toast";
+import { useTutorStore } from "@/store/tutorStore";
 
 const SUBJECT_OPTIONS = [
   "Mathematics",
@@ -50,6 +51,7 @@ const SUBJECT_OPTIONS = [
 ];
 
 export default function TutorExamManager() {
+   const subjects = useTutorStore((s) => s.subjects);
   const { data: examsResponse, isLoading: loadingExams } = useGetTutorExams();
   const { data: studentsResponse, isLoading: loadingStudents } =
     useGetTutorStudents();
@@ -58,7 +60,7 @@ export default function TutorExamManager() {
 
   const [showAddForm, setShowAddForm] = useState(false);
   const [newTitle, setNewTitle] = useState("");
-  const [newSubject, setNewSubject] = useState(SUBJECT_OPTIONS[0]);
+  const [newSubject, setNewSubject] = useState(subjects[0] ?? "");
   const [newDate, setNewDate] = useState("");
   const [maxMarks, setMaxMarks] = useState("100");
   const [selectedStudentIds, setSelectedStudentIds] = useState<string[]>([]);
@@ -206,7 +208,7 @@ export default function TutorExamManager() {
                       <SelectValue placeholder="Select Subject" />
                     </SelectTrigger>
                     <SelectContent>
-                      {SUBJECT_OPTIONS.map((sub) => (
+                      {subjects?.map((sub) => (
                         <SelectItem
                           key={sub}
                           value={sub}

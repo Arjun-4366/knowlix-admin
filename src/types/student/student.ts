@@ -16,11 +16,21 @@ export interface IStudentUser {
   updatedAt: string;
 }
 
+export interface IAttendanceClass {
+  sessionId: string;
+  title: string;
+  subject: string;
+  date: string;
+  status: "present" | "absent" | "late";
+}
+
 export interface IStudentDashboard {
   attendance: {
     total: number;
     present: number;
+    absent: number;
     percentage: number;
+    classes: IAttendanceClass[];
   };
   assignments: {
     completed: number;
@@ -29,9 +39,8 @@ export interface IStudentDashboard {
   };
   averageScore: number;
   feesDue: number;
-  upcomingFees: IFeeRecord[];
   subjectProgress: ISubjectProgress[];
-  upcomingClasses: ISession[];
+  upcomingClasses: IMeetSession[];
 }
 
 export interface ISubjectProgress {
@@ -214,12 +223,9 @@ export interface IMonthlyTrend {
 }
 
 export interface IStudentFeesResponse {
-  total: number;
-  summary: {
-    totalDue: number;
-    totalPaid: number;
-  };
-  data: IFeeRecord[];
+  dueAmount: number;
+  paidAmount: number;
+  totalFee: number;
 }
 
 export interface IStudentFeeStatusResponse {

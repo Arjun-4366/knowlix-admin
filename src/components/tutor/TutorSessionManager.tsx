@@ -91,9 +91,13 @@ export default function TutorSessionManager() {
   const studentMap = new Map(activeStudents.map((s) => [s.id, s.studentName]));
 
   const toggleStudent = (id: string) => {
-    setSelectedStudentIds((prev) =>
-      prev.includes(id) ? prev.filter((sid) => sid !== id) : [...prev, id]
-    );
+    if (sessionType === "individual") {
+      setSelectedStudentIds((prev) => (prev.includes(id) ? [] : [id]));
+    } else {
+      setSelectedStudentIds((prev) =>
+        prev.includes(id) ? prev.filter((sid) => sid !== id) : [...prev, id]
+      );
+    }
   };
 
   const handleEdit = (session: ITutorSession) => {
@@ -326,7 +330,16 @@ export default function TutorSessionManager() {
                   <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
                     Session Type
                   </label>
-                  <Select value={sessionType} onValueChange={(v) => setSessionType(v as TutorSessionType)}>
+                  <Select
+                    value={sessionType}
+                    onValueChange={(v) => {
+                      const type = v as TutorSessionType;
+                      setSessionType(type);
+                      if (type === "individual") {
+                        setSelectedStudentIds((prev) => prev.slice(0, 1));
+                      }
+                    }}
+                  >
                     <SelectTrigger className="h-10 bg-white border-slate-200 rounded-xl text-sm font-medium">
                       <SelectValue placeholder="Select Type" />
                     </SelectTrigger>
@@ -406,7 +419,8 @@ export default function TutorSessionManager() {
               {/* Student checkboxes */}
               <div className="space-y-2">
                 <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                  Assign Students ({selectedStudentIds.length} selected)
+                  Assign Students ({selectedStudentIds.length} selected
+                  {sessionType === "individual" ? " · max 1" : ""})
                 </label>
                 {activeStudents.length === 0 ? (
                   <p className="text-xs text-slate-455 font-semibold p-2 border border-dashed border-slate-200 rounded-xl bg-slate-50/50">

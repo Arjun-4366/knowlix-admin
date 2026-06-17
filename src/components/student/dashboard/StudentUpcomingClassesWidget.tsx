@@ -10,17 +10,16 @@ interface LiveClass {
   subject: string;
   topic: string;
   tutor: string;
+  meetLink: string;
   status: string;
 }
 
 interface StudentUpcomingClassesWidgetProps {
   classes: LiveClass[];
-  onJoinClass: (cls: LiveClass) => void;
 }
 
 export default function StudentUpcomingClassesWidget({
   classes,
-  onJoinClass,
 }: StudentUpcomingClassesWidgetProps) {
   return (
     <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
@@ -56,9 +55,11 @@ export default function StudentUpcomingClassesWidget({
               </div>
               <div className="flex items-center justify-between border-t border-slate-100/50 pt-3">
                 <span className="text-[10px] text-slate-450 font-semibold">Tutor: {cls.tutor}</span>
-                <button
-                  onClick={() => onJoinClass(cls)}
-                  className={`py-1 px-3 text-[10px] font-bold rounded-lg flex items-center gap-1 transition-all cursor-pointer ${
+                <a
+                  href={cls.meetLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`py-1 px-3 text-[10px] font-bold rounded-lg flex items-center gap-1 transition-all ${
                     isActive
                       ? "bg-[var(--brand-green)] hover:bg-[var(--brand-mid)] text-white shadow shadow-green-650/10"
                       : "bg-slate-100 hover:bg-slate-200 text-slate-650 hover:text-slate-900 border border-slate-200"
@@ -66,7 +67,7 @@ export default function StudentUpcomingClassesWidget({
                 >
                   Join Room
                   <ExternalLink className="w-2.5 h-2.5" />
-                </button>
+                </a>
               </div>
             </div>
           );

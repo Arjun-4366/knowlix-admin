@@ -19,19 +19,15 @@ interface AttendanceLog {
 
 interface StudentAttendanceWidgetProps {
   rate: number;
-  scheduled: number;
   present: number;
   absent: number;
-  excused: number;
   history: AttendanceLog[];
 }
 
 export default function StudentAttendanceWidget({
   rate,
-  scheduled,
   present,
   absent,
-  excused,
   history,
 }: StudentAttendanceWidgetProps) {
   return (
@@ -70,7 +66,7 @@ export default function StudentAttendanceWidget({
           </div>
 
           {/* Quick Metrics */}
-          <div className="grid grid-cols-3 gap-4 w-full text-center">
+          <div className="grid grid-cols-2 gap-4 w-full text-center">
             <div className="bg-slate-50/50 p-2.5 rounded-xl border border-slate-100">
               <span className="text-[9px] font-bold text-slate-450 uppercase block">Present</span>
               <span className="text-sm font-black text-emerald-600 mt-1 block">{present}</span>
@@ -78,10 +74,6 @@ export default function StudentAttendanceWidget({
             <div className="bg-slate-50/50 p-2.5 rounded-xl border border-slate-100">
               <span className="text-[9px] font-bold text-slate-450 uppercase block">Absent</span>
               <span className="text-sm font-black text-red-500 mt-1 block">{absent}</span>
-            </div>
-            <div className="bg-slate-50/50 p-2.5 rounded-xl border border-slate-100">
-              <span className="text-[9px] font-bold text-slate-455 uppercase block">Excused</span>
-              <span className="text-sm font-black text-slate-500 mt-1 block">{excused}</span>
             </div>
           </div>
         </div>

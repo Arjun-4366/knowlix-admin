@@ -1,39 +1,57 @@
 "use client";
 
-interface Invoice {
-  id: string;
-  month: string;
-  amount: number;
-  status: string;
-  paidOn: string;
+interface FeesSummary {
+  totalFee: number;
+  paidAmount: number;
+  dueAmount: number;
 }
 
 interface StudentBillingWidgetProps {
-  invoices: Invoice[];
+  summary: FeesSummary;
 }
 
-export default function StudentBillingWidget({ invoices }: StudentBillingWidgetProps) {
+export default function StudentBillingWidget({ summary }: StudentBillingWidgetProps) {
+  const { totalFee, paidAmount, dueAmount } = summary;
+  const paidPercent = totalFee > 0 ? Math.round((paidAmount / totalFee) * 100) : 0;
+
   return (
     <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
       <div className="px-6 py-5 border-b border-slate-50 bg-slate-50/20">
-        <h2 className="text-sm font-bold text-slate-800">Billing & Receipts</h2>
-        <p className="text-xs text-slate-455 mt-0.5">History of paid invoice receipts</p>
+        <h2 className="text-sm font-bold text-slate-800">Billing & Fees</h2>
+        <p className="text-xs text-slate-455 mt-0.5">Fee payment summary for this term</p>
       </div>
-      <div className="divide-y divide-slate-100">
-        {invoices.map((inv) => (
-          <div key={inv.id} className="p-4 flex items-center justify-between hover:bg-slate-50/30 transition-colors">
-            <div>
-              <p className="text-xs font-bold text-slate-800">{inv.month}</p>
-              <span className="text-[9px] text-slate-400 font-semibold block mt-0.5">Invoice: {inv.id} • Paid: {inv.paidOn}</span>
-            </div>
-            <div className="text-right">
-              <p className="text-xs font-black text-slate-800">₹{inv.amount.toLocaleString("en-IN")}</p>
-              <span className="inline-flex items-center text-[8px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-100 px-1.5 py-0.5 rounded-full mt-1 leading-none">
-                ✓ Settled
-              </span>
-            </div>
+
+      <div className="p-5 space-y-4">
+        {/* Progress bar */}
+        <div className="space-y-1.5">
+          <div className="flex justify-between items-center text-[10px] font-bold text-slate-500">
+            <span>Amount Paid</span>
+            <span>{paidPercent}%</span>
           </div>
-        ))}
+          <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-[var(--brand-green)] rounded-full transition-all duration-500"
+              style={{ width: `${paidPercent}%` }}
+            />
+          </div>
+        </div>
+
+        {/* Summary rows */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between py-2.5 px-3 bg-slate-50 rounded-xl border border-slate-100">
+            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Total Fee</span>
+            <span className="text-xs font-black text-slate-800">₹{totalFee.toLocaleString("en-IN")}</span>
+          </div>
+          <div className="flex items-center justify-between py-2.5 px-3 bg-emerald-50 rounded-xl border border-emerald-100">
+            <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">Paid</span>
+            <span className="text-xs font-black text-emerald-700">₹{paidAmount.toLocaleString("en-IN")}</span>
+          </div>
+          <div className="flex items-center justify-between py-2.5 px-3 bg-red-50 rounded-xl border border-red-100">
+            <span className="text-[10px] font-bold text-red-500 uppercase tracking-wider">Due</span>
+            <span className="text-xs font-black text-red-600">₹{dueAmount.toLocaleString("en-IN")}</span>
+          </div>
+        </div>
+
       </div>
     </div>
   );
