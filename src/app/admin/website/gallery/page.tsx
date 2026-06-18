@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PageHeader from "@/components/shared/PageHeader";
 import PhotosManager from "@/components/gallery/PhotosManager";
@@ -9,10 +10,11 @@ import Loader from "@/components/shared/Loader";
 
 export default function GalleryPageAdmin() {
   const { data, isLoading } = useGetGallery();
+  const galleryItems = useMemo(() => data?.gallery ?? [], [data]);
+  const photoItems = useMemo(() => galleryItems.filter(i => i.mediaType === "image"), [galleryItems]);
+  const videoItems = useMemo(() => galleryItems.filter(i => i.mediaType === "video"), [galleryItems]);
 
   if (isLoading) return <Loader text="Loading Gallery Data..." />;
-
-  const galleryItems = data?.gallery || [];
 
   return (
     <div className="max-w-6xl">
@@ -39,10 +41,10 @@ export default function GalleryPageAdmin() {
         </div>
 
         <TabsContent value="photos" className="mt-0 outline-none">
-          <PhotosManager initialData={galleryItems.filter(i => i.mediaType === "image")} />
+          <PhotosManager initialData={photoItems} />
         </TabsContent>
         <TabsContent value="videos" className="mt-0 outline-none">
-          <VideosManager initialData={galleryItems.filter(i => i.mediaType === "video")} />
+          <VideosManager initialData={videoItems} />
         </TabsContent>
       </Tabs>
     </div>

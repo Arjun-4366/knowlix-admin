@@ -275,5 +275,5 @@ export interface IStudentProfile {
   assignedCoordinatorId?: string;
   coordinatorName?: string;
   createdAt: string;
-  updatedAt: string;
+  updatedAt: string;  
 }
