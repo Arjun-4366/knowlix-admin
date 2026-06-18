@@ -30,7 +30,7 @@ import {
 } from "@/querys/admin/hrQuery";
 import {
   IAttendanceSummaryEntry,
-  ISalaryEntry,
+  ISalaryRecord,
   IPerformanceReportEntry,
   ITurnoverMonthEntry,
 } from "@/types/admin/hr";
@@ -164,20 +164,21 @@ function AttendanceReportPanel({ dateFrom, dateTo }: { dateFrom: string; dateTo:
 function SalaryReportPanel() {
   const { data: salaryRes, isLoading } = useGetSalaryReport();
   const data = salaryRes?.data;
+  const records: ISalaryRecord[] = data?.records ?? [];
 
   return (
     <Card className="bg-white border border-slate-150 rounded-2xl shadow-sm overflow-hidden">
       <div className="p-5 border-b border-slate-100 flex items-start justify-between">
         <SectionHeader
           title="Salary Report"
-          description="Monthly salary breakdown across active employees."
+          description="Monthly salary breakdown across tutors."
         />
         {data && (
           <div className="text-right">
             <p className="text-lg font-bold text-slate-800">
-              {formatCurrency(data.totalMonthlyPayroll)}
+              {formatCurrency(data.totalAmount)}
             </p>
-            <p className="text-[11px] text-slate-500">Total monthly payroll · {data.employeeCount} employees</p>
+            <p className="text-[11px] text-slate-500">Total payroll · {data.total} records</p>
           </div>
         )}
       </div>
@@ -186,14 +187,14 @@ function SalaryReportPanel() {
           <div className="flex items-center justify-center py-10">
             <Loader2 className="w-6 h-6 animate-spin text-slate-400" />
           </div>
-        ) : !data || !data.employees || data.employees.length === 0 ? (
+        ) : records.length === 0 ? (
           <div className="py-10 text-center text-sm text-slate-400">No salary data available.</div>
         ) : (
           <div className="overflow-x-auto">
             <Table className="w-full text-xs">
               <TableHeader>
                 <TableRow className="border-b border-slate-100">
-                  {["Employee", "Department", "Designation", "Monthly Salary"].map((h) => (
+                  {["Tutor", "Period", "Total", "Paid", "Pending", "Status"].map((h) => (
                     <TableHead key={h} className="text-left py-2 px-3 font-semibold text-slate-500 uppercase tracking-wider text-[10px]">
                       {h}
                     </TableHead>
@@ -201,14 +202,14 @@ function SalaryReportPanel() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {data.employees.map((emp: ISalaryEntry, i: number) => (
-                  <TableRow key={emp.employeeId} className={cn("border-b border-slate-50", i % 2 === 0 ? "" : "bg-slate-50/50")}>
-                    <TableCell className="py-2.5 px-3 font-semibold text-slate-800">{emp.name}</TableCell>
-                    <TableCell className="py-2.5 px-3 text-slate-600">{emp.department}</TableCell>
-                    <TableCell className="py-2.5 px-3 text-slate-600">{emp.designation}</TableCell>
-                    <TableCell className="py-2.5 px-3 font-semibold text-slate-800">
-                      {formatCurrency(emp.salary, emp.currency)}
-                    </TableCell>
+                {records.map((r: ISalaryRecord, i: number) => (
+                  <TableRow key={r.id} className={cn("border-b border-slate-50", i % 2 === 0 ? "" : "bg-slate-50/50")}>
+                    <TableCell className="py-2.5 px-3 font-semibold text-slate-800">{r.tutor?.name ?? "—"}</TableCell>
+                    <TableCell className="py-2.5 px-3 text-slate-600">{r.month} {r.year}</TableCell>
+                    <TableCell className="py-2.5 px-3 font-semibold text-slate-800">{formatCurrency(r.totalAmount)}</TableCell>
+                    <TableCell className="py-2.5 px-3 text-emerald-700 font-semibold">{formatCurrency(r.paidAmount)}</TableCell>
+                    <TableCell className="py-2.5 px-3 text-rose-600 font-semibold">{formatCurrency(r.pendingAmount)}</TableCell>
+                    <TableCell className="py-2.5 px-3 capitalize text-slate-600">{r.status}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

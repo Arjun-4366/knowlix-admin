@@ -1,178 +1,104 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { toast } from "react-hot-toast";
-import { Loader2 } from "lucide-react";
-import { useConfirmation } from "@/context/ConfirmationContext";
+import { Loader2, Plus } from "lucide-react";
 import DashboardHeader from "@/components/dashboard/shared/DashboardHeader";
-
+import { Button } from "@/components/ui/button";
 import EmployeeStats from "./EmployeeStats";
 import EmployeeTable from "./EmployeeTable";
-import EmployeeFormModal from "./EmployeeFormModal";
-import { EmployeeFormData } from "./EmployeeFormModal";
-import {
-  EMPLOYEE_DEPARTMENTS,
-  EMPLOYEE_STATUSES,
-} from "./employeeData";
-import { Employee } from "./types";
-import { useGetTutorsHR, useCreateTutorByHR } from "@/querys/admin/hrQuery";
+import AddTutorForm from "@/components/tutors/AddTutorForm";
+import { useGetTutorsHR, useCreateTutorByHR, useUpdateTutorByHR } from "@/querys/admin/hrQuery";
+import { ICreateTutorPayload, ITutor } from "@/types/admin/tutor";
 
-const mapTutorToEmployee = (tutor: any): Employee => {
-  const tutorId = tutor.id || tutor._id || "";
-  let mappedStatus: Employee["status"] = "Active";
-  if (tutor.status === "pending") {
-    mappedStatus = "On Probation";
-  } else if (tutor.status === "rejected") {
-    mappedStatus = "Terminated";
-  }
-
-  let mappedDept: Employee["department"] = "Tutor";
-  let mappedRole = "Tutor";
-  if (tutor.role === "mentor_sales_bro") {
-    mappedDept = "Sales";
-    mappedRole = "Mentor/Sales Rep";
-  } else if (tutor.role === "academic_coordinator") {
-    mappedDept = "Academics";
-    mappedRole = "Academic Coordinator";
-  }
-
-  return {
-    id: tutorId,
-    name: tutor.name || "Unnamed Tutor",
-    email: tutor.email || "",
-    phone: tutor.phone || "",
-    address: tutor.availability || "Online / Remote",
-    dob: "1990-01-01",
-    emergencyContact: {
-      name: "Emergency Contact",
-      relationship: "Family",
-      phone: tutor.phone || "",
-    },
-    designation: mappedRole,
-    department: mappedDept,
-    dateOfJoining: tutor.createdAt ? tutor.createdAt.slice(0, 10) : new Date().toISOString().split("T")[0],
-    status: mappedStatus,
-    manager: "HR Manager",
-    salaryDetails: {
-      base: 40000,
-      allowance: 10000,
-      pf: 4800,
-      ctc: 600000,
-    },
-    documents: [],
-    joiningRecords: {
-      probationEnd: "",
-      joiningNotes: `Experience: ${tutor.experience || "Not specified"}. Availability: ${tutor.availability || "Not specified"}.`,
-    },
-  };
-};
+const PAGE_LIMIT = 10;
 
 export default function EmployeeManager() {
   const router = useRouter();
-  const { confirm } = useConfirmation();
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedDept, setSelectedDept] = useState<string>("all");
-  const [selectedStatus, setSelectedStatus] = useState<string>("all");
-  const [showFormModal, setShowFormModal] = useState(false);
-  const [editEmployee, setEditEmployee] = useState<Employee | null>(null);
 
-  const { data: tutorsRes, isLoading } = useGetTutorsHR({ limit: 1000 });
-  const createTutorMutation = useCreateTutorByHR();
+  const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [status, setStatus] = useState("all");
+  const [syllabus, setSyllabus] = useState("all");
+  const [availability, setAvailability] = useState("all");
+  const [page, setPage] = useState(1);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [editingTutor, setEditingTutor] = useState<ITutor | null>(null);
 
-  const employees = tutorsRes?.data ? (tutorsRes.data as any[]).map(mapTutorToEmployee) : [];
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setDebouncedSearch(search);
+      setPage(1);
+    }, 400);
+    return () => clearTimeout(t);
+  }, [search]);
 
-  const totalCount = employees.length;
-  const activeCount = employees.filter((e) => e.status === "Active").length;
-  const probationCount = employees.filter((e) => e.status === "On Probation").length;
-  const departedCount = employees.filter(
-    (e) => e.status === "Resigned" || e.status === "Terminated"
-  ).length;
+  useEffect(() => { setPage(1); }, [status, syllabus, availability]);
 
-  const filteredEmployees = employees.filter((emp) => {
-    const matchesSearch =
-      emp.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      emp.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      emp.designation.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      emp.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesDept = selectedDept === "all" || emp.department === selectedDept;
-    const matchesStatus = selectedStatus === "all" || emp.status === selectedStatus;
-    return matchesSearch && matchesDept && matchesStatus;
-  });
-
-  const openForm = (emp?: Employee) => {
-    setEditEmployee(emp ?? null);
-    setShowFormModal(true);
+  const queryParams = {
+    search: debouncedSearch || undefined,
+    status: status !== "all" ? status : undefined,
+    syllabus: syllabus !== "all" ? syllabus : undefined,
+    availability: availability !== "all" ? availability : undefined,
+    page,
+    limit: PAGE_LIMIT,
   };
 
-  const handleFormSubmit = async (data: EmployeeFormData) => {
+  const { data, isLoading } = useGetTutorsHR(queryParams);
+  const { mutateAsync: createTutor, isPending: isCreating } = useCreateTutorByHR();
+  const { mutateAsync: updateTutor, isPending: isUpdating } = useUpdateTutorByHR();
+
+  // Lightweight stat queries
+  const { data: statsTotal }    = useGetTutorsHR({ limit: 1 });
+  const { data: statsApproved } = useGetTutorsHR({ status: "approved", limit: 1 });
+  const { data: statsPending }  = useGetTutorsHR({ status: "pending",  limit: 1 });
+  const { data: statsInactive } = useGetTutorsHR({ status: "inactive", limit: 1 });
+  const { data: statsResigned } = useGetTutorsHR({ status: "resigned", limit: 1 });
+
+  const tutors = data?.data ?? [];
+  const total = data?.total ?? 0;
+
+  const handleFormSubmit = async (payload: ICreateTutorPayload) => {
     try {
-      if (editEmployee) {
-        toast.error("Tutor editing is not supported on the backend yet.");
-        setShowFormModal(false);
-      } else {
-        if (data.profileImage instanceof File) {
-          const formData = new FormData();
-          formData.append("name", data.name);
-          formData.append("email", data.email);
-          formData.append("phone", data.phone);
-          formData.append("role", data.role || "subject_tutor");
-          formData.append("password", data.password || "");
-          formData.append("experience", data.experience || "");
-          formData.append("availability", JSON.stringify(data.availability ? [data.availability] : []));
-          formData.append("subjects", JSON.stringify(data.subjects || []));
-          formData.append("status", "approved");
-          formData.append("permissions", JSON.stringify(data.permissions || {
-            canUploadNotes: true,
-            canEditNotes: true,
-            canShareMaterial: false,
-          }));
-          formData.append("profileImage", data.profileImage);
-          await createTutorMutation.mutateAsync(formData);
-        } else {
-          await createTutorMutation.mutateAsync({
-            name: data.name,
-            email: data.email,
-            phone: data.phone,
-            role: data.role || "subject_tutor",
-            password: data.password || "",
-            experience: data.experience || "",
-            availability: data.availability ? [data.availability] : [],
-            subjects: data.subjects || [],
-            status: "approved",
-            profileImage: data.profileImage || "",
-            permissions: data.permissions || {
-              canUploadNotes: true,
-              canEditNotes: true,
-              canShareMaterial: false,
-            },
-          });
-        }
-        setShowFormModal(false);
-      }
-    } catch (error) {
-      console.error("Failed to create employee", error);
+      await createTutor({ ...payload, status: "pending" });
+      setIsAddModalOpen(false);
+    } catch {
+      // error toast handled inside the mutation
     }
   };
 
-  const handleDeleteEmployee = (id: string) => {
-    confirm({
-      title: "Delete Employee Record",
-      message:
-        "Are you sure you want to permanently delete this employee? This action is irreversible.",
-      confirmText: "Delete Record",
-      variant: "danger",
-      onConfirm: () => {
-        toast.error("Tutor deletion is not supported on the backend yet.");
-      },
-    });
+  const handleEditSubmit = async (payload: ICreateTutorPayload) => {
+    if (!editingTutor) return;
+    try {
+      const { password: _p, ...rest } = payload;
+      await updateTutor({ id: editingTutor.id, data: rest });
+      setEditingTutor(null);
+    } catch {
+      // error toast handled inside the mutation
+    }
   };
 
   return (
     <div className="space-y-6 w-full pb-10">
       <DashboardHeader
         title="Employee Directory"
-        description="Comprehensive employee database management, HR file storage, salary structures, and exit registers."
+        description="Tutor database with search, filters, and pagination — all server-side."
+        actions={
+          <Button
+            onClick={() => setIsAddModalOpen(true)}
+            className="h-10 px-4 bg-[var(--brand-green)] hover:bg-[var(--brand-mid)] text-white font-bold text-sm shadow-md shadow-green-600/10 transition-all"
+          >
+            <Plus className="w-4 h-4 mr-1.5" />
+            Add Employee
+          </Button>
+        }
+      />
+
+      <EmployeeStats
+        totalCount={statsTotal?.total ?? 0}
+        activeCount={statsApproved?.total ?? 0}
+        probationCount={statsPending?.total ?? 0}
+        departedCount={(statsInactive?.total ?? 0) + (statsResigned?.total ?? 0)}
       />
 
       {isLoading ? (
@@ -180,42 +106,47 @@ export default function EmployeeManager() {
           <Loader2 className="h-8 w-8 animate-spin text-[var(--brand-green)]" />
         </div>
       ) : (
-        <>
-          <EmployeeStats
-            totalCount={totalCount}
-            activeCount={activeCount}
-            probationCount={probationCount}
-            departedCount={departedCount}
-          />
-
-          <EmployeeTable
-            employees={filteredEmployees}
-            searchTerm={searchTerm}
-            onSearchChange={setSearchTerm}
-            selectedDept={selectedDept}
-            onDeptChange={setSelectedDept}
-            selectedStatus={selectedStatus}
-            onStatusChange={setSelectedStatus}
-            departments={EMPLOYEE_DEPARTMENTS}
-            statuses={EMPLOYEE_STATUSES}
-            activeEmployeeId={null}
-            onSelectEmployee={(emp) => router.push(`/hr/employees/${emp.id}`)}
-            onEditEmployee={openForm}
-            onDeleteEmployee={handleDeleteEmployee}
-            onAddEmployee={() => openForm()}
-          />
-        </>
+        <EmployeeTable
+          tutors={tutors}
+          search={search}
+          onSearchChange={setSearch}
+          status={status}
+          onStatusChange={setStatus}
+          syllabus={syllabus}
+          onSyllabusChange={setSyllabus}
+          availability={availability}
+          onAvailabilityChange={setAvailability}
+          page={page}
+          limit={PAGE_LIMIT}
+          total={total}
+          onPageChange={setPage}
+          onSelectTutor={(t) => router.push(`/hr/employees/${t.id}`)}
+          onEditTutor={(t) => setEditingTutor(t)}
+        />
       )}
 
-      <EmployeeFormModal
-        isOpen={showFormModal}
-        onClose={() => setShowFormModal(false)}
-        onSubmit={handleFormSubmit}
-        employee={editEmployee}
-        departments={EMPLOYEE_DEPARTMENTS}
-        statuses={EMPLOYEE_STATUSES}
-        isSubmitting={createTutorMutation.isPending}
-      />  
+      {isAddModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <AddTutorForm
+            hrMode
+            onClose={() => setIsAddModalOpen(false)}
+            onSubmit={handleFormSubmit}
+            isSubmitting={isCreating}
+          />
+        </div>
+      )}
+
+      {editingTutor && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <AddTutorForm
+            hrMode
+            tutorToEdit={editingTutor}
+            onClose={() => setEditingTutor(null)}
+            onSubmit={handleEditSubmit}
+            isSubmitting={isUpdating}
+          />
+        </div>
+      )}
     </div>
   );
 }

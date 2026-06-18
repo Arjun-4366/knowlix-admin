@@ -1,24 +1,42 @@
 import { apiClient } from "@/constants/apiClient";
 import { ENDPOINTS } from "@/constants/endpoints";
 import { IApiResponse } from "@/types/admin/api";
+import { ICreateTutorPayload, ITutor, IUpdateTutorPayload } from "@/types/admin/tutor";
 
-import { QueryParams } from "@/types/queryParams";
+// Password and status are excluded from HR tutor updates
+export type IUpdateTutorHRPayload = Omit<IUpdateTutorPayload, "password" | "status">;
 
-// Re-use the tutor type from the existing admin types
-export const getTutorsHR = async (params?: QueryParams & { status?: string }) => {
-  const res = await apiClient.get<IApiResponse<unknown[]> & { total: number }>(
-    ENDPOINTS.GET_TUTORS_HR,
-    { params }
-  );
+export interface ITutorHRQueryParams {
+  search?: string;
+  status?: string;
+  syllabus?: string;
+  availability?: string;
+  page?: number;
+  limit?: number;
+}
+
+export interface ITutorsHRResponse {
+  data: ITutor[];
+  total: number;
+  status: string;
+}
+
+export const getTutorsHR = async (params?: ITutorHRQueryParams): Promise<ITutorsHRResponse> => {
+  const res = await apiClient.get<ITutorsHRResponse>(ENDPOINTS.GET_TUTORS_HR, { params });
+  return res.data;
+};
+
+export const updateTutorHR = async (id: string, data: IUpdateTutorHRPayload) => {
+  const res = await apiClient.put<IApiResponse<ITutor>>(ENDPOINTS.UPDATE_TUTOR_HR(id), data);
   return res.data;
 };
 
 export const getTutorHR = async (id: string) => {
-  const res = await apiClient.get<IApiResponse<unknown>>(ENDPOINTS.GET_TUTOR_HR(id));
+  const res = await apiClient.get<IApiResponse<ITutor>>(ENDPOINTS.GET_TUTOR_HR(id));
   return res.data;
 };
 
-export const createTutorByHR = async (data: Record<string, unknown> | FormData) => {
-  const res = await apiClient.post<IApiResponse<unknown>>(ENDPOINTS.CREATE_TUTOR, data);
+export const createTutorByHR = async (data: ICreateTutorPayload) => {
+  const res = await apiClient.post<IApiResponse<ITutor>>(ENDPOINTS.CREATE_TUTOR, data);
   return res.data;
 };

@@ -21,7 +21,7 @@ type NavItem = {
 
 const nav: NavItem[] = [
   { name: "Employee Directory", href: "/hr/employees", icon: Users },
-  { name: "Attendance & Leave", href: "/hr/attendance", icon: CalendarDays },
+  { name: "Attendance & Holidays", href: "/hr/attendance", icon: CalendarDays },
   { name: "Payroll Management", href: "/hr/payroll", icon: Wallet },
   { name: "Performance Management", href: "/hr/performance", icon: ChartNoAxesCombined },
   { name: "Notices", href: "/hr/notices", icon: Bell },

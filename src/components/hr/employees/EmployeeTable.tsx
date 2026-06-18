@@ -1,12 +1,11 @@
 "use client";
 
-import { Plus, Search, Filter, Edit2, Trash2 } from "lucide-react";
+import { Search, Filter, ChevronLeft, ChevronRight, Edit2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Employee } from "./types";
 import {
   Table,
   TableBody,
@@ -15,209 +14,249 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { ITutor } from "@/types/admin/tutor";
+
+const STATUSES = ["approved", "pending", "inactive", "resigned"];
+const SYLLABI = ["CBSE", "ICSE", "IGCSE","IB" ,"State"];
+const AVAILABILITIES = ["Morning", "Afternoon", "Evening"];
 
 interface EmployeeTableProps {
-  employees: Employee[];
-  searchTerm: string;
-  onSearchChange: (value: string) => void;
-  selectedDept: string;
-  onDeptChange: (value: string) => void;
-  selectedStatus: string;
-  onStatusChange: (value: string) => void;
-  departments: string[];
-  statuses: string[];
-  activeEmployeeId?: string | null;
-  onSelectEmployee: (employee: Employee) => void;
-  onEditEmployee: (employee: Employee) => void;
-  onDeleteEmployee: (id: string) => void;
-  onAddEmployee: () => void;
+  tutors: ITutor[];
+  search: string;
+  onSearchChange: (v: string) => void;
+  status: string;
+  onStatusChange: (v: string) => void;
+  syllabus: string;
+  onSyllabusChange: (v: string) => void;
+  availability: string;
+  onAvailabilityChange: (v: string) => void;
+  page: number;
+  limit: number;
+  total: number;
+  onPageChange: (p: number) => void;
+  onSelectTutor: (tutor: ITutor) => void;
+  onEditTutor: (tutor: ITutor) => void;
 }
 
+const statusBadgeClass = (status: string) => {
+  if (status === "approved") return "bg-emerald-50 text-emerald-700 border-emerald-200";
+  if (status === "pending")  return "bg-amber-50 text-amber-700 border-amber-200";
+  if (status === "inactive") return "bg-slate-100 text-slate-500 border-slate-200";
+  if (status === "resigned") return "bg-red-50 text-red-600 border-red-200";
+  return "bg-slate-100 text-slate-600 border-slate-200";
+};
+
 export default function EmployeeTable({
-  employees,
-  searchTerm,
+  tutors,
+  search,
   onSearchChange,
-  selectedDept,
-  onDeptChange,
-  selectedStatus,
+  status,
   onStatusChange,
-  departments,
-  statuses,
-  activeEmployeeId,
-  onSelectEmployee,
-  onEditEmployee,
-  onDeleteEmployee,
-  onAddEmployee,
+  syllabus,
+  onSyllabusChange,
+  availability,
+  onAvailabilityChange,
+  page,
+  limit,
+  total,
+  onPageChange,
+  onSelectTutor,
+  onEditTutor,
 }: EmployeeTableProps) {
+  const totalPages = Math.max(1, Math.ceil(total / limit));
+
   return (
     <div className="space-y-4">
-      {/* Filters and Controls */}
-      <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
-        <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
-          {/* Search bar */}
-          <div className="relative flex-1 md:flex-initial min-w-[220px]">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-            <Input
-              type="text"
-              placeholder="Search by ID, name, designation..."
-              value={searchTerm}
-              onChange={(e) => onSearchChange(e.target.value)}
-              className="pl-9 h-10 bg-white border border-slate-200 rounded-xl text-sm"
-            />
-          </div>
-
-          {/* Department Filter */}
-          <Select value={selectedDept} onValueChange={onDeptChange}>
-            <SelectTrigger className="h-10 w-[150px] bg-white border-slate-200 rounded-xl text-xs font-semibold text-slate-700">
-              <div className="flex items-center gap-1.5">
-                <Filter className="w-3.5 h-3.5 text-slate-400" />
-                <SelectValue placeholder="Department" />
-              </div>
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all" className="font-semibold text-xs text-slate-700">All Departments</SelectItem>
-              {departments.map((dept) => (
-                <SelectItem key={dept} value={dept} className="font-semibold text-xs text-slate-700">
-                  {dept}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          {/* Status Filter */}
-          <Select value={selectedStatus} onValueChange={onStatusChange}>
-            <SelectTrigger className="h-10 w-[140px] bg-white border-slate-200 rounded-xl text-xs font-semibold text-slate-700">
-              <div className="flex items-center gap-1.5">
-                <Filter className="w-3.5 h-3.5 text-slate-400" />
-                <SelectValue placeholder="Status" />
-              </div>
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all" className="font-semibold text-xs text-slate-700">All Statuses</SelectItem>
-              {statuses.map((stat) => (
-                <SelectItem key={stat} value={stat} className="font-semibold text-xs text-slate-700">
-                  {stat}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+      {/* Filters */}
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="relative flex-1 min-w-[220px]">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <Input
+            placeholder="Search by name, email or phone..."
+            value={search}
+            onChange={(e) => onSearchChange(e.target.value)}
+            className="pl-9 h-10 bg-white border border-slate-200 rounded-xl text-sm"
+          />
         </div>
 
-        {/* Add Employee Button */}
-        <Button
-          onClick={onAddEmployee}
-          className="bg-[var(--brand-green)] hover:bg-[var(--brand-green)]/90 text-white font-bold text-xs px-4 py-2.5 rounded-xl flex items-center gap-1.5 shadow-sm cursor-pointer"
-        >
-          <Plus className="w-4 h-4" /> Add Employee
-        </Button>
+        <Select value={status} onValueChange={onStatusChange}>
+          <SelectTrigger className="h-10 w-[140px] bg-white border-slate-200 rounded-xl text-xs font-semibold text-slate-700">
+            <div className="flex items-center gap-1.5">
+              <Filter className="w-3.5 h-3.5 text-slate-400" />
+              <SelectValue placeholder="Status" />
+            </div>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all" className="text-xs font-semibold">All Statuses</SelectItem>
+            {STATUSES.map((s) => (
+              <SelectItem key={s} value={s} className="text-xs font-semibold capitalize">{s}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select value={syllabus} onValueChange={onSyllabusChange}>
+          <SelectTrigger className="h-10 w-[140px] bg-white border-slate-200 rounded-xl text-xs font-semibold text-slate-700">
+            <div className="flex items-center gap-1.5">
+              <Filter className="w-3.5 h-3.5 text-slate-400" />
+              <SelectValue placeholder="Syllabus" />
+            </div>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all" className="text-xs font-semibold">All Syllabi</SelectItem>
+            {SYLLABI.map((s) => (
+              <SelectItem key={s} value={s} className="text-xs font-semibold">{s}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select value={availability} onValueChange={onAvailabilityChange}>
+          <SelectTrigger className="h-10 w-[150px] bg-white border-slate-200 rounded-xl text-xs font-semibold text-slate-700">
+            <div className="flex items-center gap-1.5">
+              <Filter className="w-3.5 h-3.5 text-slate-400" />
+              <SelectValue placeholder="Availability" />
+            </div>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all" className="text-xs font-semibold">All Times</SelectItem>
+            {AVAILABILITIES.map((a) => (
+              <SelectItem key={a} value={a} className="text-xs font-semibold">{a}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
-      {/* Main Employee Grid List */}
+      {/* Table */}
       <Card className="bg-white border-slate-150 shadow-sm rounded-2xl overflow-hidden">
         <div className="overflow-x-auto">
-          <Table className="w-full text-left border-collapse">
+          <Table className="w-full text-left">
             <TableHeader>
               <TableRow className="border-b border-slate-100 bg-slate-50/50">
-                {/* <TableHead className="px-5 py-3.5 text-[10px] font-bold text-slate-500 uppercase tracking-wider">ID</TableHead> */}
-                <TableHead className="px-5 py-3.5 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Employee</TableHead>
-                <TableHead className="px-5 py-3.5 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Department</TableHead>
+                <TableHead className="px-5 py-3.5 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Tutor</TableHead>
+                <TableHead className="px-5 py-3.5 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Subjects</TableHead>
+                <TableHead className="px-5 py-3.5 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Syllabus</TableHead>
+                <TableHead className="px-5 py-3.5 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Availability</TableHead>
                 <TableHead className="px-5 py-3.5 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Status</TableHead>
-                <TableHead className="px-5 py-3.5 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Date of Join</TableHead>
+                <TableHead className="px-5 py-3.5 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Experience</TableHead>
+                <TableHead className="px-5 py-3.5 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Joined</TableHead>
                 <TableHead className="px-5 py-3.5 text-[10px] font-bold text-slate-500 uppercase tracking-wider text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody className="divide-y divide-slate-100">
-              {employees.length > 0 ? (
-                employees.map((emp) => {
-                  let statusColor = "bg-slate-100 text-slate-700 border-slate-200";
-                  if (emp.status === "Active") {
-                    statusColor = "bg-[var(--brand-light-green)] text-[var(--brand-mid)] border-[var(--brand-light)]/20";
-                  } else if (emp.status === "On Probation") {
-                    statusColor = "bg-amber-50 text-amber-700 border-amber-150";
-                  } else if (emp.status === "Terminated") {
-                    statusColor = "bg-red-50 text-red-700 border-red-150";
-                  } else if (emp.status === "Resigned") {
-                    statusColor = "bg-slate-100 text-slate-500 border-slate-200";
-                  }
-
-                  return (
-                    <TableRow
-                      key={emp.id}
-                      onClick={() => onSelectEmployee(emp)}
-                      className={`hover:bg-slate-50/70 transition-colors cursor-pointer ${
-                        activeEmployeeId === emp.id ? "bg-slate-50/90 font-medium" : ""
-                      }`}
-                    >
-                      {/* ID */}
-                      {/* <TableCell className="px-5 py-4 text-xs font-semibold text-slate-500">{emp.id}</TableCell> */}
-
-                      {/* Profile */}
-                      <TableCell className="px-5 py-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-[var(--brand-light-green)] text-[var(--brand-mid)] flex items-center justify-center font-bold text-xs">
-                            {emp.name.split(" ").map((n) => n[0]).join("")}
-                          </div>
-                          <div>
-                            <p className="text-xs font-bold text-slate-800 leading-none">{emp.name}</p>
-                            <p className="text-[10px] font-semibold text-slate-450 mt-1">{emp.designation}</p>
-                          </div>
+              {tutors.length > 0 ? (
+                tutors.map((tutor) => (
+                  <TableRow
+                    key={tutor.id}
+                    onClick={() => onSelectTutor(tutor)}
+                    className="hover:bg-slate-50/70 transition-colors cursor-pointer"
+                  >
+                    <TableCell className="px-5 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold text-xs shrink-0">
+                          {tutor.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
                         </div>
-                      </TableCell>
-
-                      {/* Department */}
-                      <TableCell className="px-5 py-4 text-xs text-slate-600 font-semibold">{emp.department}</TableCell>
-
-                      {/* Status */}
-                      <TableCell className="px-5 py-4">
-                        <Badge variant="outline" className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${statusColor}`}>
-                          {emp.status}
-                        </Badge>
-                      </TableCell>
-
-                      {/* Joined Date */}
-                      <TableCell className="px-5 py-4 text-xs text-slate-500">
-                        {new Date(emp.dateOfJoining).toLocaleDateString("en-US", {
-                          year: "numeric",
-                          month: "short",
-                          day: "numeric",
-                        })}
-                      </TableCell>
-
-                      {/* Actions */}
-                      <TableCell className="px-5 py-4 text-right" onClick={(e) => e.stopPropagation()}>
-                        <div className="flex items-center justify-end gap-1.5">
-                          <Button
-                            variant="ghost"
-                            size="icon-sm"
-                            onClick={() => onEditEmployee(emp)}
-                            className="text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg cursor-pointer"
-                            title="Edit Details"
-                          >
-                            <Edit2 className="w-3.5 h-3.5" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon-sm"
-                            onClick={() => onDeleteEmployee(emp.id)}
-                            className="text-slate-400 hover:text-red-650 hover:bg-red-50 rounded-lg cursor-pointer"
-                            title="Delete Employee"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </Button>
+                        <div>
+                          <p className="text-xs font-bold text-slate-800 leading-none">{tutor.name}</p>
+                          <p className="text-[10px] text-slate-400 mt-0.5">{tutor.email}</p>
+                          <p className="text-[10px] text-slate-400">{tutor.phone}</p>
                         </div>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })
+                      </div>
+                    </TableCell>
+
+                    <TableCell className="px-5 py-4">
+                      <div className="flex flex-wrap gap-1">
+                        {(tutor.subjects ?? []).slice(0, 3).map((s) => (
+                          <Badge key={s} variant="outline" className="text-[9px] font-semibold px-1.5 py-0 border-slate-200 text-slate-600">{s}</Badge>
+                        ))}
+                        {(tutor.subjects ?? []).length > 3 && (
+                          <Badge variant="outline" className="text-[9px] font-semibold px-1.5 py-0 border-slate-200 text-slate-400">
+                            +{tutor.subjects.length - 3}
+                          </Badge>
+                        )}
+                      </div>
+                    </TableCell>
+
+                    <TableCell className="px-5 py-4">
+                      <div className="flex flex-wrap gap-1">
+                        {(tutor.syllabus ?? []).map((s) => (
+                          <Badge key={s} variant="outline" className="text-[9px] font-semibold px-1.5 py-0 border-blue-200 text-blue-600 bg-blue-50">{s}</Badge>
+                        ))}
+                      </div>
+                    </TableCell>
+
+                    <TableCell className="px-5 py-4">
+                      <div className="flex flex-wrap gap-1">
+                        {(Array.isArray(tutor.availability) ? tutor.availability : [tutor.availability]).map((a) => (
+                          <Badge key={a} variant="outline" className="text-[9px] font-semibold px-1.5 py-0 border-violet-200 text-violet-600 bg-violet-50">{a}</Badge>
+                        ))}
+                      </div>
+                    </TableCell>
+
+                    <TableCell className="px-5 py-4">
+                      <Badge variant="outline" className={`text-[9px] font-bold px-2 py-0.5 rounded-full capitalize ${statusBadgeClass(tutor.status)}`}>
+                        {tutor.status}
+                      </Badge>
+                    </TableCell>
+
+                    <TableCell className="px-5 py-4 text-xs text-slate-600 font-medium">
+                      {tutor.experience || "—"}
+                    </TableCell>
+
+                    <TableCell className="px-5 py-4 text-xs text-slate-500">
+                      {tutor.createdAt ? new Date(tutor.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" }) : "—"}
+                    </TableCell>
+
+                    <TableCell className="px-5 py-4 text-right" onClick={(e) => e.stopPropagation()}>
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        onClick={() => onEditTutor(tutor)}
+                        className="text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg cursor-pointer"
+                        title="Edit Tutor"
+                      >
+                        <Edit2 className="w-3.5 h-3.5" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={6} className="py-12 text-center text-slate-400 text-xs font-medium bg-white">
-                    No employees found matching constraints.
+                  <TableCell colSpan={8} className="py-16 text-center text-slate-400 text-xs font-medium">
+                    No tutors found matching your filters.
                   </TableCell>
                 </TableRow>
               )}
             </TableBody>
           </Table>
+        </div>
+
+        {/* Pagination */}
+        <div className="flex items-center justify-between px-5 py-3.5 border-t border-slate-100 bg-slate-50/30">
+          <p className="text-[11px] text-slate-500 font-medium">
+            Showing {tutors.length === 0 ? 0 : (page - 1) * limit + 1}–{Math.min(page * limit, total)} of {total} tutors
+          </p>
+          <div className="flex items-center gap-1.5">
+            <Button
+              variant="outline"
+              size="icon-sm"
+              onClick={() => onPageChange(page - 1)}
+              disabled={page <= 1}
+              className="h-7 w-7 rounded-lg border-slate-200 text-slate-500 disabled:opacity-40"
+            >
+              <ChevronLeft className="w-3.5 h-3.5" />
+            </Button>
+            <span className="text-[11px] font-semibold text-slate-600 px-2">
+              {page} / {totalPages}
+            </span>
+            <Button
+              variant="outline"
+              size="icon-sm"
+              onClick={() => onPageChange(page + 1)}
+              disabled={page >= totalPages}
+              className="h-7 w-7 rounded-lg border-slate-200 text-slate-500 disabled:opacity-40"
+            >
+              <ChevronRight className="w-3.5 h-3.5" />
+            </Button>
+          </div>
         </div>
       </Card>
     </div>

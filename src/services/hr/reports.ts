@@ -3,6 +3,7 @@ import { ENDPOINTS } from "@/constants/endpoints";
 import {
   IAttendanceReportResponse,
   ISalaryReportResponse,
+  ISalaryReportQueryParams,
   IPerformanceReportResponse,
   ITurnoverReportResponse,
 } from "@/types/admin/hr";
@@ -15,7 +16,7 @@ export const getAttendanceReport = async (params?: { from?: string; to?: string;
   return res.data;
 };
 
-export const getSalaryReport = async (params?: { department?: string }) => {
+export const getSalaryReport = async (params?: ISalaryReportQueryParams) => {
   const res = await apiClient.get<ISalaryReportResponse>(ENDPOINTS.GET_HR_SALARY, { params });
   return res.data;
 };

@@ -2,7 +2,7 @@ import { IApiResponse } from "@/types/admin/api";
 import { IAssignedStudent } from "@/types/tutor/profile";
 
 
-export type TutorStatus = "pending" | "approved" | "rejected" | string;
+export type TutorStatus = "pending" | "approved" | "inactive" | "resigned" | string;
 
 export interface ITutorSlot {
   day: string;

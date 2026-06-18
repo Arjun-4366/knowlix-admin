@@ -3,7 +3,6 @@ import { X, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
@@ -19,6 +18,7 @@ interface AddTutorFormProps {
   onSubmit: (data: ICreateTutorPayload) => void;
   isSubmitting?: boolean;
   tutorToEdit?: ITutor;
+  hrMode?: boolean;
 }
 
 const AVAILABILITY_OPTIONS = ["Morning", "Afternoon", "Evening"];
@@ -34,6 +34,7 @@ export default function AddTutorForm({
   onSubmit,
   isSubmitting = false,
   tutorToEdit,
+  hrMode = false,
 }: AddTutorFormProps) {
   const [name, setName] = useState(() => tutorToEdit?.name || "");
   const [email, setEmail] = useState(() => tutorToEdit?.email || "");
@@ -59,8 +60,9 @@ export default function AddTutorForm({
   });
 
   const [status, setStatus] = useState<TutorStatus>(() => {
-    const st = tutorToEdit?.status?.toLowerCase() || "pending";
-    return (st === "approved" || st === "pending" ? st : "pending") as TutorStatus;
+    const s = (tutorToEdit?.status?.toLowerCase() as TutorStatus) || "pending";
+    if (hrMode && tutorToEdit && s !== "inactive" && s !== "resigned") return "inactive";
+    return s;
   });
 
   const [subjectEntries, setSubjectEntries] = useState<Array<{ name: string; syllabi: string[] }>>([]);
@@ -81,9 +83,8 @@ export default function AddTutorForm({
         setExperience(expStr);
       }
 
-      // Normalize status
-      const st = tutorToEdit.status?.toLowerCase() || "pending";
-      setStatus((st === "approved" || st === "pending" ? st : "pending") as TutorStatus);
+      const s = (tutorToEdit.status?.toLowerCase() as TutorStatus) || "pending";
+      setStatus(hrMode && s !== "inactive" && s !== "resigned" ? "inactive" : s);
 
       // Load availability
       if (Array.isArray(tutorToEdit.availability)) {
@@ -367,25 +368,39 @@ export default function AddTutorForm({
           )}
         </div>
 
-        <div className="grid grid-cols-1 gap-4">
-          <div className="space-y-1.5">
-            <Label className="text-xs font-semibold text-slate-500">HR Status *</Label>
-            <Select
-              key={`status-${tutorToEdit?.id || "new"}`}
-              disabled={isSubmitting}
-              value={status}
-              onValueChange={(val) => setStatus(val as TutorStatus)}
-            >
-              <SelectTrigger className="w-full text-sm bg-slate-50 border border-slate-200 rounded-xl">
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="pending">Pending HR</SelectItem>
-                <SelectItem value="approved">Approved</SelectItem>
-              </SelectContent>
-            </Select>
+        {/* HR create: no status shown; HR edit: only inactive/resigned; admin: all four */}
+        {(!hrMode || tutorToEdit) && (
+          <div className="grid grid-cols-1 gap-4">
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold text-slate-500">Status *</Label>
+              <Select
+                key={`status-${tutorToEdit?.id || "new"}`}
+                disabled={isSubmitting}
+                value={status}
+                onValueChange={(val) => setStatus(val as TutorStatus)}
+              >
+                <SelectTrigger className="w-full text-sm bg-slate-50 border border-slate-200 rounded-xl">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  {hrMode ? (
+                    <>
+                      <SelectItem value="inactive">Inactive</SelectItem>
+                      <SelectItem value="resigned">Resigned</SelectItem>
+                    </>
+                  ) : (
+                    <>
+                      <SelectItem value="pending">Pending</SelectItem>
+                      <SelectItem value="approved">Approved</SelectItem>
+                      <SelectItem value="inactive">Inactive</SelectItem>
+                      <SelectItem value="resigned">Resigned</SelectItem>
+                    </>
+                  )}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
-        </div>
+        )}
 
         <div className="pt-4 flex justify-end gap-3 border-t border-slate-100">
           <Button

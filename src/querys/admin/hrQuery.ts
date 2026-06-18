@@ -37,6 +37,9 @@ import {
   getTutorsHR,
   getTutorHR,
   createTutorByHR,
+  updateTutorHR,
+  ITutorHRQueryParams,
+  IUpdateTutorHRPayload,
 } from "@/services/hr/tutors";
 
 import {
@@ -49,6 +52,8 @@ import {
   ICreateHrPayload,
   IUpdateHrPasswordPayload,
 } from "@/types/admin/hr";
+
+import { ICreateTutorPayload } from "@/types/admin/tutor";
 
 // ── Query Keys ────────────────────────────────────────────────────────────────
 export const HR_HOLIDAYS_KEY = ["hr-holidays"] as const;
@@ -226,7 +231,7 @@ export const useGetAttendanceReport = (params?: { from?: string; to?: string; em
   });
 };
 
-export const useGetSalaryReport = (params?: { department?: string }) => {
+export const useGetSalaryReport = (params?: import("@/types/admin/hr").ISalaryReportQueryParams) => {
   return useQuery({
     queryKey: [...HR_REPORTS_KEY, "salary", params],
     queryFn: () => getSalaryReport(params),
@@ -248,7 +253,7 @@ export const useGetTurnoverAnalytics = () => {
 };
 
 // ── Tutors Hooks ──────────────────────────────────────────────────────────────
-export const useGetTutorsHR = (params?: QueryParams & { status?: string }) => {
+export const useGetTutorsHR = (params?: ITutorHRQueryParams) => {
   return useQuery({
     queryKey: [...HR_TUTORS_KEY, params],
     queryFn: () => getTutorsHR(params),
@@ -263,10 +268,26 @@ export const useGetTutorHR = (id: string) => {
   });
 };
 
+export const useUpdateTutorByHR = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: IUpdateTutorHRPayload }) =>
+      updateTutorHR(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: HR_TUTORS_KEY });
+      toast.success("Tutor updated successfully");
+    },
+    onError: (err: any) => {
+      const errMsg = err?.response?.data?.message || err.message || "Failed to update tutor";
+      toast.error(errMsg);
+    },
+  });
+};
+
 export const useCreateTutorByHR = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: Record<string, unknown> | FormData) => createTutorByHR(data),
+    mutationFn: (data: ICreateTutorPayload) => createTutorByHR(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: HR_TUTORS_KEY });
       toast.success("Tutor submitted for approval successfully");

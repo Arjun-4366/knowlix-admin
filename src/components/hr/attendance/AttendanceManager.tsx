@@ -1,20 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { differenceInCalendarDays, format, parseISO } from "date-fns";
-import { toast } from "react-hot-toast";
 import DashboardHeader from "@/components/dashboard/shared/DashboardHeader";
 import { Loader2 } from "lucide-react";
-import { DEFAULT_ATTENDANCE_DATE } from "./attendanceData";
 import AttendanceOverview from "./AttendanceOverview";
 import DailyAttendanceTracker from "./DailyAttendanceTracker";
 import HolidayCalendar from "./HolidayCalendar";
-import {
-  AttendanceStatus,
-  EnrichedAttendanceRecord,
-  HolidayItem,
-} from "./types";
-import { Employee } from "../employees/types";
+import { AttendanceStatus, EnrichedAttendanceRecord, HolidayItem } from "./types";
 import {
   useGetHolidays,
   useCreateHoliday,
@@ -23,7 +16,9 @@ import {
   useApproveAttendance,
   useGetTutorsHR,
 } from "@/querys/admin/hrQuery";
-import { IHoliday } from "@/types/admin/hr";
+import { IHoliday, IHRAttendanceRecord } from "@/types/admin/hr";
+
+const PAGE_LIMIT = 20;
 
 function toHolidayItem(h: IHoliday): HolidayItem {
   return {
@@ -35,83 +30,35 @@ function toHolidayItem(h: IHoliday): HolidayItem {
   };
 }
 
-const mapTutorToEmployee = (tutor: any): Employee => {
-  const tutorId = tutor.id || tutor._id || "";
-  let mappedStatus: Employee["status"] = "Active";
-  if (tutor.status === "pending") {
-    mappedStatus = "On Probation";
-  } else if (tutor.status === "rejected") {
-    mappedStatus = "Terminated";
-  }
-
-  let mappedDept: Employee["department"] = "Tutor";
-  let mappedRole = "Tutor";
-  if (tutor.role === "mentor_sales_bro") {
-    mappedDept = "Sales";
-    mappedRole = "Mentor/Sales Rep";
-  } else if (tutor.role === "academic_coordinator") {
-    mappedDept = "Academics";
-    mappedRole = "Academic Coordinator";
-  }
-
-  return {
-    id: tutorId,
-    name: tutor.name || "Unnamed Tutor",
-    email: tutor.email || "",
-    phone: tutor.phone || "",
-    address: tutor.availability || "Online / Remote",
-    dob: "1990-01-01",
-    emergencyContact: {
-      name: "Emergency Contact",
-      relationship: "Family",
-      phone: tutor.phone || "",
-    },
-    designation: mappedRole,
-    department: mappedDept,
-    dateOfJoining: tutor.createdAt ? tutor.createdAt.slice(0, 10) : new Date().toISOString().split("T")[0],
-    status: mappedStatus,
-    manager: "HR Manager",
-    salaryDetails: {
-      base: 40000,
-      allowance: 10000,
-      pf: 4800,
-      ctc: 600000,
-    },
-    documents: [],
-    joiningRecords: {
-      probationEnd: "",
-      joiningNotes: `Experience: ${tutor.experience || "Not specified"}. Availability: ${tutor.availability || "Not specified"}.`,
-    },
-  };
-};
-
-function toAttendanceRecord(r: any): EnrichedAttendanceRecord {
-  let dateStr = "";
-  if (r.date) {
-    dateStr = r.date.slice(0, 10);
-  }
+function toAttendanceRecord(r: IHRAttendanceRecord): EnrichedAttendanceRecord {
+  const dateStr = r.date ? r.date.slice(0, 10) : "";
 
   let checkInVal: string | undefined;
   if (r.checkIn) {
     const t = new Date(r.checkIn);
-    checkInVal = isNaN(t.getTime()) ? undefined : format(t, "HH:mm");
+    if (!isNaN(t.getTime())) checkInVal = format(t, "HH:mm");
   }
 
   let checkOutVal: string | undefined;
   if (r.checkOut) {
     const t = new Date(r.checkOut);
-    checkOutVal = isNaN(t.getTime()) ? undefined : format(t, "HH:mm");
+    if (!isNaN(t.getTime())) checkOutVal = format(t, "HH:mm");
   }
 
   let mappedStatus: AttendanceStatus = "Present";
-  if (r.status === "present") mappedStatus = "Present";
-  else if (r.status === "absent") mappedStatus = "Absent";
-  else if (r.status === "half_day") mappedStatus = "On Leave";
-  else if (r.status === "late") mappedStatus = "Late";
+  if (r.status === "pending_approval") mappedStatus = "Pending";
+  else if (r.status === "approved")    mappedStatus = "Approved";
+  else if (r.status === "rejected")    mappedStatus = "Rejected";
+  else if (r.status === "present")     mappedStatus = "Present";
+  else if (r.status === "absent")      mappedStatus = "Absent";
+  else if (r.status === "half_day")    mappedStatus = "On Leave";
+  else if (r.status === "late")        mappedStatus = "Late";
+
+  const tutor = r.tutorId;
 
   return {
-    id: r.id || r._id,
-    employeeId: r.employeeId || r.tutorId,
+    id: r.id,
+    employeeId: tutor?.id || "",
     date: dateStr,
     shiftId: "SHIFT-GEN",
     checkIn: checkInVal,
@@ -119,105 +66,76 @@ function toAttendanceRecord(r: any): EnrichedAttendanceRecord {
     hoursWorked: r.workHours ?? 0,
     status: mappedStatus,
     notes: r.remarks || "",
-    employeeName: "Tutor",
+    employeeName: tutor?.name || "Unknown Tutor",
+    employeeEmail: tutor?.email || "",
     department: "Tutor",
-    designation: "Tutor",
+    designation: "Subject Tutor",
     shiftName: "General",
   };
 }
 
 export default function AttendanceManager() {
-  const [selectedDate, setSelectedDate] = useState(DEFAULT_ATTENDANCE_DATE);
+  const [search, setSearch]             = useState("");
+  const [debouncedSearch, setDebounced] = useState("");
+  const [tutorId, setTutorId]           = useState("");
+  const [from, setFrom]                 = useState("");
+  const [to, setTo]                     = useState("");
+  const [page, setPage]                 = useState(1);
 
-  const { data: tutorsRes, isLoading: tutorsLoading } = useGetTutorsHR({ limit: 1000 });
-  const { data: attendanceRes, isLoading: attendanceLoading } = useGetHRTutorAttendance();
-  const { data: holidaysRes, isLoading: holidaysLoading } = useGetHolidays();
+  // 400ms debounce on search
+  useEffect(() => {
+    const t = setTimeout(() => { setDebounced(search); setPage(1); }, 400);
+    return () => clearTimeout(t);
+  }, [search]);
 
-  const createHolidayMutation = useCreateHoliday();
-  const deleteHolidayMutation = useDeleteHoliday();
+  // Reset page when filters change
+  useEffect(() => { setPage(1); }, [tutorId, from, to]);
+
+  const queryParams = {
+    search:   debouncedSearch || undefined,
+    tutorId:  tutorId || undefined,
+    from:     from || undefined,
+    to:       to || undefined,
+    page,
+    limit:    PAGE_LIMIT,
+  };
+
+  const { data: attendanceRes, isLoading: attendanceLoading } = useGetHRTutorAttendance(queryParams);
+  const { data: holidaysRes, isLoading: holidaysLoading }     = useGetHolidays();
+  const { data: tutorsRes }                                   = useGetTutorsHR({ limit: 200 });
+
+  const createHolidayMutation  = useCreateHoliday();
+  const deleteHolidayMutation  = useDeleteHoliday();
   const approveAttendanceMutation = useApproveAttendance();
 
-  const employees = tutorsRes?.data ? (tutorsRes.data as any[]).map(mapTutorToEmployee) : [];
-  const rawAttendance = attendanceRes?.data ? (attendanceRes.data as any[]).map(toAttendanceRecord) : [];
-  const holidays = holidaysRes?.data ? (holidaysRes.data as IHoliday[]).map(toHolidayItem) : [];
-
-  const effectiveSelectedDate = selectedDate || DEFAULT_ATTENDANCE_DATE;
-
-  const activeEmployees = employees.filter(
-    (employee) =>
-      employee.status === "Active" || employee.status === "On Probation"
+  const records: EnrichedAttendanceRecord[] = (attendanceRes?.data ?? []).map(
+    (r: any) => toAttendanceRecord(r as IHRAttendanceRecord)
   );
-  const employeeLookup = new Map(
-    activeEmployees.map((employee) => [employee.id, employee])
-  );
+  const total   = attendanceRes?.total ?? 0;
+  const tutors  = (tutorsRes?.data ?? []).map((t) => ({ id: t.id, name: t.name }));
 
-  const attendanceView: EnrichedAttendanceRecord[] = rawAttendance
-    .filter((record) => employeeLookup.has(record.employeeId))
-    .map((record) => {
-      const employee = employeeLookup.get(record.employeeId);
-      return {
-        ...record,
-        employeeName: employee?.name || "Unknown Employee",
-        department: employee?.department || "Unmapped",
-        designation: employee?.designation || "Profile missing",
-        shiftName: "General",
-      };
-    });
-
-  const attendanceForDay = attendanceView.filter(
-    (record) => record.date === effectiveSelectedDate
-  );
-  const checkedInCount = attendanceForDay.filter((record) =>
-    ["Present", "Late", "Remote"].includes(record.status)
-  ).length;
-  const remoteCount = attendanceForDay.filter(
-    (record) => record.status === "Remote"
-  ).length;
-  const lateCount = attendanceForDay.filter(
-    (record) => record.status === "Late"
-  ).length;
-
-  const upcomingHolidays = [...holidays].sort((left, right) =>
-    left.date.localeCompare(right.date)
-  );
-  const nextHoliday = upcomingHolidays.find(
-    (holiday) =>
-      differenceInCalendarDays(
-        parseISO(holiday.date),
-        parseISO(effectiveSelectedDate)
-      ) >= 0
+  const holidays         = (holidaysRes?.data ?? []).map(toHolidayItem);
+  const upcomingHolidays = [...holidays].sort((a, b) => a.date.localeCompare(b.date));
+  const todayStr         = new Date().toISOString().split("T")[0];
+  const nextHoliday      = upcomingHolidays.find(
+    (h) => differenceInCalendarDays(parseISO(h.date), parseISO(todayStr)) >= 0
   );
 
-  const handleAttendanceStatusChange = (
-    recordId: string,
-    status: AttendanceStatus
-  ) => {
-    const isMongoId = /^[0-9a-fA-F]{24}$/.test(recordId);
-    if (isMongoId) {
-      const backendStatus = status === "Absent" ? "rejected" : "approved";
-      approveAttendanceMutation.mutate({
-        id: recordId,
-        data: {
-          status: backendStatus,
-          remarks: `Status updated to ${status} via HR Attendance Dashboard`,
-        },
-      });
-    } else {
-      toast.error("Offline updates are not supported for attendance.");
-    }
+  const pendingCount  = records.filter((r) => r.status === "Pending").length;
+  const approvedCount = records.filter((r) => r.status === "Approved" || r.status === "Present").length;
+
+  const handleApprove = (id: string) => {
+    approveAttendanceMutation.mutate({ id, data: { status: "approved", remarks: "Approved by HR" } });
   };
 
-  const handleDateChange = (value: string) => {
-    setSelectedDate(value || DEFAULT_ATTENDANCE_DATE);
+  const handleReject = (id: string) => {
+    approveAttendanceMutation.mutate({ id, data: { status: "rejected", remarks: "Rejected by HR" } });
   };
 
-  if (tutorsLoading || attendanceLoading) {
+  if (attendanceLoading && records.length === 0) {
     return (
       <div className="space-y-6 pb-10">
-        <DashboardHeader
-          title="Attendance Management"
-          description="Daily attendance tracking and holiday planning."
-        />
+        <DashboardHeader title="Attendance Management" description="Daily attendance tracking and holiday planning." />
         <div className="flex h-96 items-center justify-center bg-white rounded-2xl border border-slate-150 shadow-sm">
           <Loader2 className="h-8 w-8 animate-spin text-[var(--brand-green)]" />
         </div>
@@ -229,17 +147,13 @@ export default function AttendanceManager() {
     <div className="space-y-6 pb-10">
       <DashboardHeader
         title="Attendance Management"
-        description={`Operational snapshot for ${format(
-          parseISO(effectiveSelectedDate),
-          "dd MMM yyyy"
-        )}: daily attendance and holiday visibility.`}
+        description="Review and approve tutor attendance records. Use filters to narrow by name, date, or range."
       />
 
       <AttendanceOverview
-        checkedInCount={checkedInCount}
-        totalTracked={attendanceForDay.length}
-        remoteCount={remoteCount}
-        lateCount={lateCount}
+        pendingCount={pendingCount}
+        approvedCount={approvedCount}
+        totalCount={total}
         upcomingHolidayCount={upcomingHolidays.length}
         nextHolidayLabel={
           nextHoliday
@@ -250,21 +164,30 @@ export default function AttendanceManager() {
 
       <div className="grid grid-cols-1 xl:grid-cols-[1.6fr_1fr] gap-6">
         <DailyAttendanceTracker
-          selectedDate={effectiveSelectedDate}
-          onDateChange={handleDateChange}
-          records={attendanceForDay}
-          onStatusChange={handleAttendanceStatusChange}
+          records={records}
+          isLoading={attendanceLoading}
+          search={search}
+          onSearchChange={setSearch}
+          tutorId={tutorId}
+          onTutorIdChange={setTutorId}
+          tutors={tutors}
+          from={from}
+          onFromChange={setFrom}
+          to={to}
+          onToChange={setTo}
+          page={page}
+          limit={PAGE_LIMIT}
+          total={total}
+          onPageChange={setPage}
+          onApprove={handleApprove}
+          onReject={handleReject}
         />
         <HolidayCalendar
           holidays={upcomingHolidays}
-          referenceDate={effectiveSelectedDate}
+          referenceDate={todayStr}
           loading={holidaysLoading}
-          onCreateHoliday={async (data) => {
-            await createHolidayMutation.mutateAsync(data);
-          }}
-          onDeleteHoliday={async (id) => {
-            await deleteHolidayMutation.mutateAsync(id);
-          }}
+          onCreateHoliday={async (data) => { await createHolidayMutation.mutateAsync(data); }}
+          onDeleteHoliday={async (id) => { await deleteHolidayMutation.mutateAsync(id); }}
         />
       </div>
     </div>

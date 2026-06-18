@@ -1,4 +1,7 @@
 export type AttendanceStatus =
+  | "Pending"
+  | "Approved"
+  | "Rejected"
   | "Present"
   | "Late"
   | "Remote"
@@ -79,6 +82,7 @@ export interface WorkPolicy {
 
 export interface EnrichedAttendanceRecord extends AttendanceRecord {
   employeeName: string;
+  employeeEmail?: string;
   department: string;
   designation: string;
   shiftName: string;

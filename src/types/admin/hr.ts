@@ -52,11 +52,30 @@ export type IHolidaysResponse = IApiResponse<IHoliday[]> & { total: number };
 
 // ── Attendance (tutor-based HR attendance) ────────────────────────────────────
 
-export type HRAttendanceStatus = "present" | "absent" | "half_day" | "late" | "on_leave";
+export type HRAttendanceStatus =
+  | "pending_approval"
+  | "approved"
+  | "rejected"
+  | "present"
+  | "absent"
+  | "half_day"
+  | "late"
+  | "on_leave";
+
+export interface IHRAttendanceTutorRef {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  subjects?: string[];
+  experience?: string;
+  availability?: string[];
+  status?: string;
+}
 
 export interface IHRAttendanceRecord {
   id: string;
-  tutorId: string;
+  tutorId: IHRAttendanceTutorRef | null;
   date: string;
   status: HRAttendanceStatus;
   checkIn?: string;
@@ -64,8 +83,6 @@ export interface IHRAttendanceRecord {
   workHours?: number;
   remarks?: string;
   markedBy: string;
-  approvedBy?: string;
-  approvedAt?: string;
   createdAt: string;
 }
 
@@ -163,22 +180,53 @@ export interface IAttendanceReportResponse {
   };
 }
 
-export interface ISalaryEntry {
-  employeeId: string;
+export interface ISalaryTutorRef {
+  id: string;
   name: string;
-  department: string;
-  designation: string;
-  salary: number;
-  currency: string;
+  email: string;
+  phone?: string;
+  subjects?: string[];
+  experience?: string;
+  status?: string;
+}
+
+export interface ISalaryRecord {
+  id: string;
+  tutorId: string;
+  month: string;
+  year: number;
+  totalAmount: number;
+  paidAmount: number;
+  pendingAmount: number;
+  status: "paid" | "partial" | "unpaid" | string;
+  remarks?: string;
+  paymentDate?: string;
+  createdAt: string;
+  updatedAt: string;
+  tutor: ISalaryTutorRef | null;
 }
 
 export interface ISalaryReportData {
-  totalMonthlyPayroll: number;
-  employeeCount: number;
-  employees: ISalaryEntry[];
+  limit: number;
+  page: number;
+  records: ISalaryRecord[];
+  total: number;
+  totalAmount: number;
+  totalPages: number;
+  totalPaid: number;
+  totalPending: number;
 }
 
 export type ISalaryReportResponse = IApiResponse<ISalaryReportData>;
+
+export interface ISalaryReportQueryParams {
+  page?: number;
+  limit?: number;
+  tutorId?: string;
+  month?: string;
+  year?: number;
+  status?: "paid" | "partial" | "pending";
+}
 
 export interface IPerformanceReportEntry {
   employeeId: string;
@@ -210,8 +258,12 @@ export type ITurnoverReportResponse = IApiResponse<ITurnoverData>;
 
 export interface IHRAttendanceQueryParams {
   tutorId?: string;
+  search?: string;
+  date?: string;
   from?: string;
   to?: string;
+  page?: number;
+  limit?: number;
 }
 
 export interface IHRNoticeQueryParams {

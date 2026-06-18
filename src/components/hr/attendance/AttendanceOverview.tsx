@@ -1,34 +1,37 @@
-import {
-  CalendarDays,
-  UserRoundCheck,
-} from "lucide-react";
+import { CalendarDays, Clock, UserRoundCheck } from "lucide-react";
 import DashboardStatCard from "@/components/dashboard/shared/DashboardStatCard";
 
 interface AttendanceOverviewProps {
-  checkedInCount: number;
-  totalTracked: number;
-  remoteCount: number;
-  lateCount: number;
+  pendingCount: number;
+  approvedCount: number;
+  totalCount: number;
   upcomingHolidayCount: number;
   nextHolidayLabel: string;
 }
 
 export default function AttendanceOverview({
-  checkedInCount,
-  totalTracked,
-  remoteCount,
-  lateCount,
+  pendingCount,
+  approvedCount,
+  totalCount,
   upcomingHolidayCount,
   nextHolidayLabel,
 }: AttendanceOverviewProps) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
       <DashboardStatCard
-        label="Today's Attendance"
-        value={`${checkedInCount}/${totalTracked}`}
+        label="Pending Approval"
+        value={pendingCount}
+        icon={<Clock className="w-5 h-5" />}
+        badgeText="needs review"
+        footerText={`${totalCount} total attendance records`}
+      />
+
+      <DashboardStatCard
+        label="Approved / Present"
+        value={approvedCount}
         icon={<UserRoundCheck className="w-5 h-5" />}
-        badgeText={`${remoteCount} remote`}
-        footerText={`${lateCount} late arrivals need review`}
+        badgeText={`of ${totalCount}`}
+        footerText={`${totalCount - approvedCount - pendingCount} other statuses`}
       />
 
       <DashboardStatCard
@@ -36,7 +39,7 @@ export default function AttendanceOverview({
         value={upcomingHolidayCount}
         icon={<CalendarDays className="w-5 h-5" />}
         badgeText="90-day view"
-        footerText={`Next closure: ${nextHolidayLabel}`}
+        footerText={`Next: ${nextHolidayLabel}`}
       />
     </div>
   );

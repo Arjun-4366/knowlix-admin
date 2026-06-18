@@ -1,64 +1,44 @@
-import { Calculator, FileText, Receipt, Wallet } from "lucide-react";
+import { Banknote, Clock, Wallet } from "lucide-react";
 import DashboardStatCard from "@/components/dashboard/shared/DashboardStatCard";
 import { formatCompactCurrency } from "./utils";
 
 interface PayrollOverviewProps {
-  grossPayTotal: number;
-  netPayTotal: number;
-  generatedCount: number;
-  totalPayslips: number;
-  bonusTotal: number;
-  deductionTotal: number;
-  tdsYtdTotal: number;
-  projectedTaxTotal: number;
-  declarationReviewCount: number;
+  totalAmount: number;
+  totalPaid: number;
+  totalPending: number;
+  totalRecords: number;
 }
 
 export default function PayrollOverview({
-  grossPayTotal,
-  netPayTotal,
-  generatedCount,
-  totalPayslips,
-  bonusTotal,
-  deductionTotal,
-  tdsYtdTotal,
-  projectedTaxTotal,
-  declarationReviewCount,
+  totalAmount,
+  totalPaid,
+  totalPending,
+  totalRecords,
 }: PayrollOverviewProps) {
-  const pendingCount = Math.max(totalPayslips - generatedCount, 0);
-
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
       <DashboardStatCard
-        label="Current Cycle Gross"
-        value={formatCompactCurrency(grossPayTotal)}
+        label="Total Payroll"
+        value={formatCompactCurrency(totalAmount)}
         icon={<Wallet className="w-5 h-5" />}
-        badgeText={formatCompactCurrency(netPayTotal)}
-        footerText="Expected net payout after taxes and statutory deductions"
+        badgeText={`${totalRecords} records`}
+        footerText="Combined salary across all tutor records"
       />
 
       <DashboardStatCard
-        label="Payslip Generation"
-        value={`${generatedCount}/${totalPayslips}`}
-        icon={<FileText className="w-5 h-5" />}
-        badgeText={`${pendingCount} pending`}
-        footerText="Ready and draft records still need release processing"
+        label="Total Paid"
+        value={formatCompactCurrency(totalPaid)}
+        icon={<Banknote className="w-5 h-5" />}
+        badgeText={totalAmount > 0 ? `${Math.round((totalPaid / totalAmount) * 100)}% settled` : "—"}
+        footerText="Amount successfully disbursed to tutors"
       />
 
       <DashboardStatCard
-        label="Bonuses & Deductions"
-        value={formatCompactCurrency(bonusTotal)}
-        icon={<Receipt className="w-5 h-5" />}
-        badgeText={`-${formatCompactCurrency(deductionTotal)}`}
-        footerText="Approved and applied cycle adjustments currently mapped"
-      />
-
-      <DashboardStatCard
-        label="Tax & Records"
-        value={formatCompactCurrency(tdsYtdTotal)}
-        icon={<Calculator className="w-5 h-5" />}
-        badgeText={`${declarationReviewCount} review`}
-        footerText={`Projected annual tax ${formatCompactCurrency(projectedTaxTotal)}`}
+        label="Total Pending"
+        value={formatCompactCurrency(totalPending)}
+        icon={<Clock className="w-5 h-5" />}
+        badgeText="outstanding"
+        footerText="Remaining salary yet to be disbursed"
       />
     </div>
   );
