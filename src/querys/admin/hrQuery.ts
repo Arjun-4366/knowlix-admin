@@ -35,6 +35,13 @@ import {
 } from "@/services/hr/reports";
 
 import {
+  getHRSalaryList,
+  createHRSalary,
+  updateHRSalary,
+  deleteHRSalary,
+} from "@/services/hr/salary";
+
+import {
   getTutorsHR,
   getTutorHR,
   createTutorByHR,
@@ -52,6 +59,8 @@ import {
   IHRAttendanceQueryParams,
   ICreateHrPayload,
   IUpdateHrPasswordPayload,
+  ICreateHRSalaryPayload,
+  IUpdateHRSalaryPayload,
 } from "@/types/admin/hr";
 
 import { ICreateTutorPayload } from "@/types/admin/tutor";
@@ -65,6 +74,7 @@ export const HR_NOTICES_KEY = ["hr-notices"] as const;
 export const HR_TUTORS_KEY = ["hr-tutors"] as const;
 export const HR_TUTOR_KEY = ["hr-tutor"] as const;
 export const HR_REPORTS_KEY = ["hr-reports"] as const;
+export const HR_SALARY_KEY = ["hr-salary"] as const;
 
 // ── Holiday Hooks ─────────────────────────────────────────────────────────────
 export const useGetHolidays = () => {
@@ -260,6 +270,51 @@ export const useGetTurnoverAnalytics = () => {
   });
 };
 
+// ── Salary Management Hooks ───────────────────────────────────────────────────
+export const useGetHRSalaryList = () => {
+  return useQuery({
+    queryKey: HR_SALARY_KEY,
+    queryFn: () => getHRSalaryList(),
+  });
+};
+
+export const useCreateHRSalary = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: ICreateHRSalaryPayload) => createHRSalary(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: HR_SALARY_KEY });
+      toast.success("Salary record created successfully");
+    },
+    onError: () => toast.error("Failed to create salary record"),
+  });
+};
+
+export const useUpdateHRSalary = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: IUpdateHRSalaryPayload }) =>
+      updateHRSalary(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: HR_SALARY_KEY });
+      toast.success("Salary record updated successfully");
+    },
+    onError: () => toast.error("Failed to update salary record"),
+  });
+};
+
+export const useDeleteHRSalary = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => deleteHRSalary(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: HR_SALARY_KEY });
+      toast.success("Salary record deleted successfully");
+    },
+    onError: () => toast.error("Failed to delete salary record"),
+  });
+};
+
 // ── Tutors Hooks ──────────────────────────────────────────────────────────────
 export const useGetTutorsHR = (params?: ITutorHRQueryParams) => {
   return useQuery({
@@ -335,7 +390,6 @@ export const useCreateHR = () => {
 };
 
 export const useUpdateHRPassword = () => {
-  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: IUpdateHrPasswordPayload }) =>
       updateHRPassword(id, data),

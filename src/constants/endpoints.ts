@@ -192,6 +192,12 @@ export const ENDPOINTS = {
     DELETE_NOTICE: (id: string) => `${API_BASE_URL}/hr/notices/${id}`,
     UPDATE_NOTICE: (id: string) => `${API_BASE_URL}/hr/notices/${id}`,
 
+    // Salary management (CRUD)
+    HR_SALARY_LIST: `${API_BASE_URL}/hr/tutors/salary`,
+    HR_SALARY_CREATE: `${API_BASE_URL}/hr/tutors/salary/create`,
+    HR_SALARY_UPDATE: (id: string) => `${API_BASE_URL}/hr/tutors/salary/${id}`,
+    HR_SALARY_DELETE: (id: string) => `${API_BASE_URL}/hr/tutors/salary/${id}`,
+
     // Reports & analytics
     GET_HR_ATTENDANCE_REPORT: `${API_BASE_URL}/hr/reports/attendance`,
     GET_HR_SALARY: `${API_BASE_URL}/hr/reports/salary`,

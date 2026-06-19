@@ -104,7 +104,7 @@ export interface IAttendanceSummaryItem {
 
 // ── HR Notices / Announcements ────────────────────────────────────────────────
 
-export type HRNoticeCategory = "announcement" | "notice" | "general";
+export type HRNoticeCategory = "announcement" | "notice";
 export type HRNoticePriority = "low" | "medium" | "high";
 
 export interface IHRNotice {
@@ -185,20 +185,44 @@ export type IHRPerformanceEvaluation = IHRPerformanceRecord;
 // ── Reports ───────────────────────────────────────────────────────────────────
 
 export interface IAttendanceSummaryEntry {
-  employeeId: string;
+  tutorId: string;
+  tutorName: string;
   present: number;
   absent: number;
   late: number;
-  onLeave: number;
-  totalDays: number;
-  totalWorkHours: number;
+  totalRecords: number;
+}
+
+export interface IAttendanceReportRecord {
+  id: string;
+  tutorId: string;
+  studentId: string;
+  sessionId: string;
+  date: string;
+  status: "present" | "absent" | "late" | string;
+  createdAt: string;
+  tutorName: string;
+  remarks?: string;
+  session: {
+    id: string;
+    type: string;
+    title: string;
+    subject: string;
+    scheduledAt: string;
+    durationMinutes: number;
+    status: string;
+  } | null;
 }
 
 export interface IAttendanceReportResponse {
   status: string;
   data: {
+    limit: number;
+    page: number;
+    records: IAttendanceReportRecord[];
     summary: IAttendanceSummaryEntry[];
-    records: unknown[];
+    total: number;
+    totalPages: number;
   };
 }
 
@@ -265,16 +289,78 @@ export interface ITurnoverMonthEntry {
   exits: number;
 }
 
+export interface ITurnoverTutorRef {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  subjects?: string[];
+  status?: string;
+}
+
 export interface ITurnoverData {
   active: number;
+  inactive: number;
   resigned: number;
-  terminated: number;
+  pending: number;
   total: number;
   turnoverRate: number;
   monthly: ITurnoverMonthEntry[];
+  tutors: {
+    active: ITurnoverTutorRef[];
+    inactive: ITurnoverTutorRef[];
+    pending: ITurnoverTutorRef[];
+    resigned: ITurnoverTutorRef[];
+  };
 }
 
 export type ITurnoverReportResponse = IApiResponse<ITurnoverData>;
+
+// ── Salary Management (CRUD via /hr/tutors/salary) ───────────────────────────
+
+export interface IHRSalaryTutorRef {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  subjects?: string[];
+  status?: string;
+}
+
+export interface IHRSalaryRecord {
+  id: string;
+  month: string;
+  year: number;
+  totalAmount: number;
+  paidAmount: number;
+  pendingAmount: number;
+  status: "paid" | "partial" | "unpaid" | string;
+  remarks?: string;
+  paymentDate?: string;
+  createdAt: string;
+  updatedAt: string;
+  tutorId: IHRSalaryTutorRef | null;
+}
+
+export interface ICreateHRSalaryPayload {
+  tutorId: string;
+  month: string;
+  year: number;
+  totalAmount: number;
+  paidAmount: number;
+  remarks?: string;
+}
+
+export interface IUpdateHRSalaryPayload {
+  month?: string;
+  year?: number;
+  paidAmount?: number;
+}
+
+export interface IHRSalaryListResponse {
+  status: string;
+  data: IHRSalaryRecord[];
+}
 
 // ── Query helpers ─────────────────────────────────────────────────────────────
 
