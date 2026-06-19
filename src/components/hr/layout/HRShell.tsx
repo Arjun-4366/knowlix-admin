@@ -8,7 +8,7 @@ export default function HRShell({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
 
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div id="hr-shell" className="flex h-screen overflow-hidden">
       <HRSidebar collapsed={collapsed} />
       <div className="flex flex-col flex-1 overflow-hidden min-w-0">
         <HRNavbar

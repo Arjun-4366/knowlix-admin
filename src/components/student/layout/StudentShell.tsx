@@ -12,7 +12,7 @@ export default function StudentShell({
   const [collapsed, setCollapsed] = useState(false);
 
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div id="student-shell" className="flex h-screen overflow-hidden">
       <StudentSidebar collapsed={collapsed} />
       <div className="flex flex-col flex-1 overflow-hidden min-w-0">
         <StudentNavbar

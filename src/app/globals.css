@@ -141,7 +141,58 @@
   }
 }
 
-/* Admin panel — tab active state uses Knowlix green */
+/* ── Per-portal color themes ─────────────────────────────────────────────────
+   Each portal shell has a unique ID. Overriding --brand-* variables here
+   cascades the full theme (sidebar, active nav, buttons, icon tints, bg)
+   to every component inside that portal automatically.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* Admin — Command Blue  (authority · enterprise · trust)
+   Sidebar reads clearly as blue — saturated navy, not generic dark           */
+#admin-shell {
+  --brand-dark:        #1e3a8a;   /* blue-800  — unmistakably blue sidebar   */
+  --brand-mid:         #2563eb;   /* blue-600                                */
+  --brand-green:       #3b82f6;   /* blue-500  — vivid accent                */
+  --brand-light:       #93c5fd;   /* blue-300                                */
+  --brand-bg:          #f0f6ff;   /* blue-tinted near-white content area     */
+  --brand-light-green: #dbeafe;   /* blue-100  — icon badge bg               */
+}
+
+/* HR — Forest Emerald  (people · growth · wellbeing)
+   Rich deep forest green — clearly green, distinct from blue/purple          */
+#hr-shell {
+  --brand-dark:        #064e3b;   /* emerald-900 — clearly forest green      */
+  --brand-mid:         #047857;   /* emerald-700                             */
+  --brand-green:       #059669;   /* emerald-600 — balanced, readable        */
+  --brand-light:       #34d399;   /* emerald-400                             */
+  --brand-bg:          #f0fdf4;   /* green-50   — fresh content area         */
+  --brand-light-green: #d1fae5;   /* emerald-100 — icon badge bg             */
+}
+
+/* Tutor — Scholar Purple  (knowledge · depth · expertise)
+   Rich purple sidebar — reads immediately as purple, not violet-grey         */
+#tutor-shell {
+  --brand-dark:        #3b0764;   /* purple-950 — bold, unmistakably purple  */
+  --brand-mid:         #7e22ce;   /* purple-700                              */
+  --brand-green:       #9333ea;   /* purple-600 — clear accent               */
+  --brand-light:       #c084fc;   /* purple-400                              */
+  --brand-bg:          #fdf4ff;   /* purple-50  — subtle lavender content bg */
+  --brand-light-green: #f3e8ff;   /* purple-100 — icon badge bg              */
+}
+
+/* Student — Sunrise Amber  (curiosity · energy · warmth)
+   Warm amber/orange — feels entirely different from the cool three above     */
+#student-shell {
+  --brand-dark:        #78350f;   /* amber-800  — warm rich brown-orange     */
+  --brand-mid:         #d97706;   /* amber-600                               */
+  --brand-green:       #f59e0b;   /* amber-500  — bright, welcoming accent   */
+  --brand-light:       #fcd34d;   /* amber-300                               */
+  --brand-bg:          #fffbeb;   /* amber-50   — warm cream content area    */
+  --brand-light-green: #fef3c7;   /* amber-100  — icon badge bg              */
+}
+
+/* Tab active state inherits the portal's --brand-green automatically */
+/* Admin panel — tab active state uses portal brand color */
 [data-slot="tabs-trigger"][data-state="active"] {
   background-color: var(--brand-green) !important;
   color: #fff !important;
