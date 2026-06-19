@@ -1,34 +1,28 @@
 import { apiClient } from "@/constants/apiClient";
 import { ENDPOINTS } from "@/constants/endpoints";
 import {
-  ICreateHRPerformancePayload,
+  IHRPerformancePayload,
   IHRPerformanceListResponse,
-  IHRPerformanceResponse,
+  IHRGrowthLeaderboardResponse,
 } from "@/types/admin/hr";
 import { IApiResponse } from "@/types/admin/api";
 
-// ── Tutor Performance Evaluations (HR view) ───────────────────────────────────
-
-export const createTutorEvaluation = async (data: ICreateHRPerformancePayload) => {
-  const res = await apiClient.post<IHRPerformanceResponse>(
-    ENDPOINTS.CREATE_PERFORMANCE,
-    data
-  );
+export const createHRPerformance = async (data: IHRPerformancePayload) => {
+  const res = await apiClient.post<IApiResponse<any>>(ENDPOINTS.HR_GROWTH_AWARD, [data]);
   return res.data;
 };
 
-export const getTutorEvaluations = async (params?: { tutorId?: string; period?: string }) => {
-  const res = await apiClient.get<IHRPerformanceListResponse>(
-    ENDPOINTS.GET_PERFORMANCE,
-    { params }
-  );
+export const getHRPerformanceHistory = async (params?: { tutorId?: string; month?: string; year?: number }) => {
+  const res = await apiClient.get<IHRPerformanceListResponse>(ENDPOINTS.HR_GROWTH_HISTORY, { params });
   return res.data;
 };
 
-export const updateTutorEvaluation = async (id: string, data: Partial<ICreateHRPerformancePayload>) => {
-  const res = await apiClient.put<IApiResponse<null>>(
-    ENDPOINTS.UPDATE_PERFORMANCE(id),
-    data
-  );
+export const updateHRPerformance = async (id: string, data: IHRPerformancePayload) => {
+  const res = await apiClient.put<IApiResponse<null>>(ENDPOINTS.UPDATE_PERFORMANCE(id), data);
+  return res.data;
+};
+
+export const getHRGrowthLeaderboard = async () => {
+  const res = await apiClient.get<IHRGrowthLeaderboardResponse>(ENDPOINTS.HR_GROWTH_LEADERBOARD);
   return res.data;
 };

@@ -134,31 +134,53 @@ export interface ICreateHRNoticePayload {
 export type IHRNoticeResponse = IApiResponse<IHRNotice>;
 export type IHRNoticesResponse = IApiResponse<IHRNotice[]> & { total: number };
 
-// ── Performance Evaluations (Tutor HR) ───────────────────────────────────────
+// ── Performance / Growth Points (Tutor HR) ───────────────────────────────────
 
-export interface IHRPerformanceEvaluation {
+export interface IHRPerformanceRecord {
   id: string;
   tutorId: string;
-  evaluatorId: string;
-  period: string; // "YYYY-MM"
-  scores: Record<string, number>;
-  averageScore: number;
-  feedback?: string;
-  goals?: string;
-  createdAt: string;
-  updatedAt: string;
+  month: string;
+  year: number;
+  G: number;
+  R: number;
+  O: number;
+  W: number;
+  T: number;
+  H: number;
+  totalPoints: number;
+  description: string;
+  awardedBy: string;
+  awardedAt: string;
 }
 
-export interface ICreateHRPerformancePayload {
+export interface IHRPerformancePayload {
   tutorId: string;
-  period: string;
-  scores: Record<string, number>;
-  feedback?: string;
-  goals?: string;
+  month: string;
+  year: number;
+  G: number;
+  R: number;
+  O: number;
+  W: number;
+  T: number;
+  H: number;
+  description: string;
 }
 
-export type IHRPerformanceResponse = IApiResponse<IHRPerformanceEvaluation>;
-export type IHRPerformanceListResponse = IApiResponse<IHRPerformanceEvaluation[]> & { total: number };
+export interface IHRGrowthLeaderboardItem {
+  tutorId: string;
+  tutorName: string;
+  totalPoints: number;
+  categoryBreakdown: Record<string, number> | null;
+  rank: number;
+}
+
+export type IHRPerformanceResponse = IApiResponse<IHRPerformanceRecord>;
+export type IHRPerformanceListResponse = IApiResponse<IHRPerformanceRecord[]> & { total: number };
+export type IHRGrowthLeaderboardResponse = IApiResponse<IHRGrowthLeaderboardItem[]> & { total?: number };
+
+// keep legacy alias so existing imports don't break
+export type ICreateHRPerformancePayload = IHRPerformancePayload;
+export type IHRPerformanceEvaluation = IHRPerformanceRecord;
 
 // ── Reports ───────────────────────────────────────────────────────────────────
 

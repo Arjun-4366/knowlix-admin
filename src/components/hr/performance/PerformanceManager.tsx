@@ -1,254 +1,530 @@
 "use client";
 
 import { useState } from "react";
-import { Loader2, Plus } from "lucide-react";
+import {
+  Loader2, Plus, Trophy, History, X, Medal, Crown,
+  TrendingUp,
+} from "lucide-react";
+import { format } from "date-fns";
 import DashboardHeader from "@/components/dashboard/shared/DashboardHeader";
 import { Button } from "@/components/ui/button";
-import EmployeePerformanceTracker from "./EmployeePerformanceTracker";
-import PerformanceOverview from "./PerformanceOverview";
-import CreateEvaluationModal from "./CreateEvaluationModal";
-import UpdateEvaluationModal from "./UpdateEvaluationModal";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  coreValues,
-  DEFAULT_PERFORMANCE_CYCLE_ID,
-  performanceCycles,
-} from "./performanceData";
-import { PerformanceScorecard, ReviewStatus } from "./types";
-import { Employee } from "../employees/types";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  useGetHRGrowthLeaderboard,
+  useGetHRPerformanceHistory,
+  useCreateHRPerformance,
   useGetTutorsHR,
-  useGetTutorEvaluations,
-  useCreateTutorEvaluation,
-  useUpdateTutorEvaluation,
 } from "@/querys/admin/hrQuery";
-import { IHRPerformanceEvaluation, ICreateHRPerformancePayload } from "@/types/admin/hr";
+import { IHRPerformancePayload } from "@/types/admin/hr";
 
-const mapTutorToEmployee = (tutor: any): Employee => {
-  const tutorId = tutor.id || tutor._id || "";
-  let mappedStatus: Employee["status"] = "Active";
-  if (tutor.status === "pending") {
-    mappedStatus = "On Probation";
-  } else if (tutor.status === "rejected") {
-    mappedStatus = "Terminated";
-  }
+const MONTHS = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
+];
 
-  let mappedDept: Employee["department"] = "Tutor";
-  let mappedRole = "Tutor";
-  if (tutor.role === "mentor_sales_bro") {
-    mappedDept = "Sales";
-    mappedRole = "Mentor/Sales Rep";
-  } else if (tutor.role === "academic_coordinator") {
-    mappedDept = "Academics";
-    mappedRole = "Academic Coordinator";
-  }
-
-  return {
-    id: tutorId,
-    name: tutor.name || "Unnamed Tutor",
-    email: tutor.email || "",
-    phone: tutor.phone || "",
-    address: tutor.availability || "Online / Remote",
-    dob: "1990-01-01",
-    emergencyContact: {
-      name: "Emergency Contact",
-      relationship: "Family",
-      phone: tutor.phone || "",
-    },
-    designation: mappedRole,
-    department: mappedDept,
-    dateOfJoining: tutor.createdAt ? tutor.createdAt.slice(0, 10) : new Date().toISOString().split("T")[0],
-    status: mappedStatus,
-    manager: "HR Manager",
-    salaryDetails: {
-      base: 40000,
-      allowance: 10000,
-      pf: 4800,
-      ctc: 600000,
-    },
-    documents: [],
-    joiningRecords: {
-      probationEnd: "",
-      joiningNotes: `Experience: ${tutor.experience || "Not specified"}. Availability: ${tutor.availability || "Not specified"}.`,
-    },
-  };
+const GROWTH_KEYS = ["G", "R", "O", "W", "T", "H"] as const;
+const GROWTH_LABELS: Record<string, string> = {
+  G: "Growth",
+  R: "Responsibility",
+  O: "Ownership",
+  W: "Work Ethics",
+  T: "Teamwork",
+  H: "Honesty",
 };
 
-function toScorecard(ev: IHRPerformanceEvaluation): PerformanceScorecard {
-  const cycleId = ev.period === "2025-12" ? "PERF-H2-2025" : DEFAULT_PERFORMANCE_CYCLE_ID;
-  return {
-    id: ev.id,
-    cycleId,
-    employeeId: ev.tutorId,
-    reviewer: ev.evaluatorId || "HR Manager",
-    overallScore: ev.averageScore,
-    nextReviewDate: ev.updatedAt?.slice(0, 10) ?? "",
-    appraisalStatus: "Manager Review" as ReviewStatus,
-    trend: ev.averageScore >= 8 ? "Improving" : "Stable",
-    recommendedAction: ev.goals || "On track for objectives",
-    strengths: ["Domain knowledge", "Communication"],
-    watchouts: ["Schedule adherence"],
-    managerSummary: ev.feedback || "Good progress in curriculum delivery.",
-    selfSummary: "Completing modules on time.",
-    valueRatings: Object.entries(ev.scores || {}).map(([valueId, score]) => ({
-      valueId,
-      score,
-      note: "Standard evaluation rating",
-    })),
-  };
+const currentDate = new Date();
+const currentYear = currentDate.getFullYear();
+const YEARS = Array.from({ length: 5 }, (_, i) => (currentYear - i).toString());
+
+function rankIcon(rank: number) {
+  if (rank === 1) return <Crown className="w-4 h-4 text-yellow-500" />;
+  if (rank === 2) return <Medal className="w-4 h-4 text-slate-400" />;
+  if (rank === 3) return <Medal className="w-4 h-4 text-amber-600" />;
+  return <span className="text-xs font-bold text-slate-400">#{rank}</span>;
 }
 
-export default function PerformanceManager() {
-  const [selectedCycleId, setSelectedCycleId] = useState(DEFAULT_PERFORMANCE_CYCLE_ID);
-  const [selectedDepartment, setSelectedDepartment] = useState("all");
-  const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(null);
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const [updateModalEvaluationId, setUpdateModalEvaluationId] = useState<string | null>(null);
+// ── Award / Edit Dialog ───────────────────────────────────────────────────────
 
-  const { data: tutorsRes, isLoading: tutorsLoading } = useGetTutorsHR({ limit: 1000 });
-  const { data: evaluationsRes, isLoading: evaluationsLoading } = useGetTutorEvaluations();
-  const createEvaluationMutation = useCreateTutorEvaluation();
-  const updateEvaluationMutation = useUpdateTutorEvaluation();
+interface AwardDialogProps {
+  open: boolean;
+  onClose: () => void;
+  onSubmit: (data: IHRPerformancePayload) => Promise<void>;
+  saving: boolean;
+  tutors: { id: string; name: string }[];
+}
 
-  const handleCreateEvaluation = async (data: ICreateHRPerformancePayload) => {
-    try {
-      await createEvaluationMutation.mutateAsync(data);
-      setShowCreateModal(false);
-    } catch (err) {
-      // toast notification is already managed by the mutation onError hook
+function AwardDialog({ open, onClose, onSubmit, saving, tutors }: AwardDialogProps) {
+  const [tutorId, setTutorId] = useState("");
+  const [month, setMonth] = useState(MONTHS[currentDate.getMonth()]);
+  const [year, setYear] = useState(currentYear.toString());
+  const [description, setDescription] = useState("");
+  const [scores, setScores] = useState<Record<string, string>>({
+    G: "", R: "", O: "", W: "", T: "", H: "",
+  });
+
+  if (!open) return null;
+
+  const total = Object.values(scores).reduce((sum, v) => sum + (parseInt(v) || 0), 0);
+
+  const handleScoreChange = (key: string, raw: string) => {
+    if (raw === "") {
+      setScores((prev) => ({ ...prev, [key]: "" }));
+      return;
     }
+    const val = Math.min(5, Math.max(0, parseInt(raw) || 0));
+    setScores((prev) => ({ ...prev, [key]: String(val) }));
   };
 
-  const handleUpdateEvaluation = async (id: string, data: Partial<ICreateHRPerformancePayload>) => {
-    try {
-      await updateEvaluationMutation.mutateAsync({ id, data });
-      setUpdateModalEvaluationId(null);
-    } catch (err) {
-      // toast handled
-    }
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!tutorId || !description.trim()) return;
+    await onSubmit({
+      tutorId,
+      month,
+      year: parseInt(year),
+      G: parseInt(scores.G) || 0,
+      R: parseInt(scores.R) || 0,
+      O: parseInt(scores.O) || 0,
+      W: parseInt(scores.W) || 0,
+      T: parseInt(scores.T) || 0,
+      H: parseInt(scores.H) || 0,
+      description: description.trim(),
+    });
+    setTutorId("");
+    setDescription("");
+    setScores({ G: "", R: "", O: "", W: "", T: "", H: "" });
   };
 
-  const employees = tutorsRes?.data ? (tutorsRes.data as any[]).map(mapTutorToEmployee) : [];
-  const rawEvaluations = evaluationsRes?.data ? (evaluationsRes.data as IHRPerformanceEvaluation[]) : [];
-  const scorecards = evaluationsRes?.data ? (evaluationsRes.data as IHRPerformanceEvaluation[]).map(toScorecard) : [];
-
-  const activeEmployees = employees.filter(
-    (employee) =>
-      employee.status === "Active" || employee.status === "On Probation"
-  );
-  const filteredEmployees = activeEmployees.filter((employee) =>
-    selectedDepartment === "all"
-      ? true
-      : employee.department === selectedDepartment
-  );
-  const departments = Array.from(
-    new Set(activeEmployees.map((employee) => employee.department))
-  );
-  const visibleEmployeeIds = new Set(filteredEmployees.map((employee) => employee.id));
-  const selectedCycle =
-    performanceCycles.find((cycle) => cycle.id === selectedCycleId) ??
-    performanceCycles[0];
-
-  const visibleScorecards = scorecards
-    .filter(
-      (scorecard) =>
-        scorecard.cycleId === selectedCycleId &&
-        (selectedDepartment === "all" || 
-         (employees.find(e => e.id === scorecard.employeeId)?.department || "Unmapped") === selectedDepartment)
-    )
-    .map((scorecard) => {
-      const employee = employees.find((item) => item.id === scorecard.employeeId);
-      return {
-        ...scorecard,
-        employeeName: employee?.name || "Unknown Employee",
-        designation: employee?.designation || "Profile missing",
-        department: employee?.department || "Unmapped",
-      };
-    })
-    .sort((left, right) => right.overallScore - left.overallScore);
-
-  const resolvedSelectedEmployeeId = visibleScorecards.some(
-    (scorecard) => scorecard.employeeId === selectedEmployeeId
-  )
-    ? selectedEmployeeId
-    : visibleScorecards[0]?.employeeId ?? null;
-
-  const averageScore =
-    visibleScorecards.length > 0
-      ? visibleScorecards.reduce(
-          (total, scorecard) => total + scorecard.overallScore,
-          0
-        ) / visibleScorecards.length
-      : 0;
-  const highPerformerCount = visibleScorecards.filter(
-    (scorecard) => scorecard.overallScore >= 8.0
-  ).length;
-
-  if (tutorsLoading || evaluationsLoading) {
-    return (
-      <div className="space-y-6 pb-10">
-        <DashboardHeader
-          title="Performance Management"
-          description="Core-value reviews and appraisals."
-        />
-        <div className="flex h-96 items-center justify-center bg-white rounded-2xl border border-slate-150 shadow-sm">
-          <Loader2 className="h-8 w-8 animate-spin text-[var(--brand-green)]" />
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative bg-white rounded-2xl shadow-2xl border border-slate-150 w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-200">
+        <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-[var(--brand-light-green)] flex items-center justify-center">
+              <Trophy className="w-4 h-4 text-[var(--brand-green)]" />
+            </div>
+            <div>
+              <h3 className="font-bold text-slate-800 text-base">
+                Award Performance Points
+              </h3>
+              <p className="text-[10px] text-slate-400 font-semibold mt-0.5">
+                Each score is 0–5 per category
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors"
+          >
+            <X className="w-4 h-4" />
+          </button>
         </div>
+
+        <form onSubmit={handleSubmit} className="p-6 space-y-5">
+          <div className="space-y-1.5">
+            <Label className="text-[10px] uppercase font-bold text-slate-500">Tutor</Label>
+            <Select value={tutorId} onValueChange={setTutorId} required>
+              <SelectTrigger className="h-9 text-sm font-semibold bg-slate-50 border-slate-200">
+                <SelectValue placeholder="Select tutor…" />
+              </SelectTrigger>
+              <SelectContent>
+                {tutors.map((t) => (
+                  <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <Label className="text-[10px] uppercase font-bold text-slate-500">Month</Label>
+              <Select value={month} onValueChange={setMonth}>
+                <SelectTrigger className="h-9 text-sm font-semibold bg-slate-50 border-slate-200">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {MONTHS.map((m) => (
+                    <SelectItem key={m} value={m}>{m}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-[10px] uppercase font-bold text-slate-500">Year</Label>
+              <Select value={year} onValueChange={setYear}>
+                <SelectTrigger className="h-9 text-sm font-semibold bg-slate-50 border-slate-200">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {YEARS.map((y) => (
+                    <SelectItem key={y} value={y}>{y}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <Label className="text-[10px] uppercase font-bold text-slate-500">
+                G-R-O-W-T-H Scores
+              </Label>
+              <span className="text-[10px] font-bold text-[var(--brand-green)] bg-[var(--brand-light-green)] px-2 py-0.5 rounded-md border border-[var(--brand-green)]/20">
+                Total: {total} / 30 pts
+              </span>
+            </div>
+            <div className="grid grid-cols-3 gap-3">
+              {GROWTH_KEYS.map((key) => (
+                <div key={key} className="space-y-1">
+                  <Label className="text-[10px] font-bold text-slate-500 uppercase">
+                    {key} — {GROWTH_LABELS[key]}
+                  </Label>
+                  <Input
+                    type="number"
+                    min={0}
+                    max={5}
+                    value={scores[key]}
+                    onChange={(e) => handleScoreChange(key, e.target.value)}
+                    className="h-9 text-sm font-bold bg-slate-50 border-slate-200 text-center"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label className="text-[10px] uppercase font-bold text-slate-500">Description</Label>
+            <Textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="e.g. Monthly overall performance review…"
+              className="text-sm bg-slate-50 border-slate-200 resize-none"
+              rows={3}
+              required
+            />
+          </div>
+
+          <div className="flex items-center justify-end gap-3 pt-1 border-t border-slate-100">
+            <Button type="button" variant="outline" onClick={onClose} className="font-semibold text-sm">
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              disabled={saving || !tutorId || !description.trim()}
+              className="bg-[var(--brand-green)] hover:bg-[var(--brand-mid)] text-white font-bold text-sm flex items-center gap-1.5"
+            >
+              {saving && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+              Award Points
+            </Button>
+          </div>
+        </form>
       </div>
-    );
-  }
+    </div>
+  );
+}
+
+// ── Main ──────────────────────────────────────────────────────────────────────
+
+export default function PerformanceManager() {
+  const [showAwardDialog, setShowAwardDialog] = useState(false);
+
+  const [historyTutorId, setHistoryTutorId] = useState("");
+  const [historyMonth, setHistoryMonth] = useState("");
+  const [historyYear, setHistoryYear] = useState("");
+
+  const { data: leaderboardRes, isLoading: leaderboardLoading } = useGetHRGrowthLeaderboard();
+  const { data: historyRes, isLoading: historyLoading } = useGetHRPerformanceHistory({
+    ...(historyTutorId ? { tutorId: historyTutorId } : {}),
+    ...(historyMonth ? { month: historyMonth } : {}),
+    ...(historyYear ? { year: parseInt(historyYear) } : {}),
+  });
+  const { data: tutorsRes } = useGetTutorsHR({ limit: 1000 });
+
+  const createMutation = useCreateHRPerformance();
+
+  const leaderboard = leaderboardRes?.data ?? [];
+  const history = historyRes?.data ?? [];
+  const tutors = (tutorsRes?.data as any[] ?? []).map((t: any) => ({
+    id: t.id || t._id || "",
+    name: t.name || "Unnamed",
+  }));
+
+  const topTutor = leaderboard[0];
+  const totalPoints = leaderboard.reduce((s, t) => s + t.totalPoints, 0);
+
+  const handleCreate = async (data: IHRPerformancePayload) => {
+    await createMutation.mutateAsync(data);
+    setShowAwardDialog(false);
+  };
 
   return (
     <div className="space-y-6 pb-10">
       <DashboardHeader
         title="Performance Management"
-        description={`Core-value performance board for ${selectedCycle.label}: employee tracking, appraisals, and feedback.`}
+        description="G-R-O-W-T-H point awards, leaderboard rankings, and history."
         actions={
           <Button
-            onClick={() => setShowCreateModal(true)}
+            onClick={() => setShowAwardDialog(true)}
             className="bg-[var(--brand-green)] hover:bg-[var(--brand-green)]/90 text-white font-bold text-xs px-4 py-2.5 rounded-xl flex items-center gap-1.5 shadow-sm cursor-pointer ml-auto"
           >
-            <Plus className="w-4 h-4" /> Create Evaluation
+            <Plus className="w-4 h-4" /> Award Points
           </Button>
         }
       />
 
-      <PerformanceOverview
-        cycleStatus={selectedCycle.status}
-        averageScore={averageScore}
-        highPerformerCount={highPerformerCount}
-        totalEvaluations={visibleScorecards.length}
+      {/* Stats */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <Card className="bg-white border-slate-150 shadow-sm">
+          <CardContent className="p-5 flex items-center gap-4">
+            <div className="w-10 h-10 rounded-xl bg-[var(--brand-light-green)] flex items-center justify-center">
+              <Trophy className="w-5 h-5 text-[var(--brand-green)]" />
+            </div>
+            <div>
+              <p className="text-[10px] uppercase font-bold text-slate-400">Total Tutors</p>
+              <p className="text-2xl font-bold text-slate-800">{leaderboard.length}</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="bg-white border-slate-150 shadow-sm">
+          <CardContent className="p-5 flex items-center gap-4">
+            <div className="w-10 h-10 rounded-xl bg-yellow-50 flex items-center justify-center">
+              <Crown className="w-5 h-5 text-yellow-500" />
+            </div>
+            <div>
+              <p className="text-[10px] uppercase font-bold text-slate-400">Top Performer</p>
+              <p className="text-sm font-bold text-slate-800 truncate max-w-[160px]">
+                {topTutor?.tutorName ?? "—"}
+              </p>
+              {topTutor && (
+                <p className="text-[10px] text-[var(--brand-green)] font-semibold">
+                  {topTutor.totalPoints} pts
+                </p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="bg-white border-slate-150 shadow-sm">
+          <CardContent className="p-5 flex items-center gap-4">
+            <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
+              <TrendingUp className="w-5 h-5 text-blue-500" />
+            </div>
+            <div>
+              <p className="text-[10px] uppercase font-bold text-slate-400">Total Points Awarded</p>
+              <p className="text-2xl font-bold text-slate-800">{totalPoints}</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Tabs */}
+      <Tabs defaultValue="leaderboard">
+        <TabsList className="bg-slate-100 p-1 rounded-xl">
+          <TabsTrigger value="leaderboard" className="rounded-lg text-xs font-bold flex items-center gap-1.5">
+            <Trophy className="w-3.5 h-3.5" /> Leaderboard
+          </TabsTrigger>
+          <TabsTrigger value="history" className="rounded-lg text-xs font-bold flex items-center gap-1.5">
+            <History className="w-3.5 h-3.5" /> History
+          </TabsTrigger>
+        </TabsList>
+
+        {/* Leaderboard Tab */}
+        <TabsContent value="leaderboard" className="mt-4">
+          <Card className="bg-white border-slate-150 shadow-sm">
+            <CardHeader className="p-6 pb-4 border-b border-slate-100 bg-slate-50/50">
+              <CardTitle className="font-bold text-slate-800 text-sm uppercase tracking-wider flex items-center gap-2">
+                <Trophy className="w-4 h-4 text-[var(--brand-green)]" />
+                Tutor Rankings
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-0">
+              {leaderboardLoading ? (
+                <div className="flex justify-center items-center py-16">
+                  <Loader2 className="w-6 h-6 animate-spin text-[var(--brand-green)]" />
+                </div>
+              ) : leaderboard.length > 0 ? (
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader className="bg-slate-50">
+                      <TableRow className="border-slate-100 hover:bg-slate-50">
+                        <TableHead className="text-xs font-bold text-slate-500 w-16 px-6 py-3">Rank</TableHead>
+                        <TableHead className="text-xs font-bold text-slate-500 py-3">Tutor</TableHead>
+                        {GROWTH_KEYS.map((k) => (
+                          <TableHead key={k} className="text-xs font-bold text-slate-500 text-center py-3 whitespace-nowrap">
+                            {k} — {GROWTH_LABELS[k]}
+                          </TableHead>
+                        ))}
+                        <TableHead className="text-xs font-bold text-slate-500 text-center px-6 py-3">Total</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {leaderboard.map((item) => (
+                        <TableRow key={item.tutorId} className="border-slate-100 hover:bg-slate-50/50 transition-colors">
+                          <TableCell className="px-6 py-4">
+                            <div className="flex items-center justify-center">{rankIcon(item.rank)}</div>
+                          </TableCell>
+                          <TableCell className="py-4">
+                            <span className="text-sm font-semibold text-slate-700">{item.tutorName}</span>
+                          </TableCell>
+                          {GROWTH_KEYS.map((k) => (
+                            <TableCell key={k} className="text-center text-sm font-semibold text-slate-700 py-4">
+                              {item.categoryBreakdown?.[k] ?? 0}
+                            </TableCell>
+                          ))}
+                          <TableCell className="text-center px-6 py-4">
+                            <span className="inline-flex items-center justify-center px-2.5 py-1 text-xs font-bold rounded-md bg-[var(--brand-light-green)] text-[var(--brand-mid)] border border-[var(--brand-green)]/20">
+                              {item.totalPoints}
+                            </span>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              ) : (
+                <div className="py-16 text-center text-slate-500">
+                  <Trophy className="w-8 h-8 mx-auto text-slate-300 mb-3" />
+                  <p className="text-sm font-medium">No leaderboard data yet.</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* History Tab */}
+        <TabsContent value="history" className="mt-4">
+          <Card className="bg-white border-slate-150 shadow-sm">
+            <CardHeader className="p-6 pb-4 border-b border-slate-100 bg-slate-50/50">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <CardTitle className="font-bold text-slate-800 text-sm uppercase tracking-wider flex items-center gap-2">
+                  <History className="w-4 h-4 text-[var(--brand-green)]" />
+                  Performance History
+                </CardTitle>
+                <div className="flex flex-wrap items-center gap-3">
+                  <Select value={historyTutorId || "all"} onValueChange={(v) => setHistoryTutorId(v === "all" ? "" : v)}>
+                    <SelectTrigger className="w-[160px] h-8 text-xs font-semibold bg-white border-slate-200">
+                      <SelectValue placeholder="All Tutors" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Tutors</SelectItem>
+                      {tutors.map((t) => (
+                        <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Select value={historyMonth || "all"} onValueChange={(v) => setHistoryMonth(v === "all" ? "" : v)}>
+                    <SelectTrigger className="w-[140px] h-8 text-xs font-semibold bg-white border-slate-200">
+                      <SelectValue placeholder="All Months" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Months</SelectItem>
+                      {MONTHS.map((m) => (
+                        <SelectItem key={m} value={m}>{m}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Select value={historyYear || "all"} onValueChange={(v) => setHistoryYear(v === "all" ? "" : v)}>
+                    <SelectTrigger className="w-[120px] h-8 text-xs font-semibold bg-white border-slate-200">
+                      <SelectValue placeholder="All Years" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Years</SelectItem>
+                      {YEARS.map((y) => (
+                        <SelectItem key={y} value={y}>{y}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="p-0">
+              {historyLoading ? (
+                <div className="flex justify-center items-center py-16">
+                  <Loader2 className="w-6 h-6 animate-spin text-[var(--brand-green)]" />
+                </div>
+              ) : history.length > 0 ? (
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader className="bg-slate-50">
+                      <TableRow className="border-slate-100 hover:bg-slate-50">
+                        <TableHead className="text-xs font-bold text-slate-500 px-6 py-3 whitespace-nowrap">Period</TableHead>
+                        <TableHead className="text-xs font-bold text-slate-500 py-3 whitespace-nowrap">Awarded At</TableHead>
+                        {GROWTH_KEYS.map((k) => (
+                          <TableHead key={k} className="text-xs font-bold text-slate-500 text-center py-3">{k}</TableHead>
+                        ))}
+                        <TableHead className="text-xs font-bold text-slate-500 text-center py-3">Total</TableHead>
+                        <TableHead className="text-xs font-bold text-slate-500 px-6 py-3">Description</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {history.map((item) => (
+                        <TableRow key={item.id} className="border-slate-100 hover:bg-slate-50/50 transition-colors">
+                          <TableCell className="px-6 py-4">
+                            <span className="text-sm font-semibold text-slate-700">
+                              {item.month} {item.year}
+                            </span>
+                          </TableCell>
+                          <TableCell className="py-4 text-[11px] text-slate-400 whitespace-nowrap">
+                            {item.awardedAt ? format(new Date(item.awardedAt), "MMM d, yyyy") : "—"}
+                          </TableCell>
+                          {GROWTH_KEYS.map((k) => (
+                            <TableCell key={k} className="text-center text-sm font-semibold text-slate-700 py-4">
+                              {item[k]}
+                            </TableCell>
+                          ))}
+                          <TableCell className="text-center py-4">
+                            <span className="inline-flex items-center justify-center px-2 py-1 text-xs font-bold rounded-md bg-[var(--brand-light-green)] text-[var(--brand-mid)] border border-[var(--brand-green)]/20">
+                              {item.totalPoints}
+                            </span>
+                          </TableCell>
+                          <TableCell className="px-6 py-4 text-sm text-slate-600 max-w-[200px] truncate" title={item.description}>
+                            {item.description}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              ) : (
+                <div className="py-16 text-center text-slate-500">
+                  <History className="w-8 h-8 mx-auto text-slate-300 mb-3" />
+                  <p className="text-sm font-medium">No performance history found.</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+
+      {/* Award Dialog */}
+      <AwardDialog
+        open={showAwardDialog}
+        onClose={() => setShowAwardDialog(false)}
+        onSubmit={handleCreate}
+        saving={createMutation.isPending}
+        tutors={tutors}
       />
 
-      <EmployeePerformanceTracker
-        cycles={performanceCycles}
-        selectedCycleId={selectedCycleId}
-        onCycleChange={setSelectedCycleId}
-        selectedDepartment={selectedDepartment}
-        onDepartmentChange={setSelectedDepartment}
-        departments={departments}
-        scorecards={visibleScorecards}
-        coreValues={coreValues}
-        selectedEmployeeId={resolvedSelectedEmployeeId}
-        onEmployeeSelect={setSelectedEmployeeId}
-        onEditEvaluation={(evalId) => setUpdateModalEvaluationId(evalId)}
-      />
-
-      <CreateEvaluationModal
-        isOpen={showCreateModal}
-        onClose={() => setShowCreateModal(false)}
-        onSubmit={handleCreateEvaluation}
-        tutors={activeEmployees}
-        saving={createEvaluationMutation.isPending}
-      />
-
-      <UpdateEvaluationModal
-        isOpen={!!updateModalEvaluationId}
-        onClose={() => setUpdateModalEvaluationId(null)}
-        onSubmit={handleUpdateEvaluation}
-        evaluation={rawEvaluations.find((e) => e.id === updateModalEvaluationId) || null}
-        tutors={activeEmployees}
-        saving={updateEvaluationMutation.isPending}
-      />
+      {/* removed edit dialog */}
     </div>
   );
 }

@@ -14,9 +14,10 @@ import {
 } from "@/services/hr/attendance";
 
 import {
-  createTutorEvaluation,
-  getTutorEvaluations,
-  updateTutorEvaluation,
+  createHRPerformance,
+  getHRPerformanceHistory,
+  updateHRPerformance,
+  getHRGrowthLeaderboard,
 } from "@/services/hr/performance";
 
 import {
@@ -45,7 +46,7 @@ import {
 import {
   ICreateHolidayPayload,
   IApproveAttendancePayload,
-  ICreateHRPerformancePayload,
+  IHRPerformancePayload,
   ICreateHRNoticePayload,
   IHRNoticeQueryParams,
   IHRAttendanceQueryParams,
@@ -145,36 +146,43 @@ export const useApproveBulkAttendance = () => {
   });
 };
 
-// ── Performance Hooks ─────────────────────────────────────────────────────────
-export const useGetTutorEvaluations = (params?: { tutorId?: string; period?: string }) => {
+// ── Performance / Growth Hooks ────────────────────────────────────────────────
+export const useGetHRGrowthLeaderboard = () => {
   return useQuery({
-    queryKey: [...HR_PERFORMANCE_KEY, params],
-    queryFn: () => getTutorEvaluations(params),
+    queryKey: [...HR_PERFORMANCE_KEY, "leaderboard"],
+    queryFn: () => getHRGrowthLeaderboard(),
   });
 };
 
-export const useCreateTutorEvaluation = () => {
+export const useGetHRPerformanceHistory = (params?: { tutorId?: string; month?: string; year?: number }) => {
+  return useQuery({
+    queryKey: [...HR_PERFORMANCE_KEY, "history", params],
+    queryFn: () => getHRPerformanceHistory(params),
+  });
+};
+
+export const useCreateHRPerformance = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: ICreateHRPerformancePayload) => createTutorEvaluation(data),
+    mutationFn: (data: IHRPerformancePayload) => createHRPerformance(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: HR_PERFORMANCE_KEY });
-      toast.success("Evaluation submitted successfully");
+      toast.success("Performance record created successfully");
     },
-    onError: () => toast.error("Failed to submit evaluation"),
+    onError: () => toast.error("Failed to create performance record"),
   });
 };
 
-export const useUpdateTutorEvaluation = () => {
+export const useUpdateHRPerformance = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<ICreateHRPerformancePayload> }) =>
-      updateTutorEvaluation(id, data),
-    onSuccess: (_, variables) => {
+    mutationFn: ({ id, data }: { id: string; data: IHRPerformancePayload }) =>
+      updateHRPerformance(id, data),
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: HR_PERFORMANCE_KEY });
-      toast.success("Evaluation updated successfully");
+      toast.success("Performance record updated successfully");
     },
-    onError: () => toast.error("Failed to update evaluation"),
+    onError: () => toast.error("Failed to update performance record"),
   });
 };
 
