@@ -141,58 +141,49 @@
   }
 }
 
-/* ── Per-portal color themes ─────────────────────────────────────────────────
-   Each portal shell has a unique ID. Overriding --brand-* variables here
-   cascades the full theme (sidebar, active nav, buttons, icon tints, bg)
-   to every component inside that portal automatically.
-   ─────────────────────────────────────────────────────────────────────────── */
+/* ── Per-portal color themes ─────────────────────────────────────────────────*/
 
-/* Admin — Command Blue  (authority · enterprise · trust)
-   Sidebar reads clearly as blue — saturated navy, not generic dark           */
+/* Admin — Command Blue */
 #admin-shell {
-  --brand-dark:        #1e3a8a;   /* blue-800  — unmistakably blue sidebar   */
-  --brand-mid:         #2563eb;   /* blue-600                                */
-  --brand-green:       #3b82f6;   /* blue-500  — vivid accent                */
-  --brand-light:       #93c5fd;   /* blue-300                                */
-  --brand-bg:          #f0f6ff;   /* blue-tinted near-white content area     */
-  --brand-light-green: #dbeafe;   /* blue-100  — icon badge bg               */
+  --brand-dark:        #1a3252;
+  --brand-mid:         #1d4ed8;
+  --brand-green:       #2563eb;
+  --brand-light:       #60a5fa;
+  --brand-bg:          #f4f8ff;
+  --brand-light-green: #dbeafe;
 }
 
-/* HR — Forest Emerald  (people · growth · wellbeing)
-   Rich deep forest green — clearly green, distinct from blue/purple          */
+/* HR — Calm Teal */
 #hr-shell {
-  --brand-dark:        #064e3b;   /* emerald-900 — clearly forest green      */
-  --brand-mid:         #047857;   /* emerald-700                             */
-  --brand-green:       #059669;   /* emerald-600 — balanced, readable        */
-  --brand-light:       #34d399;   /* emerald-400                             */
-  --brand-bg:          #f0fdf4;   /* green-50   — fresh content area         */
-  --brand-light-green: #d1fae5;   /* emerald-100 — icon badge bg             */
+  --brand-dark:        #0f3d3a;
+  --brand-mid:         #0f766e;
+  --brand-green:       #0d9488;
+  --brand-light:       #2dd4bf;
+  --brand-bg:          #f0fdfa;
+  --brand-light-green: #ccfbf1;
 }
 
-/* Tutor — Scholar Purple  (knowledge · depth · expertise)
-   Rich purple sidebar — reads immediately as purple, not violet-grey         */
+/* Tutor — Scholar Violet  (knowledge · depth · expertise) */
 #tutor-shell {
-  --brand-dark:        #3b0764;   /* purple-950 — bold, unmistakably purple  */
-  --brand-mid:         #7e22ce;   /* purple-700                              */
-  --brand-green:       #9333ea;   /* purple-600 — clear accent               */
-  --brand-light:       #c084fc;   /* purple-400                              */
-  --brand-bg:          #fdf4ff;   /* purple-50  — subtle lavender content bg */
-  --brand-light-green: #f3e8ff;   /* purple-100 — icon badge bg              */
+  --brand-dark:        #3b0a8a;
+  --brand-mid:         #5b22b6;
+  --brand-green:       #7c3aed;
+  --brand-light:       #a78bfa;
+  --brand-bg:          #f5f3ff;
+  --brand-light-green: #ede9fe;
 }
 
-/* Student — Sunrise Amber  (curiosity · energy · warmth)
-   Warm amber/orange — feels entirely different from the cool three above     */
+/* Student — Sky Blue  (fresh · open · curious) */
 #student-shell {
-  --brand-dark:        #78350f;   /* amber-800  — warm rich brown-orange     */
-  --brand-mid:         #d97706;   /* amber-600                               */
-  --brand-green:       #f59e0b;   /* amber-500  — bright, welcoming accent   */
-  --brand-light:       #fcd34d;   /* amber-300                               */
-  --brand-bg:          #fffbeb;   /* amber-50   — warm cream content area    */
-  --brand-light-green: #fef3c7;   /* amber-100  — icon badge bg              */
+  --brand-dark:        #0369a1;
+  --brand-mid:         #0284c7;
+  --brand-green:       #0ea5e9;
+  --brand-light:       #7dd3fc;
+  --brand-bg:          #f0f9ff;
+  --brand-light-green: #e0f2fe;
 }
 
-/* Tab active state inherits the portal's --brand-green automatically */
-/* Admin panel — tab active state uses portal brand color */
+/* Tab active state picks up the portal's --brand-green automatically */
 [data-slot="tabs-trigger"][data-state="active"] {
   background-color: var(--brand-green) !important;
   color: #fff !important;
