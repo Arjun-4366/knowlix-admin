@@ -40,16 +40,16 @@ export default function StudentSidebar({ collapsed }: Props) {
 
   return (
     <aside
-      className="flex-shrink-0 flex flex-col h-full overflow-hidden"
+      className="flex-shrink-0 flex flex-col h-full overflow-hidden bg-white"
       style={{
-        background: "var(--brand-dark)",
+        borderRight: "1px solid #e2e8f0",
         width: collapsed ? "64px" : "240px",
         transition: "width 300ms cubic-bezier(0.4, 0, 0.2, 1)",
       }}
     >
       {/* Logo */}
       <div
-        className="flex items-center border-b border-white/10 flex-shrink-0"
+        className="flex items-center border-b border-slate-100 flex-shrink-0"
         style={{
           padding: collapsed ? "18px 0" : "18px 20px",
           justifyContent: collapsed ? "center" : "flex-start",
@@ -72,51 +72,61 @@ export default function StudentSidebar({ collapsed }: Props) {
             whiteSpace: "nowrap",
           }}
         >
-          <p className="text-white font-bold text-sm leading-none font-heading">Knowlix</p>
-          <p className="text-white/45 text-xs mt-0.5">Student Panel</p>
+          <p className="font-bold text-sm leading-none font-heading" style={{ color: "var(--brand-dark)" }}>
+            Knowlix
+          </p>
+          <p className="text-slate-400 text-xs mt-0.5">Student Panel</p>
         </div>
       </div>
 
       {/* Navigation */}
       <nav
-        className="flex-1 py-4 space-y-0.5 overflow-y-auto overflow-x-hidden"
+        className="flex-1 overflow-y-auto overflow-x-hidden"
         style={{ padding: collapsed ? "16px 8px" : "16px 12px", transition: "padding 300ms ease" }}
       >
-        {nav.map((item) => {
-          const Icon = item.icon;
-          const isActive = pathname === item.href;
+        <div className="space-y-0.5">
+          {nav.map((item) => {
+            const Icon = item.icon;
+            const isActive = pathname === item.href;
 
-          return (
-            <Link
-              key={item.name}
-              href={item.href}
-              title={collapsed ? item.name : undefined}
-              className={cn(
-                "flex items-center rounded-lg text-sm font-medium transition-all overflow-hidden",
-                isActive ? "text-white" : "text-white/60 hover:text-white hover:bg-white/8"
-              )}
-              style={{
-                background: isActive ? "var(--brand-green)" : undefined,
-                padding: collapsed ? "10px 0" : "10px 12px",
-                justifyContent: collapsed ? "center" : "flex-start",
-                gap: collapsed ? 0 : "12px",
-                transition: "background 150ms ease, padding 300ms ease",
-              }}
-            >
-              <Icon className="w-4 h-4 flex-shrink-0" />
-              <span
-                className="flex-1 whitespace-nowrap overflow-hidden"
+            return (
+              <Link
+                key={item.name}
+                href={item.href}
+                title={collapsed ? item.name : undefined}
+                className={cn(
+                  "flex items-center rounded-lg text-sm font-medium transition-all overflow-hidden",
+                  isActive
+                    ? "font-semibold"
+                    : "text-slate-500 hover:text-slate-800 hover:bg-slate-50"
+                )}
                 style={{
-                  opacity: collapsed ? 0 : 1,
-                  maxWidth: collapsed ? 0 : "200px",
-                  transition: "opacity 150ms ease, max-width 300ms ease",
+                  background: isActive ? "var(--brand-light-green)" : undefined,
+                  color: isActive ? "var(--brand-dark)" : undefined,
+                  padding: collapsed ? "10px 0" : "10px 12px",
+                  justifyContent: collapsed ? "center" : "flex-start",
+                  gap: collapsed ? 0 : "12px",
+                  transition: "background 150ms ease, padding 300ms ease",
                 }}
               >
-                {item.name}
-              </span>
-            </Link>
-          );
-        })}
+                <Icon
+                  className="w-4 h-4 flex-shrink-0"
+                  style={{ color: isActive ? "var(--brand-green)" : undefined }}
+                />
+                <span
+                  className="flex-1 whitespace-nowrap overflow-hidden"
+                  style={{
+                    opacity: collapsed ? 0 : 1,
+                    maxWidth: collapsed ? 0 : "200px",
+                    transition: "opacity 150ms ease, max-width 300ms ease",
+                  }}
+                >
+                  {item.name}
+                </span>
+              </Link>
+            );
+          })}
+        </div>
       </nav>
 
       {/* My Profile footer link */}
@@ -124,8 +134,8 @@ export default function StudentSidebar({ collapsed }: Props) {
         href="/student/profile"
         title={collapsed ? "My Profile" : undefined}
         className={cn(
-          "border-t border-white/10 flex-shrink-0 flex items-center gap-3 transition-all",
-          pathname === "/student/profile" ? "bg-white/10" : "hover:bg-white/5"
+          "border-t border-slate-100 flex-shrink-0 flex items-center gap-3 transition-all",
+          pathname === "/student/profile" ? "bg-slate-50" : "hover:bg-slate-50"
         )}
         style={{
           padding: collapsed ? "16px 0" : "14px 16px",
@@ -134,7 +144,7 @@ export default function StudentSidebar({ collapsed }: Props) {
         }}
       >
         <div
-          className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0 flex-shrink-0"
+          className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0"
           style={{ background: "var(--brand-green)" }}
         >
           <UserCircle className="w-4 h-4" />
@@ -148,8 +158,8 @@ export default function StudentSidebar({ collapsed }: Props) {
             whiteSpace: "nowrap",
           }}
         >
-          <p className="text-white text-xs font-semibold">My Profile</p>
-          <p className="text-white/45 text-[10px]">View account details</p>
+          <p className="text-xs font-semibold" style={{ color: "var(--brand-dark)" }}>My Profile</p>
+          <p className="text-slate-400 text-[10px]">View account details</p>
         </div>
       </Link>
     </aside>

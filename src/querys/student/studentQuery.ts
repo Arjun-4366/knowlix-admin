@@ -14,6 +14,9 @@ import {
   getStudentFees,
   getStudentFeesStatus,
   getStudentProfile,
+  getStudentNoteSubjects,
+  getStudentNoteChapters,
+  getStudentNotes,
 } from "@/services/student/student";
 
 const STUDENT_KEYS = {
@@ -28,6 +31,9 @@ const STUDENT_KEYS = {
   fees: ["student-fees"] as const,
   feesStatus: ["student-fees-status"] as const,
   profile: ["student-profile"] as const,
+  noteSubjects: ["student-note-subjects"] as const,
+  noteChapters: (subject: string) => ["student-note-chapters", subject] as const,
+  notes: (subject: string, chapter: string) => ["student-notes", subject, chapter] as const,
 };
 
 export const useGetStudentDashboard = (params?: QueryParams) => {
@@ -124,5 +130,30 @@ export const useGetStudentProfile = () => {
   return useQuery({
     queryKey: STUDENT_KEYS.profile,
     queryFn: () => getStudentProfile(),
+  });
+};
+
+export const useGetStudentNoteSubjects = () => {
+  return useQuery({
+    queryKey: STUDENT_KEYS.noteSubjects,
+    queryFn: getStudentNoteSubjects,
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
+export const useGetStudentNoteChapters = (subject: string) => {
+  return useQuery({
+    queryKey: STUDENT_KEYS.noteChapters(subject),
+    queryFn: () => getStudentNoteChapters(subject),
+    enabled: !!subject,
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
+export const useGetStudentNotes = (subject: string, chapter: string) => {
+  return useQuery({
+    queryKey: STUDENT_KEYS.notes(subject, chapter),
+    queryFn: () => getStudentNotes({ subject, chapter }),
+    enabled: !!subject && !!chapter,
   });
 };

@@ -1,4 +1,4 @@
-import { Clock, DollarSign, GraduationCap, Users } from "lucide-react";
+import { Clock, GraduationCap, Users } from "lucide-react";
 import DashboardStatCard from "@/components/dashboard/shared/DashboardStatCard";
 import { IDashboardPayload } from "@/types/admin/dashboard";
 
@@ -6,23 +6,6 @@ interface DashboardOverviewStatsProps {
   dashboardData?: IDashboardPayload;
   onViewChange: (view: "tutors" | "students" | "sessions") => void;
 }
-
-const formatMonthLabel = (month?: string) => {
-  if (!month) {
-    return "This Month";
-  }
-
-  const parsedDate = new Date(`${month}-01T00:00:00`);
-
-  if (Number.isNaN(parsedDate.getTime())) {
-    return month;
-  }
-
-  return new Intl.DateTimeFormat("en-IN", {
-    month: "short",
-    year: "numeric",
-  }).format(parsedDate);
-};
 
 const formatSessionDate = (date?: string) => {
   if (!date) {
@@ -40,20 +23,6 @@ const formatSessionDate = (date?: string) => {
     month: "short",
     year: "numeric",
   }).format(parsedDate);
-};
-
-const formatRevenue = (dashboardData?: IDashboardPayload) => {
-  const monthlyRevenue = dashboardData?.monthlyRevenue;
-
-  if (!monthlyRevenue) {
-    return "INR 0";
-  }
-
-  return new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: monthlyRevenue.currency,
-    maximumFractionDigits: 0,
-  }).format(monthlyRevenue.amount);
 };
 
 const buildSessionFooter = (dashboardData?: IDashboardPayload) => {
@@ -80,7 +49,7 @@ export default function DashboardOverviewStats({
   onViewChange,
 }: DashboardOverviewStatsProps) {
   return (
-    <div className="grid grid-cols-1 gap-6 sm:grid-cols-3 2xl:grid-cols-4">
+    <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
       <DashboardStatCard
         label="Total Tutors"
         value={dashboardData?.totalTutors ?? 0}

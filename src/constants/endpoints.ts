@@ -96,6 +96,13 @@ export const ENDPOINTS = {
   HR_GROWTH_HISTORY: `${API_BASE_URL}/hr/growth/history`,
   ASSIGN_STUDENTS_TO_TUTOR: (id: string) => `${API_BASE_URL}/tutors/${id}/assign-students`,
 
+  //notes
+  GET_NOTES: `${API_BASE_URL}/admin/notes/fetch`,
+  CREATE_NOTE: `${API_BASE_URL}/admin/notes/create`,
+  UPDATE_NOTE: (id: string) => `${API_BASE_URL}/admin/notes/${id}`,
+  DELETE_NOTE: (id: string) => `${API_BASE_URL}/admin/notes/${id}`,
+  GET_FILTERS: `${API_BASE_URL}/admin/notes/filters`,
+
   // reports
   GET_REPORTS: `${API_BASE_URL}/reports`,
 
@@ -113,6 +120,11 @@ export const ENDPOINTS = {
   GET_STUDENT_FEES: `${API_BASE_URL}/student/fees`,
   GET_STUDENT_FEES_STATUS: `${API_BASE_URL}/student/fees/status`,
   GET_STUDENT_PROFILE:`${API_BASE_URL}/student/profile`,
+
+  // student notes
+  GET_STUDENT_NOTE_SUBJECTS: `${API_BASE_URL}/student/notes/subjects`,
+  GET_STUDENT_NOTE_CHAPTERS: `${API_BASE_URL}/student/notes/chapters`,
+  GET_STUDENT_NOTES: `${API_BASE_URL}/student/notes`,
 
   // TUTOR
   //dashboard

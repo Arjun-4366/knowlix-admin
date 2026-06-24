@@ -173,14 +173,14 @@
   --brand-light-green: #ede9fe;
 }
 
-/* Student — Sky Blue  (fresh · open · curious) */
+/* Student — Periwinkle  (soft · modern · pastel-inspired) */
 #student-shell {
-  --brand-dark:        #0369a1;
-  --brand-mid:         #0284c7;
-  --brand-green:       #0ea5e9;
-  --brand-light:       #7dd3fc;
-  --brand-bg:          #f0f9ff;
-  --brand-light-green: #e0f2fe;
+  --brand-dark:        #4338ca;    /* indigo-700 — active text / headings */
+  --brand-mid:         #6366f1;    /* indigo-500 */
+  --brand-green:       #818cf8;    /* indigo-400 — primary accent */
+  --brand-light:       #c7d2fe;    /* indigo-200 */
+  --brand-bg:          #eef2ff;    /* indigo-50  — page bg */
+  --brand-light-green: #e0e7ff;    /* indigo-100 — chip / badge bg */
 }
 
 /* Tab active state picks up the portal's --brand-green automatically */

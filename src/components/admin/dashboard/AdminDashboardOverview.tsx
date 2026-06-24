@@ -62,11 +62,20 @@ export default function AdminDashboardOverview({
       )}
 
       <DashboardOverviewHeader />
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
+        <div className="lg:col-span-3">
+          <DashboardOverviewStats
+            dashboardData={dashboardData}
+            onViewChange={onViewChange}
+          />
+        </div>
 
-      <DashboardOverviewStats
-        dashboardData={dashboardData}
-        onViewChange={onViewChange}
-      />
+        <DashboardQuickActionsCard
+          onAddStudent={() => router.push("/admin/students?add=true")}
+          onAddTutor={() => setActiveModal("add-tutor")}
+          onAssignTutor={() => setActiveModal("assign-tutor")}
+        />
+      </div>
 
       <div className="grid grid-cols-1 items-start gap-8 xl:grid-cols-12">
         <div className="space-y-8 xl:col-span-8 2xl:col-span-9">
@@ -78,11 +87,6 @@ export default function AdminDashboardOverview({
         </div>
 
         <div className="space-y-8 xl:col-span-4 2xl:col-span-3">
-          <DashboardQuickActionsCard
-            onAddStudent={() => router.push("/admin/students?add=true")}
-            onAddTutor={() => setActiveModal("add-tutor")}
-            onAssignTutor={() => setActiveModal("assign-tutor")}
-          />
           <DashboardRecentEnquiriesCard />
         </div>
       </div>

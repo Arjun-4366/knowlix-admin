@@ -27,7 +27,7 @@ export default function StudentNavbar({ collapsed, onToggle }: Props) {
   };
 
   return (
-    <header className="h-14 bg-white border-b border-gray-200 flex items-center justify-between px-4 flex-shrink-0">
+    <header className="h-14 bg-white flex items-center justify-between px-4 flex-shrink-0" style={{ borderBottom: "1px solid #e2e8f0", borderBottomColor: "var(--brand-light)" }}>
       <div className="flex items-center gap-3">
         {/* Sidebar toggle */}
         <button

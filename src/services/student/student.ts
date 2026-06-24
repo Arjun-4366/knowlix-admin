@@ -84,3 +84,43 @@ export const getStudentProfile = async () => {
   const res = await apiClient.get<IApiResponse<IStudentProfile>>(ENDPOINTS.GET_STUDENT_PROFILE);
   return res.data.data;
 };
+
+export interface IStudentNote {
+  id: string;
+  title: string;
+  description: string;
+  subject: string;
+  chapter: string;
+  standard: string;
+  syllabus: string;
+  attachmentType: "pdf" | "document" | "image";
+  fileUrl: string;
+  tags: string[];
+  content: string;
+  status: string;
+  createdAt: string;
+}
+
+export const getStudentNoteSubjects = async () => {
+  const res = await apiClient.get<{ data: string[]; status: string }>(
+    ENDPOINTS.GET_STUDENT_NOTE_SUBJECTS
+  );
+  return res.data;
+};
+
+export const getStudentNoteChapters = async (subject: string) => {
+  const res = await apiClient.get<{ data: string[]; status: string }>(
+    ENDPOINTS.GET_STUDENT_NOTE_CHAPTERS,
+    { params: { subject } }
+  );
+  return res.data;
+};
+
+export const getStudentNotes = async (params: { subject: string; chapter: string }) => {
+  const res = await apiClient.get<{
+    data: IStudentNote[];
+    pagination: { limit: number; page: number; total: number; totalPages: number };
+    status: string;
+  }>(ENDPOINTS.GET_STUDENT_NOTES, { params });
+  return res.data;
+};
