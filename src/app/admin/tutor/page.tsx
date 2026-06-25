@@ -2,7 +2,7 @@
 
 import { useState, useMemo, Suspense, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Search, Trophy, Star, Eye } from "lucide-react";
+import { Plus, Search, Star, Eye } from "lucide-react";
 import DashboardHeader from "@/components/dashboard/shared/DashboardHeader";
 import { Input } from "@/components/ui/input";
 import {
@@ -13,7 +13,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import {
   Table,
   TableBody,
@@ -59,7 +58,7 @@ function TutorsContent() {
   const { mutateAsync: deleteTutor } = useDeleteTutor();
   const { mutateAsync: approveTutor } = useApproveTutor();
 
-  const [activeTab, setActiveTab] = useState<"active" | "recruitment" | "leaderboard">("active");
+  const [activeTab, setActiveTab] = useState<"approved" | "pending" | "inactive" | "resigned" | "leaderboard">("approved");
 
   // Search & Filter State
   const [searchQuery, setSearchQuery] = useState("");
@@ -88,8 +87,8 @@ function TutorsContent() {
     page,
     search: debouncedSearch || undefined,
     subject: subjectFilter !== "all" ? subjectFilter : undefined,
-    experience: expFilter || undefined,
-    approved: activeTab === "active" ? "true" : undefined
+    experience: expFilter !== "all" ? expFilter : undefined,
+    status: activeTab !== "leaderboard" ? activeTab : undefined,
   });
 
   // Modal State
@@ -161,20 +160,8 @@ function TutorsContent() {
     setTutorToEdit(null);
   };
 
-  // Overall stats calculations
-  const totalTutors = tutorsList.length;
-  const activeCount = tutorsList.filter(t => t.status === "approved").length;
-  const pendingCount = tutorsList.filter(t => t.status === "pending").length;
-
-  const companyAverage = useMemo(() => {
-    const approvedTutors = tutorsList.filter(t => t.status === "approved");
-    if (approvedTutors.length === 0) return "0.0";
-    const sum = approvedTutors.reduce((acc, t) => acc + (t.performanceScore || 0), 0);
-    return (sum / approvedTutors.length).toFixed(1);
-  }, [tutorsList]);
-
-  // Filter & Search Logic
-  // Using server-side pagination, so we do not filter the list anymore, except for standard checks or just returning directly.
+  const summary = tutorsResponse?.summary;
+  const totalPages = tutorsResponse?.totalPages ?? 1;
   const filteredTutors = tutorsList;
 
   return (
@@ -204,10 +191,7 @@ function TutorsContent() {
         </div>
       ) : (
         <TutorStats
-          totalTutors={totalTutors}
-          activeCount={activeCount}
-          pendingCount={pendingCount}
-          companyAverage={companyAverage}
+          summary={summary ?? { approved: 0, inactive: 0, pending: 0, resigned: 0, total: tutorsList.length }}
         />
       )}
 
@@ -215,21 +199,33 @@ function TutorsContent() {
       <Tabs
         value={activeTab}
         onValueChange={(val) => {
-          setActiveTab(val as "active" | "recruitment" | "leaderboard");
+          setActiveTab(val as typeof activeTab);
         }}
       >
         <TabsList className="mb-4 flex gap-1 bg-white border border-gray-200 rounded-xl p-1 w-fit">
           <TabsTrigger
-            value="active"
+            value="approved"
             className="rounded-lg text-sm px-3 py-1.5 data-[state=active]:shadow-none data-[state=active]:text-white"
           >
-            Active Tutors ({isLoading ? 0 : activeCount})
+            Approved {summary ? `(${summary.approved})` : ""}
           </TabsTrigger>
           <TabsTrigger
-            value="recruitment"
+            value="pending"
             className="rounded-lg text-sm px-3 py-1.5 data-[state=active]:shadow-none data-[state=active]:text-white"
           >
-            Recruitment Pool ({isLoading ? 0 : pendingCount})
+            Pending {summary ? `(${summary.pending})` : ""}
+          </TabsTrigger>
+          <TabsTrigger
+            value="inactive"
+            className="rounded-lg text-sm px-3 py-1.5 data-[state=active]:shadow-none data-[state=active]:text-white"
+          >
+            Inactive {summary ? `(${summary.inactive})` : ""}
+          </TabsTrigger>
+          <TabsTrigger
+            value="resigned"
+            className="rounded-lg text-sm px-3 py-1.5 data-[state=active]:shadow-none data-[state=active]:text-white"
+          >
+            Resigned {summary ? `(${summary.resigned})` : ""}
           </TabsTrigger>
           <TabsTrigger
             value="leaderboard"
@@ -239,7 +235,7 @@ function TutorsContent() {
           </TabsTrigger>
         </TabsList>
 
-        {/* Filter Bar */}
+        {/* Filter Bar — shown for all status tabs */}
         {activeTab !== "leaderboard" && (
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-50/50 p-4 rounded-2xl border border-slate-100 mb-6">
             <div className="relative flex-1 max-w-xl">
@@ -285,80 +281,53 @@ function TutorsContent() {
           </div>
         )}
 
-        {/* Directory Table */}
-        {isLoading ? (
-          <TutorTableSkeleton />
-        ) : (
-          <>
-            <TabsContent value="active" forceMount className="data-[state=inactive]:hidden mt-0">
+        {/* Table content for status tabs */}
+        {activeTab !== "leaderboard" && (
+          isLoading ? (
+            <TutorTableSkeleton />
+          ) : (
+            <>
               <TutorTable
                 tutors={filteredTutors}
                 onApproveTutor={handleApproveTutor}
                 onEditTutor={handleEditTutor}
                 onDeleteTutor={handleDeleteTutor}
               />
-              <div className="flex items-center justify-between mt-4 bg-white p-4 rounded-xl border border-slate-150 shadow-sm">
-                <span className="text-sm text-slate-500 font-medium">
-                  Showing page {page} (Total {tutorsResponse?.total || 0})
-                </span>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setPage(p => Math.max(1, p - 1))}
-                    disabled={page === 1}
-                  >
-                    Previous
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setPage(p => p + 1)}
-                    disabled={(tutorsResponse?.data?.length || 0) < limit}
-                  >
-                    Next
-                  </Button>
+              {totalPages > 1 && (
+                <div className="flex items-center justify-between mt-4 bg-white p-4 rounded-xl border border-slate-150 shadow-sm">
+                  <span className="text-sm text-slate-500 font-medium">
+                    Showing page {page} of {totalPages} (Total {tutorsResponse?.total || 0})
+                  </span>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setPage(p => Math.max(1, p - 1))}
+                      disabled={page === 1}
+                    >
+                      Previous
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setPage(p => p + 1)}
+                      disabled={page >= totalPages}
+                    >
+                      Next
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            </TabsContent>
-            <TabsContent value="recruitment" forceMount className="data-[state=inactive]:hidden mt-0">
-              <TutorTable
-                tutors={filteredTutors}
-                onApproveTutor={handleApproveTutor}
-                onEditTutor={handleEditTutor}
-                onDeleteTutor={handleDeleteTutor}
-              />
-              <div className="flex items-center justify-between mt-4 bg-white p-4 rounded-xl border border-slate-150 shadow-sm">
-                <span className="text-sm text-slate-500 font-medium">
-                  Showing page {page} (Total {tutorsResponse?.total || 0})
-                </span>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setPage(p => Math.max(1, p - 1))}
-                    disabled={page === 1}
-                  >
-                    Previous
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setPage(p => p + 1)}
-                    disabled={(tutorsResponse?.data?.length || 0) < limit}
-                  >
-                    Next
-                  </Button>
-                </div>
-              </div>
-            </TabsContent>
-            <TabsContent value="leaderboard" forceMount className="data-[state=inactive]:hidden mt-0">
-              <LeaderboardTable
-                leaderboard={leaderboardResponse?.data ?? []}
-                isLoading={isLeaderboardLoading}
-              />
-            </TabsContent>
-          </>
+              )}
+            </>
+          )
+        )}
+
+        {/* Leaderboard tab */}
+        {activeTab === "leaderboard" && (
+          <LeaderboardTable
+            leaderboard={leaderboardResponse?.data ?? []}
+            isLoading={isLeaderboardLoading}
+          />
         )}
       </Tabs>
 
@@ -408,8 +377,8 @@ function LeaderboardTable({ leaderboard, isLoading }: LeaderboardTableProps) {
       <Table className="w-full">
         <TableHeader className="bg-slate-50/50">
           <TableRow>
-            <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[15%] text-center">
-              Rank
+            <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[8%]">
+              Sl.
             </TableHead>
             <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[45%]">
               Tutor Name
@@ -424,20 +393,10 @@ function LeaderboardTable({ leaderboard, isLoading }: LeaderboardTableProps) {
         </TableHeader>
         <TableBody className="divide-y divide-slate-100">
           {leaderboard && leaderboard.length > 0 ? (
-            leaderboard.map((item) => (
+            leaderboard.map((item, index) => (
               <TableRow key={item.tutorId} className="hover:bg-slate-50/60 transition-colors">
-                <TableCell className="px-6 py-4 text-center">
-                  <span
-                    className={cn(
-                      "inline-flex h-6 w-6 items-center justify-center rounded-full border text-xs font-bold",
-                      item.rank === 1 && "border-amber-200 bg-amber-50 text-amber-800",
-                      item.rank === 2 && "border-slate-200 bg-slate-100 text-slate-800",
-                      item.rank === 3 && "border-orange-200 bg-orange-50 text-orange-800",
-                      item.rank > 3 && "text-slate-400 border-slate-100 bg-slate-50"
-                    )}
-                  >
-                    {item.rank === 1 ? <Trophy className="w-3.5 h-3.5 text-amber-600 inline-block align-middle" /> : item.rank}
-                  </span>
+                <TableCell className="px-6 py-4 text-sm font-semibold text-slate-400">
+                  {index + 1}
                 </TableCell>
                 <TableCell className="px-6 py-4">
                   <div className="flex items-center gap-3">

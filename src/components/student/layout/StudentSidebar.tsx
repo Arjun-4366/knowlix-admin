@@ -1,10 +1,10 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
-  GraduationCap,
   MessageSquare,
   BookOpen,
   Bot,
@@ -57,11 +57,8 @@ export default function StudentSidebar({ collapsed }: Props) {
           gap: "12px",
         }}
       >
-        <div
-          className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
-          style={{ background: "var(--brand-green)" }}
-        >
-          <GraduationCap className="w-5 h-5 text-white" />
+        <div className="w-9 h-9 rounded-lg overflow-hidden flex-shrink-0">
+          <Image src="/icon.png" alt="Knowlix" width={36} height={36} className="w-full h-full object-contain" priority />
         </div>
         <div
           className="overflow-hidden"

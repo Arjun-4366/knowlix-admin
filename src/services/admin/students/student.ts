@@ -10,6 +10,9 @@ import {
     IStudentResponse,
     IStudentsResponse,
     IUpdateStudentPayload,
+    IStudentSessionsResponse,
+    IStudentExamsResponse,
+    IStudentAssignmentsResponse,
 } from "@/types/admin/student";
 
 export const getStudents = async (params?: QueryParams) => {
@@ -120,6 +123,21 @@ export const deleteStudent = async (id: string) => {
 
 export const getStudentDocuments = async (studentId: string) => {
     const res = await apiClient.get<IStudentDocumentsResponse>(ENDPOINTS.GET_STUDENT_DOC(studentId));
+    return res.data;
+};
+
+export const getStudentSessions = async (id: string, params?: { page?: number; limit?: number }) => {
+    const res = await apiClient.get<IStudentSessionsResponse>(ENDPOINTS.GET_STUDENT_SESSIONS(id), { params });
+    return res.data;
+};
+
+export const getStudentExams = async (id: string, params?: { page?: number; limit?: number }) => {
+    const res = await apiClient.get<IStudentExamsResponse>(ENDPOINTS.GET_STUDENT_EXAMS(id), { params });
+    return res.data;
+};
+
+export const getStudentAssignments = async (id: string, params?: { page?: number; limit?: number }) => {
+    const res = await apiClient.get<IStudentAssignmentsResponse>(ENDPOINTS.GET_ADMIN_STUDENT_ASSIGNMENTS(id), { params });
     return res.data;
 };
 

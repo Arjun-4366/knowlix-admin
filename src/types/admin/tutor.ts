@@ -60,9 +60,21 @@ export interface ICreateTutorPayload {
 
 export type IUpdateTutorPayload = Partial<ICreateTutorPayload>;
 
+export interface ITutorSummary {
+  approved: number;
+  inactive: number;
+  pending: number;
+  resigned: number;
+  total: number;
+}
+
 export interface ITutorsResponse extends IApiResponse<ITutor[]> {
   message?: string;
   total?: number;
+  totalPages?: number;
+  page?: number;
+  limit?: number;
+  summary?: ITutorSummary;
 }
 
 export type ITutorResponse = IApiResponse<ITutor>;

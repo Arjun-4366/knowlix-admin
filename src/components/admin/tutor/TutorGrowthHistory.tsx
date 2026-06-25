@@ -91,15 +91,15 @@ export function TutorGrowthHistory({ tutorId }: TutorGrowthHistoryProps) {
             <Table>
               <TableHeader className="bg-slate-50">
                 <TableRow className="border-slate-100 hover:bg-slate-50">
-                  <TableHead className="text-xs font-bold text-slate-500 whitespace-nowrap px-6 py-3">Date</TableHead>
-                  <TableHead className="text-xs font-bold text-slate-500 whitespace-nowrap text-center">G</TableHead>
-                  <TableHead className="text-xs font-bold text-slate-500 whitespace-nowrap text-center">R</TableHead>
-                  <TableHead className="text-xs font-bold text-slate-500 whitespace-nowrap text-center">O</TableHead>
-                  <TableHead className="text-xs font-bold text-slate-500 whitespace-nowrap text-center">W</TableHead>
-                  <TableHead className="text-xs font-bold text-slate-500 whitespace-nowrap text-center">T</TableHead>
-                  <TableHead className="text-xs font-bold text-slate-500 whitespace-nowrap text-center">H</TableHead>
-                  <TableHead className="text-xs font-bold text-slate-500 whitespace-nowrap text-center">Total</TableHead>
-                  <TableHead className="text-xs font-bold text-slate-500 whitespace-nowrap px-6 py-3">Description</TableHead>
+                  <TableHead className="text-xs font-bold text-slate-700 whitespace-nowrap px-6 py-3">Date</TableHead>
+                  <TableHead className="text-xs font-bold text-slate-700 whitespace-nowrap text-center">G</TableHead>
+                  <TableHead className="text-xs font-bold text-slate-700 whitespace-nowrap text-center">R</TableHead>
+                  <TableHead className="text-xs font-bold text-slate-700 whitespace-nowrap text-center">O</TableHead>
+                  <TableHead className="text-xs font-bold text-slate-700 whitespace-nowrap text-center">W</TableHead>
+                  <TableHead className="text-xs font-bold text-slate-700 whitespace-nowrap text-center">T</TableHead>
+                  <TableHead className="text-xs font-bold text-slate-700 whitespace-nowrap text-center">H</TableHead>
+                  <TableHead className="text-xs font-bold text-slate-700 whitespace-nowrap text-center">Total</TableHead>
+                  <TableHead className="text-xs font-bold text-slate-700 whitespace-nowrap px-6 py-3">Description</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -107,22 +107,22 @@ export function TutorGrowthHistory({ tutorId }: TutorGrowthHistoryProps) {
                   <TableRow key={item.id} className="border-slate-100 hover:bg-slate-50/50 transition-colors">
                     <TableCell className="px-6 py-4">
                       <div className="flex flex-col">
-                        <span className="text-sm font-semibold text-slate-700">{item.month} {item.year}</span>
-                        <span className="text-[10px] text-slate-400">{format(new Date(item.awardedAt), "MMM d, yyyy")}</span>
+                        <span className="text-sm font-semibold text-slate-900">{item.month} {item.year}</span>
+                        <span className="text-[10px] text-slate-600">{format(new Date(item.awardedAt), "MMM d, yyyy")}</span>
                       </div>
                     </TableCell>
-                    <TableCell className="text-center text-sm font-semibold text-slate-700">{item.G}</TableCell>
-                    <TableCell className="text-center text-sm font-semibold text-slate-700">{item.R}</TableCell>
-                    <TableCell className="text-center text-sm font-semibold text-slate-700">{item.O}</TableCell>
-                    <TableCell className="text-center text-sm font-semibold text-slate-700">{item.W}</TableCell>
-                    <TableCell className="text-center text-sm font-semibold text-slate-700">{item.T}</TableCell>
-                    <TableCell className="text-center text-sm font-semibold text-slate-700">{item.H}</TableCell>
+                    <TableCell className="text-center text-sm font-semibold text-slate-900">{item.G}</TableCell>
+                    <TableCell className="text-center text-sm font-semibold text-slate-900">{item.R}</TableCell>
+                    <TableCell className="text-center text-sm font-semibold text-slate-900">{item.O}</TableCell>
+                    <TableCell className="text-center text-sm font-semibold text-slate-900">{item.W}</TableCell>
+                    <TableCell className="text-center text-sm font-semibold text-slate-900">{item.T}</TableCell>
+                    <TableCell className="text-center text-sm font-semibold text-slate-900">{item.H}</TableCell>
                     <TableCell className="text-center">
                       <span className="inline-flex items-center justify-center px-2 py-1 text-xs font-bold rounded-md bg-[var(--brand-light-green)] text-[var(--brand-mid)] border border-[var(--brand-green)]/20">
                         {item.totalPoints}
                       </span>
                     </TableCell>
-                    <TableCell className="px-6 py-4 text-sm text-slate-600 max-w-[200px] truncate" title={item.description}>
+                    <TableCell className="px-6 py-4 text-sm text-slate-800 max-w-[200px] truncate" title={item.description}>
                       {item.description}
                     </TableCell>
                    
@@ -132,7 +132,7 @@ export function TutorGrowthHistory({ tutorId }: TutorGrowthHistoryProps) {
             </Table>
           </div>
         ) : (
-          <div className="py-12 text-center text-slate-500">
+          <div className="py-12 text-center text-slate-700">
             <p className="text-sm font-medium">No growth history found for this period.</p>
           </div>
         )}

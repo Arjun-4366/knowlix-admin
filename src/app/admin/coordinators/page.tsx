@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useMemo, Suspense } from "react";
-import { Plus, Search, Trash2, Pencil, Briefcase, Mail, Phone, Users, ShieldAlert, Award } from "lucide-react";
+import { useState, useMemo, Suspense, useEffect } from "react";
+import { Plus, Search, Trash2, Pencil, Briefcase, Mail, Phone, Users, ShieldAlert, Award, ChevronLeft, ChevronRight } from "lucide-react";
 import DashboardHeader from "@/components/dashboard/shared/DashboardHeader";
 import { Input } from "@/components/ui/input";
 import {
@@ -32,29 +32,51 @@ import { ICreateCoordinatorPayload, ICoordinator } from "@/types/admin/coordinat
 import { Skeleton } from "@/components/ui/skeleton";
 import AddCoordinatorForm from "@/components/coordinators/AddCoordinatorForm";
 
+const LIMIT = 20;
+
 function CoordinatorsContent() {
   const { confirm } = useConfirmation();
-  const { data: coordinatorsResponse, isLoading } = useGetCoordinators();
-  const { mutateAsync: createCoordinator, isPending: isCreating } = useCreateCoordinator();
-  const { mutateAsync: updateCoordinator, isPending: isUpdating } = useUpdateCoordinator();
-  const { mutateAsync: deleteCoordinator } = useDeleteCoordinator();
 
   const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState("All");
-  const [departmentFilter, setDepartmentFilter] = useState("All");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [departmentFilter, setDepartmentFilter] = useState("all");
+  const [page, setPage] = useState(1);
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [coordinatorToEdit, setCoordinatorToEdit] = useState<ICoordinator | null>(null);
 
-  const coordinatorsList = useMemo(() => {
-    return coordinatorsResponse?.data ?? [];
-  }, [coordinatorsResponse]);
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+      setPage(1);
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [statusFilter, departmentFilter]);
+
+  const { data: coordinatorsResponse, isLoading } = useGetCoordinators({
+    page,
+    limit: LIMIT,
+    search: debouncedSearch || undefined,
+    status: statusFilter !== "all" ? statusFilter : undefined,
+    department: departmentFilter !== "all" ? departmentFilter : undefined,
+  });
+
+  const { mutateAsync: createCoordinator, isPending: isCreating } = useCreateCoordinator();
+  const { mutateAsync: updateCoordinator, isPending: isUpdating } = useUpdateCoordinator();
+  const { mutateAsync: deleteCoordinator } = useDeleteCoordinator();
+
+  const coordinatorsList = useMemo(() => coordinatorsResponse?.data ?? [], [coordinatorsResponse]);
+  const summary = coordinatorsResponse?.summary;
+  const totalPages = coordinatorsResponse?.totalPages ?? 1;
 
   const uniqueDepartments = useMemo(() => {
     const depts = new Set<string>();
-    coordinatorsList.forEach((c) => {
-      if (c.department) depts.add(c.department);
-    });
+    coordinatorsList.forEach((c) => { if (c.department) depts.add(c.department); });
     return Array.from(depts);
   }, [coordinatorsList]);
 
@@ -102,29 +124,6 @@ function CoordinatorsContent() {
     setCoordinatorToEdit(null);
   };
 
-  // Stats Calculations
-  const totalCoordinators = coordinatorsList.length;
-  const activeCount = coordinatorsList.filter((c) => c.status === "active").length;
-  const inactiveCount = coordinatorsList.filter((c) => c.status === "inactive").length;
-
-  const filteredCoordinators = useMemo(() => {
-    return coordinatorsList.filter((coordinator) => {
-      const matchesSearch =
-        coordinator.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        coordinator.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        coordinator.phone.includes(searchQuery) ||
-        coordinator.designation.toLowerCase().includes(searchQuery.toLowerCase());
-
-      const matchesStatus =
-        statusFilter === "All" || coordinator.status.toLowerCase() === statusFilter.toLowerCase();
-
-      const matchesDepartment =
-        departmentFilter === "All" || coordinator.department === departmentFilter;
-
-      return matchesSearch && matchesStatus && matchesDepartment;
-    });
-  }, [coordinatorsList, searchQuery, statusFilter, departmentFilter]);
-
   const getStatusBadgeClass = (status: string) => {
     switch (status.toLowerCase()) {
       case "active":
@@ -168,8 +167,8 @@ function CoordinatorsContent() {
                 <Users className="w-6 h-6" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-slate-800">{totalCoordinators}</p>
-                <p className="text-xs font-semibold text-slate-400">Total Coordinators</p>
+                <p className="text-2xl font-bold text-slate-800">{summary?.total ?? 0}</p>
+                <p className="text-xs font-semibold text-slate-500">Total Coordinators</p>
               </div>
             </div>
 
@@ -178,8 +177,8 @@ function CoordinatorsContent() {
                 <Award className="w-6 h-6" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-emerald-600">{activeCount}</p>
-                <p className="text-xs font-semibold text-slate-400">Active Coordinators</p>
+                <p className="text-2xl font-bold text-emerald-600">{summary?.active ?? 0}</p>
+                <p className="text-xs font-semibold text-slate-500">Active Coordinators</p>
               </div>
             </div>
 
@@ -188,8 +187,8 @@ function CoordinatorsContent() {
                 <ShieldAlert className="w-6 h-6" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-amber-600">{inactiveCount}</p>
-                <p className="text-xs font-semibold text-slate-400">Inactive / Pending</p>
+                <p className="text-2xl font-bold text-amber-600">{summary?.inactive ?? 0}</p>
+                <p className="text-xs font-semibold text-slate-500">Inactive Coordinators</p>
               </div>
             </div>
           </>
@@ -215,11 +214,9 @@ function CoordinatorsContent() {
               <SelectValue placeholder="All Departments" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="All">All Departments</SelectItem>
+              <SelectItem value="all">All Departments</SelectItem>
               {uniqueDepartments.map((dept) => (
-                <SelectItem key={dept} value={dept}>
-                  {dept}
-                </SelectItem>
+                <SelectItem key={dept} value={dept}>{dept}</SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -229,7 +226,7 @@ function CoordinatorsContent() {
               <SelectValue placeholder="All Statuses" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="All">All Statuses</SelectItem>
+              <SelectItem value="all">All Statuses</SelectItem>
               <SelectItem value="active">Active</SelectItem>
               <SelectItem value="inactive">Inactive</SelectItem>
             </SelectContent>
@@ -246,109 +243,155 @@ function CoordinatorsContent() {
           <Skeleton className="h-10 w-full rounded-lg" />
         </div>
       ) : (
-        <div className="bg-white border border-slate-150 rounded-2xl shadow-sm overflow-hidden w-full">
-          <Table className="w-full table-fixed">
-            <TableHeader className="bg-slate-50/50">
-              <TableRow>
-                <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[25%]">
-                  Coordinator
-                </TableHead>
-                <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[20%]">
-                  Contact
-                </TableHead>
-                <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[20%]">
-                  Role Details
-                </TableHead>
-                <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[15%]">
-                  Status
-                </TableHead>
-                <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right w-[20%]">
-                  Actions
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody className="divide-y divide-slate-100">
-              {filteredCoordinators.length > 0 ? (
-                filteredCoordinators.map((coordinator) => (
-                  <TableRow key={coordinator.id} className="hover:bg-slate-50/60 transition-colors">
-                    <TableCell className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--brand-light-green)] text-sm font-bold text-[var(--brand-green)]">
-                          {coordinator.name.charAt(0)}
+        <>
+          <div className="bg-white border border-slate-150 rounded-2xl shadow-sm overflow-hidden w-full">
+            <Table className="w-full table-fixed">
+              <TableHeader className="bg-slate-50/50">
+                <TableRow>
+                  <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[5%]">
+                    Sl.
+                  </TableHead>
+                  <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[22%]">
+                    Coordinator
+                  </TableHead>
+                  <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[20%]">
+                    Contact
+                  </TableHead>
+                  <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[20%]">
+                    Role Details
+                  </TableHead>
+                  <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[13%]">
+                    Status
+                  </TableHead>
+                  <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right w-[20%]">
+                    Actions
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody className="divide-y divide-slate-100">
+                {coordinatorsList.length > 0 ? (
+                  coordinatorsList.map((coordinator, index) => (
+                    <TableRow key={coordinator.id} className="hover:bg-slate-50/60 transition-colors">
+                      <TableCell className="px-6 py-4 text-sm font-semibold text-slate-400">
+                        {(page - 1) * LIMIT + index + 1}
+                      </TableCell>
+                      <TableCell className="px-6 py-4">
+                        <div className="flex items-center gap-3">
+                          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--brand-light-green)] text-sm font-bold text-[var(--brand-green)] flex-shrink-0">
+                            {coordinator.name.charAt(0)}
+                          </div>
+                          <div className="truncate">
+                            <p className="text-sm font-semibold text-slate-800 truncate">{coordinator.name}</p>
+                          </div>
                         </div>
-                        <div className="truncate">
-                          <p className="text-sm font-semibold text-slate-800 truncate">{coordinator.name}</p>
-                          <p className="text-[10px] text-slate-400 font-mono truncate">ID: {coordinator.id}</p>
+                      </TableCell>
+                      <TableCell className="px-6 py-4">
+                        <div className="space-y-1 text-slate-700">
+                          <div className="flex items-center gap-1.5 text-xs truncate">
+                            <Mail className="w-3.5 h-3.5 text-slate-400" />
+                            <span className="truncate">{coordinator.email}</span>
+                          </div>
+                          <div className="flex items-center gap-1.5 text-xs">
+                            <Phone className="w-3.5 h-3.5 text-slate-400" />
+                            <span>{coordinator.phone}</span>
+                          </div>
                         </div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="px-6 py-4">
-                      <div className="space-y-1 text-slate-650">
-                        <div className="flex items-center gap-1.5 text-xs truncate">
-                          <Mail className="w-3.5 h-3.5 text-slate-400" />
-                          <span className="truncate">{coordinator.email}</span>
+                      </TableCell>
+                      <TableCell className="px-6 py-4">
+                        <div className="space-y-0.5">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-800">
+                            {coordinator.department}
+                          </span>
+                          <p className="text-xs font-semibold text-slate-700 mt-1 flex items-center gap-1">
+                            <Briefcase className="w-3 h-3 text-slate-500" />
+                            {coordinator.designation}
+                          </p>
                         </div>
-                        <div className="flex items-center gap-1.5 text-xs">
-                          <Phone className="w-3.5 h-3.5 text-slate-400" />
-                          <span>{coordinator.phone}</span>
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="px-6 py-4">
-                      <div className="space-y-0.5">
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700">
-                          {coordinator.department}
+                      </TableCell>
+                      <TableCell className="px-6 py-4">
+                        <span
+                          className={cn(
+                            "inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold border",
+                            getStatusBadgeClass(coordinator.status)
+                          )}
+                        >
+                          {coordinator.status.charAt(0).toUpperCase() + coordinator.status.slice(1)}
                         </span>
-                        <p className="text-xs font-semibold text-slate-600 mt-1 flex items-center gap-1">
-                          <Briefcase className="w-3 h-3 text-slate-450" />
-                          {coordinator.designation}
-                        </p>
-                      </div>
-                    </TableCell>
-                    <TableCell className="px-6 py-4">
-                      <span
-                        className={cn(
-                          "inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold border",
-                          getStatusBadgeClass(coordinator.status)
-                        )}
-                      >
-                        {coordinator.status.charAt(0).toUpperCase() + coordinator.status.slice(1)}
-                      </span>
-                    </TableCell>
-                    <TableCell className="px-6 py-4 text-right">
-                      <div className="flex items-center justify-end gap-2.5">
-                        <Button
-                          variant="ghost"
-                          size="icon-sm"
-                          onClick={() => handleEditCoordinator(coordinator.id)}
-                          title="Edit Coordinator"
-                          className="rounded-lg text-slate-400 hover:text-[var(--brand-green)] hover:bg-slate-50"
-                        >
-                          <Pencil className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon-sm"
-                          onClick={() => handleDeleteCoordinator(coordinator.id)}
-                          title="Delete Coordinator"
-                          className="rounded-lg text-slate-400 hover:text-red-655 hover:bg-red-50/50"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
+                      </TableCell>
+                      <TableCell className="px-6 py-4 text-right">
+                        <div className="flex items-center justify-end gap-2.5">
+                          <Button
+                            variant="ghost"
+                            size="icon-sm"
+                            onClick={() => handleEditCoordinator(coordinator.id)}
+                            title="Edit Coordinator"
+                            className="rounded-lg text-slate-400 hover:text-[var(--brand-green)] hover:bg-slate-50"
+                          >
+                            <Pencil className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon-sm"
+                            onClick={() => handleDeleteCoordinator(coordinator.id)}
+                            title="Delete Coordinator"
+                            className="rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={6} className="px-6 py-12 text-center text-slate-400 text-sm">
+                      No coordinators found matching current criteria.
                     </TableCell>
                   </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={5} className="px-6 py-12 text-center text-slate-400 text-sm">
-                    No coordinators found matching current criteria.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </div>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between mt-4 bg-white p-4 rounded-xl border border-slate-150 shadow-sm">
+              <span className="text-sm text-slate-500 font-medium">
+                Showing page {page} of {totalPages} (Total {coordinatorsResponse?.total ?? 0})
+              </span>
+              <div className="flex items-center gap-1.5">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPage(p => Math.max(1, p - 1))}
+                  disabled={page === 1}
+                  className="h-7 w-7 p-0"
+                >
+                  <ChevronLeft className="w-3.5 h-3.5" />
+                </Button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                  <Button
+                    key={p}
+                    variant={p === page ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setPage(p)}
+                    className={`h-7 w-7 p-0 text-xs ${p === page ? "bg-[var(--brand-green)] text-white border-transparent hover:bg-[var(--brand-mid)]" : ""}`}
+                  >
+                    {p}
+                  </Button>
+                ))}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPage(p => p + 1)}
+                  disabled={page >= totalPages}
+                  className="h-7 w-7 p-0"
+                >
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </Button>
+              </div>
+            </div>
+          )}
+        </>
       )}
 
       {/* Form Modal */}

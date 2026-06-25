@@ -21,23 +21,23 @@ export function TutorRemarksCard({ positiveRemarks, negativeRemarks }: TutorRema
       </CardHeader>
       <CardContent className="p-6 pt-4 space-y-4">
         <div>
-          <p className="text-[10px] font-bold text-slate-500 uppercase mb-2">Positive Remarks</p>
+          <p className="text-[10px] font-bold text-slate-700 uppercase mb-2">Positive Remarks</p>
           {positiveRemarks ? (
             <div className="p-3 bg-green-50 text-green-800 text-sm rounded-xl border border-green-100 whitespace-pre-wrap">
               {positiveRemarks}
             </div>
           ) : (
-            <p className="text-sm text-slate-400 italic">No positive remarks recorded.</p>
+            <p className="text-sm text-slate-600 italic">No positive remarks recorded.</p>
           )}
         </div>
         <div>
-          <p className="text-[10px] font-bold text-slate-500 uppercase mb-2">Areas of Improvement</p>
+          <p className="text-[10px] font-bold text-slate-700 uppercase mb-2">Areas of Improvement</p>
           {negativeRemarks ? (
             <div className="p-3 bg-red-50 text-red-800 text-sm rounded-xl border border-red-100 whitespace-pre-wrap">
               {negativeRemarks}
             </div>
           ) : (
-            <p className="text-sm text-slate-400 italic">No areas of improvement recorded.</p>
+            <p className="text-sm text-slate-600 italic">No areas of improvement recorded.</p>
           )}
         </div>
       </CardContent>

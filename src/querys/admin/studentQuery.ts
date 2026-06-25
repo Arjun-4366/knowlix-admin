@@ -7,6 +7,9 @@ import {
   getStudent,
   getStudentDocuments,
   getStudents,
+  getStudentSessions,
+  getStudentExams,
+  getStudentAssignments,
   updateStudent,
 } from "@/services/admin/students/student";
 import {
@@ -19,6 +22,9 @@ import { QueryParams } from "@/types/queryParams";
 const STUDENTS_KEY = ["students"] as const;
 const STUDENT_KEY = ["student"] as const;
 const STUDENT_DOCUMENTS_KEY = ["student-documents"] as const;
+const STUDENT_SESSIONS_KEY = ["student-sessions"] as const;
+const STUDENT_EXAMS_KEY = ["student-exams"] as const;
+const STUDENT_ASSIGNMENTS_KEY = ["student-assignments-admin"] as const;
 
 export const useGetStudents = (params?: QueryParams) => {
   return useQuery({
@@ -81,6 +87,30 @@ export const useDeleteStudent = () => {
       toast.success("Student deleted successfully");
     },
     onError: () => toast.error("Failed to delete student"),
+  });
+};
+
+export const useGetStudentSessions = (id: string, params?: { page?: number; limit?: number }) => {
+  return useQuery({
+    queryKey: [...STUDENT_SESSIONS_KEY, id, params],
+    queryFn: () => getStudentSessions(id, params),
+    enabled: !!id,
+  });
+};
+
+export const useGetStudentExams = (id: string, params?: { page?: number; limit?: number }) => {
+  return useQuery({
+    queryKey: [...STUDENT_EXAMS_KEY, id, params],
+    queryFn: () => getStudentExams(id, params),
+    enabled: !!id,
+  });
+};
+
+export const useGetStudentAssignmentsAdmin = (id: string, params?: { page?: number; limit?: number }) => {
+  return useQuery({
+    queryKey: [...STUDENT_ASSIGNMENTS_KEY, id, params],
+    queryFn: () => getStudentAssignments(id, params),
+    enabled: !!id,
   });
 };
 

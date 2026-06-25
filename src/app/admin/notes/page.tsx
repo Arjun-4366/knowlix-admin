@@ -58,6 +58,9 @@ function NotesContent() {
   }, [debouncedSearch, filterStandard, filterSyllabus, filterSubject, filterChapter, filterStatus, filterAttachmentType]);
 
   const { data: filtersResponse } = useGetNotesFilters();
+  const { data: chapterFiltersResponse } = useGetNotesFilters(
+    filterSubject !== "all" ? { subject: filterSubject } : undefined
+  );
   const { data: notesResponse, isLoading } = useGetNotes(queryParams);
   const { mutateAsync: createNote, isPending: isCreating } = useCreateNote();
   const { mutateAsync: updateNote, isPending: isUpdating } = useUpdateNote();
@@ -194,7 +197,7 @@ function NotesContent() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Chapters</SelectItem>
-              {filters?.chapters.map((c) => (
+              {(chapterFiltersResponse?.data?.chapters ?? filters?.chapters ?? []).map((c) => (
                 <SelectItem key={c} value={c}>{c}</SelectItem>
               ))}
             </SelectContent>

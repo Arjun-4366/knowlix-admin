@@ -61,7 +61,7 @@ export function TutorPerformanceCard({
               )}
             </div>
           </div>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-slate-700 mt-1">
             Cumulative G-R-O-W-T-H breakdown across all evaluations.
           </p>
         </CardHeader>
@@ -78,8 +78,8 @@ export function TutorPerformanceCard({
                   className="flex items-center gap-4 p-4 rounded-xl border border-slate-100 bg-slate-50/40"
                 >
                   <div className="flex-1 min-w-0">
-                    <span className="block text-xs font-bold text-slate-750">{metric.label}</span>
-                    <span className="block text-[10px] text-slate-400 mt-0.5">{metric.desc}</span>
+                    <span className="block text-xs font-bold text-slate-900">{metric.label}</span>
+                    <span className="block text-[10px] text-slate-700 mt-0.5">{metric.desc}</span>
                     <div className="mt-2 h-1.5 rounded-full bg-slate-200 overflow-hidden">
                       <div
                         className="h-full rounded-full bg-[var(--brand-green)] transition-all duration-500"
@@ -87,7 +87,7 @@ export function TutorPerformanceCard({
                       />
                     </div>
                   </div>
-                  <span className="text-lg font-bold text-slate-800 flex-shrink-0 w-10 text-right">
+                  <span className="text-lg font-bold text-slate-900 flex-shrink-0 w-10 text-right">
                     {pts}
                   </span>
                 </div>

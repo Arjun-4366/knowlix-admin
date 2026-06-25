@@ -1,5 +1,6 @@
-import { Users, FileText, CheckCircle2, Clock } from "lucide-react";
+import { Users, CheckCircle2, Clock, GraduationCap } from "lucide-react";
 import DashboardStatCard from "@/components/dashboard/shared/DashboardStatCard";
+import { IStudentSummary } from "@/types/admin/student";
 
 export interface Student {
   id: string;
@@ -24,55 +25,43 @@ export interface Student {
 }
 
 interface StudentStatsProps {
-  students: Student[];
+  summary: IStudentSummary;
 }
 
-export default function StudentStats({ students }: StudentStatsProps) {
-  const total = students.length;
-  const docsComplete = students.filter(
-    (s) => s.documentsSubmitted && s.documentsSubmitted.length === 4
-  ).length;
-  const approved = students.filter(
-    (s) => s.admissionStatus === "Approved"
-  ).length;
-  const pending = students.filter(
-    (s) => s.admissionStatus === "Pending Approval" || s.admissionStatus === "Pending" || s.admissionStatus === "In Review"
-  ).length;
-
+export default function StudentStats({ summary }: StudentStatsProps) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
       <DashboardStatCard
         label="Total Students"
-        value={total}
+        value={summary.total}
         icon={<Users className="w-6 h-6 text-[var(--brand-green)]" />}
         badgeText="Enrolled"
-        footerText="Active student list"
+        footerText="All registered students"
       />
 
       <DashboardStatCard
-        label="Documents Complete"
-        value={docsComplete}
-        icon={<FileText className="w-6 h-6 text-[var(--brand-green)]" />}
-        badgeText="All Submitted"
-        footerText={`${total - docsComplete} pending upload`}
-      />
-
-      <DashboardStatCard
-        label="Admissions Approved"
-        value={approved}
+        label="Admission Taken"
+        value={summary.admissionTaken}
         icon={<CheckCircle2 className="w-6 h-6 text-[var(--brand-green)]" />}
-        badgeText="Approved"
-        footerText="Ready for sessions"
+        badgeText="Active"
+        footerText="Currently enrolled"
       />
 
       <DashboardStatCard
-        label="Admissions Pending"
-        value={pending}
+        label="Course Completed"
+        value={summary.courseCompleted}
+        icon={<GraduationCap className="w-6 h-6 text-[var(--brand-green)]" />}
+        badgeText="Completed"
+        footerText="Finished their course"
+      />
+
+      <DashboardStatCard
+        label="Pending Admission"
+        value={summary.pending}
         icon={<Clock className="w-6 h-6 text-[var(--brand-green)]" />}
-        badgeText="In Review"
-        footerText="Needs coordinator action"
+        badgeText="Pending"
+        footerText="Awaiting confirmation"
       />
     </div>
   );
 }
-

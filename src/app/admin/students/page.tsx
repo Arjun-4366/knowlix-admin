@@ -35,22 +35,28 @@ function StudentsContent() {
   const [filterAdmissionStatus, setFilterAdmissionStatus] = useState<string>("all");
   const [filterProgramId, setFilterProgramId] = useState<string>("all");
   const [filterFeePending, setFilterFeePending] = useState<string>("all");
+  const [page, setPage] = useState(1);
+
+  const resetPage = () => setPage(1);
 
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedSearch(searchInput);
+      setPage(1);
     }, 500);
     return () => clearTimeout(handler);
   }, [searchInput]);
 
+  const [limit] = useState(20);
+
   const queryParams = useMemo(() => {
-    const params: Record<string, any> = {};
+    const params: Record<string, any> = { page, limit };
     if (debouncedSearch) params.search = debouncedSearch;
     if (filterAdmissionStatus !== "all") params.admissionStatus = filterAdmissionStatus;
     if (filterProgramId !== "all") params.programId = filterProgramId;
     if (filterFeePending !== "all") params.feePending = filterFeePending === "true";
     return params;
-  }, [debouncedSearch, filterAdmissionStatus, filterProgramId, filterFeePending]);
+  }, [debouncedSearch, filterAdmissionStatus, filterProgramId, filterFeePending, page, limit]);
 
   const { data: studentsResponse, isLoading } = useGetStudents(queryParams);
   const { data: programsResponse } = useGetPrograms();
@@ -146,7 +152,7 @@ function StudentsContent() {
     <div className="relative w-full space-y-8 pb-10">
       <DashboardHeader
         title="Students Directory"
-        description={`View admissions status, packages, coordinators, and document checklists. Total: ${studentsResponse?.total ?? (isLoading ? 0 : students.length)}`}
+        description={`${studentsResponse?.total ?? (isLoading ? 0 : students.length)} students enrolled — manage admission status, grades, courses, and pending fees.`}
         actions={actions}
       />
 
@@ -158,12 +164,12 @@ function StudentsContent() {
           <Skeleton className="h-32 w-full rounded-2xl" />
         </div>
       ) : (
-        <StudentStats students={students} />
+        <StudentStats summary={studentsResponse?.summary ?? { admissionTaken: 0, courseCompleted: 0, inactive: 0, pending: 0, total: 0 }} />
       )}
 
       {/* Filter UI */}
       <div className="flex flex-col sm:flex-row gap-4 mb-6">
-        <div className="relative flex-1">
+        <div className="relative flex-1 bg-white">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
           <Input 
             placeholder="Search students by name, email..." 
@@ -173,8 +179,8 @@ function StudentsContent() {
           />
         </div>
         <div className="flex gap-3 flex-wrap sm:flex-nowrap w-full sm:w-auto">
-          <Select value={filterAdmissionStatus} onValueChange={setFilterAdmissionStatus}>
-            <SelectTrigger className="h-10 w-full sm:w-[160px] bg-white">
+          <Select value={filterAdmissionStatus} onValueChange={(v) => { setFilterAdmissionStatus(v); resetPage(); }}>
+            <SelectTrigger className="h-12 py-5 w-full sm:w-[160px] bg-white">
               <SelectValue placeholder="Admission Status" />
             </SelectTrigger>
             <SelectContent>
@@ -186,8 +192,8 @@ function StudentsContent() {
             </SelectContent>
           </Select>
           
-          <Select value={filterProgramId} onValueChange={setFilterProgramId}>
-            <SelectTrigger className="h-10 w-full sm:w-[160px] bg-white">
+          <Select value={filterProgramId} onValueChange={(v) => { setFilterProgramId(v); resetPage(); }}>
+            <SelectTrigger className="h-10 py-5 w-full sm:w-[160px] bg-white">
               <SelectValue placeholder="Program" />
             </SelectTrigger>
             <SelectContent>
@@ -198,14 +204,14 @@ function StudentsContent() {
             </SelectContent>
           </Select>
           
-          <Select value={filterFeePending} onValueChange={setFilterFeePending}>
-            <SelectTrigger className="h-10 w-full sm:w-[160px] bg-white">
+          <Select value={filterFeePending} onValueChange={(v) => { setFilterFeePending(v); resetPage(); }}>
+            <SelectTrigger className="h-10 py-5 w-full sm:w-[160px] bg-white">
               <SelectValue placeholder="Fee Status" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Fee Status</SelectItem>
               <SelectItem value="true">Fee Pending</SelectItem>
-              <SelectItem value="false">Fee Clear</SelectItem>
+              
             </SelectContent>
           </Select>
         </div>
@@ -221,6 +227,46 @@ function StudentsContent() {
           onViewStudent={(student) => router.push(`/admin/students/${student.id}`)}
           onEditStudent={handleEditStudent}
         />
+      )}
+
+      {/* Pagination */}
+      {!isLoading && (studentsResponse?.totalPages ?? 1) > 1 && (
+        <div className="flex items-center justify-between pt-2">
+          <p className="text-sm text-slate-500">
+            Page {page} of {studentsResponse?.totalPages ?? 1} &mdash; {studentsResponse?.total ?? 0} students
+          </p>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page === 1}
+              className="h-8 px-3 text-xs"
+            >
+              Previous
+            </Button>
+            {Array.from({ length: studentsResponse?.totalPages ?? 1 }, (_, i) => i + 1).map((p) => (
+              <Button
+                key={p}
+                variant={p === page ? "default" : "outline"}
+                size="sm"
+                onClick={() => setPage(p)}
+                className={`h-8 w-8 text-xs p-0 ${p === page ? "bg-[var(--brand-green)] text-white border-transparent" : ""}`}
+              >
+                {p}
+              </Button>
+            ))}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage((p) => Math.min(studentsResponse?.totalPages ?? 1, p + 1))}
+              disabled={page === (studentsResponse?.totalPages ?? 1)}
+              className="h-8 px-3 text-xs"
+            >
+              Next
+            </Button>
+          </div>
+        </div>
       )}
 
       {isModalOpen && (

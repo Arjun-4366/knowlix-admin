@@ -24,8 +24,18 @@ export type IUpdateMentorPayload = Partial<ICreateMentorPayload> & {
   status?: string;
 };
 
+export interface IMentorSummary {
+  active: number;
+  inactive: number;
+  total: number;
+}
+
 export interface IMentorsResponse extends IApiResponse<IMentor[]> {
   total: number;
+  totalPages?: number;
+  page?: number;
+  limit?: number;
+  summary?: IMentorSummary;
 }
 
 export type IMentorResponse = IApiResponse<IMentor>;

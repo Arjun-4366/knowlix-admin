@@ -78,7 +78,7 @@ export default function AdminNavbar({ collapsed, onToggle }: Props) {
 
       <div className="flex items-center gap-1">
         <Link
-          href="/"
+          href="https://www.knowlixlearning.com/"
           target="_blank"
           className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-500 rounded-lg hover:bg-gray-50 hover:text-gray-700 transition-colors"
         >

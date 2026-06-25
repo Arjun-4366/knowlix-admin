@@ -77,6 +77,9 @@ export const ENDPOINTS = {
   GET_STUDENT: (id: string) => `${API_BASE_URL}/students/${id}`,
   ASSIGN_TUTOR: (tutorId: string) => `${API_BASE_URL}/students/?tutorId=${tutorId}/assign`,
   GET_STUDENT_DOC: (studentId: string) => `${API_BASE_URL}/students/${studentId}/documents`,
+  GET_STUDENT_SESSIONS: (id: string) => `${API_BASE_URL}/students/${id}/sessions`,
+  GET_STUDENT_EXAMS: (id: string) => `${API_BASE_URL}/students/${id}/exams`,
+  GET_ADMIN_STUDENT_ASSIGNMENTS: (id: string) => `${API_BASE_URL}/students/${id}/assignments`,
 
   //tutors
   GET_TUTORS: `${API_BASE_URL}/tutors/fetch`,

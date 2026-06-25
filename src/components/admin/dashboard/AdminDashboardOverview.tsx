@@ -51,7 +51,7 @@ export default function AdminDashboardOverview({
   }
 
   return (
-    <div className="relative w-full space-y-8 pb-8">
+    <div className="relative w-full space-y-6 pb-8">
       {toastMessage && (
         <div className="fixed right-4 top-4 z-50 flex items-center gap-2 rounded-xl border border-[var(--brand-light)]/25 bg-[var(--brand-dark)] px-4 py-3 text-white shadow-lg animate-in fade-in slide-in-from-top-4 duration-300">
           <div className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-[var(--brand-green)]">
@@ -63,22 +63,12 @@ export default function AdminDashboardOverview({
 
       <DashboardOverviewHeader />
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
-        <div className="lg:col-span-3">
+        {/* Left column */}
+        <div className="lg:col-span-3 space-y-6">
           <DashboardOverviewStats
             dashboardData={dashboardData}
             onViewChange={onViewChange}
           />
-        </div>
-
-        <DashboardQuickActionsCard
-          onAddStudent={() => router.push("/admin/students?add=true")}
-          onAddTutor={() => setActiveModal("add-tutor")}
-          onAssignTutor={() => setActiveModal("assign-tutor")}
-        />
-      </div>
-
-      <div className="grid grid-cols-1 items-start gap-8 xl:grid-cols-12">
-        <div className="space-y-8 xl:col-span-8 2xl:col-span-9">
           <DashboardContentLinksCard />
           <DashboardTopTutorsCard
             tutors={dashboardData?.top5Tutors ?? []}
@@ -86,7 +76,13 @@ export default function AdminDashboardOverview({
           />
         </div>
 
-        <div className="space-y-8 xl:col-span-4 2xl:col-span-3">
+        {/* Right column — continuous, no gap between cards */}
+        <div className="lg:col-span-1 space-y-6 self-start">
+          <DashboardQuickActionsCard
+            onAddStudent={() => router.push("/admin/students?add=true")}
+            onAddTutor={() => setActiveModal("add-tutor")}
+            onAssignTutor={() => setActiveModal("assign-tutor")}
+          />
           <DashboardRecentEnquiriesCard />
         </div>
       </div>

@@ -1,13 +1,15 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { GraduationCap, Eye, EyeOff, Lock, Mail } from "lucide-react";
+import { Eye, EyeOff, Lock, Mail } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useLogin } from "@/querys/admin/authQuery";
 import toast from "react-hot-toast";
 import AuthGuard from "@/components/auth/AuthGuard";
+import logo from "../assets/images/icon.png"
 
 import { z } from "zod";
 
@@ -89,20 +91,22 @@ const roleMap: Record<string, string> = {
           <div className="bg-white rounded-2xl border border-gray-200 shadow-lg overflow-hidden">
             {/* Header */}
             <div className="px-8 pt-8 pb-6 text-center border-b border-gray-100">
-              <div
-                className="w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-4"
-                style={{ background: "var(--brand-dark)" }}
-              >
-                <GraduationCap className="w-6 h-6 text-white" />
-              </div>
+              <Image
+                src={logo}
+                alt="Knowlix"
+                width={40}
+                height={40}
+                className="mx-auto mb-2 object-contain"
+                priority
+              />
               <h1
                 className="text-xl font-bold"
                 style={{ color: "var(--brand-dark)" }}
               >
-                Knowlix Admin
+                Knowlix Workspace
               </h1>
               <p className="text-sm text-gray-500 mt-1">
-                Sign in to manage your website
+                Sign in to your workspace
               </p>
             </div>
 
@@ -117,7 +121,7 @@ const roleMap: Record<string, string> = {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="admin@knowlix.in"
+                    placeholder="Enter your email"
                     className="pl-9"
                     autoComplete="email"
                   />

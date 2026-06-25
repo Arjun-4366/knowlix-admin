@@ -88,12 +88,143 @@ export interface ICreateStudentPayload {
 
 export type IUpdateStudentPayload = Partial<ICreateStudentPayload>;
 
-export interface IStudentsResponse extends IApiResponse<IStudent[]> {
-  message: string;
+export interface IStudentSummary {
+  admissionTaken: number;
+  courseCompleted: number;
+  inactive: number;
+  pending: number;
   total: number;
 }
 
+export interface IStudentsResponse extends IApiResponse<IStudent[]> {
+  message: string;
+  total: number;
+  totalPages: number;
+  page: number;
+  limit: number;
+  summary: IStudentSummary;
+}
+
 export type IStudentResponse = IApiResponse<IStudent>;
+
+// Sessions
+export interface ISessionAttendance {
+  id: string;
+  tutorId: string;
+  studentId: string;
+  sessionId: string;
+  date: string;
+  status: "present" | "absent" | "late";
+  createdAt: string;
+}
+export interface IStudentSession {
+  id: string;
+  tutorId: string;
+  type: "individual" | "group";
+  studentIds: string[];
+  title: string;
+  subject: string;
+  meetLink: string;
+  scheduledAt: string;
+  durationMinutes: number;
+  status: "conducted" | "completed" | "not_conducted";
+  notes: string;
+  createdAt: string;
+  updatedAt: string;
+  tutorName: string;
+  attendance: ISessionAttendance | null;
+}
+export interface IStudentSessionsResponse {
+  data: IStudentSession[];
+  message: string;
+  status: string;
+  summary: { absent: number; late: number; present: number; total: number };
+  total: number;
+  totalPages: number;
+  page: number;
+  limit: number;
+}
+
+// Exams
+export interface IExamResult {
+  id: string;
+  examId: string;
+  studentId: string;
+  marksObtained: number;
+  grade: string;
+  remarks: string;
+  enteredAt: string;
+}
+export interface IStudentExam {
+  id: string;
+  tutorId: string;
+  studentIds: string[];
+  title: string;
+  subject: string;
+  examDate: string;
+  status: string;
+  maxMarks: number;
+  createdAt: string;
+  updatedAt: string;
+  tutorName: string;
+  result: IExamResult | null;
+}
+export interface IStudentExamsResponse {
+  data: IStudentExam[];
+  message: string;
+  status: string;
+  summary: { evaluated: number; pending: number; total: number };
+  total: number;
+  totalPages: number;
+  page: number;
+  limit: number;
+}
+
+// Assignments
+export interface IAssignmentSubmission {
+  id: string;
+  assignmentId: string;
+  studentId: string;
+  fileUrl: string;
+  remarks: string;
+  status: string;
+  submittedAt: string;
+}
+export interface IAssignmentEvaluation {
+  id: string;
+  assignmentId: string;
+  studentId: string;
+  marksObtained: number;
+  remarks: string;
+  completed: boolean;
+  evaluatedAt: string;
+}
+export interface IStudentAssignment {
+  id: string;
+  tutorId: string;
+  studentIds: string[];
+  title: string;
+  description: string;
+  subject: string;
+  dueDate: string;
+  status: string;
+  maxMarks: number;
+  createdAt: string;
+  updatedAt: string;
+  tutorName: string;
+  submission: IAssignmentSubmission | null;
+  evaluation: IAssignmentEvaluation | null;
+}
+export interface IStudentAssignmentsResponse {
+  data: IStudentAssignment[];
+  message: string;
+  status: string;
+  summary: { evaluated: number; pending: number; submitted: number; total: number };
+  total: number;
+  totalPages: number;
+  page: number;
+  limit: number;
+}
 
 export interface IStudentDocumentsResponse {
   documents: IStudentDocuments;

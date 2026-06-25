@@ -45,8 +45,8 @@ export default function TutorTable({
       <Table className="w-full">
         <TableHeader className="bg-slate-50/50">
           <TableRow>
-            <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[10%]">
-              Tutor ID
+            <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[5%]">
+              Sl.
             </TableHead>
             <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[22%]">
               Name
@@ -73,7 +73,7 @@ export default function TutorTable({
         </TableHeader>
         <TableBody className="divide-y divide-slate-100">
           {tutors.length > 0 ? (
-            tutors.map((tutor) => {
+            tutors.map((tutor, index) => {
               const hasPerformance = tutor.status === "approved";
 
               return (
@@ -82,8 +82,8 @@ export default function TutorTable({
                   className="hover:bg-slate-100 transition-colors cursor-pointer"
                   onClick={() => router.push(`/admin/tutor/${tutor.id}`)}
                 >
-                  <TableCell className="px-6 py-4 text-sm font-semibold text-slate-550 truncate max-w-[120px]" title={tutor.id}>
-                    {tutor.id.substring(tutor.id.length - 8)}
+                  <TableCell className="px-6 py-4 text-sm font-semibold text-slate-400">
+                    {index + 1}
                   </TableCell>
                   <TableCell className="px-6 py-4">
                     <div>
@@ -193,7 +193,7 @@ export default function TutorTable({
           ) : (
             <TableRow>
               <TableCell
-                colSpan={7}
+                colSpan={8}
                 className="px-6 py-12 text-center text-slate-400 text-sm"
               >
                 No tutors matching the current filters.

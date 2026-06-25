@@ -30,23 +30,23 @@ export function TutorClassStatsCard({
       </CardHeader>
       <CardContent className="p-6 pt-4 space-y-3.5">
         <div className="flex justify-between items-center pb-2 border-b border-slate-100">
-          <span className="text-xs font-bold text-slate-500">Total Sessions</span>
-          <span className="text-sm font-bold text-slate-800">{totalSessions}</span>
+          <span className="text-xs font-bold text-slate-700">Total Sessions</span>
+          <span className="text-sm font-bold text-slate-900">{totalSessions}</span>
         </div>
         <div className="flex justify-between items-center pb-2 border-b border-slate-100">
-          <span className="text-xs font-bold text-slate-500">Conducted</span>
+          <span className="text-xs font-bold text-slate-700">Conducted</span>
           <span className="text-sm font-bold text-green-600">{conducted}</span>
         </div>
         <div className="flex justify-between items-center pb-2 border-b border-slate-100">
-          <span className="text-xs font-bold text-slate-500">Not Conducted</span>
+          <span className="text-xs font-bold text-slate-700">Not Conducted</span>
           <span className="text-sm font-bold text-red-600">{notConducted}</span>
         </div>
         <div className="flex justify-between items-center pb-2 border-b border-slate-100">
-          <span className="text-xs font-bold text-slate-500">Postponed</span>
+          <span className="text-xs font-bold text-slate-700">Postponed</span>
           <span className="text-sm font-bold text-amber-600">{postponed}</span>
         </div>
         <div className="flex justify-between items-center">
-          <span className="text-xs font-bold text-slate-500">Attendance Rate</span>
+          <span className="text-xs font-bold text-slate-700">Attendance Rate</span>
           <span className="text-sm font-bold text-blue-600">{attendanceRate}%</span>
         </div>
       </CardContent>

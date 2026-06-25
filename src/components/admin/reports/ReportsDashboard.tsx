@@ -1,10 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {
-  ReportFiltersState,
-  TutorPerformanceReport,
-} from "./types";
+import { ReportFiltersState } from "./types";
 import ReportsFilters from "./ReportsFilters";
 import { useGetTutorPerformanceReport, useGetStudentPerformanceReport, useGetAttendanceReport } from "@/querys/admin/reportsQuery";
 import { ITutorPerformanceReportItem, IStudentPerformanceReportItem, IAttendanceReportResponse } from "@/types/admin/reports";
@@ -13,13 +10,10 @@ import {
   Users,
   CheckCircle,
   Calendar,
-  DollarSign,
   Award,
   Download,
-  Printer,
   Star,
   Clock,
-  Briefcase,
   AlertCircle,
   Percent,
 } from "lucide-react";
@@ -34,6 +28,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { toast } from "react-hot-toast";
+import { generateReportPDF } from "./generateReportPDF";
 
 const initialFilters: ReportFiltersState = {
   type: "tutor",
@@ -48,6 +43,7 @@ export default function ReportsDashboard() {
   const [filters, setFilters] = useState<ReportFiltersState>(initialFilters);
   const [activeFilters, setActiveFilters] = useState<ReportFiltersState>(initialFilters);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
   const [hasGenerated, setHasGenerated] = useState(true);
 
   // React Query hook call to get real tutor reports
@@ -125,49 +121,22 @@ export default function ReportsDashboard() {
     }
   };
 
-  // CSV Export utility
-  const handleExportCSV = () => {
-    const { type } = filters;
-    let csvContent = "";
-    let fileName = "";
-
-    if (type === "tutor") {
-      fileName = "tutor_performance_report.csv";
-      csvContent += "Tutor ID,Tutor Name,Role,Growth Points,Performance Score,G,H,O,R,T,W,Total Sessions,Conducted Sessions,Attendance Rate (%)\n";
-      const realData = realReportsResponse?.data ?? [];
-      realData.forEach((t) => {
-        csvContent += `"${t.tutorId}","${t.name}","${t.role || ""}",${t.growthPoints},${t.performanceScore},${t.growthBreakdown?.G || 0},${t.growthBreakdown?.H || 0},${t.growthBreakdown?.O || 0},${t.growthBreakdown?.R || 0},${t.growthBreakdown?.T || 0},${t.growthBreakdown?.W || 0},${t.totalSessions},${t.conductedSessions},${t.attendanceRate}\n`;
+  const handleDownloadPDF = async () => {
+    setIsExporting(true);
+    try {
+      await generateReportPDF({
+        type: filters.type as "tutor" | "student_performance" | "attendance",
+        dateRange: filters.dateRange,
+        tutorData: realReportsResponse?.data ?? [],
+        studentData: studentReportsResponse?.data ?? [],
+        attendanceData: attendanceResponse ?? undefined,
       });
-    } else if (type === "student_performance") {
-      fileName = "student_performance_report.csv";
-      csvContent += "Student ID,Student Name,Parent Name,Class,Package,Admission Status,Total Sessions,Conducted,Not Conducted,Postponed\n";
-      const realData = studentReportsResponse?.data ?? [];
-      realData.forEach((s) => {
-        csvContent += `"${s.studentId}","${s.studentName}","${s.parentName}","${s.class}","${s.package}","${s.admissionStatus}",${s.totalSessions},${s.conducted},${s.notConducted},${s.postponed}\n`;
-      });
-    } else if (type === "attendance") {
-      fileName = "attendance_summary_report.csv";
-      csvContent += "Attendance Rate,Total,Conducted,Not Conducted,Postponed\n";
-      if (attendanceResponse) {
-        csvContent += `${attendanceResponse.attendanceRate}%,${attendanceResponse.total},${attendanceResponse.conducted},${attendanceResponse.notConducted},${attendanceResponse.postponed}\n`;
-      }
+      toast.success("PDF downloaded successfully.");
+    } catch {
+      toast.error("Failed to generate PDF.");
+    } finally {
+      setIsExporting(false);
     }
-
-    if (!csvContent) {
-      toast.error("No data available for export.");
-      return;
-    }
-
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.setAttribute("href", url);
-    link.setAttribute("download", fileName);
-    link.style.visibility = "hidden";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    toast.success("CSV export download started.");
   };
 
   return (
@@ -206,11 +175,12 @@ export default function ReportsDashboard() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={handleExportCSV}
-                className="bg-white border-slate-200 text-slate-650 hover:text-slate-900 rounded-xl text-xs font-semibold cursor-pointer"
+                onClick={handleDownloadPDF}
+                disabled={isExporting}
+                className="bg-white border-slate-200 text-slate-650 hover:text-slate-900 rounded-xl text-xs font-semibold cursor-pointer disabled:opacity-50"
               >
                 <Download className="w-3.5 h-3.5 mr-1.5" />
-                Export CSV
+                {isExporting ? "Generating…" : "Download PDF"}
               </Button>
             </div>
           </div>

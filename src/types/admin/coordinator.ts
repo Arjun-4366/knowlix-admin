@@ -24,8 +24,18 @@ export type IUpdateCoordinatorPayload = Partial<ICreateCoordinatorPayload> & {
   status?: string;
 };
 
+export interface ICoordinatorSummary {
+  active: number;
+  inactive: number;
+  total: number;
+}
+
 export interface ICoordinatorsResponse extends IApiResponse<ICoordinator[]> {
   total: number;
+  totalPages?: number;
+  page?: number;
+  limit?: number;
+  summary?: ICoordinatorSummary;
 }
 
 export type ICoordinatorResponse = IApiResponse<ICoordinator>;

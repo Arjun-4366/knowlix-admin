@@ -49,7 +49,7 @@ export const deleteNote = async (id: string) => {
   return res.data;
 };
 
-export const getNotesFilters = async () => {
-  const res = await apiClient.get<INotesFiltersResponse>(ENDPOINTS.GET_FILTERS);
+export const getNotesFilters = async (params?: { subject?: string }) => {
+  const res = await apiClient.get<INotesFiltersResponse>(ENDPOINTS.GET_FILTERS, { params });
   return res.data;
 };

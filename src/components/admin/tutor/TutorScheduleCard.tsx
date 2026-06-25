@@ -30,12 +30,12 @@ export function TutorScheduleCard({ slots }: TutorScheduleCardProps) {
                 className="flex items-center justify-between p-3 rounded-xl border border-slate-100 bg-slate-50/30"
               >
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center font-bold text-slate-600 text-xs shadow-sm">
+                  <div className="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center font-bold text-slate-800 text-xs shadow-sm">
                     {slot.day.substring(0, 3)}
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-slate-700">{slot.day}</p>
-                    <p className="text-xs text-slate-500">{slot.startTime} - {slot.endTime}</p>
+                    <p className="text-sm font-bold text-slate-900">{slot.day}</p>
+                    <p className="text-xs text-slate-700">{slot.startTime} - {slot.endTime}</p>
                   </div>
                 </div>
                 <Badge
@@ -53,7 +53,7 @@ export function TutorScheduleCard({ slots }: TutorScheduleCardProps) {
             ))}
           </div>
         ) : (
-          <p className="text-sm text-slate-500 italic">No slots assigned yet.</p>
+          <p className="text-sm text-slate-700 italic">No slots assigned yet.</p>
         )}
       </CardContent>
     </Card>

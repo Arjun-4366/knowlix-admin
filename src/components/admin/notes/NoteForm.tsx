@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { ExternalLink, Upload, X } from "lucide-react";
+import { ExternalLink, Upload, X, PenLine, List } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,6 +17,16 @@ import { ButtonLoader } from "@/components/shared/Loader";
 import { useGetNotesFilters } from "@/querys/admin/notesQuery";
 import { ICreateNotePayload, INote, NoteStatus } from "@/types/admin/notes";
 
+const CLASSES = Array.from({ length: 12 }, (_, i) => String(i + 1));
+
+const SYLLABUS_OPTIONS = ["CBSE", "IGCSE", "ICSE", "IB", "KERALA STATE"];
+
+const SUBJECT_OPTIONS = [
+  "ENGLISH", "MALAYALAM", "ARABIC", "HINDI", "FRENCH", "GERMAN", "SPANISH",
+  "MATHS", "SCIENCE", "Physics", "Chemistry", "Bio", "IT", "AI",
+  "Drawing", "Handwriting", "Communicative English", "Madarasa subject", "QURAN",
+];
+
 interface NoteFormProps {
   noteToEdit?: INote;
   isSubmitting: boolean;
@@ -28,9 +38,6 @@ export default function NoteForm({ noteToEdit, isSubmitting, onSubmit, onClose }
   const isEdit = !!noteToEdit;
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { data: filtersResponse } = useGetNotesFilters();
-  const filters = filtersResponse?.data;
-
   const [title, setTitle] = useState(noteToEdit?.title ?? "");
   const [description, setDescription] = useState(noteToEdit?.description ?? "");
   const [content, setContent] = useState(noteToEdit?.content ?? "");
@@ -38,12 +45,19 @@ export default function NoteForm({ noteToEdit, isSubmitting, onSubmit, onClose }
   const [syllabus, setSyllabus] = useState(noteToEdit?.syllabus ?? "");
   const [subject, setSubject] = useState(noteToEdit?.subject ?? "");
   const [chapter, setChapter] = useState(noteToEdit?.chapter ?? "");
+  const [chapterMode, setChapterMode] = useState<"select" | "manual">("select");
   const [status, setStatus] = useState<NoteStatus>(noteToEdit?.status ?? "draft");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [tags, setTags] = useState<string[]>(noteToEdit?.tags ?? []);
   const [tagInput, setTagInput] = useState("");
 
   const existingFileUrl = noteToEdit?.fileUrl;
+
+  // Fetch chapters for the selected subject only
+  const { data: chapterFiltersResponse } = useGetNotesFilters(
+    subject ? { subject } : undefined
+  );
+  const availableChapters = chapterFiltersResponse?.data?.chapters ?? [];
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -53,6 +67,16 @@ export default function NoteForm({ noteToEdit, isSubmitting, onSubmit, onClose }
   const handleRemoveFile = () => {
     setSelectedFile(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const handleSubjectChange = (value: string) => {
+    setSubject(value);
+    setChapter("");
+  };
+
+  const handleChapterModeChange = (mode: "select" | "manual") => {
+    setChapterMode(mode);
+    setChapter("");
   };
 
   const addTag = () => {
@@ -74,21 +98,8 @@ export default function NoteForm({ noteToEdit, isSubmitting, onSubmit, onClose }
 
   const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     if (!isEdit && !selectedFile) return;
-
-    onSubmit({
-      title,
-      description,
-      content,
-      standard,
-      syllabus,
-      subject,
-      chapter,
-      status,
-      tags,
-      file: selectedFile as File,
-    });
+    onSubmit({ title, description, content, standard, syllabus, subject, chapter, status, tags, file: selectedFile as File });
   };
 
   const fileLabel = selectedFile
@@ -113,9 +124,7 @@ export default function NoteForm({ noteToEdit, isSubmitting, onSubmit, onClose }
             {isEdit ? "Edit Note" : "Add New Note"}
           </h2>
           <p className="mt-0.5 text-xs text-slate-450">
-            {isEdit
-              ? "Update the note details below"
-              : "Fill in the details to publish a new note"}
+            {isEdit ? "Update the note details below" : "Fill in the details to publish a new note"}
           </p>
         </div>
         <button
@@ -163,10 +172,8 @@ export default function NoteForm({ noteToEdit, isSubmitting, onSubmit, onClose }
                   <SelectValue placeholder="Select class" />
                 </SelectTrigger>
                 <SelectContent>
-                  {filters?.standards.map((s) => (
-                    <SelectItem key={s} value={s}>
-                      Class {s}
-                    </SelectItem>
+                  {CLASSES.map((c) => (
+                    <SelectItem key={c} value={c}>Class {c}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -178,44 +185,87 @@ export default function NoteForm({ noteToEdit, isSubmitting, onSubmit, onClose }
                   <SelectValue placeholder="Select syllabus" />
                 </SelectTrigger>
                 <SelectContent>
-                  {filters?.syllabuses.map((s) => (
-                    <SelectItem key={s} value={s}>
-                      {s}
-                    </SelectItem>
+                  {SYLLABUS_OPTIONS.map((s) => (
+                    <SelectItem key={s} value={s}>{s}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
           </div>
 
-          {/* Subject + Chapter */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-slate-600">Subject *</Label>
-              <Select required value={subject} onValueChange={setSubject}>
-                <SelectTrigger className="h-10 w-full">
-                  <SelectValue placeholder="Select subject" />
-                </SelectTrigger>
-                <SelectContent>
-                  {filters?.subjects.map((s) => (
-                    <SelectItem key={s} value={s}>{s}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-1.5">
+          {/* Subject */}
+          <div className="space-y-1.5">
+            <Label className="text-xs font-semibold text-slate-600">Subject *</Label>
+            <Select required value={subject} onValueChange={handleSubjectChange}>
+              <SelectTrigger className="h-10 w-full">
+                <SelectValue placeholder="Select subject" />
+              </SelectTrigger>
+              <SelectContent>
+                {SUBJECT_OPTIONS.map((s) => (
+                  <SelectItem key={s} value={s}>{s}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Chapter */}
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between">
               <Label className="text-xs font-semibold text-slate-600">Chapter *</Label>
+              <div className="flex items-center gap-1 rounded-lg border border-slate-200 bg-slate-50 p-0.5">
+                <button
+                  type="button"
+                  onClick={() => handleChapterModeChange("select")}
+                  className={`flex items-center gap-1.5 rounded-md px-2.5 py-1 text-[11px] font-semibold transition-colors ${
+                    chapterMode === "select"
+                      ? "bg-white text-slate-800 shadow-sm"
+                      : "text-slate-500 hover:text-slate-700"
+                  }`}
+                >
+                  <List className="h-3 w-3" />
+                  Select existing
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleChapterModeChange("manual")}
+                  className={`flex items-center gap-1.5 rounded-md px-2.5 py-1 text-[11px] font-semibold transition-colors ${
+                    chapterMode === "manual"
+                      ? "bg-white text-slate-800 shadow-sm"
+                      : "text-slate-500 hover:text-slate-700"
+                  }`}
+                >
+                  <PenLine className="h-3 w-3" />
+                  Add new
+                </button>
+              </div>
+            </div>
+
+            {chapterMode === "select" ? (
               <Select required value={chapter} onValueChange={setChapter}>
                 <SelectTrigger className="h-10 w-full">
-                  <SelectValue placeholder="Select chapter" />
+                  <SelectValue placeholder={subject ? "Select chapter" : "Select a subject first"} />
                 </SelectTrigger>
                 <SelectContent>
-                  {filters?.chapters.map((c) => (
-                    <SelectItem key={c} value={c}>{c}</SelectItem>
-                  ))}
+                  {availableChapters.length > 0 ? (
+                    availableChapters.map((c) => (
+                      <SelectItem key={c} value={c}>{c}</SelectItem>
+                    ))
+                  ) : (
+                    <div className="px-3 py-4 text-center text-xs text-slate-400">
+                      {subject ? "No chapters found for this subject" : "Select a subject to see chapters"}
+                    </div>
+                  )}
                 </SelectContent>
               </Select>
-            </div>
+            ) : (
+              <Input
+                required
+                value={chapter}
+                onChange={(e) => setChapter(e.target.value)}
+                placeholder="e.g. Polynomials, Organic Chemistry..."
+                className="h-10"
+              />
+            )}
           </div>
 
           {/* Status */}
@@ -236,12 +286,9 @@ export default function NoteForm({ noteToEdit, isSubmitting, onSubmit, onClose }
           <div className="space-y-1.5">
             <Label className="text-xs font-semibold text-slate-600">
               File {!isEdit && "*"}
-              {isEdit && (
-                <span className="ml-1 font-normal text-slate-400">(upload to replace)</span>
-              )}
+              {isEdit && <span className="ml-1 font-normal text-slate-400">(upload to replace)</span>}
             </Label>
 
-            {/* Show existing file in edit mode */}
             {isEdit && existingFileUrl && !selectedFile && (
               <div className="flex items-center justify-between rounded-xl border border-slate-150 bg-slate-50/60 px-3.5 py-2.5">
                 <p className="truncate text-xs font-medium text-slate-600">{fileLabel}</p>
@@ -256,12 +303,9 @@ export default function NoteForm({ noteToEdit, isSubmitting, onSubmit, onClose }
               </div>
             )}
 
-            {/* Selected new file preview */}
             {selectedFile && (
               <div className="flex items-center justify-between rounded-xl border border-[var(--brand-light)]/30 bg-[var(--brand-light-green)] px-3.5 py-2.5">
-                <p className="truncate text-xs font-semibold text-[var(--brand-mid)]">
-                  {selectedFile.name}
-                </p>
+                <p className="truncate text-xs font-semibold text-[var(--brand-mid)]">{selectedFile.name}</p>
                 <button
                   type="button"
                   onClick={handleRemoveFile}
@@ -272,7 +316,6 @@ export default function NoteForm({ noteToEdit, isSubmitting, onSubmit, onClose }
               </div>
             )}
 
-            {/* Upload button */}
             <input
               ref={fileInputRef}
               type="file"

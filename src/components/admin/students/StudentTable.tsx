@@ -57,8 +57,11 @@ export default function StudentTable({
         <Table className="table-fixed">
           <TableHeader className="bg-slate-50/50">
             <TableRow>
-              <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[14%]">
-                Admission #
+              <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[5%]">
+                Sl.
+              </TableHead>
+              <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[13%]">
+                Admission No
               </TableHead>
               <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[24%]">
                 Student
@@ -70,7 +73,7 @@ export default function StudentTable({
                 Course / Program
               </TableHead>
              
-              <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[14%]">
+              <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[18%]">
                 Status
               </TableHead>
               <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[12%]">
@@ -83,12 +86,15 @@ export default function StudentTable({
           </TableHeader>
           <TableBody className="divide-y divide-slate-100">
             {students.length > 0 ? (
-              students.map((student) => (
+              students.map((student, index) => (
                 <TableRow
                   key={student.id}
                   className="hover:bg-slate-100 transition-colors cursor-pointer"
                   onClick={() => onViewStudent(student)}
                 >
+                  <TableCell className="px-6 py-4 text-sm font-semibold text-slate-400">
+                    {index + 1}
+                  </TableCell>
                   <TableCell className="px-6 py-4 text-sm font-semibold text-slate-500 truncate">
                     {student.admissionNumber || "Pending"}
                   </TableCell>
@@ -124,7 +130,7 @@ export default function StudentTable({
                       >
                         <SelectTrigger
                           className={cn(
-                            "px-2.5 py-1 text-xs font-semibold rounded-full border outline-none cursor-pointer transition-all h-7 w-full truncate border-input justify-between",
+                            "px-3 py-1.5 text-xs font-semibold rounded-full border outline-none cursor-pointer transition-all h-8 w-full border-input justify-between",
                             getStatusBadgeClass(student.admissionStatus)
                           )}
                         >

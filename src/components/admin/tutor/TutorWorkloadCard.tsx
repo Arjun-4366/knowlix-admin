@@ -93,8 +93,8 @@ export function TutorWorkloadCard({ tutorId, isApproved, assignedStudents }: Tut
                     {s.studentName.charAt(0)}
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-slate-700">{s.studentName}</p>
-                    <p className="text-[10px] text-slate-400 font-semibold">
+                    <p className="text-xs font-bold text-slate-900">{s.studentName}</p>
+                    <p className="text-[10px] text-slate-700 font-semibold">
                       Grade {s.class}{s.courseType ? ` • ${s.courseType}` : s.package ? ` • ${s.package.replace("_", " ")}` : ""}
                     </p>
                   </div>
@@ -113,7 +113,7 @@ export function TutorWorkloadCard({ tutorId, isApproved, assignedStudents }: Tut
             ))}
           </div>
         ) : (
-          <p className="text-xs text-slate-400 italic">No students currently assigned to this tutor.</p>
+          <p className="text-xs text-slate-700 italic">No students currently assigned to this tutor.</p>
         )}
 
         {isApproved && (
@@ -127,7 +127,7 @@ export function TutorWorkloadCard({ tutorId, isApproved, assignedStudents }: Tut
                     <Badge
                       key={sid}
                       variant="secondary"
-                      className="flex items-center gap-1 bg-slate-100 text-slate-700 hover:bg-slate-200 pr-1 border border-slate-200 text-[10px]"
+                      className="flex items-center gap-1 bg-slate-100 text-slate-900 hover:bg-slate-200 pr-1 border border-slate-200 text-[10px]"
                     >
                       {student.studentName}
                       <button
