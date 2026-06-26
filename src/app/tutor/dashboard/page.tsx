@@ -178,6 +178,7 @@ export default function TutorDashboard() {
             <Table className="table-fixed w-full">
               <TableHeader className="bg-slate-50/50">
                 <TableRow>
+                  <TableHead className="px-6 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider w-[14%]">Sl no.</TableHead>
                   <TableHead className="px-6 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider w-[14%]">Month</TableHead>
                   <TableHead className="px-6 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider w-[8%]">Year</TableHead>
                   <TableHead className="px-6 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider w-[15%]">Total</TableHead>
@@ -189,8 +190,9 @@ export default function TutorDashboard() {
                 </TableRow>
               </TableHeader>
               <TableBody className="divide-y divide-slate-100">
-                {salaryList.map((s) => (
+                {salaryList.map((s, index) => (
                   <TableRow key={s.id} className="hover:bg-slate-50/60 transition-colors">
+                    <TableCell className="px-6 py-4 text-sm font-bold text-slate-800">{index + 1}</TableCell>
                     <TableCell className="px-6 py-4 text-sm font-bold text-slate-800">{s.month}</TableCell>
                     <TableCell className="px-6 py-4 text-sm font-semibold text-slate-600">{s.year}</TableCell>
                     <TableCell className="px-6 py-4 text-sm font-bold text-slate-800">{formatCurrency(s.totalAmount)}</TableCell>

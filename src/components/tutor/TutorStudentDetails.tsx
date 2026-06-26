@@ -62,7 +62,7 @@ export default function TutorStudentDetails({
   };
 
   return (
-    <div className="space-y-6 pb-12 relative max-w-5xl">
+    <div className="space-y-6 pb-12 relative max-w-8xl">
       {/* Back Link */}
       <div>
         <button

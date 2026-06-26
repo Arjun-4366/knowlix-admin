@@ -16,11 +16,13 @@ export default function GradeCardPreview({ report }: GradeCardPreviewProps) {
       saMax: acc.saMax + (s.saMax || 0),
       saScored: acc.saScored + (s.saScored || 0),
     }),
-    { faMax: 0, faScored: 0, saMax: 0, saScored: 0 }
+    { faMax: 0, faScored: 0, saMax: 0, saScored: 0 },
   );
 
   const totalMax = isYearly ? totals.faMax + totals.saMax : totals.faMax;
-  const totalScored = isYearly ? totals.faScored + totals.saScored : totals.faScored;
+  const totalScored = isYearly
+    ? totals.faScored + totals.saScored
+    : totals.faScored;
   const overallGrade = totalMax > 0 ? calcGrade(totalScored, totalMax) : "—";
 
   const tb = "1px solid #d0d0d0";
@@ -64,8 +66,7 @@ export default function GradeCardPreview({ report }: GradeCardPreviewProps) {
         color: "#111",
         border: ob,
         boxSizing: "border-box",
-      }}
-    >
+      }}>
       {/* ─── HEADER ─── */}
       <div
         style={{
@@ -74,16 +75,36 @@ export default function GradeCardPreview({ report }: GradeCardPreviewProps) {
           alignItems: "flex-start",
           padding: "16px 20px 14px",
           borderBottom: ob,
-        }}
-      >
+        }}>
         <div>
-          <div style={{ fontSize: "26px", fontWeight: "900", letterSpacing: "4px", color: "#111", lineHeight: 1 }}>
+          <div
+            style={{
+              fontSize: "26px",
+              fontWeight: "900",
+              letterSpacing: "4px",
+              color: "#111",
+              lineHeight: 1,
+            }}>
             GRADE CARD
           </div>
-          <div style={{ fontSize: "8.5px", fontWeight: "600", color: "#888", letterSpacing: "2px", marginTop: "4px", textTransform: "uppercase" }}>
+          <div
+            style={{
+              fontSize: "8.5px",
+              fontWeight: "600",
+              color: "#888",
+              letterSpacing: "2px",
+              marginTop: "4px",
+              textTransform: "uppercase",
+            }}>
             Academic Progress Report
           </div>
-          <div style={{ fontSize: "10.5px", fontWeight: "700", color: "#333", marginTop: "6px" }}>
+          <div
+            style={{
+              fontSize: "10.5px",
+              fontWeight: "700",
+              color: "#333",
+              marginTop: "6px",
+            }}>
             Academic Year: {report.academicYear || report.period}
           </div>
         </div>
@@ -92,11 +113,19 @@ export default function GradeCardPreview({ report }: GradeCardPreviewProps) {
           <img
             src="/images/logo.png"
             alt="Knowlix"
-            style={{ height: "36px", objectFit: "contain", display: "block", marginLeft: "auto", marginBottom: "6px" }}
+            style={{
+              height: "36px",
+              objectFit: "contain",
+              display: "block",
+              marginLeft: "auto",
+              marginBottom: "6px",
+            }}
           />
           <div style={{ fontSize: "8px", color: "#777", lineHeight: "1.6" }}>
-            www.knowlixlearning.com<br />
-            Phone: 70 25235 59<br />
+            www.knowlixlearning.com
+            <br />
+            Phone: 70 25235 59
+            <br />
             knowlixlearning@gmail.com
           </div>
         </div>
@@ -106,23 +135,74 @@ export default function GradeCardPreview({ report }: GradeCardPreviewProps) {
       <table style={{ width: "100%", borderCollapse: "collapse" }}>
         <tbody>
           <tr>
-            <td style={{ ...td(), borderTop: "none", borderLeft: "none", width: "40%", verticalAlign: "top" }}>
-              <div style={{ fontSize: "7.5px", color: "#999", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: "3px" }}>
+            <td
+              style={{
+                ...td(),
+                borderTop: "none",
+                borderLeft: "none",
+                width: "40%",
+                verticalAlign: "top",
+              }}>
+              <div
+                style={{
+                  fontSize: "7.5px",
+                  color: "#999",
+                  fontWeight: "700",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.8px",
+                  marginBottom: "3px",
+                }}>
                 Student Name
               </div>
-              <div style={{ fontSize: "13px", fontWeight: "700" }}>{report.studentName || "—"}</div>
+              <div style={{ fontSize: "13px", fontWeight: "700" }}>
+                {report.studentName || "—"}
+              </div>
             </td>
-            <td style={{ ...td(), borderTop: "none", borderLeft: "none", width: "30%", verticalAlign: "top" }}>
-              <div style={{ fontSize: "7.5px", color: "#999", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: "3px" }}>
+            <td
+              style={{
+                ...td(),
+                borderTop: "none",
+                borderLeft: "none",
+                width: "30%",
+                verticalAlign: "top",
+              }}>
+              <div
+                style={{
+                  fontSize: "7.5px",
+                  color: "#999",
+                  fontWeight: "700",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.8px",
+                  marginBottom: "3px",
+                }}>
                 Program
               </div>
-              <div style={{ fontSize: "13px", fontWeight: "700" }}>{report.programName || "—"}</div>
+              <div style={{ fontSize: "13px", fontWeight: "700" }}>
+                {report.programName || "—"}
+              </div>
             </td>
-            <td style={{ ...td(), borderTop: "none", borderLeft: "none", borderRight: "none", verticalAlign: "top" }}>
-              <div style={{ fontSize: "7.5px", color: "#999", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: "3px" }}>
+            <td
+              style={{
+                ...td(),
+                borderTop: "none",
+                borderLeft: "none",
+                borderRight: "none",
+                verticalAlign: "top",
+              }}>
+              <div
+                style={{
+                  fontSize: "7.5px",
+                  color: "#999",
+                  fontWeight: "700",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.8px",
+                  marginBottom: "3px",
+                }}>
                 Admission No
               </div>
-              <div style={{ fontSize: "13px", fontWeight: "700" }}>{report.admissionNo || "—"}</div>
+              <div style={{ fontSize: "13px", fontWeight: "700" }}>
+                {report.admissionNo || "—"}
+              </div>
             </td>
           </tr>
         </tbody>
@@ -139,8 +219,7 @@ export default function GradeCardPreview({ report }: GradeCardPreviewProps) {
           fontSize: "13px",
           fontWeight: "700",
           color: "#111",
-        }}
-      >
+        }}>
         {report.examTitle || `${report.period}`}
       </div>
 
@@ -148,7 +227,15 @@ export default function GradeCardPreview({ report }: GradeCardPreviewProps) {
       <table style={{ width: "100%", borderCollapse: "collapse" }}>
         <thead>
           <tr>
-            <th rowSpan={2} style={{ ...th(), textAlign: "left", verticalAlign: "middle", width: isYearly ? "20%" : "25%", borderLeft: "none" }}>
+            <th
+              rowSpan={2}
+              style={{
+                ...th(),
+                textAlign: "left",
+                verticalAlign: "middle",
+                width: isYearly ? "20%" : "25%",
+                borderLeft: "none",
+              }}>
               Subjects
             </th>
             <th colSpan={2} style={{ ...th(), borderLeft: "none" }}>
@@ -159,7 +246,9 @@ export default function GradeCardPreview({ report }: GradeCardPreviewProps) {
                 Summative Assessment (SA)
               </th>
             )}
-            <th colSpan={3} style={{ ...th(), borderLeft: "none", borderRight: "none" }}>
+            <th
+              colSpan={3}
+              style={{ ...th(), borderLeft: "none", borderRight: "none" }}>
               Total
             </th>
           </tr>
@@ -174,7 +263,9 @@ export default function GradeCardPreview({ report }: GradeCardPreviewProps) {
             )}
             <th style={{ ...th(), borderLeft: "none" }}>Max Marks</th>
             <th style={{ ...th(), borderLeft: "none" }}>Scored Marks</th>
-            <th style={{ ...th(), borderLeft: "none", borderRight: "none" }}>Grade</th>
+            <th style={{ ...th(), borderLeft: "none", borderRight: "none" }}>
+              Grade
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -184,43 +275,155 @@ export default function GradeCardPreview({ report }: GradeCardPreviewProps) {
             const grade = subMax > 0 ? calcGrade(subScored, subMax) : "—";
             return (
               <tr key={i}>
-                <td style={{ ...td(), borderLeft: "none" }}>{s.subject || "—"}</td>
-                <td style={{ ...td(), borderLeft: "none", textAlign: "center" }}>{s.faMax ?? 0}</td>
-                <td style={{ ...td(), borderLeft: "none", textAlign: "center" }}>{s.faScored ?? 0}</td>
+                <td style={{ ...td(), borderLeft: "none" }}>
+                  {s.subject || "—"}
+                </td>
+                <td
+                  style={{ ...td(), borderLeft: "none", textAlign: "center" }}>
+                  {s.faMax ?? 0}
+                </td>
+                <td
+                  style={{ ...td(), borderLeft: "none", textAlign: "center" }}>
+                  {s.faScored ?? 0}
+                </td>
                 {isYearly && (
                   <>
-                    <td style={{ ...td(), borderLeft: "none", textAlign: "center" }}>{s.saMax ?? 0}</td>
-                    <td style={{ ...td(), borderLeft: "none", textAlign: "center" }}>{s.saScored ?? 0}</td>
+                    <td
+                      style={{
+                        ...td(),
+                        borderLeft: "none",
+                        textAlign: "center",
+                      }}>
+                      {s.saMax ?? 0}
+                    </td>
+                    <td
+                      style={{
+                        ...td(),
+                        borderLeft: "none",
+                        textAlign: "center",
+                      }}>
+                      {s.saScored ?? 0}
+                    </td>
                   </>
                 )}
-                <td style={{ ...td(), borderLeft: "none", textAlign: "center" }}>{subMax ?? 0}</td>
-                <td style={{ ...td(), borderLeft: "none", textAlign: "center" }}>{subScored ?? 0}</td>
-                <td style={{ ...td(), borderLeft: "none", borderRight: "none", textAlign: "center", fontWeight: "700" }}>{grade}</td>
+                <td
+                  style={{ ...td(), borderLeft: "none", textAlign: "center" }}>
+                  {subMax ?? 0}
+                </td>
+                <td
+                  style={{ ...td(), borderLeft: "none", textAlign: "center" }}>
+                  {subScored ?? 0}
+                </td>
+                <td
+                  style={{
+                    ...td(),
+                    borderLeft: "none",
+                    borderRight: "none",
+                    textAlign: "center",
+                    fontWeight: "700",
+                  }}>
+                  {grade}
+                </td>
               </tr>
             );
           })}
           <tr style={{ background: "#f2f2f2" }}>
-            <td style={{ ...td(), borderLeft: "none", fontWeight: "700", background: "#f2f2f2" }}><strong>Total</strong></td>
-            <td style={{ ...td(), borderLeft: "none", textAlign: "center", fontWeight: "700", background: "#f2f2f2" }}><strong>{totals.faMax}</strong></td>
-            <td style={{ ...td(), borderLeft: "none", textAlign: "center", fontWeight: "700", background: "#f2f2f2" }}><strong>{totals.faScored}</strong></td>
+            <td
+              style={{
+                ...td(),
+                borderLeft: "none",
+                fontWeight: "700",
+                background: "#f2f2f2",
+              }}>
+              <strong>Total</strong>
+            </td>
+            <td
+              style={{
+                ...td(),
+                borderLeft: "none",
+                textAlign: "center",
+                fontWeight: "700",
+                background: "#f2f2f2",
+              }}>
+              <strong>{totals.faMax}</strong>
+            </td>
+            <td
+              style={{
+                ...td(),
+                borderLeft: "none",
+                textAlign: "center",
+                fontWeight: "700",
+                background: "#f2f2f2",
+              }}>
+              <strong>{totals.faScored}</strong>
+            </td>
             {isYearly && (
               <>
-                <td style={{ ...td(), borderLeft: "none", textAlign: "center", fontWeight: "700", background: "#f2f2f2" }}><strong>{totals.saMax}</strong></td>
-                <td style={{ ...td(), borderLeft: "none", textAlign: "center", fontWeight: "700", background: "#f2f2f2" }}><strong>{totals.saScored}</strong></td>
+                <td
+                  style={{
+                    ...td(),
+                    borderLeft: "none",
+                    textAlign: "center",
+                    fontWeight: "700",
+                    background: "#f2f2f2",
+                  }}>
+                  <strong>{totals.saMax}</strong>
+                </td>
+                <td
+                  style={{
+                    ...td(),
+                    borderLeft: "none",
+                    textAlign: "center",
+                    fontWeight: "700",
+                    background: "#f2f2f2",
+                  }}>
+                  <strong>{totals.saScored}</strong>
+                </td>
               </>
             )}
-            <td style={{ ...td(), borderLeft: "none", textAlign: "center", fontWeight: "700", background: "#f2f2f2" }}><strong>{totalMax}</strong></td>
-            <td style={{ ...td(), borderLeft: "none", textAlign: "center", fontWeight: "700", background: "#f2f2f2" }}><strong>{totalScored}</strong></td>
-            <td style={{ ...td(), borderLeft: "none", borderRight: "none", textAlign: "center", fontWeight: "700", background: "#f2f2f2" }}><strong>{overallGrade}</strong></td>
+            <td
+              style={{
+                ...td(),
+                borderLeft: "none",
+                textAlign: "center",
+                fontWeight: "700",
+                background: "#f2f2f2",
+              }}>
+              <strong>{totalMax}</strong>
+            </td>
+            <td
+              style={{
+                ...td(),
+                borderLeft: "none",
+                textAlign: "center",
+                fontWeight: "700",
+                background: "#f2f2f2",
+              }}>
+              <strong>{totalScored}</strong>
+            </td>
+            <td
+              style={{
+                ...td(),
+                borderLeft: "none",
+                borderRight: "none",
+                textAlign: "center",
+                fontWeight: "700",
+                background: "#f2f2f2",
+              }}>
+              <strong>{overallGrade}</strong>
+            </td>
           </tr>
         </tbody>
       </table>
 
       {/* ─── SIGNATURES ─── */}
-      <table style={{ width: "100%", borderCollapse: "collapse", borderTop: tb }}>
+      <table
+        style={{ width: "100%", borderCollapse: "collapse", borderTop: tb }}>
         <tbody>
           <tr>
-            {(["Class Teacher", "Section Head", "Principal", "Parent"] as const).map((label, i) => (
+            {(
+              ["Class Teacher", "Section Head", "Principal", "Parent"] as const
+            ).map((label, i) => (
               <td
                 key={label}
                 style={{
@@ -232,19 +435,17 @@ export default function GradeCardPreview({ report }: GradeCardPreviewProps) {
                   borderLeft: "none",
                   borderTop: "none",
                   borderBottom: "none",
-                }}
-              >
-                {label === "Principal" ? (
-                  /* eslint-disable-next-line @next/next/no-img-element */
-                  <img
-                    src="/images/principal-sign.png"
-                    alt="Principal Signature"
-                    style={{ height: "36px", objectFit: "contain", display: "block", margin: "0 auto 6px" }}
-                  />
-                ) : (
-                  <div style={{ height: "36px", marginBottom: "6px" }} />
-                )}
-                <div style={{ borderTop: "1px solid #555", paddingTop: "5px", fontSize: "9.5px", fontWeight: "600", color: "#444" }}>
+                }}>
+                <div style={{ height: "36px", marginBottom: "6px" }} />
+
+                <div
+                  style={{
+                    borderTop: "1px solid #555",
+                    paddingTop: "5px",
+                    fontSize: "9.5px",
+                    fontWeight: "600",
+                    color: "#444",
+                  }}>
                   {label}
                 </div>
               </td>
@@ -261,16 +462,29 @@ export default function GradeCardPreview({ report }: GradeCardPreviewProps) {
           alignItems: "center",
           padding: "12px 20px",
           borderTop: ob,
-        }}
-      >
+        }}>
         <div>
-          <div style={{ fontSize: "7.5px", color: "#999", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.8px" }}>
+          <div
+            style={{
+              fontSize: "7.5px",
+              color: "#999",
+              fontWeight: "700",
+              textTransform: "uppercase",
+              letterSpacing: "0.8px",
+            }}>
             Date of Issue
           </div>
-          <div style={{ fontSize: "12px", fontWeight: "700", marginTop: "2px" }}>{issueFormatted}</div>
+          <div
+            style={{ fontSize: "12px", fontWeight: "700", marginTop: "2px" }}>
+            {issueFormatted}
+          </div>
         </div>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/images/knowlix-seal.png" alt="Seal" style={{ height: "90px", objectFit: "contain" }} />
+        <img
+          src="/images/knowlix-seal.png"
+          alt="Seal"
+          style={{ height: "90px", objectFit: "contain" }}
+        />
       </div>
     </div>
   );

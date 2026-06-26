@@ -1,6 +1,6 @@
 "use client";
 
-import { FileText, Calendar, BookOpen, Users } from "lucide-react";
+import { FileText, Calendar, BookOpen, Users, Paperclip } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -123,6 +123,14 @@ export default function AssignmentsList({
                   <p className="text-[10px] text-slate-400 font-semibold truncate">
                     {studentNames}
                   </p>
+                  {asg.submittedCount != null && (
+                    <div className="flex items-center gap-1 mt-1">
+                      <Paperclip className="w-3 h-3 text-[var(--brand-green)] flex-shrink-0" />
+                      <span className="text-[10px] font-bold text-[var(--brand-green)]">
+                        {asg.submittedCount} submission{asg.submittedCount !== 1 ? "s" : ""}
+                      </span>
+                    </div>
+                  )}
                 </TableCell>
 
                 <TableCell className="px-6 py-4">
@@ -139,15 +147,24 @@ export default function AssignmentsList({
                 </TableCell>
 
                 <TableCell className="px-6 py-4 text-right">
-                  {onEvaluate && asg.status !== "evaluated" && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => onEvaluate(asg)}
-                      className="text-xs font-bold text-[var(--brand-mid)] hover:bg-[var(--brand-light-green)]/35 hover:text-[var(--brand-mid)] px-2.5 py-1.5 rounded-lg border border-[var(--brand-green)]/20 cursor-pointer transition-all">
-                      Evaluate
-                    </Button>
-                  )}
+                  {(() => {
+                    const hasSubmission = asg.students
+                      ? asg.students.some((s) => s.submission !== null)
+                      : (asg.submittedCount ?? 0) > 0;
+                    const notFullyEvaluated = asg.status !== "evaluated";
+                    if (onEvaluate && hasSubmission && notFullyEvaluated) {
+                      return (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => onEvaluate(asg)}
+                          className="text-xs font-bold text-[var(--brand-mid)] hover:bg-[var(--brand-light-green)]/35 hover:text-[var(--brand-mid)] px-2.5 py-1.5 rounded-lg border border-[var(--brand-green)]/20 cursor-pointer transition-all">
+                          Evaluate
+                        </Button>
+                      );
+                    }
+                    return null;
+                  })()}
                 </TableCell>
               </TableRow>
             );

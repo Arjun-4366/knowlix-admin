@@ -163,14 +163,15 @@
   --brand-light-green: #ccfbf1;
 }
 
-/* Tutor — Scholar Violet  (knowledge · depth · expertise) */
+
+/* Tutor — Deep Slate  (minimal · sophisticated · neutral) */
 #tutor-shell {
-  --brand-dark:        #3b0a8a;
-  --brand-mid:         #5b22b6;
-  --brand-green:       #7c3aed;
-  --brand-light:       #a78bfa;
-  --brand-bg:          #f5f3ff;
-  --brand-light-green: #ede9fe;
+  --brand-dark:        #0f172a;
+  --brand-mid:         #334155;
+  --brand-green:       #475569;
+  --brand-light:       #94a3b8;
+  --brand-bg:          #f8fafc;
+  --brand-light-green: #f1f5f9;
 }
 
 /* Student — Periwinkle  (soft · modern · pastel-inspired) */
