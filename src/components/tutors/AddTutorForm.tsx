@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { ICreateTutorPayload, ITutor, TutorStatus } from "@/types/admin/tutor";
+import { useGetSubjects, useGetSyllabuses } from "@/querys/admin/curriculumQuery";
 
 interface AddTutorFormProps {
   onClose: () => void;
@@ -22,12 +23,6 @@ interface AddTutorFormProps {
 }
 
 const AVAILABILITY_OPTIONS = ["Morning", "Afternoon", "Evening"];
-const SUBJECT_OPTIONS = [
-  "ENGLISH", "MALAYALAM", "ARABIC", "HINDI", "FRENCH", "GERMAN", "SPANISH",
-  "MATHS", "SCIENCE", "Physics", "Chemistry", "Bio", "IT", "AI",
-  "Drawing", "Handwriting", "Communicative English", "Madarasa subject", "QURAN"
-];
-const SYLLABUS_OPTIONS = ["CBSE", "IGCSE", "ICSE", "IB", "KERALA STATE."];
 
 export default function AddTutorForm({
   onClose,
@@ -36,6 +31,11 @@ export default function AddTutorForm({
   tutorToEdit,
   hrMode = false,
 }: AddTutorFormProps) {
+  const { data: subjectsRes } = useGetSubjects();
+  const { data: syllabusesRes } = useGetSyllabuses();
+  const subjectOptions = subjectsRes?.data?.map((s) => s.name) ?? [];
+  const syllabusOptions = syllabusesRes?.data?.map((s) => s.name) ?? [];
+
   const [name, setName] = useState(() => tutorToEdit?.name || "");
   const [email, setEmail] = useState(() => tutorToEdit?.email || "");
   const [phone, setPhone] = useState(() => tutorToEdit?.phone || "");
@@ -107,11 +107,12 @@ export default function AddTutorForm({
       }
 
       setSubjectEntries(parsedEntries.map(e => {
-        const normalizedName = e.name.toLowerCase() === "math" ? "MATHS" : SUBJECT_OPTIONS.find(s => s.toLowerCase() === e.name.toLowerCase()) || e.name;
+        const normalizedName =
+          subjectOptions.find((s) => s.toLowerCase() === e.name.toLowerCase()) || e.name;
         return { ...e, name: normalizedName };
       }));
     }
-  }, [tutorToEdit]);
+  }, [tutorToEdit, subjectOptions]);
 
   const toggleAvailability = (option: string) => {
     setAvailability((prev) =>
@@ -306,7 +307,7 @@ export default function AddTutorForm({
         <div className="space-y-3 pt-2">
           <Label className="text-xs font-semibold text-slate-500 block">Subjects & Syllabi *</Label>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-            {SUBJECT_OPTIONS.map((subj) => {
+            {subjectOptions.map((subj) => {
               const entry = subjectEntries.find((e) => e.name === subj);
               const isSelected = !!entry;
               return (
@@ -342,7 +343,7 @@ export default function AddTutorForm({
                   <div key={entry.name} className="space-y-1.5 pb-2.5 border-b border-slate-100 last:border-b-0 last:pb-0">
                     <span className="text-xs font-bold text-slate-700">{entry.name} Syllabi:</span>
                     <div className="flex flex-wrap gap-1.5 mt-1">
-                      {SYLLABUS_OPTIONS.map((syl) => {
+                      {syllabusOptions.map((syl) => {
                         const isSylChecked = entry.syllabi.includes(syl);
                         return (
                           <button

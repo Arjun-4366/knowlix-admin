@@ -22,6 +22,7 @@ import {
   BarChart3,
   UserCheck,
   UserCog,
+  Library,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import logo from "../../assets/images/icon.png"
@@ -42,6 +43,7 @@ const nav: NavItem[] = [
   { name: "Mentors", href: "/admin/mentors", icon: UserCheck },
   { name: "Coordinators", href: "/admin/coordinators", icon: Briefcase },
   { name: "Notes", href: "/admin/notes", icon: BookOpen },
+  { name: "Curriculum", href: "/admin/curriculum", icon: Library },
   { name: "Reports", href: "/admin/reports", icon: BarChart3 },
   { name: "HR Team", href: "/admin/hr", icon: UserCog },
   {

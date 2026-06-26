@@ -237,5 +237,22 @@ export const ENDPOINTS = {
     ADMIN_HR_UPDATE_PASSWORD: (id: string) => `${API_BASE_URL}/admin/hr/${id}/set-password`,
     ADMIN_HR_DELETE: (id: string) => `${API_BASE_URL}/admin/hr/${id}`,
 
+    // Curriculum — Standards
+    GET_STANDARDS: `${API_BASE_URL}/admin/standards/fetch`,
+    CREATE_STANDARD: `${API_BASE_URL}/admin/standards/create`,
+    UPDATE_STANDARD: (id: string) => `${API_BASE_URL}/admin/standards/${id}`,
+    DELETE_STANDARD: (id: string) => `${API_BASE_URL}/admin/standards/${id}`,
+
+    // Curriculum — Syllabuses
+    GET_SYLLABUSES: `${API_BASE_URL}/admin/syllabuses/fetch`,
+    CREATE_SYLLABUS: `${API_BASE_URL}/admin/syllabuses/create`,
+    UPDATE_SYLLABUS: (id: string) => `${API_BASE_URL}/admin/syllabuses/${id}`,
+    DELETE_SYLLABUS: (id: string) => `${API_BASE_URL}/admin/syllabuses/${id}`,
+
+    // Curriculum — Subjects
+    GET_SUBJECTS: `${API_BASE_URL}/admin/subjects/fetch`,
+    CREATE_SUBJECT: `${API_BASE_URL}/admin/subjects/create`,
+    UPDATE_SUBJECT: (id: string) => `${API_BASE_URL}/admin/subjects/${id}`,
+    DELETE_SUBJECT: (id: string) => `${API_BASE_URL}/admin/subjects/${id}`,
 
 } as const; 
