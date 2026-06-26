@@ -276,12 +276,12 @@ function HrContent() {
                     </TableCell>
 
                     <TableCell className="text-right pr-6">
-                      <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="flex items-center justify-end gap-2   transition-opacity">
                         <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => setPasswordModalHrId(hr.id)}
-                          className="h-8 w-8 p-0 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg"
+                          className="h-8 w-8 cursor-pointer p-0 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg"
                           title="Set Password"
                         >
                           <KeyRound className="w-4 h-4" />
@@ -290,7 +290,7 @@ function HrContent() {
                           variant="ghost"
                           size="sm"
                           onClick={() => handleDeleteHr(hr.id)}
-                          className="h-8 w-8 p-0 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg"
+                          className="h-8 cursor-pointer w-8 p-0 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg"
                           title="Delete HR"
                         >
                           <Trash2 className="w-4 h-4" />

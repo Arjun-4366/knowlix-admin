@@ -9,7 +9,7 @@ import {
   deleteHoliday,
   getHRTutorAttendance,
   getHRTutorAttendanceSummary,
-  approveAttendance,
+  approveAttendance,  
   approveBulkAttendance,
 } from "@/services/hr/attendance";
 
@@ -46,8 +46,10 @@ import {
   getTutorHR,
   createTutorByHR,
   updateTutorHR,
+  addRemarkHR,
   ITutorHRQueryParams,
   IUpdateTutorHRPayload,
+  IAddRemarkPayload,
 } from "@/services/hr/tutors";
 
 import {
@@ -342,6 +344,22 @@ export const useUpdateTutorByHR = () => {
     },
     onError: (err: any) => {
       const errMsg = err?.response?.data?.message || err.message || "Failed to update tutor";
+      toast.error(errMsg);
+    },
+  });
+};
+
+export const useAddRemarkHR = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: IAddRemarkPayload }) =>
+      addRemarkHR(id, data),
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries({ queryKey: [...HR_TUTOR_KEY, id] });
+      toast.success("Remark added successfully");
+    },
+    onError: (err: any) => {
+      const errMsg = err?.response?.data?.message || err.message || "Failed to add remark";
       toast.error(errMsg);
     },
   });

@@ -81,8 +81,8 @@ export interface ITutorProfilePayload {
   growthPoints: number;
   performanceScore: number;
   permissions?: ITutorPermissions;
-  positiveRemarks?: string[] | null;
-  negativeRemarks?: string[] | null;
+  positiveRemarks?: { text: string; addedBy: string; addedAt: string }[] | null;
+  negativeRemarks?: { text: string; addedBy: string; addedAt: string }[] | null;
   syllabus: string[];
   slots: ISlotEntry[];
   assignedStudentIds?: IAssignedStudent[] | string[];

@@ -24,8 +24,8 @@ export interface ITutor {
   profileImage: string;
   growthPoints: number;
   performanceScore: number;
-  positiveRemarks?: string | null;
-  negativeRemarks?: string | null;
+  positiveRemarks?: { text: string; addedBy: string; addedAt: string }[];
+  negativeRemarks?: { text: string; addedBy: string; addedAt: string }[];
   slots?: ITutorSlot[] | null;
   assignedStudentIds?: string[] | null;
   permissions?: ITutorPermissions;

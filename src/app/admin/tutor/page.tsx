@@ -2,7 +2,7 @@
 
 import { useState, useMemo, Suspense, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Search, Star, Eye } from "lucide-react";
+import { Plus, Search, Star, Eye, RotateCcw } from "lucide-react";
 import DashboardHeader from "@/components/dashboard/shared/DashboardHeader";
 import { Input } from "@/components/ui/input";
 import {
@@ -38,14 +38,9 @@ import {
   useApproveTutor,
   useGetLeaderboard,
 } from "@/querys/admin/tutorQuery";
+import { useGetSubjects } from "@/querys/admin/curriculumQuery";
 import { ICreateTutorPayload, ITutor, ILeaderboardItem } from "@/types/admin/tutor";
 import { Skeleton } from "@/components/ui/skeleton";
-
-const SUBJECT_OPTIONS = [
-  "ENGLISH", "MALAYALAM", "ARABIC", "HINDI", "FRENCH", "GERMAN", "SPANISH",
-  "MATHS", "SCIENCE", "Physics", "Chemistry", "Bio", "IT", "AI",
-  "Drawing", "Handwriting", "Communicative English", "Madarasa subject", "QURAN"
-];
 
 function TutorsContent() {
   const { confirm } = useConfirmation();
@@ -53,6 +48,8 @@ function TutorsContent() {
   // We need to access debounced search, subject, and experience. But hook calls cannot be inside useMemo, so we define them at the top.
   // We'll fix the hook ordering in the next chunk.
   const { data: leaderboardResponse, isLoading: isLeaderboardLoading } = useGetLeaderboard();
+  const { data: subjectsRes } = useGetSubjects();
+  const subjectOptions = subjectsRes?.data?.map((s) => s.name) ?? [];
   const { mutateAsync: createTutor, isPending: isCreating } = useCreateTutor();
   const { mutateAsync: updateTutor, isPending: isUpdating } = useUpdateTutor();
   const { mutateAsync: deleteTutor } = useDeleteTutor();
@@ -256,7 +253,7 @@ function TutorsContent() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Subject Expertise</SelectItem>
-                  {SUBJECT_OPTIONS.map((subj) => (
+                  {subjectOptions.map((subj) => (
                     <SelectItem key={subj} value={subj}>
                       {subj}
                     </SelectItem>
@@ -277,6 +274,17 @@ function TutorsContent() {
                   ))}
                 </SelectContent>
               </Select>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => { setSearchQuery(""); setSubjectFilter("all"); setExpFilter("all"); }}
+                disabled={searchQuery === "" && subjectFilter === "all" && expFilter === "all"}
+                className="h-9 px-3 bg-white border-slate-200 text-slate-500 hover:text-slate-800 rounded-xl disabled:opacity-40"
+                title="Reset filters"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+              </Button>
             </div>
           </div>
         )}

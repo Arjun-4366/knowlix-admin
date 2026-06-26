@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, useEffect, useMemo, useState } from "react";
-import { Plus, Search } from "lucide-react";
+import { Plus, Search, RotateCcw } from "lucide-react";
 import DashboardHeader from "@/components/dashboard/shared/DashboardHeader";
 import NoteForm from "@/components/admin/notes/NoteForm";
 import NotesTable from "@/components/admin/notes/NotesTable";
@@ -53,13 +53,22 @@ function NotesContent() {
     if (filterSubject !== "all") params.subject = filterSubject;
     if (filterChapter !== "all") params.chapter = filterChapter;
     if (filterStatus !== "all") params.status = filterStatus;
-    if (filterAttachmentType !== "all") params.attachmentType = filterAttachmentType;
+    if (filterAttachmentType !== "all")
+      params.attachmentType = filterAttachmentType;
     return params;
-  }, [debouncedSearch, filterStandard, filterSyllabus, filterSubject, filterChapter, filterStatus, filterAttachmentType]);
+  }, [
+    debouncedSearch,
+    filterStandard,
+    filterSyllabus,
+    filterSubject,
+    filterChapter,
+    filterStatus,
+    filterAttachmentType,
+  ]);
 
   const { data: filtersResponse } = useGetNotesFilters();
   const { data: chapterFiltersResponse } = useGetNotesFilters(
-    filterSubject !== "all" ? { subject: filterSubject } : undefined
+    filterSubject !== "all" ? { subject: filterSubject } : undefined,
   );
   const { data: notesResponse, isLoading } = useGetNotes(queryParams);
   const { mutateAsync: createNote, isPending: isCreating } = useCreateNote();
@@ -125,11 +134,20 @@ function NotesContent() {
     setFilterChapter("all");
   };
 
+  const handleResetFilters = () => {
+    setSearchInput("");
+    setFilterStandard("all");
+    setFilterSyllabus("all");
+    setFilterSubject("all");
+    setFilterChapter("all");
+    setFilterStatus("all");
+    setFilterAttachmentType("all");
+  };
+
   const actions = (
     <Button
       onClick={() => setIsModalOpen(true)}
-      className="h-10 bg-[var(--brand-green)] px-4 text-sm font-bold text-white shadow-md shadow-green-600/10 transition-all hover:bg-[var(--brand-mid)] hover:shadow-lg"
-    >
+      className="h-10 bg-[var(--brand-green)] px-4 text-sm font-bold text-white shadow-md shadow-green-600/10 transition-all hover:bg-[var(--brand-mid)] hover:shadow-lg">
       <Plus className="mr-1.5 h-4 w-4" />
       Add Note
     </Button>
@@ -162,7 +180,9 @@ function NotesContent() {
             <SelectContent>
               <SelectItem value="all">All Classes</SelectItem>
               {filters?.standards.map((s) => (
-                <SelectItem key={s} value={s}>Class {s}</SelectItem>
+                <SelectItem key={s} value={s}>
+                  Class {s}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -174,7 +194,9 @@ function NotesContent() {
             <SelectContent>
               <SelectItem value="all">All Syllabi</SelectItem>
               {filters?.syllabuses.map((s) => (
-                <SelectItem key={s} value={s}>{s}</SelectItem>
+                <SelectItem key={s} value={s}>
+                  {s}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -186,7 +208,9 @@ function NotesContent() {
             <SelectContent>
               <SelectItem value="all">All Subjects</SelectItem>
               {filters?.subjects.map((s) => (
-                <SelectItem key={s} value={s}>{s}</SelectItem>
+                <SelectItem key={s} value={s}>
+                  {s}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -197,13 +221,21 @@ function NotesContent() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Chapters</SelectItem>
-              {(chapterFiltersResponse?.data?.chapters ?? filters?.chapters ?? []).map((c) => (
-                <SelectItem key={c} value={c}>{c}</SelectItem>
+              {(
+                chapterFiltersResponse?.data?.chapters ??
+                filters?.chapters ??
+                []
+              ).map((c) => (
+                <SelectItem key={c} value={c}>
+                  {c}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
 
-          <Select value={filterAttachmentType} onValueChange={setFilterAttachmentType}>
+          <Select
+            value={filterAttachmentType}
+            onValueChange={setFilterAttachmentType}>
             <SelectTrigger className="h-10 w-[130px] bg-white">
               <SelectValue placeholder="Type" />
             </SelectTrigger>
@@ -225,6 +257,24 @@ function NotesContent() {
               <SelectItem value="draft">Draft</SelectItem>
             </SelectContent>
           </Select>
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleResetFilters}
+            disabled={
+              searchInput === "" &&
+              filterStandard === "all" &&
+              filterSyllabus === "all" &&
+              filterSubject === "all" &&
+              filterChapter === "all" &&
+              filterStatus === "all" &&
+              filterAttachmentType === "all"
+            }
+            className="h-8 px-3 bg-white border-slate-200 text-slate-500 hover:text-slate-800 rounded-xl disabled:opacity-40"
+            title="Reset filters">
+            <RotateCcw className="w-3.5 h-3.5" />
+          </Button>
         </div>
       </div>
 
@@ -260,8 +310,7 @@ export default function NotesPage() {
         <div className="flex min-h-[50vh] items-center justify-center">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-[var(--brand-green)] border-t-transparent" />
         </div>
-      }
-    >
+      }>
       <NotesContent />
     </Suspense>
   );

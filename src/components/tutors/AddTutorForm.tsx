@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { X, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -33,8 +33,14 @@ export default function AddTutorForm({
 }: AddTutorFormProps) {
   const { data: subjectsRes } = useGetSubjects();
   const { data: syllabusesRes } = useGetSyllabuses();
-  const subjectOptions = subjectsRes?.data?.map((s) => s.name) ?? [];
-  const syllabusOptions = syllabusesRes?.data?.map((s) => s.name) ?? [];
+  const subjectOptions = useMemo(
+    () => subjectsRes?.data?.map((s) => s.name) ?? [],
+    [subjectsRes?.data]
+  );
+  const syllabusOptions = useMemo(
+    () => syllabusesRes?.data?.map((s) => s.name) ?? [],
+    [syllabusesRes?.data]
+  );
 
   const [name, setName] = useState(() => tutorToEdit?.name || "");
   const [email, setEmail] = useState(() => tutorToEdit?.email || "");

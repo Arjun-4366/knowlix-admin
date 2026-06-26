@@ -182,6 +182,7 @@ export const ENDPOINTS = {
     GET_TUTORS_HR: `${API_BASE_URL}/hr/tutors`,
     GET_TUTOR_HR: (id: string) => `${API_BASE_URL}/hr/tutors/${id}`,
     UPDATE_TUTOR_HR: (id: string) => `${API_BASE_URL}/hr/tutors/${id}`,
+    ADD_REMARK_HR: (id: string) => `${API_BASE_URL}/hr/tutors/${id}/remarks`,
 
     // Tutor attendance (HR)
     GET_HR_TUTOR_ATTENDANCE: `${API_BASE_URL}/hr/attendance`,

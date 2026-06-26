@@ -40,3 +40,13 @@ export const createTutorByHR = async (data: ICreateTutorPayload) => {
   const res = await apiClient.post<IApiResponse<ITutor>>(ENDPOINTS.CREATE_TUTOR, data);
   return res.data;
 };
+
+export interface IAddRemarkPayload {
+  type: "positive" | "negative";
+  text: string;
+}
+
+export const addRemarkHR = async (id: string, data: IAddRemarkPayload) => {
+  const res = await apiClient.post<IApiResponse<ITutor>>(ENDPOINTS.ADD_REMARK_HR(id), data);
+  return res.data;
+};

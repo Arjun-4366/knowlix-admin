@@ -15,9 +15,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { ITutor } from "@/types/admin/tutor";
+import { useGetSyllabuses } from "@/querys/admin/curriculumQuery";
 
 const STATUSES = ["approved", "pending", "inactive", "resigned"];
-const SYLLABI = ["CBSE", "ICSE", "IGCSE","IB" ,"State"];
 const AVAILABILITIES = ["Morning", "Afternoon", "Evening"];
 
 interface EmployeeTableProps {
@@ -64,6 +64,8 @@ export default function EmployeeTable({
   onEditTutor,
 }: EmployeeTableProps) {
   const totalPages = Math.max(1, Math.ceil(total / limit));
+  const { data: syllabusesRes } = useGetSyllabuses();
+  const syllabusOptions = syllabusesRes?.data?.map((s) => s.name) ?? [];
 
   return (
     <div className="space-y-4">
@@ -103,7 +105,7 @@ export default function EmployeeTable({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all" className="text-xs font-semibold">All Syllabi</SelectItem>
-            {SYLLABI.map((s) => (
+            {syllabusOptions.map((s) => (
               <SelectItem key={s} value={s} className="text-xs font-semibold">{s}</SelectItem>
             ))}
           </SelectContent>

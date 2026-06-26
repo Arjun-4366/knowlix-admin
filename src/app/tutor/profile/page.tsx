@@ -287,9 +287,14 @@ export default function TutorProfilePage() {
                         <Label className="text-[10px] font-bold text-green-600 uppercase tracking-wider flex items-center gap-1">
                           <ThumbsUp className="w-3 h-3" /> Positive Remarks
                         </Label>
-                        <ul className="mt-1 space-y-1">
+                        <ul className="mt-1 space-y-1.5">
                           {profile.positiveRemarks.map((r, i) => (
-                            <li key={i} className="text-xs text-green-700 bg-green-50 border border-green-100 rounded-lg p-2">{r}</li>
+                            <li key={i} className="text-xs text-green-700 bg-green-50 border border-green-100 rounded-lg p-2.5 space-y-0.5">
+                              <p>{r.text}</p>
+                              <p className="text-[10px] text-green-500 font-semibold">
+                                {new Date(r.addedAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}
+                              </p>
+                            </li>
                           ))}
                         </ul>
                       </div>
@@ -299,9 +304,14 @@ export default function TutorProfilePage() {
                         <Label className="text-[10px] font-bold text-red-500 uppercase tracking-wider flex items-center gap-1">
                           <ThumbsDown className="w-3 h-3" /> Areas to Improve
                         </Label>
-                        <ul className="mt-1 space-y-1">
+                        <ul className="mt-1 space-y-1.5">
                           {profile.negativeRemarks.map((r, i) => (
-                            <li key={i} className="text-xs text-red-700 bg-red-50 border border-red-100 rounded-lg p-2">{r}</li>
+                            <li key={i} className="text-xs text-red-700 bg-red-50 border border-red-100 rounded-lg p-2.5 space-y-0.5">
+                              <p>{r.text}</p>
+                              <p className="text-[10px] text-red-400 font-semibold">
+                                {new Date(r.addedAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}
+                              </p>
+                            </li>
                           ))}
                         </ul>
                       </div>
