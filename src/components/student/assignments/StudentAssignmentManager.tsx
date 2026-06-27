@@ -11,12 +11,10 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "react-hot-toast";
 import DashboardHeader from "@/components/dashboard/shared/DashboardHeader";
-import { useQueries } from "@tanstack/react-query";
 import {
   useGetStudentAssignments,
   useSubmitStudentAssignment,
 } from "@/querys/student/studentQuery";
-import { getStudentAssignmentStatus } from "@/services/student/student";
 import { IAssignment } from "@/types/student/student";
 
 export interface Assignment {
@@ -51,6 +49,8 @@ export default function StudentAssignmentManager() {
   const [viewSub, setViewSub] = useState<any | null>(null);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [remarks, setRemarks] = useState("");
+  const [page, setPage] = useState(1);
+  const LIMIT = 10;
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -60,37 +60,18 @@ export default function StudentAssignmentManager() {
     }
   }, []);
 
-  const { data: assignmentsData, isLoading: isLoadingAsg } = useGetStudentAssignments();
-  const assignments = assignmentsData || [];
-
-  const statusQueries = useQueries({
-    queries: assignments.map((asg) => ({
-      queryKey: ["student-assignment-status", asg.id],
-      queryFn: () => getStudentAssignmentStatus(asg.id),
-      enabled: !!asg.id,
-    })),
-  });
+  const { data: assignmentsResponse, isLoading: isLoadingAsg } = useGetStudentAssignments({ page, limit: LIMIT });
+  const assignments = assignmentsResponse?.data || [];
+  const totalAssignments = assignmentsResponse?.total ?? 0;
+  const totalPages = Math.ceil(totalAssignments / LIMIT);
 
   const submitMutation = useSubmitStudentAssignment();
 
-  const assignmentStatusMap = new Map<
-    string,
-    { submission?: any; evaluation?: any; statusText: "Pending" | "Submitted" | "Graded"; grade?: string }
-  >();
-
-  assignments.forEach((asg, idx) => {
-    const query = statusQueries[idx];
-    if (query?.data) {
-      const { submission, evaluation } = query.data;
-      let statusText: "Pending" | "Submitted" | "Graded" = "Pending";
-      let grade = "";
-      if (evaluation) { statusText = "Graded"; grade = `${evaluation.marksObtained}/${asg.maxMarks}`; }
-      else if (submission) { statusText = "Submitted"; }
-      assignmentStatusMap.set(asg.id, { submission, evaluation, statusText, grade });
-    } else {
-      assignmentStatusMap.set(asg.id, { statusText: "Pending" });
-    }
-  });
+  const getAsgStatus = (asg: IAssignment): "Pending" | "Submitted" | "Late" | "Graded" => {
+    if (asg.status === "evaluated") return "Graded";
+    if (asg.submission) return asg.submission.status === "late" ? "Late" : "Submitted";
+    return "Pending";
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
@@ -138,33 +119,29 @@ export default function StudentAssignmentManager() {
     }
   };
 
-  const submissionsHistory: any[] = [];
-  assignments.forEach((asg) => {
-    const statusInfo = assignmentStatusMap.get(asg.id);
-    if (statusInfo && (statusInfo.submission || statusInfo.evaluation)) {
-      const sub = statusInfo.submission;
-      const fileUrls: string[] = sub?.fileUrls ?? (sub?.fileUrl ? [sub.fileUrl] : []);
-      submissionsHistory.push({
-        id: sub?.id || statusInfo.evaluation?.id || asg.id,
+  const submissionsHistory = assignments
+    .filter((asg) => !!asg.submission)
+    .map((asg) => {
+      const sub = asg.submission!;
+      const fileUrls: string[] = sub.fileUrls ?? (sub.fileUrl ? [sub.fileUrl] : []);
+      const displayStatus = getAsgStatus(asg);
+      return {
+        id: sub.id,
         assignmentId: asg.id,
         assignmentTitle: asg.title,
         subject: asg.subject,
-        submittedAt: sub?.submittedAt
-          ? new Date(sub.submittedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
-          : "Recently",
-        files: fileUrls.map((url: string) => ({ url, name: url.split("/").pop() || "file" })),
-        fileNames: fileUrls.map((url: string) => url.split("/").pop() || "file"),
-        status: statusInfo.evaluation ? "Graded" : "Submitted",
-        grade: statusInfo.grade,
-        feedback: statusInfo.evaluation?.remarks || sub?.remarks,
-        remarks: sub?.remarks,
-      });
-    }
-  });
+        submittedAt: new Date(sub.submittedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
+        files: fileUrls.map((url) => ({ url, name: decodeURIComponent(url.split("/").pop() || "file") })),
+        fileNames: fileUrls.map((url) => decodeURIComponent(url.split("/").pop() || "file")),
+        status: displayStatus === "Graded" ? "Graded" : displayStatus === "Late" ? "Late" : "Submitted",
+        grade: undefined as string | undefined,
+        remarks: sub.remarks,
+      };
+    });
 
   const isSubmitting = submitMutation.isPending;
 
-  const statusBadge = (status: "Pending" | "Submitted" | "Graded") => {
+  const statusBadge = (status: "Pending" | "Submitted" | "Late" | "Graded") => {
     if (status === "Graded") return (
       <Badge variant="outline" className="text-[9px] font-bold py-0.5 px-2 rounded-full bg-emerald-50 text-emerald-700 border-emerald-100 flex items-center gap-1 w-fit">
         <Check className="w-3 h-3" /> Graded
@@ -173,6 +150,11 @@ export default function StudentAssignmentManager() {
     if (status === "Submitted") return (
       <Badge variant="outline" className="text-[9px] font-bold py-0.5 px-2 rounded-full bg-blue-50 text-blue-700 border-blue-100 flex items-center gap-1 w-fit">
         <Clock className="w-3 h-3" /> Submitted
+      </Badge>
+    );
+    if (status === "Late") return (
+      <Badge variant="outline" className="text-[9px] font-bold py-0.5 px-2 rounded-full bg-orange-50 text-orange-700 border-orange-100 flex items-center gap-1 w-fit">
+        <AlertCircle className="w-3 h-3" /> Late
       </Badge>
     );
     return (
@@ -236,8 +218,7 @@ export default function StudentAssignmentManager() {
                     </TableRow>
                   ) : (
                     assignments.map((asg) => {
-                      const statusInfo = assignmentStatusMap.get(asg.id);
-                      const statusText = statusInfo?.statusText || "Pending";
+                      const statusText = getAsgStatus(asg);
                       return (
                         <TableRow key={asg.id} className="hover:bg-slate-50/60 transition-colors">
                           <TableCell className="px-6 py-4">
@@ -256,8 +237,8 @@ export default function StudentAssignmentManager() {
                           </TableCell>
                           <TableCell className="px-6 py-4 text-right">
                             {statusText === "Graded" ? (
-                              <span className="text-xs font-black" style={{ color: "var(--brand-green)" }}>{statusInfo?.grade}</span>
-                            ) : statusText === "Submitted" ? (
+                              <span className="text-[10px] font-semibold text-slate-400">Evaluated</span>
+                            ) : statusText === "Submitted" || statusText === "Late" ? (
                               <span className="text-[10px] font-semibold text-slate-400">Awaiting review</span>
                             ) : (
                               <Button
@@ -277,6 +258,47 @@ export default function StudentAssignmentManager() {
               </Table>
             </div>
           </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between px-2 pt-4">
+              <p className="text-xs text-slate-400">
+                Page <span className="font-semibold text-slate-600">{page}</span> of{" "}
+                <span className="font-semibold text-slate-600">{totalPages}</span>
+                <span className="ml-2 text-slate-400">· {totalAssignments} total</span>
+              </p>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={page === 1}
+                  className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
+                >
+                  ← Prev
+                </button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                  <button
+                    key={p}
+                    onClick={() => setPage(p)}
+                    className="w-8 h-8 text-xs font-bold rounded-lg border transition-colors cursor-pointer"
+                    style={
+                      p === page
+                        ? { background: "var(--brand-green)", color: "#fff", borderColor: "var(--brand-green)" }
+                        : { borderColor: "#e2e8f0", color: "#475569" }
+                    }
+                  >
+                    {p}
+                  </button>
+                ))}
+                <button
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={page === totalPages}
+                  className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
+                >
+                  Next →
+                </button>
+              </div>
+            </div>
+          )}
         </TabsContent>
 
         {/* ── Submission History tab ───────────────── */}
@@ -320,15 +342,7 @@ export default function StudentAssignmentManager() {
                         </TableCell>
                         <TableCell className="px-6 py-4">
                           <div className="flex justify-center">
-                            {sub.status === "Graded" ? (
-                              <Badge variant="outline" className="text-[9px] font-bold py-0.5 px-2 rounded-full bg-emerald-50 text-emerald-700 border-emerald-100">
-                                Graded
-                              </Badge>
-                            ) : (
-                              <Badge variant="outline" className="text-[9px] font-bold py-0.5 px-2 rounded-full bg-blue-50 text-blue-700 border-blue-100">
-                                Submitted
-                              </Badge>
-                            )}
+                            {statusBadge(sub.status as "Pending" | "Submitted" | "Late" | "Graded")}
                           </div>
                         </TableCell>
                         <TableCell className="px-6 py-4 text-center">
@@ -523,6 +537,10 @@ export default function StudentAssignmentManager() {
                 {viewSub.status === "Graded" ? (
                   <Badge variant="outline" className="text-[10px] font-bold py-1 px-3 rounded-full bg-emerald-50 text-emerald-700 border-emerald-100 flex items-center gap-1.5">
                     <Check className="w-3 h-3" /> Graded
+                  </Badge>
+                ) : viewSub.status === "Late" ? (
+                  <Badge variant="outline" className="text-[10px] font-bold py-1 px-3 rounded-full bg-orange-50 text-orange-700 border-orange-100 flex items-center gap-1.5">
+                    <AlertCircle className="w-3 h-3" /> Submitted Late — Awaiting Review
                   </Badge>
                 ) : (
                   <Badge variant="outline" className="text-[10px] font-bold py-1 px-3 rounded-full bg-blue-50 text-blue-700 border-blue-100 flex items-center gap-1.5">

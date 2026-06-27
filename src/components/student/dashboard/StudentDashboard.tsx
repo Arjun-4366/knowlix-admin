@@ -39,7 +39,8 @@ export default function StudentDashboard() {
   const { data: dashboardData, isLoading: isLoadingDashboard } =
     useGetStudentDashboard();
   const { data: feesSummary } = useGetStudentFees();
-  const { data: dashboardAssignments = [] } = useGetStudentAssignments();
+  const { data: assignmentsRes } = useGetStudentAssignments({ limit: 5 });
+  const dashboardAssignments = assignmentsRes?.data ?? [];
 
   // parallel status query for dashboard assignments
   const dashboardStatusQueries = useQueries({

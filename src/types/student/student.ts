@@ -140,6 +140,17 @@ export interface IStudentScheduleResponse {
   pagination: INoticesPagination;
 }
 
+export interface IStudentSubmission {
+  id: string;
+  assignmentId: string;
+  studentId: string;
+  fileUrls?: string[];
+  fileUrl?: string;
+  remarks?: string;
+  status: "submitted" | "graded" | "late" | "evaluated";
+  submittedAt: string;
+}
+
 export interface IAssignment {
   id: string;
   tutorId: string;
@@ -153,16 +164,7 @@ export interface IAssignment {
   createdAt: string;
   updatedAt: string;
   tutorName?: string;
-}
-
-export interface IStudentSubmission {
-  id: string;
-  assignmentId: string;
-  studentId: string;
-  fileUrl?: string;
-  remarks?: string;
-  status: "submitted" | "graded" | "late";
-  submittedAt: string;
+  submission?: IStudentSubmission | null;
 }
 
 export interface IAssignmentEvaluation {

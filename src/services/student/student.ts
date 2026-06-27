@@ -38,8 +38,11 @@ export const getStudentSchedule = async (params?: QueryParams) => {
 };
 
 export const getStudentAssignments = async (params?: QueryParams) => {
-  const res = await apiClient.get<IApiResponse<IAssignment[]>>(ENDPOINTS.GET_STUDENT_ASSIGNMENTS, { params });
-  return res.data.data;
+  const res = await apiClient.get<IApiResponse<IAssignment[]> & { total: number; page: number; limit: number }>(
+    ENDPOINTS.GET_STUDENT_ASSIGNMENTS,
+    { params }
+  );
+  return { data: res.data.data, total: res.data.total, page: res.data.page, limit: res.data.limit };
 };
 
 export const submitStudentAssignment = async (id: string, files: File[], remarks?: string) => {
