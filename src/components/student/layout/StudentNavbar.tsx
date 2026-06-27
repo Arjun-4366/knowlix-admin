@@ -51,12 +51,7 @@ export default function StudentNavbar({ collapsed, onToggle }: Props) {
       </div>
 
       <div className="flex items-center gap-1">
-        <button
-          className="p-2 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors relative cursor-pointer"
-          title="Notifications"
-        >
-          <Bell className="w-4 h-4" />
-        </button>
+      
         <button
           onClick={handleLogout}
           className="p-2 rounded-lg hover:bg-red-55 text-gray-400 hover:text-red-500 transition-colors cursor-pointer"

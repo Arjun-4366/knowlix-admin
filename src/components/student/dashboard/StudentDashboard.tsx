@@ -244,7 +244,7 @@ export default function StudentDashboard() {
 
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
           <div>
-            <span className="text-[10px] font-bold tracking-widest px-3 py-1 bg-white/10 text-[var(--brand-light)] border border-white/10 rounded-full uppercase">
+            <span className="text-[10px] font-bold tracking-widest px-3 py-1 bg-white text-[var(--brand-light)] border border-white/10 rounded-full uppercase">
               Student Portal
             </span>
             <h1 className="text-2xl md:text-3xl font-black font-heading mt-3">

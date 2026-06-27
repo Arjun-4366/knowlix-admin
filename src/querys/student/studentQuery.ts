@@ -73,8 +73,8 @@ export const useGetStudentAssignments = (params?: QueryParams) => {
 export const useSubmitStudentAssignment = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, fileUrl, remarks }: { id: string; fileUrl: string; remarks?: string }) =>
-      submitStudentAssignment(id, fileUrl, remarks),
+    mutationFn: ({ id, files, remarks }: { id: string; files: File[]; remarks?: string }) =>
+      submitStudentAssignment(id, files, remarks),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: STUDENT_KEYS.assignments });
       queryClient.invalidateQueries({ queryKey: STUDENT_KEYS.assignmentStatus(variables.id) });

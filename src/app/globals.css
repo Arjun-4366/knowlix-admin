@@ -174,15 +174,42 @@
   --brand-light-green: #f1f5f9;
 }
 
-/* Student — Periwinkle  (soft · modern · pastel-inspired) */
+/* Student — Sky Blue  (clean · academic · friendly) */
+/* #student-shell {
+  --brand-dark:        #075985;    
+  --brand-mid:         #0284c7;    
+  --brand-green:       #0ea5e9;    
+  --brand-light:       #7dd3fc;   
+  --brand-bg:          #f0f9ff;    
+  --brand-light-green: #e0f2fe;    
+} */
+
+/* Student — Violet  (creative · youthful · vibrant) */
+
+/* #student-shell {
+  --brand-dark:        #5b21b6;
+  --brand-mid:         #7c3aed;
+  --brand-green:       #8b5cf6;
+  --brand-light:       #c4b5fd;
+  --brand-bg:          #f5f3ff;
+  --brand-light-green: #ede9fe;
+} */
+
+
+/* Student — Teal  (fresh · calm · modern) */
+
 #student-shell {
-  --brand-dark:        #4338ca;    /* indigo-700 — active text / headings */
-  --brand-mid:         #6366f1;    /* indigo-500 */
-  --brand-green:       #818cf8;    /* indigo-400 — primary accent */
-  --brand-light:       #c7d2fe;    /* indigo-200 */
-  --brand-bg:          #eef2ff;    /* indigo-50  — page bg */
-  --brand-light-green: #e0e7ff;    /* indigo-100 — chip / badge bg */
+  --brand-dark:        #043530;
+  --brand-mid:         #084f49;
+  --brand-green:       #063b36;
+  --brand-light:       #052623;
+  --brand-bg:          #ffffff;
+  --brand-light-green: #ccfbf1;
 }
+
+
+
+
 
 /* Tab active state picks up the portal's --brand-green automatically */
 [data-slot="tabs-trigger"][data-state="active"] {

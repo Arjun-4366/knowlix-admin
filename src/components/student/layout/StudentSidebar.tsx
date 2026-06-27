@@ -14,6 +14,7 @@ import {
   UserCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import logo from "../../../assets/images/icon.png"
 
 type NavItem = {
   name: string;
@@ -40,17 +41,18 @@ export default function StudentSidebar({ collapsed }: Props) {
 
   return (
     <aside
-      className="flex-shrink-0 flex flex-col h-full overflow-hidden bg-white"
+      className="flex-shrink-0 flex flex-col h-full overflow-hidden"
       style={{
-        borderRight: "1px solid #e2e8f0",
+        background: "var(--brand-dark)",
         width: collapsed ? "64px" : "240px",
         transition: "width 300ms cubic-bezier(0.4, 0, 0.2, 1)",
       }}
     >
       {/* Logo */}
       <div
-        className="flex items-center border-b border-slate-100 flex-shrink-0"
+        className="flex items-center flex-shrink-0"
         style={{
+          borderBottom: "1px solid rgba(255,255,255,0.08)",
           padding: collapsed ? "18px 0" : "18px 20px",
           justifyContent: collapsed ? "center" : "flex-start",
           transition: "padding 300ms cubic-bezier(0.4, 0, 0.2, 1)",
@@ -58,7 +60,7 @@ export default function StudentSidebar({ collapsed }: Props) {
         }}
       >
         <div className="w-9 h-9 rounded-lg overflow-hidden flex-shrink-0">
-          <Image src="/icon.png" alt="Knowlix" width={36} height={36} className="w-full h-full object-contain" priority />
+          <Image src={logo} alt="Knowlix" width={36} height={36} className="w-full h-full object-contain" priority />
         </div>
         <div
           className="overflow-hidden"
@@ -69,10 +71,10 @@ export default function StudentSidebar({ collapsed }: Props) {
             whiteSpace: "nowrap",
           }}
         >
-          <p className="font-bold text-sm leading-none font-heading" style={{ color: "var(--brand-dark)" }}>
+          <p className="font-bold text-sm leading-none font-heading text-white">
             Knowlix
           </p>
-          <p className="text-slate-400 text-xs mt-0.5">Student Panel</p>
+          <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.45)" }}>Student Panel</p>
         </div>
       </div>
 
@@ -93,23 +95,30 @@ export default function StudentSidebar({ collapsed }: Props) {
                 title={collapsed ? item.name : undefined}
                 className={cn(
                   "flex items-center rounded-lg text-sm font-medium transition-all overflow-hidden",
-                  isActive
-                    ? "font-semibold"
-                    : "text-slate-500 hover:text-slate-800 hover:bg-slate-50"
+                  isActive ? "font-semibold" : ""
                 )}
                 style={{
-                  background: isActive ? "var(--brand-light-green)" : undefined,
-                  color: isActive ? "var(--brand-dark)" : undefined,
+                  background: isActive ? "rgba(255,255,255,0.15)" : undefined,
+                  color: isActive ? "#ffffff" : "rgba(255,255,255,0.55)",
                   padding: collapsed ? "10px 0" : "10px 12px",
                   justifyContent: collapsed ? "center" : "flex-start",
                   gap: collapsed ? 0 : "12px",
-                  transition: "background 150ms ease, padding 300ms ease",
+                  transition: "background 150ms ease, color 150ms ease, padding 300ms ease",
+                }}
+                onMouseEnter={(e) => {
+                  if (!isActive) {
+                    (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.08)";
+                    (e.currentTarget as HTMLElement).style.color = "#ffffff";
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!isActive) {
+                    (e.currentTarget as HTMLElement).style.background = "";
+                    (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.55)";
+                  }
                 }}
               >
-                <Icon
-                  className="w-4 h-4 flex-shrink-0"
-                  style={{ color: isActive ? "var(--brand-green)" : undefined }}
-                />
+                <Icon className="w-4 h-4 flex-shrink-0" />
                 <span
                   className="flex-1 whitespace-nowrap overflow-hidden"
                   style={{
@@ -130,19 +139,26 @@ export default function StudentSidebar({ collapsed }: Props) {
       <Link
         href="/student/profile"
         title={collapsed ? "My Profile" : undefined}
-        className={cn(
-          "border-t border-slate-100 flex-shrink-0 flex items-center gap-3 transition-all",
-          pathname === "/student/profile" ? "bg-slate-50" : "hover:bg-slate-50"
-        )}
+        className="flex-shrink-0 flex items-center gap-3 transition-all"
         style={{
+          borderTop: "1px solid rgba(255,255,255,0.08)",
+          background: pathname === "/student/profile" ? "rgba(255,255,255,0.12)" : undefined,
           padding: collapsed ? "16px 0" : "14px 16px",
           justifyContent: collapsed ? "center" : "flex-start",
           transition: "padding 300ms ease, background 150ms ease",
         }}
+        onMouseEnter={(e) => {
+          if (pathname !== "/student/profile")
+            (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.08)";
+        }}
+        onMouseLeave={(e) => {
+          if (pathname !== "/student/profile")
+            (e.currentTarget as HTMLElement).style.background = "";
+        }}
       >
         <div
-          className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0"
-          style={{ background: "var(--brand-green)" }}
+          className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0"
+          style={{ background: "rgba(255,255,255,0.18)", color: "#fff" }}
         >
           <UserCircle className="w-4 h-4" />
         </div>
@@ -155,8 +171,8 @@ export default function StudentSidebar({ collapsed }: Props) {
             whiteSpace: "nowrap",
           }}
         >
-          <p className="text-xs font-semibold" style={{ color: "var(--brand-dark)" }}>My Profile</p>
-          <p className="text-slate-400 text-[10px]">View account details</p>
+          <p className="text-xs font-semibold text-white">My Profile</p>
+          <p className="text-[10px]" style={{ color: "rgba(255,255,255,0.45)" }}>View account details</p>
         </div>
       </Link>
     </aside>

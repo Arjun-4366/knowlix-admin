@@ -248,7 +248,7 @@ function TutorsContent() {
 
             <div className="flex flex-wrap items-center gap-3">
               <Select value={subjectFilter} onValueChange={setSubjectFilter}>
-                <SelectTrigger className="w-full sm:w-48 h-9 text-xs font-semibold bg-white border-slate-200 rounded-xl">
+                <SelectTrigger className="w-full sm:w-48 h-11 py-5 text-xs font-semibold bg-white border-slate-200 rounded-xl">
                   <SelectValue placeholder="All Subject Expertise" />
                 </SelectTrigger>
                 <SelectContent>
@@ -262,7 +262,7 @@ function TutorsContent() {
               </Select>
 
               <Select value={expFilter} onValueChange={setExpFilter}>
-                <SelectTrigger className="w-full sm:w-48 h-9 text-xs font-semibold bg-white border-slate-200 rounded-xl">
+                <SelectTrigger className="w-full sm:w-48 h-9 py-5 text-xs font-semibold bg-white border-slate-200 rounded-xl">
                   <SelectValue placeholder="All Experiences" />
                 </SelectTrigger>
                 <SelectContent>

@@ -42,10 +42,13 @@ export const getStudentAssignments = async (params?: QueryParams) => {
   return res.data.data;
 };
 
-export const submitStudentAssignment = async (id: string, fileUrl: string, remarks?: string) => {
+export const submitStudentAssignment = async (id: string, files: File[], remarks?: string) => {
+  const fd = new FormData();
+  files.forEach((file) => fd.append("files", file));
+  if (remarks?.trim()) fd.append("remarks", remarks.trim());
   const res = await apiClient.post<IApiResponse<IStudentSubmission>>(
     ENDPOINTS.SUBMIT_STUDENT_ASSIGNMENT(id),
-    { fileUrl, remarks }
+    fd
   );
   return res.data.data;
 };
