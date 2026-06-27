@@ -25,7 +25,7 @@ import {
   Library,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import logo from "../../assets/images/icon.png"
+import logo from "../../assets/images/icon.png";
 
 type NavChild = { name: string; href: string };
 type NavItem = {
@@ -107,7 +107,14 @@ export default function AdminSidebar({ collapsed }: Props) {
           gap: "12px",
         }}>
         <div className="w-9 h-9 rounded-lg overflow-hidden flex-shrink-0">
-          <Image src={logo} alt="Knowlix" width={36} height={36} className="w-full h-full object-contain" priority />
+          <Image
+            src={logo}
+            alt="Knowlix"
+            width={36}
+            height={36}
+            className="w-full h-full object-contain"
+            priority
+          />
         </div>
         <div
           className="overflow-hidden"
@@ -266,35 +273,6 @@ export default function AdminSidebar({ collapsed }: Props) {
           );
         })}
       </nav>
-
-      {/* User footer */}
-      <div
-        className="border-t border-white/10 flex-shrink-0"
-        style={{
-          padding: collapsed ? "16px 0" : "16px",
-          display: "flex",
-          justifyContent: collapsed ? "center" : "flex-start",
-          transition: "padding 300ms ease",
-        }}>
-        <div className="flex items-center gap-3">
-          <div
-            className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0"
-            style={{ background: "var(--brand-green)" }}>
-            A
-          </div>
-          <div
-            className="overflow-hidden"
-            style={{
-              opacity: collapsed ? 0 : 1,
-              maxWidth: collapsed ? 0 : "150px",
-              transition: "opacity 200ms ease, max-width 300ms ease",
-              whiteSpace: "nowrap",
-            }}>
-            <p className="text-white text-xs font-semibold">Admin</p>
-            <p className="text-white/45 text-xs">admin@knowlix.in</p>
-          </div>
-        </div>
-      </div>
     </aside>
   );
 }

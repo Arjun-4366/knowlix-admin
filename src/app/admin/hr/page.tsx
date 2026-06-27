@@ -166,6 +166,7 @@ function HrContent() {
           <Table>
             <TableHeader className="bg-slate-50/50">
               <TableRow className="hover:bg-transparent border-b-slate-100">
+                <TableHead className="font-semibold text-slate-600 h-12">Sl.No</TableHead>
                 <TableHead className="font-semibold text-slate-600 h-12">HR Member</TableHead>
                 <TableHead className="font-semibold text-slate-600">Contact</TableHead>
                 <TableHead className="font-semibold text-slate-600">Department</TableHead>
@@ -210,11 +211,14 @@ function HrContent() {
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredHRs.map((hr) => (
+                filteredHRs.map((hr,index) => (
                   <TableRow
                     key={hr.id}
                     className="group border-b-slate-50 hover:bg-slate-50/50 transition-colors"
                   >
+                    <TableCell className="py-4">
+                      <span className="text-sm text-slate-650">{index+1}</span>
+                    </TableCell>
                     <TableCell className="py-4">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-sm">

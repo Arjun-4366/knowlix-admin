@@ -269,20 +269,22 @@ export default function AddTutorForm({
           </div>
         </div>
 
-        {!tutorToEdit && (
-          <div className="space-y-1.5">
-            <Label className="text-xs font-semibold text-slate-500">Password *</Label>
-            <Input
-              type="password"
-              required
-              disabled={isSubmitting}
-              placeholder="e.g. StrongPassword@123"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-slate-50 focus:bg-white border-slate-200 rounded-xl"
-            />
-          </div>
-        )}
+        <div className="space-y-1.5">
+          <Label className="text-xs font-semibold text-slate-500">
+            Password {tutorToEdit
+              ? <span className="font-normal text-slate-400 ml-1">(leave blank to keep current)</span>
+              : "*"}
+          </Label>
+          <Input
+            type="password"
+            required={!tutorToEdit}
+            disabled={isSubmitting}
+            placeholder={tutorToEdit ? "New password (optional)" : "e.g. StrongPassword@123"}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full bg-slate-50 focus:bg-white border-slate-200 rounded-xl"
+          />
+        </div>
 
         {/* Availability */}
         <div className="space-y-1.5">

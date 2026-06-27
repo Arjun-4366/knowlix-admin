@@ -61,7 +61,7 @@ const roleMap: Record<string, string> = {
         },
         onError: (error: any) => {
           toast.error(
-            error.response?.data?.error || error.message || "Login failed!",
+            error.response?.data?.message || error.message || "Login failed!",
           );
         },
       },

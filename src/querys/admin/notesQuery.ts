@@ -8,7 +8,7 @@ const NOTES_FILTERS_KEY = ["notes-filters"] as const;
 
 export const useGetNotesFilters = (params?: { subject?: string }) => {
   return useQuery({
-    queryKey: [...NOTES_FILTERS_KEY, params],
+    queryKey: [...NOTES_FILTERS_KEY, params?.subject ?? null],
     queryFn: () => getNotesFilters(params),
     staleTime: 5 * 60 * 1000,
   });

@@ -3,9 +3,9 @@
 import { useState, useEffect, Suspense } from "react";
 import DashboardHeader from "@/components/dashboard/shared/DashboardHeader";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Student } from "@/components/admin/students/StudentStats";
+// import { Student } from "@/components/admin/students/StudentStats";
 import TutorAssessmentStats, {
-  Exam,
+  // Exam,
   Evaluation,
 } from "@/components/tutor/TutorAssessmentStats";
 import TutorAssignmentCreator from "@/components/tutor/assignments/TutorAssignmentCreator";
@@ -14,8 +14,8 @@ import TutorEvaluationManager from "@/components/tutor/TutorEvaluationManager";
 import { useGetTutorAssignments } from "@/querys/tutor/assignmentQuery";
 import { useGetTutorExams } from "@/querys/tutor/examQuery";
 import { useGetTutorStudents } from "@/querys/tutor/studentQuery";
-import { IStudent } from "@/types/admin/student";
-import { ITutorExam } from "@/types/tutor/exams";
+// import { IStudent } from "@/types/admin/student";
+// import { ITutorExam } from "@/types/tutor/exams";
 
 const getDateAgo = (days: number): string => {
   const date = new Date();
@@ -122,12 +122,13 @@ function TutorAssessmentContent() {
           >
             Exam Management
           </TabsTrigger>
-          <TabsTrigger
+          {/* Evaluation & Marks Entry tab commented out — functionality moved to Exam tab */}
+          {/* <TabsTrigger
             value="evaluation"
             className="rounded-lg text-xs px-4 py-2 font-bold data-[state=active]:shadow-none data-[state=active]:text-white cursor-pointer"
           >
             Evaluation & Marks Entry
-          </TabsTrigger>
+          </TabsTrigger> */}
         </TabsList>
 
         <TabsContent value="assignments" className="mt-0 outline-none">
@@ -138,7 +139,7 @@ function TutorAssessmentContent() {
           <TutorExamManager />
         </TabsContent>
 
-        <TabsContent value="evaluation" className="mt-0 outline-none">
+        {/* <TabsContent value="evaluation" className="mt-0 outline-none">
           <TutorEvaluationManager
             students={students}
             assignments={assignments}
@@ -147,7 +148,7 @@ function TutorAssessmentContent() {
             onAddEvaluation={handleAddEvaluation}
             onDeleteEvaluation={handleDeleteEvaluation}
           />
-        </TabsContent>
+        </TabsContent> */}
       </Tabs>
     </div>
   );

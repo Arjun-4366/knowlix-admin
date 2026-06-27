@@ -31,12 +31,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import {
   useGetTutorExams,
   useCreateTutorExam,
   useUpdateTutorExamStatus,
+  useEnterTutorExamResults,
 } from "@/querys/tutor/examQuery";
 import { useGetTutorStudents } from "@/querys/tutor/studentQuery";
+import { ITutorExam } from "@/types/tutor/exams";
 import { toast } from "react-hot-toast";
 import { useTutorStore } from "@/store/tutorStore";
 
@@ -50,15 +53,18 @@ const SUBJECT_OPTIONS = [
   "Biology",
 ];
 
+const GRADE_OPTIONS = ["A+", "A", "B", "C", "D", "F"];
+
 export default function TutorExamManager() {
-   const subjects = useTutorStore((s) => s.subjects);
+  const subjects = useTutorStore((s) => s.subjects);
   const { data: examsResponse, isLoading: loadingExams } = useGetTutorExams();
-  const { data: studentsResponse, isLoading: loadingStudents } =
-    useGetTutorStudents();
+  const { data: studentsResponse, isLoading: loadingStudents } = useGetTutorStudents();
   const { mutate: createExam, isPending: isCreating } = useCreateTutorExam();
   const { mutate: updateStatus } = useUpdateTutorExamStatus();
+  const { mutate: enterResults, isPending: isEnteringResults } = useEnterTutorExamResults();
 
   const [showAddForm, setShowAddForm] = useState(false);
+  const [resultsExam, setResultsExam] = useState<ITutorExam | null>(null);
   const [newTitle, setNewTitle] = useState("");
   const [newSubject, setNewSubject] = useState(subjects[0] ?? "");
   const [newDate, setNewDate] = useState("");
@@ -77,7 +83,7 @@ export default function TutorExamManager() {
     );
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (!newTitle.trim() || !newDate || selectedStudentIds.length === 0) {
@@ -338,6 +344,9 @@ export default function TutorExamManager() {
               <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[15%]">
                 Status
               </TableHead>
+              <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[15%]">
+                Actons
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody className="divide-y divide-slate-100">
@@ -407,71 +416,55 @@ export default function TutorExamManager() {
                             marks
                           </span>
                         </div>
-                        {exm.status === "conducted" ? (
-                          <Badge
-                            variant="outline"
-                            className="bg-slate-100 text-slate-500 border-slate-200 text-[10px] font-bold px-2 py-0.5 rounded-full"
-                          >
-                            <CheckCircle2 className="w-3 h-3 mr-1" /> Conducted
-                          </Badge>
-                        ) : exm.status === "cancelled" ? (
-                          <Badge
-                            variant="outline"
-                            className="bg-red-50 text-red-600 border-red-200 text-[10px] font-bold px-2 py-0.5 rounded-full"
-                          >
-                            <X className="w-3 h-3 mr-1" /> Cancelled
-                          </Badge>
-                        ) : (
-                          <Badge
-                            variant="outline"
-                            className="bg-[var(--brand-light-green)] text-[var(--brand-mid)] border-[var(--brand-light)]/20 text-[10px] font-bold px-2 py-0.5 rounded-full"
-                          >
-                            <AlertCircle className="w-3 h-3 mr-1 text-[var(--brand-green)]" />{" "}
-                            Scheduled
-                          </Badge>
-                        )}
+                        
                       </div>
                     </TableCell>
-                    {/* Status Dropdown */}
+                    {/* Status Dropdown + Enter Results */}
                     <TableCell className="px-6 py-4">
-                      <Select
-                        value={exm.status}
-                        onValueChange={(
-                          val: "pending" | "conducted" | "cancelled",
-                        ) => handleStatusChange(exm.id, val)}
-                      >
-                        <SelectTrigger
-                          className={`h-8 text-xs font-bold rounded-lg border-0 shadow-none ring-1 ring-inset ${
-                            exm.status === "conducted"
-                              ? "bg-slate-50 text-slate-600 ring-slate-200"
-                              : exm.status === "cancelled"
-                                ? "bg-red-50 text-red-600 ring-red-200"
-                                : "bg-[var(--brand-light-green)]/30 text-[var(--brand-mid)] ring-[var(--brand-light)]/40"
-                          }`}
+                      <div className="space-y-2">
+                        <Select
+                          value={exm.status}
+                          onValueChange={(
+                            val: "pending" | "conducted" | "cancelled",
+                          ) => handleStatusChange(exm.id, val)}
                         >
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem
-                            value="pending"
-                            className="text-xs font-semibold"
+                          <SelectTrigger
+                            className={`h-8 text-xs font-bold rounded-lg border-0 shadow-none ring-1 ring-inset ${
+                              exm.status === "conducted"
+                                ? "bg-slate-50 text-slate-600 ring-slate-200"
+                                : exm.status === "cancelled"
+                                  ? "bg-red-50 text-red-600 ring-red-200"
+                                  : "bg-[var(--brand-light-green)]/30 text-[var(--brand-mid)] ring-[var(--brand-light)]/40"
+                            }`}
                           >
-                            Scheduled
-                          </SelectItem>
-                          <SelectItem
-                            value="conducted"
-                            className="text-xs font-semibold"
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="pending" className="text-xs font-semibold">
+                              Scheduled
+                            </SelectItem>
+                            <SelectItem value="conducted" className="text-xs font-semibold">
+                              Conducted
+                            </SelectItem>
+                            <SelectItem value="cancelled" className="text-xs font-semibold text-red-600">
+                              Cancelled
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                        
+                      </div>
+                    </TableCell>
+                    <TableCell className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[15%]">
+                       {exm.status === "conducted" && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setResultsExam(exm)}
+                            className="w-full text-[10px] font-bold text-[var(--brand-mid)] hover:bg-[var(--brand-light-green)]/35 px-2 py-1 rounded-lg border border-[var(--brand-green)]/20 cursor-pointer"
                           >
-                            Conducted
-                          </SelectItem>
-                          <SelectItem
-                            value="cancelled"
-                            className="text-xs font-semibold text-red-600"
-                          >
-                            Cancelled
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
+                            <Award className="w-3 h-3 mr-1" /> Enter Results
+                          </Button>
+                        )}
                     </TableCell>
                   </TableRow>
                 );
@@ -488,6 +481,147 @@ export default function TutorExamManager() {
             )}
           </TableBody>
         </Table>
+      </div>
+
+      {resultsExam && (
+        <ExamResultsModal
+          exam={resultsExam}
+          studentMap={studentMap}
+          isSubmitting={isEnteringResults}
+          onClose={() => setResultsExam(null)}
+          onSubmit={(studentId, marks, grade, remarks) => {
+            enterResults(
+              { id: resultsExam.id, data: { results: [{ studentId, marksObtained: marks, grade, remarks }] } },
+              {
+                onSuccess: () => {
+                  toast.success("Results entered successfully!");
+                  setResultsExam(null);
+                },
+                onError: () => toast.error("Failed to enter results. Please try again."),
+              }
+            );
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+interface ExamResultsModalProps {
+  exam: ITutorExam;
+  studentMap: Map<string, string>;
+  isSubmitting: boolean;
+  onClose: () => void;
+  onSubmit: (studentId: string, marks: number, grade: string, remarks: string) => void;
+}
+
+function ExamResultsModal({ exam, studentMap, isSubmitting, onClose, onSubmit }: ExamResultsModalProps) {
+  const [studentId, setStudentId] = useState(exam.studentIds[0] ?? "");
+  const [marks, setMarks] = useState("");
+  const [grade, setGrade] = useState("A");
+  const [remarks, setRemarks] = useState("");
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const m = parseFloat(marks);
+    if (!studentId) { toast.error("Please select a student."); return; }
+    if (isNaN(m) || m < 0 || m > exam.maxMarks) {
+      toast.error(`Marks must be between 0 and ${exam.maxMarks}.`);
+      return;
+    }
+    onSubmit(studentId, m, grade, remarks.trim());
+  };
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/30 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-xl border border-slate-150 overflow-hidden animate-in zoom-in-95 duration-200">
+        {/* Header */}
+        <div className="px-6 py-5 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Award className="w-4 h-4 text-[var(--brand-green)]" />
+            <h3 className="text-sm font-bold text-slate-800">Enter Exam Results</h3>
+          </div>
+          <button onClick={onClose} disabled={isSubmitting} className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 transition-colors cursor-pointer disabled:opacity-50">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          {/* Exam info */}
+          <div className="bg-slate-50 border border-slate-100 rounded-xl p-3">
+            <p className="text-sm font-bold text-slate-800 leading-tight">{exam.title}</p>
+            <span className="text-[10px] text-slate-400 font-semibold">{exam.subject} · Max {exam.maxMarks} marks</span>
+          </div>
+
+          {/* Student */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Student</label>
+            <Select value={studentId} onValueChange={setStudentId}>
+              <SelectTrigger className="h-10 bg-white border-slate-200 rounded-xl text-sm font-medium">
+                <SelectValue placeholder="Select Student" />
+              </SelectTrigger>
+              <SelectContent>
+                {exam.studentIds.map((id) => (
+                  <SelectItem key={id} value={id} className="text-xs font-medium">
+                    {studentMap.get(id) ?? id}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Marks + Grade */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Marks Obtained</label>
+              <Input
+                type="number" min="0" max={exam.maxMarks} step="any"
+                value={marks} onChange={(e) => setMarks(e.target.value)}
+                placeholder={`0 – ${exam.maxMarks}`}
+                className="h-10 bg-white border-slate-200 rounded-xl text-sm"
+                required
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Grade</label>
+              <Select value={grade} onValueChange={setGrade}>
+                <SelectTrigger className="h-10 bg-white border-slate-200 rounded-xl text-sm font-medium">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {GRADE_OPTIONS.map((g) => (
+                    <SelectItem key={g} value={g} className="text-xs font-medium">{g}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* Remarks */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Remarks</label>
+            <Textarea
+              value={remarks} onChange={(e) => setRemarks(e.target.value)}
+              placeholder="e.g. Good understanding of the topic..."
+              className="min-h-[72px] max-h-28 bg-white border-slate-200 rounded-xl text-sm"
+            />
+          </div>
+
+          {/* Actions */}
+          <div className="flex gap-3 pt-1">
+            <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}
+              className="flex-1 h-10 border-slate-200 rounded-xl font-bold text-xs">
+              Cancel
+            </Button>
+            <Button type="submit" disabled={isSubmitting}
+              className="flex-1 h-10 bg-[var(--brand-green)] hover:bg-[var(--brand-green)]/90 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 disabled:opacity-50">
+              {isSubmitting
+                ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                : <Award className="w-4 h-4" />}
+              {isSubmitting ? "Saving..." : "Save Results"}
+            </Button>
+          </div>
+        </form>
       </div>
     </div>
   );

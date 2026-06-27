@@ -29,6 +29,11 @@ export const STATUS_CONFIG: Record<
     className: "bg-red-50 text-red-700 border-red-200",
     icon: <XCircle className="w-3 h-3 mr-1" />,
   },
+  pending: {
+    label: "Pending",
+    className: "bg-slate-50 text-slate-600 border-slate-200",
+    icon: <Clock className="w-3 h-3 mr-1" />,
+  },
 };
 
 export function StatusBadge({ status }: { status: TutorAssignmentStatus }) {

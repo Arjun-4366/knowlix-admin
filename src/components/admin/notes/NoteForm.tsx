@@ -15,17 +15,8 @@ import {
 } from "@/components/ui/select";
 import { ButtonLoader } from "@/components/shared/Loader";
 import { useGetNotesFilters } from "@/querys/admin/notesQuery";
+import { useGetStandards, useGetSyllabuses, useGetSubjects } from "@/querys/admin/curriculumQuery";
 import { ICreateNotePayload, INote, NoteStatus } from "@/types/admin/notes";
-
-const CLASSES = Array.from({ length: 12 }, (_, i) => String(i + 1));
-
-const SYLLABUS_OPTIONS = ["CBSE", "IGCSE", "ICSE", "IB", "KERALA STATE"];
-
-const SUBJECT_OPTIONS = [
-  "ENGLISH", "MALAYALAM", "ARABIC", "HINDI", "FRENCH", "GERMAN", "SPANISH",
-  "MATHS", "SCIENCE", "Physics", "Chemistry", "Bio", "IT", "AI",
-  "Drawing", "Handwriting", "Communicative English", "Madarasa subject", "QURAN",
-];
 
 interface NoteFormProps {
   noteToEdit?: INote;
@@ -46,16 +37,33 @@ export default function NoteForm({ noteToEdit, isSubmitting, onSubmit, onClose }
   const [subject, setSubject] = useState(noteToEdit?.subject ?? "");
   const [chapter, setChapter] = useState(noteToEdit?.chapter ?? "");
   const [chapterMode, setChapterMode] = useState<"select" | "manual">("select");
-  const [status, setStatus] = useState<NoteStatus>(noteToEdit?.status ?? "draft");
+  const [status, setStatus] = useState<NoteStatus>(noteToEdit?.status ?? "published");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [tags, setTags] = useState<string[]>(noteToEdit?.tags ?? []);
+  const [tags, setTags] = useState<string[]>(() => {
+    const raw = noteToEdit?.tags;
+    if (!raw) return [];
+    if (Array.isArray(raw)) return raw;
+    if (typeof raw === "string") {
+      try { const p = JSON.parse(raw); return Array.isArray(p) ? p : []; } catch { return []; }
+    }
+    return [];
+  });
   const [tagInput, setTagInput] = useState("");
 
   const existingFileUrl = noteToEdit?.fileUrl;
 
-  // Fetch chapters for the selected subject only
-  const { data: chapterFiltersResponse } = useGetNotesFilters(
-    subject ? { subject } : undefined
+  const { data: standardsResponse, isLoading: loadingStandards } = useGetStandards();
+  const { data: syllabusesResponse, isLoading: loadingSyllabuses } = useGetSyllabuses();
+  const { data: subjectsResponse, isLoading: loadingSubjects } = useGetSubjects();
+
+  const standardOptions = (standardsResponse?.data ?? []).map((s) => s.name);
+  const syllabusOptions = (syllabusesResponse?.data ?? []).map((s) => s.name);
+  const subjectOptions = (subjectsResponse?.data ?? []).map((s) => s.name);
+
+  const isCurriculumLoading = loadingStandards || loadingSyllabuses || loadingSubjects;
+
+  const { data: chapterFiltersResponse, isLoading: loadingChapters } = useGetNotesFilters(
+    subject ? { subject } : undefined,
   );
   const availableChapters = chapterFiltersResponse?.data?.chapters ?? [];
 
@@ -139,252 +147,307 @@ export default function NoteForm({ noteToEdit, isSubmitting, onSubmit, onClose }
       {/* Body */}
       <form onSubmit={handleSubmit} className="flex flex-col overflow-hidden">
         <div className="flex-1 space-y-5 overflow-y-auto px-6 py-5">
-          {/* Title */}
-          <div className="space-y-1.5">
-            <Label className="text-xs font-semibold text-slate-600">Title *</Label>
-            <Input
-              required
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="e.g. Introduction to Quadratic Equations"
-              className="h-10"
-            />
-          </div>
 
-          {/* Description */}
-          <div className="space-y-1.5">
-            <Label className="text-xs font-semibold text-slate-600">Description</Label>
-            <Textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Brief summary of this note"
-              rows={4}
-              className="resize"
-            />
-          </div>
-
-          {/* Standard + Syllabus */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-slate-600">Standard *</Label>
-              <Select required value={standard} onValueChange={setStandard}>
-                <SelectTrigger className="h-10 w-full">
-                  <SelectValue placeholder="Select class" />
-                </SelectTrigger>
-                <SelectContent>
-                  {CLASSES.map((c) => (
-                    <SelectItem key={c} value={c}>Class {c}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-slate-600">Syllabus *</Label>
-              <Select required value={syllabus} onValueChange={setSyllabus}>
-                <SelectTrigger className="h-10 w-full">
-                  <SelectValue placeholder="Select syllabus" />
-                </SelectTrigger>
-                <SelectContent>
-                  {SYLLABUS_OPTIONS.map((s) => (
-                    <SelectItem key={s} value={s}>{s}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          {/* Subject */}
-          <div className="space-y-1.5">
-            <Label className="text-xs font-semibold text-slate-600">Subject *</Label>
-            <Select required value={subject} onValueChange={handleSubjectChange}>
-              <SelectTrigger className="h-10 w-full">
-                <SelectValue placeholder="Select subject" />
-              </SelectTrigger>
-              <SelectContent>
-                {SUBJECT_OPTIONS.map((s) => (
-                  <SelectItem key={s} value={s}>{s}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Chapter */}
-          <div className="space-y-1.5">
-            <div className="flex items-center justify-between">
-              <Label className="text-xs font-semibold text-slate-600">Chapter *</Label>
-              <div className="flex items-center gap-1 rounded-lg border border-slate-200 bg-slate-50 p-0.5">
-                <button
-                  type="button"
-                  onClick={() => handleChapterModeChange("select")}
-                  className={`flex items-center gap-1.5 rounded-md px-2.5 py-1 text-[11px] font-semibold transition-colors ${
-                    chapterMode === "select"
-                      ? "bg-white text-slate-800 shadow-sm"
-                      : "text-slate-500 hover:text-slate-700"
-                  }`}
-                >
-                  <List className="h-3 w-3" />
-                  Select existing
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleChapterModeChange("manual")}
-                  className={`flex items-center gap-1.5 rounded-md px-2.5 py-1 text-[11px] font-semibold transition-colors ${
-                    chapterMode === "manual"
-                      ? "bg-white text-slate-800 shadow-sm"
-                      : "text-slate-500 hover:text-slate-700"
-                  }`}
-                >
-                  <PenLine className="h-3 w-3" />
-                  Add new
-                </button>
+          {/* Skeleton while curriculum data loads */}
+          {isCurriculumLoading ? (
+            <div className="space-y-5 animate-pulse">
+              <div className="h-10 rounded-xl bg-slate-100" />
+              <div className="h-20 rounded-xl bg-slate-100" />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="h-10 rounded-xl bg-slate-100" />
+                <div className="h-10 rounded-xl bg-slate-100" />
               </div>
+              <div className="h-10 rounded-xl bg-slate-100" />
+              <div className="h-10 rounded-xl bg-slate-100" />
+              <div className="h-10 rounded-xl bg-slate-100" />
+              <div className="h-10 rounded-xl bg-slate-100" />
             </div>
-
-            {chapterMode === "select" ? (
-              <Select required value={chapter} onValueChange={setChapter}>
-                <SelectTrigger className="h-10 w-full">
-                  <SelectValue placeholder={subject ? "Select chapter" : "Select a subject first"} />
-                </SelectTrigger>
-                <SelectContent>
-                  {availableChapters.length > 0 ? (
-                    availableChapters.map((c) => (
-                      <SelectItem key={c} value={c}>{c}</SelectItem>
-                    ))
-                  ) : (
-                    <div className="px-3 py-4 text-center text-xs text-slate-400">
-                      {subject ? "No chapters found for this subject" : "Select a subject to see chapters"}
-                    </div>
-                  )}
-                </SelectContent>
-              </Select>
-            ) : (
-              <Input
-                required
-                value={chapter}
-                onChange={(e) => setChapter(e.target.value)}
-                placeholder="e.g. Polynomials, Organic Chemistry..."
-                className="h-10"
-              />
-            )}
-          </div>
-
-          {/* Status */}
-          <div className="space-y-1.5">
-            <Label className="text-xs font-semibold text-slate-600">Status</Label>
-            <Select value={status} onValueChange={(v) => setStatus(v as NoteStatus)}>
-              <SelectTrigger className="h-10 w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="published">Published</SelectItem>
-                <SelectItem value="draft">Draft</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* File Upload */}
-          <div className="space-y-1.5">
-            <Label className="text-xs font-semibold text-slate-600">
-              File {!isEdit && "*"}
-              {isEdit && <span className="ml-1 font-normal text-slate-400">(upload to replace)</span>}
-            </Label>
-
-            {isEdit && existingFileUrl && !selectedFile && (
-              <div className="flex items-center justify-between rounded-xl border border-slate-150 bg-slate-50/60 px-3.5 py-2.5">
-                <p className="truncate text-xs font-medium text-slate-600">{fileLabel}</p>
-                <a
-                  href={existingFileUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="ml-3 flex-shrink-0 text-[var(--brand-green)] transition-opacity hover:opacity-70"
-                >
-                  <ExternalLink className="h-3.5 w-3.5" />
-                </a>
+          ) : (
+            <>
+              {/* Title */}
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold text-slate-600">Title *</Label>
+                <Input
+                  required
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="e.g. Introduction to Quadratic Equations"
+                  className="h-10"
+                />
               </div>
-            )}
 
-            {selectedFile && (
-              <div className="flex items-center justify-between rounded-xl border border-[var(--brand-light)]/30 bg-[var(--brand-light-green)] px-3.5 py-2.5">
-                <p className="truncate text-xs font-semibold text-[var(--brand-mid)]">{selectedFile.name}</p>
-                <button
-                  type="button"
-                  onClick={handleRemoveFile}
-                  className="ml-3 flex-shrink-0 text-slate-400 transition-colors hover:text-red-500"
-                >
-                  <X className="h-3.5 w-3.5" />
-                </button>
+              {/* Description */}
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold text-slate-600">Description</Label>
+                <Textarea
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Brief summary of this note"
+                  rows={4}
+                  className="resize"
+                />
               </div>
-            )}
 
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.webp"
-              onChange={handleFileChange}
-              className="hidden"
-              id="note-file-upload"
-            />
-            <label
-              htmlFor="note-file-upload"
-              className="flex h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-slate-300 text-xs font-semibold text-slate-500 transition-colors hover:border-[var(--brand-green)] hover:text-[var(--brand-green)]"
-            >
-              <Upload className="h-3.5 w-3.5" />
-              {selectedFile ? "Replace file" : "Choose file"}
-            </label>
-          </div>
+              {/* Standard + Syllabus */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold text-slate-600">Standard *</Label>
+                  <Select required value={standard} onValueChange={setStandard}>
+                    <SelectTrigger className="h-10 w-full">
+                      <SelectValue placeholder="Select class" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {standardOptions.length > 0 ? (
+                        standardOptions.map((s) => (
+                          <SelectItem key={s} value={s}>{s}</SelectItem>
+                        ))
+                      ) : (
+                        <div className="px-3 py-4 text-center text-xs text-slate-400">No standards found</div>
+                      )}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold text-slate-600">Syllabus *</Label>
+                  <Select required value={syllabus} onValueChange={setSyllabus}>
+                    <SelectTrigger className="h-10 w-full">
+                      <SelectValue placeholder="Select syllabus" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {syllabusOptions.length > 0 ? (
+                        syllabusOptions.map((s) => (
+                          <SelectItem key={s} value={s}>{s}</SelectItem>
+                        ))
+                      ) : (
+                        <div className="px-3 py-4 text-center text-xs text-slate-400">No syllabuses found</div>
+                      )}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
 
-          {/* Tags */}
-          <div className="space-y-1.5">
-            <Label className="text-xs font-semibold text-slate-600">Tags</Label>
-            {tags.length > 0 && (
-              <div className="flex flex-wrap gap-1.5">
-                {tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="flex items-center gap-1 rounded-full bg-[var(--brand-light-green)] px-2.5 py-1 text-xs font-semibold text-[var(--brand-mid)]"
-                  >
-                    {tag}
+              {/* Subject */}
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold text-slate-600">Subject *</Label>
+                <Select required value={subject} onValueChange={handleSubjectChange}>
+                  <SelectTrigger className="h-10 w-full">
+                    <SelectValue placeholder="Select subject" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {subjectOptions.length > 0 ? (
+                      subjectOptions.map((s) => (
+                        <SelectItem key={s} value={s}>{s}</SelectItem>
+                      ))
+                    ) : (
+                      <div className="px-3 py-4 text-center text-xs text-slate-400">No subjects found</div>
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Chapter */}
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs font-semibold text-slate-600">Chapter *</Label>
+                  <div className="flex items-center gap-1 rounded-lg border border-slate-200 bg-slate-50 p-0.5">
                     <button
                       type="button"
-                      onClick={() => removeTag(tag)}
-                      className="ml-0.5 rounded-full text-[var(--brand-mid)] opacity-60 hover:opacity-100"
+                      onClick={() => handleChapterModeChange("select")}
+                      className={`flex items-center gap-1.5 rounded-md px-2.5 py-1 text-[11px] font-semibold transition-colors ${
+                        chapterMode === "select"
+                          ? "bg-white text-slate-800 shadow-sm"
+                          : "text-slate-500 hover:text-slate-700"
+                      }`}
                     >
-                      <X className="h-3 w-3" />
+                      <List className="h-3 w-3" />
+                      Select existing
                     </button>
-                  </span>
-                ))}
-              </div>
-            )}
-            <div className="flex gap-2">
-              <Input
-                value={tagInput}
-                onChange={(e) => setTagInput(e.target.value)}
-                onKeyDown={handleTagKeyDown}
-                placeholder="Type a tag and press Enter"
-                className="h-10 flex-1"
-              />
-              <button
-                type="button"
-                onClick={addTag}
-                disabled={!tagInput.trim()}
-                className="h-10 rounded-xl border border-slate-200 px-3.5 text-xs font-semibold text-slate-600 transition-colors hover:border-[var(--brand-green)] hover:text-[var(--brand-green)] disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                Add
-              </button>
-            </div>
-          </div>
+                    <button
+                      type="button"
+                      onClick={() => handleChapterModeChange("manual")}
+                      className={`flex items-center gap-1.5 rounded-md px-2.5 py-1 text-[11px] font-semibold transition-colors ${
+                        chapterMode === "manual"
+                          ? "bg-white text-slate-800 shadow-sm"
+                          : "text-slate-500 hover:text-slate-700"
+                      }`}
+                    >
+                      <PenLine className="h-3 w-3" />
+                      Add new
+                    </button>
+                  </div>
+                </div>
 
-          {/* Content */}
-          <div className="space-y-1.5">
-            <Label className="text-xs font-semibold text-slate-600">Content</Label>
-            <Textarea
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              placeholder="Full content or notes body..."
-              rows={4}
-              className="resize-none"
-            />
-          </div>
+                {chapterMode === "select" ? (
+                  <>
+                    {loadingChapters && subject ? (
+                      <div className="flex h-10 items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3.5">
+                        <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-slate-300 border-t-[var(--brand-green)]" />
+                        <span className="text-xs text-slate-400">Loading chapters...</span>
+                      </div>
+                    ) : (
+                      <>
+                        <Select
+                          value={chapter}
+                          onValueChange={setChapter}
+                          disabled={!subject || availableChapters.length === 0}
+                        >
+                          <SelectTrigger className="h-10 w-full">
+                            <SelectValue
+                              placeholder={
+                                !subject
+                                  ? "Select a subject first"
+                                  : availableChapters.length === 0
+                                    ? "No chapters available"
+                                    : "Select chapter"
+                              }
+                            />
+                          </SelectTrigger>
+                          {availableChapters.length > 0 && (
+                            <SelectContent>
+                              {availableChapters.map((c) => (
+                                <SelectItem key={c} value={c}>{c}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          )}
+                        </Select>
+                        {subject && !loadingChapters && availableChapters.length === 0 && (
+                          <p className="text-xs text-amber-500 font-medium">
+                            No chapters found for this subject. Switch to &quot;Add new&quot; to create one.
+                          </p>
+                        )}
+                      </>
+                    )}
+                  </>
+                ) : (
+                  <Input
+                    required
+                    value={chapter}
+                    onChange={(e) => setChapter(e.target.value)}
+                    placeholder="e.g. Polynomials, Organic Chemistry..."
+                    className="h-10"
+                  />
+                )}
+              </div>
+
+              {/* Status */}
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold text-slate-600">Status</Label>
+                <Select value={status} onValueChange={(v) => setStatus(v as NoteStatus)}>
+                  <SelectTrigger className="h-10 w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="published">Published</SelectItem>
+                    <SelectItem value="draft">Draft</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* File Upload */}
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold text-slate-600">
+                  File {!isEdit && "*"}
+                  {isEdit && <span className="ml-1 font-normal text-slate-400">(upload to replace)</span>}
+                </Label>
+
+                {isEdit && existingFileUrl && !selectedFile && (
+                  <div className="flex items-center justify-between rounded-xl border border-slate-150 bg-slate-50/60 px-3.5 py-2.5">
+                    <p className="truncate text-xs font-medium text-slate-600">{fileLabel}</p>
+                    <a
+                      href={existingFileUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="ml-3 flex-shrink-0 text-[var(--brand-green)] transition-opacity hover:opacity-70"
+                    >
+                      <ExternalLink className="h-3.5 w-3.5" />
+                    </a>
+                  </div>
+                )}
+
+                {selectedFile && (
+                  <div className="flex items-center justify-between rounded-xl border border-[var(--brand-light)]/30 bg-[var(--brand-light-green)] px-3.5 py-2.5">
+                    <p className="truncate text-xs font-semibold text-[var(--brand-mid)]">{selectedFile.name}</p>
+                    <button
+                      type="button"
+                      onClick={handleRemoveFile}
+                      className="ml-3 flex-shrink-0 text-slate-400 transition-colors hover:text-red-500"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                )}
+
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.webp"
+                  onChange={handleFileChange}
+                  className="hidden"
+                  id="note-file-upload"
+                />
+                <label
+                  htmlFor="note-file-upload"
+                  className="flex h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-slate-300 text-xs font-semibold text-slate-500 transition-colors hover:border-[var(--brand-green)] hover:text-[var(--brand-green)]"
+                >
+                  <Upload className="h-3.5 w-3.5" />
+                  {selectedFile ? "Replace file" : "Choose file"}
+                </label>
+              </div>
+
+              {/* Tags */}
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold text-slate-600">Tags</Label>
+                {tags.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5">
+                    {tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="flex items-center gap-1 rounded-full bg-[var(--brand-light-green)] px-2.5 py-1 text-xs font-semibold text-[var(--brand-mid)]"
+                      >
+                        {tag}
+                        <button
+                          type="button"
+                          onClick={() => removeTag(tag)}
+                          className="ml-0.5 rounded-full text-[var(--brand-mid)] opacity-60 hover:opacity-100"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                )}
+                <div className="flex gap-2">
+                  <Input
+                    value={tagInput}
+                    onChange={(e) => setTagInput(e.target.value)}
+                    onKeyDown={handleTagKeyDown}
+                    placeholder="Type a tag and press Enter"
+                    className="h-10 flex-1"
+                  />
+                  <button
+                    type="button"
+                    onClick={addTag}
+                    disabled={!tagInput.trim()}
+                    className="h-10 rounded-xl border border-slate-200 px-3.5 text-xs font-semibold text-slate-600 transition-colors hover:border-[var(--brand-green)] hover:text-[var(--brand-green)] disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    Add
+                  </button>
+                </div>
+              </div>
+
+              {/* Content */}
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold text-slate-600">Content</Label>
+                <Textarea
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  placeholder="Full content or notes body..."
+                  rows={4}
+                  className="resize-none"
+                />
+              </div>
+            </>
+          )}
         </div>
 
         {/* Footer */}

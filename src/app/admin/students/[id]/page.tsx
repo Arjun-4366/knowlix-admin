@@ -317,7 +317,7 @@ function StudentDetailsContent({ params }: PageProps) {
             <div className="flex items-center gap-2">
               <User className="h-5 w-5 text-[var(--brand-green)]" />
               <CardTitle className="text-sm font-bold uppercase tracking-wider text-slate-800">
-                Team & Assignments
+                Team
               </CardTitle>
             </div>
           </CardHeader>

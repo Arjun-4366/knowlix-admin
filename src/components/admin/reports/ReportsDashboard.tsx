@@ -309,24 +309,43 @@ function RealTutorVisuals({ data }: { data: ITutorPerformanceReportItem[] }) {
   if (data.length === 0) return <div className="text-xs text-slate-400 text-center py-6">No data to display.</div>;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <p className="text-xs font-semibold text-slate-500">Tutors growth points and sessions conduction rates:</p>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Growth points list */}
-        <div className="space-y-3">
-          <span className="text-[10px] font-bold text-slate-400 uppercase">Tutors by Growth Points</span>
-          <div className="space-y-2">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+        {/* Growth Points */}
+        <div className="rounded-xl border border-slate-100 overflow-hidden">
+          <div className="px-4 py-2.5 bg-slate-50 border-b border-slate-100">
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Tutors by Growth Points</span>
+          </div>
+          <div className="divide-y divide-slate-50">
+            {data.slice(0, 4).map((t) => (
+              <div key={t.tutorId} className="flex items-center justify-between px-4 py-3.5 gap-4">
+                <span className="text-xs font-semibold text-slate-700 truncate">{t.name}</span>
+                <span className="flex-shrink-0 text-xs font-bold text-emerald-600 bg-emerald-50 border border-emerald-100 rounded-lg px-2.5 py-1">
+                  {t.growthPoints} pts
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Sessions */}
+        <div className="rounded-xl border border-slate-100 overflow-hidden">
+          <div className="px-4 py-2.5 bg-slate-50 border-b border-slate-100">
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Sessions Conducted</span>
+          </div>
+          <div className="divide-y divide-slate-50">
             {data.slice(0, 4).map((t) => {
-              const maxPoints = Math.max(...data.map(x => x.growthPoints), 10);
-              const percentage = Math.min((t.growthPoints / maxPoints) * 100, 100);
+              const ratio = t.totalSessions > 0 ? Math.round((t.conductedSessions / t.totalSessions) * 100) : 0;
               return (
-                <div key={t.tutorId} className="space-y-1">
-                  <div className="flex justify-between text-xs font-semibold">
-                    <span className="text-slate-700">{t.name}</span>
-                    <span className="text-[var(--brand-green)] font-bold">{t.growthPoints} points</span>
-                  </div>
-                  <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                    <div className="bg-[var(--brand-green)] h-full rounded-full transition-all duration-500" style={{ width: `${percentage}%` }} />
+                <div key={t.tutorId} className="flex items-center justify-between px-4 py-3.5 gap-4">
+                  <span className="text-xs font-semibold text-slate-700 truncate">{t.name}</span>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <span className="text-xs font-bold text-blue-600 bg-blue-50 border border-blue-100 rounded-lg px-2.5 py-1">
+                      {t.conductedSessions}/{t.totalSessions}
+                    </span>
+                    <span className="text-[10px] font-bold text-slate-400 w-9 text-right">{ratio}%</span>
                   </div>
                 </div>
               );
@@ -334,26 +353,6 @@ function RealTutorVisuals({ data }: { data: ITutorPerformanceReportItem[] }) {
           </div>
         </div>
 
-        {/* Sessions list */}
-        <div className="space-y-3">
-          <span className="text-[10px] font-bold text-slate-400 uppercase">Conducted out of Total Sessions</span>
-          <div className="space-y-2">
-            {data.slice(0, 4).map((t) => {
-              const ratio = t.totalSessions > 0 ? Math.round((t.conductedSessions / t.totalSessions) * 100) : 0;
-              return (
-                <div key={t.tutorId} className="space-y-1">
-                  <div className="flex justify-between text-xs font-semibold">
-                    <span className="text-slate-700">{t.name}</span>
-                    <span className="text-blue-500 font-bold">{t.conductedSessions} / {t.totalSessions} sessions ({ratio}%)</span>
-                  </div>
-                  <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                    <div className="bg-blue-500 h-full rounded-full transition-all duration-500" style={{ width: `${ratio}%` }} />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
       </div>
     </div>
   );

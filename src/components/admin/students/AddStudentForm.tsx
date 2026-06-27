@@ -304,13 +304,13 @@ export default function AddStudentForm({
       finalCustomDetails = parts.join(" ");
     }
 
-    onSubmit({
+    const submitPayload: ICreateStudentPayload = {
       studentName: studentName.trim(),
       parentName: parentName.trim(),
       class: studentClass,
       email: email.trim(),
       phone: phone.trim(),
-      password,
+      password: "",
       place: place.trim(),
       courseType: programsList.find(p => p.id === programId)?.title || "",
       programId: programId.trim(),
@@ -323,7 +323,15 @@ export default function AddStudentForm({
       paidAmount: paidAmount === "" ? 0 : Number(paidAmount),
       mentorId: assignedMentorId.trim(),
       coordinatorId: assignedCoordinatorId.trim(),
-    });
+    };
+
+    if (password.trim()) {
+      submitPayload.password = password;
+    } else {
+      delete (submitPayload as Partial<ICreateStudentPayload>).password;
+    }
+
+    onSubmit(submitPayload);
   };
 
   return (
@@ -416,22 +424,24 @@ export default function AddStudentForm({
                     className="rounded-xl border-slate-200 bg-slate-50 focus:bg-white"
                   />
                 </div>
-
-                <div className="space-y-1.5">
-                  <Label className="text-xs font-semibold text-slate-550">
-                    Password *
-                  </Label>
-                  <Input
-                    required
-                    type="password"
-                    value={password}
-                    onChange={(event) => setPassword(event.target.value)}
-                    placeholder="password123"
-                    className="rounded-xl border-slate-200 bg-slate-50 focus:bg-white"
-                  />
-                </div>
               </>
             )}
+
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold text-slate-550">
+                Password {studentToEdit
+                  ? <span className="font-normal text-slate-400 ml-1">(leave blank to keep current)</span>
+                  : "*"}
+              </Label>
+              <Input
+                required={!studentToEdit}
+                type="password"
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                placeholder={studentToEdit ? "New password (optional)" : "password123"}
+                className="rounded-xl border-slate-200 bg-slate-50 focus:bg-white"
+              />
+            </div>
 
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold text-slate-550">
