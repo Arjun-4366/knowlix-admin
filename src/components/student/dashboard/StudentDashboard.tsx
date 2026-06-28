@@ -60,7 +60,7 @@ export default function StudentDashboard() {
   // Loading Skeleton
   if (isLoadingDashboard) {
     return (
-      <div className="space-y-8 max-w-6xl relative pb-10 animate-pulse">
+      <div className="space-y-6 max-w-8xl relative pb-10 animate-pulse">
         {/* Welcome Banner Skeleton */}
         <div className="bg-slate-100 h-40 rounded-2xl p-8 border border-slate-200" />
         {/* Stats Grid Skeleton */}
@@ -72,17 +72,18 @@ export default function StudentDashboard() {
             />
           ))}
         </div>
-        {/* Main layout skeleton */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-8">
-            <div className="bg-slate-100 h-80 rounded-2xl border border-slate-200" />
-            <div className="bg-slate-100 h-80 rounded-2xl border border-slate-200" />
+        {/* Priority row skeleton */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 bg-slate-100 h-64 rounded-2xl border border-slate-200" />
+          <div className="bg-slate-100 h-64 rounded-2xl border border-slate-200" />
+        </div>
+        {/* Content row skeleton */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 space-y-6">
+            <div className="bg-slate-100 h-52 rounded-2xl border border-slate-200" />
+            <div className="bg-slate-100 h-52 rounded-2xl border border-slate-200" />
           </div>
-          <div className="space-y-8">
-            <div className="bg-slate-100 h-80 rounded-2xl border border-slate-200" />
-            <div className="bg-slate-100 h-80 rounded-2xl border border-slate-200" />
-            <div className="bg-slate-100 h-80 rounded-2xl border border-slate-200" />
-          </div>
+          <div className="bg-slate-100 h-[26rem] rounded-2xl border border-slate-200" />
         </div>
       </div>
     );
@@ -236,7 +237,7 @@ export default function StudentDashboard() {
     });
 
   return (
-    <div className="space-y-8 max-w-7xl relative pb-10">
+    <div className="space-y-6 max-w-8xl relative pb-10">
       {/* Welcome Banner */}
       <div className="bg-gradient-to-r from-[var(--brand-dark)] to-[var(--brand-mid)] rounded-2xl p-6 md:p-8 text-white relative overflow-hidden shadow-lg border border-white/5">
         {/* Background visual accents */}
@@ -291,27 +292,32 @@ export default function StudentDashboard() {
         dueAmount={dueAmount}
       />
 
-      {/* Main Widgets layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Left Column: Progress & Assignments */}
-        <div className="lg:col-span-2 space-y-8">
+      {/* Priority Row: Upcoming Classes + Billing */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+          <StudentUpcomingClassesWidget classes={mappedUpcomingClasses} />
+        </div>
+        <div>
+          <StudentBillingWidget summary={feesSummaryData} />
+        </div>
+      </div>
+
+      {/* Content Row: Progress + Assignments (left) | Attendance (right) */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+        <div className="lg:col-span-2 space-y-6">
           <StudentProgressReportWidget progressList={subjectProgress} />
           <StudentAssignmentsWidget
             assignments={mappedAssignments}
             onSubmitFile={handleAssignmentSubmitRedirect}
           />
         </div>
-
-        {/* Right Column: Attendance, Upcoming Classes & Billing */}
-        <div className="space-y-8">
+        <div>
           <StudentAttendanceWidget
             rate={attendanceRate}
             present={presentCount}
             absent={absentCount}
             history={attendanceHistory}
           />
-          <StudentUpcomingClassesWidget classes={mappedUpcomingClasses} />
-          <StudentBillingWidget summary={feesSummaryData} />
         </div>
       </div>
 

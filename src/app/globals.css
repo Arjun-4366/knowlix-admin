@@ -144,6 +144,49 @@
 
 /* ── Per-portal color themes ─────────────────────────────────────────────────*/
 
+/* ── SuperAdmin themes (4 options — activate one, keep others commented) ─────*/
+
+/* SuperAdmin — Theme 1: Royal Indigo  (deep authority · premium · distinctive) ✅ ACTIVE */
+#superadmin-shell {
+  --brand-dark:        #1e1b4b;  
+  --brand-mid:         #3730a3;   
+  --brand-green:       #4f46e5;  
+  --brand-light:       #818cf8;   
+  --brand-bg:          #f5f3ff;   
+  --brand-light-green: #e0e7ff;   
+}
+
+/* SuperAdmin — Theme 2: Obsidian Gold  (luxury · executive · rare) */
+/* #superadmin-shell {
+  --brand-dark:        #292524;
+  --brand-mid:         #92400e;
+  --brand-green:       #b45309;
+  --brand-light:       #fcd34d;
+  --brand-bg:          #fffbeb;
+  --brand-light-green: #fef3c7;
+} */
+
+/* SuperAdmin — Theme 3: Crimson Power  (bold · commanding · vivid) */
+/* #superadmin-shell {
+  --brand-dark:        #3b0a14;
+  --brand-mid:         #9f1239;
+  --brand-green:       #be123c;
+  --brand-light:       #fb7185;
+  --brand-bg:          #fff1f2;
+  --brand-light-green: #ffe4e6;
+} */
+
+/* SuperAdmin — Theme 4: Midnight Slate  (ultra-professional · near-dark · neutral) */
+/* #superadmin-shell {
+  --brand-dark:        #0f172a;
+  --brand-mid:         #1e293b;
+  --brand-green:       #475569;
+  --brand-light:       #94a3b8;
+  --brand-bg:          #f8fafc;
+  --brand-light-green: #e2e8f0;
+} */
+
+
 /* Admin — Command Blue */
 #admin-shell {
   --brand-dark:        #1a3252;

@@ -197,7 +197,7 @@ export default function StudentChatbot() {
     return () => document.body.classList.remove("chatbot-open");
   }, []);
 
-  // When chapters load after subject selection, add bot chapter prompt
+  // When chapters are ready after subject selection, add bot chapter prompt
   useEffect(() => {
     if (!selectedSubject || chaptersLoading || step !== "chapter") return;
 
@@ -229,10 +229,12 @@ export default function StudentChatbot() {
         timestamp: new Date(),
       } as TextMessage,
     ]);
+  // selectedSubject ensures the effect re-runs when a new subject is picked,
+  // even when chapter data is already cached (chaptersLoading stays false).
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chaptersLoading]);
+  }, [selectedSubject, chaptersLoading]);
 
-  // When notes load after chapter selection, add bot notes message
+  // When notes are ready after chapter selection, add bot notes message
   useEffect(() => {
     if (!selectedSubject || !selectedChapter || notesLoading || step !== "results") return;
 
@@ -271,8 +273,10 @@ export default function StudentChatbot() {
         } as TextMessage,
       ]);
     }
+  // selectedChapter ensures the effect re-runs when a new chapter is picked,
+  // even when note data is already cached (notesLoading stays false).
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [notesLoading]);
+  }, [selectedChapter, notesLoading]);
 
   const handleSelectSubject = (subject: string) => {
     setSelectedSubject(subject);

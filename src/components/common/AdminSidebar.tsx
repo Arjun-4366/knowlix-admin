@@ -3,26 +3,20 @@
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
-  Home,
-  Info,
   BookOpen,
-  FileText,
   Users,
-  ImageIcon,
   Briefcase,
-  MessageSquare,
-  Settings,
   ChevronDown,
   GraduationCap,
-  Star,
   Globe,
   BarChart3,
   UserCheck,
   UserCog,
   Library,
+  TrendingUp,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import logo from "../../assets/images/icon.png";
@@ -69,6 +63,14 @@ interface Props {
 
 export default function AdminSidebar({ collapsed }: Props) {
   const pathname = usePathname();
+  const [role, setRole] = useState<string>("admin");
+
+  useEffect(() => {
+    setRole(localStorage.getItem("role") || "admin");
+  }, []);
+
+  const isSuperAdmin = role === "superadmin";
+
   const [openDropdowns, setOpenDropdowns] = useState<Record<string, boolean>>(
     () => {
       const initial: Record<string, boolean> = {};
@@ -272,6 +274,40 @@ export default function AdminSidebar({ collapsed }: Props) {
             </Link>
           );
         })}
+
+        {/* Revenue - superadmin only */}
+        {isSuperAdmin && (() => {
+          const isActive = pathname === "/admin/superadmin/revenue";
+          return (
+            <Link
+              href="/admin/superadmin/revenue"
+              title={collapsed ? "Revenue" : undefined}
+              className={cn(
+                "flex items-center rounded-lg text-sm font-medium transition-all overflow-hidden",
+                isActive ? "text-white" : "text-white/60 hover:text-white hover:bg-white/8",
+              )}
+              style={{
+                background: isActive ? "var(--brand-green)" : undefined,
+                padding: collapsed ? "10px 0" : "10px 12px",
+                justifyContent: collapsed ? "center" : "flex-start",
+                gap: collapsed ? 0 : "12px",
+                transition: "background 150ms ease, padding 300ms ease, justify-content 300ms ease",
+              }}
+            >
+              <TrendingUp className="w-4 h-4 flex-shrink-0" />
+              <span
+                className="flex-1 whitespace-nowrap overflow-hidden"
+                style={{
+                  opacity: collapsed ? 0 : 1,
+                  maxWidth: collapsed ? 0 : "200px",
+                  transition: "opacity 150ms ease, max-width 300ms ease",
+                }}
+              >
+                Revenue
+              </span>
+            </Link>
+          );
+        })()}
       </nav>
     </aside>
   );

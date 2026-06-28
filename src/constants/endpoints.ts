@@ -142,6 +142,9 @@ export const ENDPOINTS = {
   GET_TUTOR_STUDENT: (id:string)=>`${API_BASE_URL}/tutor/students/${id}`,
 
   //mentors
+  // superadmin
+  SUPERADMIN_REVENUE: `${API_BASE_URL}/superadmin/revenue`,
+
   GET_MENTORS: `${API_BASE_URL}/mentors/fetch`,
   CREATE_MENTOR: `${API_BASE_URL}/mentors/create`,
   UPDATE_MENTOR: (id: string) => `${API_BASE_URL}/mentors/update/${id}`,

@@ -1,6 +1,7 @@
 ﻿"use client";
 
-import { Award, BookOpen, TrendingUp, BarChart2 } from "lucide-react";
+import { useState } from "react";
+import { Award, BookOpen, TrendingUp, BarChart2, X, CalendarDays, User, FileText, Percent, Star } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -11,6 +12,7 @@ import {
   useGetStudentResultsGrades,
   useGetStudentResultsAnalytics,
 } from "@/querys/student/studentQuery";
+import type { IResultWithExam } from "@/types/student/student";
 
 const GRADE_COLORS: Record<string, string> = {
   "A+": "bg-emerald-50 text-emerald-700 border-emerald-100",
@@ -22,7 +24,127 @@ const GRADE_COLORS: Record<string, string> = {
   F: "bg-rose-50 text-rose-700 border-rose-100",
 };
 
+function ResultModal({ result, onClose }: { result: IResultWithExam; onClose: () => void }) {
+  const exam = result.examId;
+  const scorePercent = Math.round(result.percentage);
+  const gradeCls = GRADE_COLORS[result.grade || "C"] || GRADE_COLORS.C;
+
+  const circumference = 2 * Math.PI * 40;
+  const dashOffset = circumference - (scorePercent / 100) * circumference;
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white rounded-2xl shadow-2xl w-full max-w-lg flex flex-col max-h-[90vh]"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header — fixed */}
+        <div className="bg-gradient-to-r from-[var(--brand-dark)] to-[var(--brand-mid)] px-6 py-5 flex items-start justify-between rounded-t-2xl flex-shrink-0">
+          <div className="min-w-0 pr-3">
+            <p className="text-[10px] font-bold text-white/60 uppercase tracking-widest mb-1">{exam.subject}</p>
+            <h2 className="text-base font-black text-white leading-tight">{exam.title}</h2>
+            <p className="text-[10px] text-white/60 mt-1.5">
+              Tutor: <span className="text-white/90 font-semibold">{exam.tutorId.name}</span>
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            className="flex-shrink-0 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors mt-0.5"
+          >
+            <X className="w-4 h-4 text-white" />
+          </button>
+        </div>
+
+        {/* Scrollable body */}
+        <div className="overflow-y-auto flex-1 min-h-0">
+          {/* Score circle + key stats */}
+          <div className="px-6 py-6 flex items-center gap-6 border-b border-slate-100">
+            <div className="relative flex-shrink-0">
+              <svg width="96" height="96" viewBox="0 0 96 96">
+                <circle cx="48" cy="48" r="40" fill="none" stroke="#f1f5f9" strokeWidth="8" />
+                <circle
+                  cx="48" cy="48" r="40"
+                  fill="none"
+                  stroke="var(--brand-green)"
+                  strokeWidth="8"
+                  strokeLinecap="round"
+                  strokeDasharray={circumference}
+                  strokeDashoffset={dashOffset}
+                  transform="rotate(-90 48 48)"
+                />
+              </svg>
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <span className="text-xl font-black text-slate-900">{scorePercent}%</span>
+              </div>
+            </div>
+
+            <div className="space-y-2 flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <Badge variant="outline" className={`text-sm font-black px-3 py-0.5 rounded-full ${gradeCls}`}>
+                  {result.grade || "—"}
+                </Badge>
+                <span className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Grade</span>
+              </div>
+              <p className="text-2xl font-black text-slate-900 leading-none">
+                {result.marksObtained}
+                <span className="text-sm font-bold text-slate-600">/{exam.maxMarks}</span>
+              </p>
+              <p className="text-[10px] text-slate-600 font-semibold">Marks Obtained</p>
+            </div>
+          </div>
+
+          {/* Detail rows */}
+          <div className="px-6 py-5 space-y-3">
+            {[
+              { icon: CalendarDays, label: "Exam Date", value: new Date(exam.examDate).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" }) },
+              { icon: CalendarDays, label: "Result Entered", value: new Date(result.enteredAt).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" }) },
+              { icon: User, label: "Tutor", value: exam.tutorId.name },
+              { icon: FileText, label: "Exam Status", value: exam.status.charAt(0).toUpperCase() + exam.status.slice(1) },
+            ].map(({ icon: Icon, label, value }) => (
+              <div key={label} className="flex items-center gap-3 text-xs">
+                <div className="w-7 h-7 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center flex-shrink-0">
+                  <Icon className="w-3.5 h-3.5 text-slate-600" />
+                </div>
+                <span className="text-slate-600 font-semibold w-28 flex-shrink-0">{label}</span>
+                <span className="text-slate-800 font-bold flex-1 truncate">{value}</span>
+              </div>
+            ))}
+
+            {result.remarks && (
+              <div className="mt-1 pt-3 border-t border-slate-100">
+                <div className="flex items-start gap-3">
+                  <div className="w-7 h-7 rounded-lg bg-amber-50 border border-amber-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Star className="w-3.5 h-3.5 text-amber-500" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">Tutor Remarks</p>
+                    <p className="text-xs text-slate-700 leading-relaxed italic">"{result.remarks}"</p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Footer — fixed */}
+        <div className="px-6 py-4 border-t border-slate-100 flex-shrink-0">
+          <button
+            onClick={onClose}
+            className="w-full h-9 rounded-xl bg-slate-100 hover:bg-slate-200 text-xs font-bold text-slate-700 transition-colors"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function StudentResults() {
+  const [selectedResult, setSelectedResult] = useState<IResultWithExam | null>(null);
   const { data: resultsData, isLoading: resultsLoading } = useGetStudentResults();
   const { data: gradesData, isLoading: gradesLoading } = useGetStudentResultsGrades();
   const { data: analyticsData } = useGetStudentResultsAnalytics();
@@ -232,8 +354,12 @@ export default function StudentResults() {
               <TableBody className="divide-y divide-slate-100">
                 {results.length > 0 ? (
                   results.map((res) => (
-                    <TableRow key={res.id} className="hover:bg-slate-50/40 transition-colors font-semibold text-slate-650 text-xs">
-                      <TableCell className="px-6 py-4 text-slate-800 font-bold">
+                    <TableRow
+                      key={res.id}
+                      onClick={() => setSelectedResult(res)}
+                      className="hover:bg-slate-50/60 transition-colors font-semibold text-slate-650 text-xs cursor-pointer group"
+                    >
+                      <TableCell className="px-6 py-4 text-slate-800 font-bold group-hover:text-[var(--brand-mid)]">
                         {res.examId.title}
                       </TableCell>
                       <TableCell className="px-6 py-4">{res.examId.subject}</TableCell>
@@ -254,11 +380,9 @@ export default function StudentResults() {
                           >
                             {res.grade} · {Math.round(res.percentage)}%
                           </Badge>
-                          {res.remarks && (
-                            <span className="text-[9px] text-slate-600 italic max-w-[140px] truncate" title={res.remarks}>
-                              "{res.remarks}"
-                            </span>
-                          )}
+                          <span className="text-[9px] font-semibold text-[var(--brand-green)] opacity-0 group-hover:opacity-100 transition-opacity">
+                            View details →
+                          </span>
                         </div>
                       </TableCell>
                     </TableRow>
@@ -275,6 +399,10 @@ export default function StudentResults() {
           </div>
         </CardContent>
       </Card>
+
+      {selectedResult && (
+        <ResultModal result={selectedResult} onClose={() => setSelectedResult(null)} />
+      )}
     </div>
   );
 }

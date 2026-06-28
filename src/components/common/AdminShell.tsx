@@ -1,14 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import AdminSidebar from "./AdminSidebar";
 import AdminNavbar from "./AdminNavbar";
 
 export default function AdminShell({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
+  const [role, setRole] = useState<string>("admin");
+
+  useEffect(() => {
+    setRole(localStorage.getItem("role") || "admin");
+  }, []);
+
+  const shellId = role === "superadmin" ? "superadmin-shell" : "admin-shell";
 
   return (
-    <div id="admin-shell" className="flex h-screen overflow-hidden">
+    <div id={shellId} className="flex h-screen overflow-hidden">
       <AdminSidebar collapsed={collapsed} />
       <div className="flex flex-col flex-1 overflow-hidden min-w-0">
         <AdminNavbar collapsed={collapsed} onToggle={() => setCollapsed((v) => !v)} />

@@ -203,8 +203,8 @@ export default function StudentSchedule() {
                 </CardContent>
 
                 <div className="px-6 py-4 bg-slate-50/50 border-t border-slate-100 flex items-center justify-between">
-                  <div className="flex items-center gap-1.5 text-[10px] font-semibold text-slate-600">
-                    <BookOpen className="w-3.5 h-3.5 text-slate-600 flex-shrink-0" />
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold text-slate-600 bg-slate-300">
+                    <BookOpen className="w-3 h-3 flex-shrink-0" />
                     <span>{session.durationMinutes || 60} min</span>
                   </div>
 
@@ -219,10 +219,10 @@ export default function StudentSchedule() {
                       href={session.meetLink}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className={`h-8 text-[10px] px-3 font-bold rounded-xl flex items-center gap-1.5 transition-all ${
+                      className={`h-9 text-[11px] px-4 font-bold rounded-xl flex items-center gap-1.5 transition-all shadow-sm ${
                         active
-                          ? "bg-[var(--brand-green)] hover:bg-[var(--brand-green)]/90 text-white shadow-sm"
-                          : "bg-slate-100 hover:bg-slate-200 text-slate-650"
+                          ? "bg-[var(--brand-green)] hover:bg-[var(--brand-green)]/90 text-white shadow-md ring-2 ring-[var(--brand-green)]/25"
+                          : "bg-[var(--brand-dark)] hover:bg-[var(--brand-mid)] text-white"
                       }`}
                     >
                       <Video className="w-3.5 h-3.5" /> Join Room
