@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { X } from "lucide-react";
@@ -28,7 +28,7 @@ export default function StudentPaymentModal({
           <h3 className="font-bold text-slate-800 text-sm">Pay Outstanding Academic Tuition Fees</h3>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+            className="p-1.5 rounded-lg text-slate-600 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -37,13 +37,13 @@ export default function StudentPaymentModal({
         {/* Body */}
         <form onSubmit={onSubmit} className="p-6 space-y-4">
           <div className="bg-slate-50 p-4 border border-slate-150 rounded-xl space-y-1">
-            <span className="block text-[9px] font-black text-slate-400 uppercase">Outstanding Balance</span>
+            <span className="block text-[9px] font-black text-slate-600 uppercase">Outstanding Balance</span>
             <span className="text-2xl font-black text-slate-800 font-heading">₹{dueAmount.toLocaleString("en-IN")}</span>
-            <span className="block text-[9px] text-slate-400 font-semibold">Charges apply for the billing term ending {dueDate}.</span>
+            <span className="block text-[9px] text-slate-600 font-semibold">Charges apply for the billing term ending {dueDate}.</span>
           </div>
 
           <div className="space-y-1.5">
-            <label className="block text-xs font-semibold text-slate-500">Select Mode of Payment</label>
+            <label className="block text-xs font-semibold text-slate-600">Select Mode of Payment</label>
             <div className="grid grid-cols-3 gap-2">
               {["UPI", "Credit Card", "Net Banking"].map((mode) => (
                 <button
@@ -64,7 +64,7 @@ export default function StudentPaymentModal({
 
           {payMethod === "UPI" && (
             <div className="space-y-1.5 animate-in fade-in duration-200">
-              <label className="block text-xs font-semibold text-slate-500">UPI Address (VPA)</label>
+              <label className="block text-xs font-semibold text-slate-600">UPI Address (VPA)</label>
               <input
                 type="text"
                 required
@@ -77,7 +77,7 @@ export default function StudentPaymentModal({
           {payMethod === "Credit Card" && (
             <div className="space-y-3 animate-in fade-in duration-200">
               <div>
-                <label className="block text-xs font-semibold text-slate-500 mb-1">Card Holder Name</label>
+                <label className="block text-xs font-semibold text-slate-600 mb-1">Card Holder Name</label>
                 <input
                   type="text"
                   required
@@ -86,7 +86,7 @@ export default function StudentPaymentModal({
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-slate-500 mb-1">Credit Card Number</label>
+                <label className="block text-xs font-semibold text-slate-600 mb-1">Credit Card Number</label>
                 <input
                   type="text"
                   required
@@ -97,7 +97,7 @@ export default function StudentPaymentModal({
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-500 mb-1">Expiry Date</label>
+                  <label className="block text-xs font-semibold text-slate-600 mb-1">Expiry Date</label>
                   <input
                     type="text"
                     required
@@ -107,7 +107,7 @@ export default function StudentPaymentModal({
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-500 mb-1">CVV</label>
+                  <label className="block text-xs font-semibold text-slate-600 mb-1">CVV</label>
                   <input
                     type="password"
                     required
@@ -122,7 +122,7 @@ export default function StudentPaymentModal({
 
           {payMethod === "Net Banking" && (
             <div className="space-y-1.5 animate-in fade-in duration-200">
-              <label className="block text-xs font-semibold text-slate-500">Select Bank</label>
+              <label className="block text-xs font-semibold text-slate-600">Select Bank</label>
               <select className="w-full px-3.5 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:border-green-500 focus:ring-2 focus:ring-green-500/20 transition-all font-semibold text-slate-700">
                 <option>State Bank of India</option>
                 <option>HDFC Bank</option>
@@ -137,7 +137,7 @@ export default function StudentPaymentModal({
               type="button"
               onClick={onClose}
               disabled={paying}
-              className="px-4 py-2 text-xs font-bold text-slate-550 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors cursor-pointer"
+              className="px-4 py-2 text-xs font-bold text-slate-600 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors cursor-pointer"
             >
               Cancel
             </button>

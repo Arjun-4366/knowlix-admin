@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, type FormEvent } from "react";
+﻿import { useState, useRef, useEffect, type FormEvent } from "react";
 import { CheckCircle, FileText, X, Upload, ExternalLink } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { Badge } from "@/components/ui/badge";
@@ -77,11 +77,11 @@ function CertificateUploadField({
 
   return (
     <div className="space-y-1.5">
-      <Label className="flex items-center gap-1.5 text-xs font-semibold text-slate-550">
+      <Label className="flex items-center gap-1.5 text-xs font-semibold text-slate-600">
         {value ? (
           <CheckCircle className="h-3.5 w-3.5 text-[var(--brand-green)]" />
         ) : (
-          <FileText className="h-3.5 w-3.5 text-slate-400" />
+          <FileText className="h-3.5 w-3.5 text-slate-600" />
         )}
         {label}
       </Label>
@@ -104,7 +104,7 @@ function CertificateUploadField({
               <p className="truncate text-xs font-bold text-slate-700">
                 {getFileName(value)}
               </p>
-              <p className="text-[10px] text-slate-450 mt-0.5">
+              <p className="text-[10px] text-slate-600 mt-0.5">
                 {isFile
                   ? formatFileSize((value as File).size)
                   : "Cloud Document"}
@@ -118,7 +118,7 @@ function CertificateUploadField({
                 href={value as string}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex h-7 w-7 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-750 transition-colors shadow-sm"
+                className="flex h-7 w-7 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-750 transition-colors shadow-sm"
                 title="View Document"
               >
                 <ExternalLink className="h-3.5 w-3.5" />
@@ -127,7 +127,7 @@ function CertificateUploadField({
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="flex h-7 w-7 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-750 transition-colors shadow-sm"
+              className="flex h-7 w-7 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-750 transition-colors shadow-sm"
               title="Replace File"
             >
               <Upload className="h-3.5 w-3.5" />
@@ -147,12 +147,12 @@ function CertificateUploadField({
           onClick={() => fileInputRef.current?.click()}
           className="flex flex-col items-center justify-center gap-1.5 rounded-xl border border-dashed border-slate-250 bg-slate-50/50 py-4 px-3 text-center cursor-pointer hover:bg-slate-50 hover:border-slate-350 transition-all group"
         >
-          <Upload className="h-4.5 w-4.5 text-slate-400 group-hover:text-slate-600 transition-colors" />
+          <Upload className="h-4.5 w-4.5 text-slate-600 group-hover:text-slate-600 transition-colors" />
           <div>
             <p className="text-[11px] font-bold text-slate-600 group-hover:text-slate-800 transition-colors">
               Click to upload {label.toLowerCase()}
             </p>
-            <p className="text-[9px] text-slate-400 mt-0.5">
+            <p className="text-[9px] text-slate-600 mt-0.5">
               Supports PDF, PNG, JPG up to 10MB
             </p>
           </div>
@@ -341,7 +341,7 @@ export default function AddStudentForm({
           <h3 className="text-lg font-bold text-slate-800">
             {studentToEdit ? "Edit Student" : "Add New Student"}
           </h3>
-          <p className="mt-0.5 text-xs text-slate-450">
+          <p className="mt-0.5 text-xs text-slate-600">
             {studentToEdit
               ? "Update student using the admin API payload."
               : "Create a student using the admin API payload."}
@@ -349,7 +349,7 @@ export default function AddStudentForm({
         </div>
         <button
           onClick={onClose}
-          className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700"
+          className="rounded-lg p-1.5 text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-700"
           type="button"
         >
           <X className="h-5 w-5" />
@@ -366,7 +366,7 @@ export default function AddStudentForm({
           </h4>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-slate-550">
+              <Label className="text-xs font-semibold text-slate-600">
                 Student Name *
               </Label>
               <Input
@@ -379,7 +379,7 @@ export default function AddStudentForm({
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-slate-550">
+              <Label className="text-xs font-semibold text-slate-600">
                 Parent Name *
               </Label>
               <Input
@@ -394,7 +394,7 @@ export default function AddStudentForm({
             {!studentToEdit && (
               <>
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-semibold text-slate-550">
+                  <Label className="text-xs font-semibold text-slate-600">
                     Email *
                   </Label>
                   <Input
@@ -408,7 +408,7 @@ export default function AddStudentForm({
                 </div>
 
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-semibold text-slate-550">
+                  <Label className="text-xs font-semibold text-slate-600">
                     Phone
                   </Label>
                   <Input
@@ -428,9 +428,9 @@ export default function AddStudentForm({
             )}
 
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-slate-550">
+              <Label className="text-xs font-semibold text-slate-600">
                 Password {studentToEdit
-                  ? <span className="font-normal text-slate-400 ml-1">(leave blank to keep current)</span>
+                  ? <span className="font-normal text-slate-600 ml-1">(leave blank to keep current)</span>
                   : "*"}
               </Label>
               <Input
@@ -444,7 +444,7 @@ export default function AddStudentForm({
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-slate-550">
+              <Label className="text-xs font-semibold text-slate-600">
                 Class *
               </Label>
               <Select value={studentClass} onValueChange={setStudentClass}>
@@ -464,7 +464,7 @@ export default function AddStudentForm({
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-slate-550">
+              <Label className="text-xs font-semibold text-slate-600">
                 Place *
               </Label>
               <Input
@@ -477,7 +477,7 @@ export default function AddStudentForm({
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-slate-550">
+              <Label className="text-xs font-semibold text-slate-600">
                 Program *
               </Label>
               <Select value={programId} onValueChange={(val) => { setProgramId(val); setCourseId(""); }}>
@@ -495,7 +495,7 @@ export default function AddStudentForm({
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-slate-550">
+              <Label className="text-xs font-semibold text-slate-600">
                 Course *
               </Label>
               <Select disabled={!programId} value={courseId} onValueChange={setCourseId}>
@@ -513,7 +513,7 @@ export default function AddStudentForm({
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-slate-550">
+              <Label className="text-xs font-semibold text-slate-600">
                 Package *
               </Label>
               <Select value={packageValue} onValueChange={setPackageValue}>
@@ -532,7 +532,7 @@ export default function AddStudentForm({
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-slate-550">
+              <Label className="text-xs font-semibold text-slate-600">
                 Admission Status *
               </Label>
               <Select
@@ -557,7 +557,7 @@ export default function AddStudentForm({
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-slate-550">
+              <Label className="text-xs font-semibold text-slate-600">
                 Total Fee (₹)
               </Label>
               <Input
@@ -570,7 +570,7 @@ export default function AddStudentForm({
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-slate-550">
+              <Label className="text-xs font-semibold text-slate-600">
                 Paid Amount (₹)
               </Label>
               <Input
@@ -585,7 +585,7 @@ export default function AddStudentForm({
 
           {packageValue === "custom" && (
             <div className="space-y-1.5 col-span-1 md:col-span-2">
-              <Label className="text-xs font-semibold text-slate-550">
+              <Label className="text-xs font-semibold text-slate-600">
                 Custom Package Duration
               </Label>
               <div className="grid grid-cols-2 gap-4">
@@ -650,7 +650,7 @@ export default function AddStudentForm({
           </h4>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-1">
             <div className="space-y-1.5 md:col-span-2">
-              <Label className="text-xs font-semibold text-slate-555">
+              <Label className="text-xs font-semibold text-slate-600">
                 Assigned Admissions Coordinator *
               </Label>
               <select
@@ -680,7 +680,7 @@ export default function AddStudentForm({
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-slate-550">
+              <Label className="text-xs font-semibold text-slate-600">
                 Assigned Mentor *
               </Label>
               <select
@@ -711,7 +711,7 @@ export default function AddStudentForm({
             type="button"
             variant="outline"
             onClick={onClose}
-            className="rounded-xl border border-slate-200 px-5 py-2.5 text-slate-500 hover:bg-slate-50"
+            className="rounded-xl border border-slate-200 px-5 py-2.5 text-slate-600 hover:bg-slate-50"
             disabled={isSubmitting}
           >
             Cancel

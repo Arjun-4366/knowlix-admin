@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { ArrowLeft, Mail, TrendingUp } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -38,7 +38,7 @@ export function TutorProfileHeader({ tutor, totalGrowthPoints, onBack }: TutorPr
                 <h1 className="text-2xl font-bold text-slate-800 tracking-tight">{tutor.name}</h1>
                 {/* <Badge
                   variant="outline"
-                  className="text-xs font-semibold px-2 py-0.5 rounded-md bg-slate-100 text-slate-500 border border-slate-200"
+                  className="text-xs font-semibold px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 border border-slate-200"
                 >
                   ID: {tutor.id.substring(tutor.id.length - 8)}
                 </Badge> */}

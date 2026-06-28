@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { Search, Eye, Trash2, Pencil } from "lucide-react";
 import { Student } from "./StudentStats";
 import { cn } from "@/lib/utils";
@@ -57,29 +57,29 @@ export default function StudentTable({
         <Table className="table-fixed">
           <TableHeader className="bg-slate-50/50">
             <TableRow>
-              <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[5%]">
+              <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[5%]">
                 Sl.
               </TableHead>
-              <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[13%]">
+              <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[13%]">
                 Admission No
               </TableHead>
-              <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[24%]">
+              <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[24%]">
                 Student
               </TableHead>
-              <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[12%]">
+              <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[12%]">
                 Grade
               </TableHead>
-              <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[20%]">
+              <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[20%]">
                 Course / Program
               </TableHead>
              
-              <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[18%]">
+              <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[18%]">
                 Status
               </TableHead>
-              <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[12%]">
+              <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[12%]">
                 Pending Fee
               </TableHead>
-              <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right w-[10%]">
+              <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-right w-[10%]">
                 Actions
               </TableHead>
             </TableRow>
@@ -92,10 +92,10 @@ export default function StudentTable({
                   className="hover:bg-slate-100 transition-colors cursor-pointer"
                   onClick={() => onViewStudent(student)}
                 >
-                  <TableCell className="px-6 py-4 text-sm font-semibold text-slate-400">
+                  <TableCell className="px-6 py-4 text-sm font-semibold text-slate-600">
                     {index + 1}
                   </TableCell>
-                  <TableCell className="px-6 py-4 text-sm font-semibold text-slate-500 truncate">
+                  <TableCell className="px-6 py-4 text-sm font-semibold text-slate-600 truncate">
                     {student.admissionNumber || "Pending"}
                   </TableCell>
                   <TableCell className="px-6 py-4">
@@ -157,7 +157,7 @@ export default function StudentTable({
                         size="icon-sm"
                         onClick={(e) => { e.stopPropagation(); onViewStudent(student); }}
                         title="View Details"
-                        className="rounded-lg text-slate-400 hover:text-[var(--brand-green)] hover:bg-slate-50"
+                        className="rounded-lg text-slate-600 hover:text-[var(--brand-green)] hover:bg-slate-50"
                       >
                         <Eye className="w-4 h-4" />
                       </Button>
@@ -166,7 +166,7 @@ export default function StudentTable({
                         size="icon-sm"
                         onClick={() => onEditStudent(student.id)}
                         title="Edit Student"
-                        className="rounded-lg text-slate-400 hover:text-[var(--brand-green)] hover:bg-slate-50"
+                        className="rounded-lg text-slate-600 hover:text-[var(--brand-green)] hover:bg-slate-50"
                       >
                         <Pencil className="w-4 h-4" />
                       </Button>
@@ -175,7 +175,7 @@ export default function StudentTable({
                         size="icon-sm"
                         onClick={() => onDeleteStudent(student.id)}
                         title="Delete Student"
-                        className="rounded-lg text-slate-400 hover:text-red-650 hover:bg-red-50/50"
+                        className="rounded-lg text-slate-600 hover:text-red-650 hover:bg-red-50/50"
                       >
                         <Trash2 className="w-4 h-4" />
                       </Button>
@@ -187,7 +187,7 @@ export default function StudentTable({
               <TableRow>
                 <TableCell
                   colSpan={8}
-                  className="px-6 py-12 text-center text-slate-400 text-sm"
+                  className="px-6 py-12 text-center text-slate-600 text-sm"
                 >
                   No students matching the current filters.
                 </TableCell>

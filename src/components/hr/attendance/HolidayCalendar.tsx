@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { differenceInCalendarDays, format, parseISO } from "date-fns";
@@ -103,7 +103,7 @@ export default function HolidayCalendar({
       <div className="p-5 border-b border-slate-100 flex items-start justify-between gap-3">
         <div>
           <h2 className="text-sm font-bold text-slate-850">Holiday Calendar</h2>
-          <p className="text-xs text-slate-500 mt-1">
+          <p className="text-xs text-slate-600 mt-1">
             Publish closure windows early so payroll, leave, and staffing plans stay aligned.
           </p>
         </div>
@@ -172,7 +172,7 @@ export default function HolidayCalendar({
 
       <div className="p-5 space-y-5">
         {loading && (
-          <div className="py-8 text-center text-xs text-slate-400 animate-pulse">
+          <div className="py-8 text-center text-xs text-slate-600 animate-pulse">
             Loading holidays…
           </div>
         )}
@@ -203,8 +203,8 @@ export default function HolidayCalendar({
           <div className="space-y-4">
             {Object.entries(groupedHolidays).map(([monthLabel, monthHolidays]) => (
               <div key={monthLabel} className="space-y-2">
-                <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-slate-450">
-                  <CalendarDays className="w-3.5 h-3.5 text-slate-400" />
+                <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-slate-600">
+                  <CalendarDays className="w-3.5 h-3.5 text-slate-600" />
                   {monthLabel}
                 </div>
                 <div className="space-y-2">
@@ -215,7 +215,7 @@ export default function HolidayCalendar({
                     >
                       <div className="space-y-1 flex-1">
                         <p className="text-xs font-bold text-slate-800">{holiday.name}</p>
-                        <p className="text-[11px] text-slate-500">
+                        <p className="text-[11px] text-slate-600">
                           {format(parseISO(holiday.date), "EEE, dd MMM")} •{" "}
                           {holiday.appliesTo}
                         </p>
@@ -234,7 +234,7 @@ export default function HolidayCalendar({
                           <button
                             onClick={() => handleDelete(holiday.id, holiday.name)}
                             disabled={deletingId === holiday.id}
-                            className="w-6 h-6 rounded-md flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors disabled:opacity-40"
+                            className="w-6 h-6 rounded-md flex items-center justify-center text-slate-600 hover:text-red-500 hover:bg-red-50 transition-colors disabled:opacity-40"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
@@ -247,7 +247,7 @@ export default function HolidayCalendar({
             ))}
           </div>
         ) : !loading ? (
-          <div className="py-12 text-center text-sm text-slate-500">
+          <div className="py-12 text-center text-sm text-slate-600">
             No upcoming holidays fall inside the current 90-day planning window.
           </div>
         ) : null}

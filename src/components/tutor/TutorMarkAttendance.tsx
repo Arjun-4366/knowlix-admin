@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useMemo } from "react";
 import { CheckCircle2, XCircle, Clock, Save, UserCheck } from "lucide-react";
@@ -7,6 +7,8 @@ import { ITutorSession } from "@/types/tutor/attendance";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "react-hot-toast";
 import { useMarkTutorAttendance } from "@/querys/tutor/attendanceQuery";
 import TutorSessionSelector from "./TutorSessionSelector";
@@ -113,18 +115,22 @@ export default function TutorMarkAttendance({ students, onSuccess }: TutorMarkAt
         </CardHeader>
         <CardContent className="p-6 space-y-6">
           {/* Session Date */}
-          <div className="max-w-xs space-y-2">
-            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+          <div className="max-w-xs space-y-3">
+            <Label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
               Session Date
-            </label>
-            <select
+            </Label>
+            <Select
               value={selectedDate}
-              onChange={(e) => setSelectedDate(e.target.value as "today" | "yesterday")}
-              className="h-11 w-full bg-white border border-slate-200 rounded-xl text-sm px-3 font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-[var(--brand-green)]/30"
+              onValueChange={(val) => setSelectedDate(val as "today" | "yesterday")}
             >
-              <option value="today">Today</option>
-              <option value="yesterday">Yesterday</option>
-            </select>
+              <SelectTrigger className="h-10 w-full rounded-xl border-slate-200 text-sm font-medium text-slate-700">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="today">Today</SelectItem>
+                <SelectItem value="yesterday">Yesterday</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Session Selector */}
@@ -154,7 +160,7 @@ export default function TutorMarkAttendance({ students, onSuccess }: TutorMarkAt
             <CardTitle className="text-sm font-bold text-slate-800 uppercase tracking-wider">
               Student Attendance Roster
             </CardTitle>
-            <span className="text-xs font-semibold text-slate-400">
+            <span className="text-xs font-semibold text-slate-600">
               {activeStudents.length} Students
             </span>
           </div>
@@ -176,7 +182,7 @@ export default function TutorMarkAttendance({ students, onSuccess }: TutorMarkAt
                       </div>
                       <div>
                         <p className="text-sm font-bold text-slate-800 leading-none">{student.studentName}</p>
-                        <p className="text-[11px] text-slate-450 font-semibold mt-1">
+                        <p className="text-[11px] text-slate-600 font-semibold mt-1">
                           ID: {student.id} · Class {student.class}
                         </p>
                       </div>
@@ -190,10 +196,10 @@ export default function TutorMarkAttendance({ students, onSuccess }: TutorMarkAt
                         className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
                           state.status === "present"
                             ? "bg-[var(--brand-light-green)] text-[var(--brand-mid)] border-[var(--brand-light)]/40 shadow-sm scale-[1.03]"
-                            : "bg-white text-slate-500 border-slate-200 hover:bg-slate-50"
+                            : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
                         }`}
                       >
-                        <CheckCircle2 className={`w-3.5 h-3.5 ${state.status === "present" ? "text-[var(--brand-green)]" : "text-slate-400"}`} />
+                        <CheckCircle2 className={`w-3.5 h-3.5 ${state.status === "present" ? "text-[var(--brand-green)]" : "text-slate-600"}`} />
                         Present
                       </button>
 
@@ -203,10 +209,10 @@ export default function TutorMarkAttendance({ students, onSuccess }: TutorMarkAt
                         className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
                           state.status === "late"
                             ? "bg-amber-50 text-amber-700 border-amber-200 shadow-sm scale-[1.03]"
-                            : "bg-white text-slate-500 border-slate-200 hover:bg-slate-50"
+                            : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
                         }`}
                       >
-                        <Clock className={`w-3.5 h-3.5 ${state.status === "late" ? "text-amber-500" : "text-slate-400"}`} />
+                        <Clock className={`w-3.5 h-3.5 ${state.status === "late" ? "text-amber-500" : "text-slate-600"}`} />
                         Late
                       </button>
 
@@ -216,10 +222,10 @@ export default function TutorMarkAttendance({ students, onSuccess }: TutorMarkAt
                         className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
                           state.status === "absent"
                             ? "bg-red-50 text-red-700 border-red-200 shadow-sm scale-[1.03]"
-                            : "bg-white text-slate-500 border-slate-200 hover:bg-slate-50"
+                            : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
                         }`}
                       >
-                        <XCircle className={`w-3.5 h-3.5 ${state.status === "absent" ? "text-red-500" : "text-slate-400"}`} />
+                        <XCircle className={`w-3.5 h-3.5 ${state.status === "absent" ? "text-red-500" : "text-slate-600"}`} />
                         Absent
                       </button>
                     </div>
@@ -239,7 +245,7 @@ export default function TutorMarkAttendance({ students, onSuccess }: TutorMarkAt
               })}
             </div>
           ) : (
-            <div className="p-8 text-center text-slate-450 text-sm">
+            <div className="p-8 text-center text-slate-600 text-sm">
               {selectedSession
                 ? "No matching students found in your roster for the selected session."
                 : "You do not have any approved, active students assigned to you."}
@@ -251,7 +257,7 @@ export default function TutorMarkAttendance({ students, onSuccess }: TutorMarkAt
       {/* ── Submit ── */}
       <div className="flex items-center justify-between pt-2">
         {activeStudents.length === 0 && (
-          <p className="text-xs text-slate-400 font-semibold">
+          <p className="text-xs text-slate-600 font-semibold">
             Add students to your roster to submit attendance.
           </p>
         )}

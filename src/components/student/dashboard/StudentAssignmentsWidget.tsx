@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Badge } from "@/components/ui/badge";
 import {
@@ -33,7 +33,7 @@ export default function StudentAssignmentsWidget({
       <div className="px-6 py-5 border-b border-slate-50 flex items-center justify-between bg-slate-50/20">
         <div>
           <h2 className="text-sm font-bold text-slate-800">Assignments & Homework</h2>
-          <p className="text-xs text-slate-455 mt-0.5">Upload homework sheets and review tutor graded reports</p>
+          <p className="text-xs text-slate-600 mt-0.5">Upload homework sheets and review tutor graded reports</p>
         </div>
         <Badge className="bg-[var(--brand-light-green)] text-[var(--brand-mid)] border-[var(--brand-light)]/20 shadow-none text-[10px]">
           Assessments
@@ -43,10 +43,10 @@ export default function StudentAssignmentsWidget({
         <Table className="table-fixed w-full">
           <TableHeader className="bg-slate-50/20">
             <TableRow>
-              <TableHead className="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider w-[40%]">Assignment</TableHead>
-              <TableHead className="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider text-center w-[20%]">Due Date</TableHead>
-              <TableHead className="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider text-center w-[20%]">Status</TableHead>
-              <TableHead className="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider text-right w-[20%]">Grade</TableHead>
+              <TableHead className="px-6 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider w-[40%]">Assignment</TableHead>
+              <TableHead className="px-6 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider text-center w-[20%]">Due Date</TableHead>
+              <TableHead className="px-6 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider text-center w-[20%]">Status</TableHead>
+              <TableHead className="px-6 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider text-right w-[20%]">Grade</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody className="divide-y divide-slate-100">
@@ -54,7 +54,7 @@ export default function StudentAssignmentsWidget({
               <TableRow key={asm.id} className="hover:bg-slate-50/60 transition-colors">
                 <TableCell className="px-6 py-4">
                   <p className="text-xs font-bold text-slate-800 truncate leading-none">{asm.title}</p>
-                  <span className="text-[9px] text-slate-450 mt-1.5 block font-semibold">{asm.subject} • ID: {asm.id}</span>
+                  <span className="text-[9px] text-slate-600 mt-1.5 block font-semibold">{asm.subject} • ID: {asm.id}</span>
                 </TableCell>
                 <TableCell className="px-6 py-4 text-xs text-center font-medium text-slate-650">{asm.dueDate}</TableCell>
                 <TableCell className="px-6 py-4 text-center">
@@ -74,7 +74,7 @@ export default function StudentAssignmentsWidget({
                   {asm.status === "Graded" ? (
                     <span className="text-xs font-black text-slate-800">{asm.grade}</span>
                   ) : asm.status === "Submitted" ? (
-                    <span className="text-[10px] text-slate-400 italic">Reviewing</span>
+                    <span className="text-[10px] text-slate-600 italic">Reviewing</span>
                   ) : (
                     <button
                       onClick={() => onSubmitFile(asm.id)}

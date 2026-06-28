@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { toast } from "react-hot-toast";
@@ -100,7 +100,7 @@ function StatCard({
       <div>
         <p className="text-2xl font-bold text-slate-850">{value}</p>
         <p className="text-xs font-semibold text-slate-700 mt-0.5">{label}</p>
-        {sub && <p className="text-[11px] text-slate-500 mt-0.5">{sub}</p>}
+        {sub && <p className="text-[11px] text-slate-600 mt-0.5">{sub}</p>}
       </div>
     </Card>
   );
@@ -162,7 +162,7 @@ function NoticeFormModal({
               <h3 className="font-bold text-slate-800 text-base">
                 {isEdit ? "Edit Notice" : "Create Notice"}
               </h3>
-              <p className="text-[10px] text-slate-400 font-semibold mt-0.5">
+              <p className="text-[10px] text-slate-600 font-semibold mt-0.5">
                 {isEdit
                   ? "Update the notice details below"
                   : "Fill in the details to publish a notice"}
@@ -171,7 +171,7 @@ function NoticeFormModal({
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors">
+            className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-600 hover:text-slate-600 transition-colors">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -180,7 +180,7 @@ function NoticeFormModal({
           {/* Category + Priority */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label className="text-[10px] uppercase font-bold text-slate-500">
+              <Label className="text-[10px] uppercase font-bold text-slate-600">
                 Category
               </Label>
               <Select
@@ -199,7 +199,7 @@ function NoticeFormModal({
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-[10px] uppercase font-bold text-slate-500">
+              <Label className="text-[10px] uppercase font-bold text-slate-600">
                 Priority
               </Label>
               <Select
@@ -222,7 +222,7 @@ function NoticeFormModal({
           {/* Audience + Department */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label className="text-[10px] uppercase font-bold text-slate-500">
+              <Label className="text-[10px] uppercase font-bold text-slate-600">
                 Audience
               </Label>
               <Select value={audience} onValueChange={setAudience}>
@@ -239,7 +239,7 @@ function NoticeFormModal({
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-[10px] uppercase font-bold text-slate-500">
+              <Label className="text-[10px] uppercase font-bold text-slate-600">
                 Department
               </Label>
               <Select
@@ -262,7 +262,7 @@ function NoticeFormModal({
 
           {/* Title */}
           <div className="space-y-1.5">
-            <Label className="text-[10px] uppercase font-bold text-slate-500">
+            <Label className="text-[10px] uppercase font-bold text-slate-600">
               Title *
             </Label>
             <Input
@@ -276,7 +276,7 @@ function NoticeFormModal({
 
           {/* Content */}
           <div className="space-y-1.5">
-            <Label className="text-[10px] uppercase font-bold text-slate-500">
+            <Label className="text-[10px] uppercase font-bold text-slate-600">
               Content *
             </Label>
             <Textarea
@@ -339,7 +339,7 @@ function NoticeCard({
           <p className="text-sm font-bold text-slate-800 leading-tight line-clamp-2">
             {notice.title}
           </p>
-          <p className="text-[11px] text-slate-500 mt-1">
+          <p className="text-[11px] text-slate-600 mt-1">
             {format(parseISO(notice.createdAt), "dd MMM yyyy, hh:mm a")}
             {notice.department ? ` · ${notice.department}` : ""}
             {notice.audience && notice.audience !== "all"
@@ -350,12 +350,12 @@ function NoticeCard({
         <div className="flex items-center gap-1.5 flex-shrink-0">
           <button
             onClick={() => onEdit(notice)}
-            className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-sky-600 hover:bg-sky-50 transition-colors">
+            className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-600 hover:text-sky-600 hover:bg-sky-50 transition-colors">
             <Edit2 className="w-3.5 h-3.5" />
           </button>
           <button
             onClick={() => onDelete(notice.id)}
-            className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors">
+            className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-600 hover:text-red-500 hover:bg-red-50 transition-colors">
             <Trash2 className="w-3.5 h-3.5" />
           </button>
         </div>
@@ -391,7 +391,7 @@ function NoticeCard({
             "rounded-full text-[10px] font-bold px-2.5 py-0.5 border",
             notice.isPublished
               ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-              : "bg-slate-50 text-slate-500 border-slate-200",
+              : "bg-slate-50 text-slate-600 border-slate-200",
           )}>
           {notice.isPublished ? "Published" : "Draft"}
         </Badge>
@@ -560,13 +560,13 @@ export default function HRNoticesManager() {
       {/* List */}
       {isLoading ? (
         <div className="flex items-center justify-center py-20">
-          <Loader2 className="w-8 h-8 animate-spin text-slate-400" />
+          <Loader2 className="w-8 h-8 animate-spin text-slate-600" />
         </div>
       ) : notices.length === 0 ? (
         <Card className="rounded-2xl border-slate-150 p-10 text-center bg-white shadow-sm">
-          <Bell className="w-10 h-10 text-slate-300 mx-auto mb-3" />
+          <Bell className="w-10 h-10 text-slate-600 mx-auto mb-3" />
           <p className="text-sm font-semibold text-slate-600">No notices found</p>
-          <p className="text-xs text-slate-400 mt-1">Publish your first notice using the button above.</p>
+          <p className="text-xs text-slate-600 mt-1">Publish your first notice using the button above.</p>
         </Card>
       ) : (
         <div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-4">

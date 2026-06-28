@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
@@ -147,7 +147,7 @@ export default function PayrollManager() {
           {hasFilters && (
             <button
               onClick={() => { setTutorId(""); setMonth(""); setYear(""); setStatus(""); }}
-              className="text-[10px] font-semibold text-slate-400 hover:text-slate-600 flex items-center gap-1 transition-colors"
+              className="text-[10px] font-semibold text-slate-600 hover:text-slate-600 flex items-center gap-1 transition-colors"
             >
               <X className="w-3 h-3" /> Clear
             </button>
@@ -164,14 +164,14 @@ export default function PayrollManager() {
           <Table>
             <TableHeader className="bg-slate-50/70">
               <TableRow className="border-slate-100 hover:bg-slate-50/70">
-                <TableHead className="px-5 py-3.5 text-[10px] font-bold uppercase tracking-wider text-slate-500">Tutor</TableHead>
-                <TableHead className="px-5 py-3.5 text-[10px] font-bold uppercase tracking-wider text-slate-500">Period</TableHead>
-                <TableHead className="px-5 py-3.5 text-[10px] font-bold uppercase tracking-wider text-slate-500">Total</TableHead>
-                <TableHead className="px-5 py-3.5 text-[10px] font-bold uppercase tracking-wider text-slate-500">Paid</TableHead>
-                <TableHead className="px-5 py-3.5 text-[10px] font-bold uppercase tracking-wider text-slate-500">Pending</TableHead>
-                <TableHead className="px-5 py-3.5 text-[10px] font-bold uppercase tracking-wider text-slate-500">Status</TableHead>
-                <TableHead className="px-5 py-3.5 text-[10px] font-bold uppercase tracking-wider text-slate-500">Payment Date</TableHead>
-                <TableHead className="px-5 py-3.5 text-[10px] font-bold uppercase tracking-wider text-slate-500">Remarks</TableHead>
+                <TableHead className="px-5 py-3.5 text-[10px] font-bold uppercase tracking-wider text-slate-600">Tutor</TableHead>
+                <TableHead className="px-5 py-3.5 text-[10px] font-bold uppercase tracking-wider text-slate-600">Period</TableHead>
+                <TableHead className="px-5 py-3.5 text-[10px] font-bold uppercase tracking-wider text-slate-600">Total</TableHead>
+                <TableHead className="px-5 py-3.5 text-[10px] font-bold uppercase tracking-wider text-slate-600">Paid</TableHead>
+                <TableHead className="px-5 py-3.5 text-[10px] font-bold uppercase tracking-wider text-slate-600">Pending</TableHead>
+                <TableHead className="px-5 py-3.5 text-[10px] font-bold uppercase tracking-wider text-slate-600">Status</TableHead>
+                <TableHead className="px-5 py-3.5 text-[10px] font-bold uppercase tracking-wider text-slate-600">Payment Date</TableHead>
+                <TableHead className="px-5 py-3.5 text-[10px] font-bold uppercase tracking-wider text-slate-600">Remarks</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody className="divide-y divide-slate-100">
@@ -181,7 +181,7 @@ export default function PayrollManager() {
                     <TableCell className="px-5 py-4">
                       <div>
                         <p className="text-xs font-bold text-slate-800">{r.tutor?.name ?? "Unknown Tutor"}</p>
-                        {r.tutor?.email && <p className="text-[10px] text-slate-400 mt-0.5">{r.tutor.email}</p>}
+                        {r.tutor?.email && <p className="text-[10px] text-slate-600 mt-0.5">{r.tutor.email}</p>}
                       </div>
                     </TableCell>
                     <TableCell className="px-5 py-4 text-xs font-semibold text-slate-700">
@@ -204,17 +204,17 @@ export default function PayrollManager() {
                         {r.status}
                       </Badge>
                     </TableCell>
-                    <TableCell className="px-5 py-4 text-xs text-slate-500">
+                    <TableCell className="px-5 py-4 text-xs text-slate-600">
                       {r.paymentDate ? format(parseISO(r.paymentDate), "dd MMM yyyy") : "—"}
                     </TableCell>
-                    <TableCell className="px-5 py-4 text-xs text-slate-500 max-w-[160px] truncate" title={r.remarks}>
+                    <TableCell className="px-5 py-4 text-xs text-slate-600 max-w-[160px] truncate" title={r.remarks}>
                       {r.remarks || "—"}
                     </TableCell>
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={8} className="py-16 text-center text-sm text-slate-400">
+                  <TableCell colSpan={8} className="py-16 text-center text-sm text-slate-600">
                     {hasFilters ? "No records match your filters." : "No salary records found."}
                   </TableCell>
                 </TableRow>
@@ -226,7 +226,7 @@ export default function PayrollManager() {
         {/* Pagination */}
         {total > 0 && (
           <div className="flex items-center justify-between px-5 py-3.5 border-t border-slate-100 bg-slate-50/30">
-            <p className="text-[11px] text-slate-500 font-medium">
+            <p className="text-[11px] text-slate-600 font-medium">
               Showing {records.length === 0 ? 0 : (page - 1) * PAGE_LIMIT + 1}–{Math.min(page * PAGE_LIMIT, total)} of {total} records
             </p>
             <div className="flex items-center gap-1.5">
@@ -235,7 +235,7 @@ export default function PayrollManager() {
                 size="icon-sm"
                 onClick={() => setPage((p) => p - 1)}
                 disabled={page <= 1}
-                className="h-7 w-7 rounded-lg border-slate-200 text-slate-500 disabled:opacity-40"
+                className="h-7 w-7 rounded-lg border-slate-200 text-slate-600 disabled:opacity-40"
               >
                 <ChevronLeft className="w-3.5 h-3.5" />
               </Button>
@@ -245,7 +245,7 @@ export default function PayrollManager() {
                 size="icon-sm"
                 onClick={() => setPage((p) => p + 1)}
                 disabled={page >= totalPages}
-                className="h-7 w-7 rounded-lg border-slate-200 text-slate-500 disabled:opacity-40"
+                className="h-7 w-7 rounded-lg border-slate-200 text-slate-600 disabled:opacity-40"
               >
                 <ChevronRight className="w-3.5 h-3.5" />
               </Button>

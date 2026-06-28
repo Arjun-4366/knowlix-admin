@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { X, Trophy, Loader2 } from "lucide-react";
@@ -98,12 +98,12 @@ export function AwardGrowthPointsDialog({ tutorId, open, onClose }: AwardGrowthP
             </div>
             <div>
               <h3 className="font-bold text-slate-800 text-base">Award Growth Points</h3>
-              <p className="text-[10px] text-slate-400 font-semibold mt-0.5">Each score is 0–5 per category</p>
+              <p className="text-[10px] text-slate-600 font-semibold mt-0.5">Each score is 0–5 per category</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors"
+            className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-600 hover:text-slate-600 transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -112,7 +112,7 @@ export function AwardGrowthPointsDialog({ tutorId, open, onClose }: AwardGrowthP
         <form onSubmit={handleSubmit} className="p-6 space-y-5">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label className="text-[10px] uppercase font-bold text-slate-500">Month</Label>
+              <Label className="text-[10px] uppercase font-bold text-slate-600">Month</Label>
               <Select value={month} onValueChange={setMonth}>
                 <SelectTrigger className="h-9 text-sm font-semibold bg-slate-50 border-slate-200">
                   <SelectValue />
@@ -125,7 +125,7 @@ export function AwardGrowthPointsDialog({ tutorId, open, onClose }: AwardGrowthP
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-[10px] uppercase font-bold text-slate-500">Year</Label>
+              <Label className="text-[10px] uppercase font-bold text-slate-600">Year</Label>
               <Select value={year} onValueChange={setYear}>
                 <SelectTrigger className="h-9 text-sm font-semibold bg-slate-50 border-slate-200">
                   <SelectValue />
@@ -141,7 +141,7 @@ export function AwardGrowthPointsDialog({ tutorId, open, onClose }: AwardGrowthP
 
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label className="text-[10px] uppercase font-bold text-slate-500">G-R-O-W-T-H Scores</Label>
+              <Label className="text-[10px] uppercase font-bold text-slate-600">G-R-O-W-T-H Scores</Label>
               <span className="text-[10px] font-bold text-[var(--brand-green)] bg-[var(--brand-light-green)] px-2 py-0.5 rounded-md border border-[var(--brand-green)]/20">
                 Total: {total} / 30 pts
               </span>
@@ -149,7 +149,7 @@ export function AwardGrowthPointsDialog({ tutorId, open, onClose }: AwardGrowthP
             <div className="grid grid-cols-3 gap-3">
               {GROWTH_KEYS.map((key) => (
                 <div key={key} className="space-y-1">
-                  <Label className="text-[10px] font-bold text-slate-500 uppercase">
+                  <Label className="text-[10px] font-bold text-slate-600 uppercase">
                     {key} — {GROWTH_LABELS[key]}
                   </Label>
                   <Input
@@ -166,7 +166,7 @@ export function AwardGrowthPointsDialog({ tutorId, open, onClose }: AwardGrowthP
           </div>
 
           <div className="space-y-1.5">
-            <Label className="text-[10px] uppercase font-bold text-slate-500">Description</Label>
+            <Label className="text-[10px] uppercase font-bold text-slate-600">Description</Label>
             <Textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}

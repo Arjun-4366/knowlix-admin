@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import { Award, Search, Trash2, Check, Sparkles, X, Lock } from "lucide-react";
@@ -261,7 +261,7 @@ export default function TutorEvaluationManager({
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {/* Select Student */}
                   <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                    <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
                       Select Student
                     </label>
                     <Select value={selectedStudentId} onValueChange={setSelectedStudentId}>
@@ -280,7 +280,7 @@ export default function TutorEvaluationManager({
 
                   {/* Assessment Type */}
                   <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                    <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
                       Assessment Type
                     </label>
                     <Select
@@ -299,7 +299,7 @@ export default function TutorEvaluationManager({
 
                   {/* Specific Assessment Name */}
                   <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                    <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
                       Select Task
                     </label>
                     {currentAssessments.length > 0 ? (
@@ -316,7 +316,7 @@ export default function TutorEvaluationManager({
                         </SelectContent>
                       </Select>
                     ) : (
-                      <div className="h-10 flex items-center px-3 border border-dashed border-slate-250 bg-slate-50/50 rounded-xl text-xs text-slate-400 font-semibold">
+                      <div className="h-10 flex items-center px-3 border border-dashed border-slate-250 bg-slate-50/50 rounded-xl text-xs text-slate-600 font-semibold">
                         No {assessmentType.toLowerCase()}s found
                       </div>
                     )}
@@ -326,20 +326,20 @@ export default function TutorEvaluationManager({
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {/* Maximum Marks — locked from the selected assessment */}
                   <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                    <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
                       Maximum Marks
                     </label>
                     <div className="h-10 flex items-center justify-between px-3 bg-slate-50 border border-slate-200 rounded-xl">
                       <span className="text-sm font-bold text-slate-700">
                         {currentAssessments.find((a) => a.id === selectedAssessmentId)?.maxMarks ?? "—"}
                       </span>
-                      <Lock className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+                      <Lock className="w-3.5 h-3.5 text-slate-600 flex-shrink-0" />
                     </div>
                   </div>
 
                   {/* Obtained Marks */}
                   <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                    <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
                       Obtained Marks
                     </label>
                     <Input
@@ -356,7 +356,7 @@ export default function TutorEvaluationManager({
 
                   {/* Select Grade */}
                   <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                    <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
                       Select Grade
                     </label>
                     <Select value={grade} onValueChange={setGrade}>
@@ -376,7 +376,7 @@ export default function TutorEvaluationManager({
 
                 {/* Remarks */}
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
                     Performance Remarks
                   </label>
                   <Textarea
@@ -404,7 +404,7 @@ export default function TutorEvaluationManager({
                 </div>
               </form>
             ) : (
-              <div className="p-8 text-center text-slate-450 text-sm">
+              <div className="p-8 text-center text-slate-600 text-sm">
                 You do not have any approved, active students assigned to you to evaluate.
               </div>
             )}
@@ -417,7 +417,7 @@ export default function TutorEvaluationManager({
         {/* Search header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-50/50 p-4 rounded-2xl border border-slate-150">
           <div className="relative w-full">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 z-10" />
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600 z-10" />
             <Input
               type="text"
               placeholder="Search evaluation by student or task name..."
@@ -433,16 +433,16 @@ export default function TutorEvaluationManager({
           <Table className="table-fixed w-full">
             <TableHeader className="bg-slate-50/50">
               <TableRow>
-                <TableHead className="px-5 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[35%]">
+                <TableHead className="px-5 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[35%]">
                   Student & Task
                 </TableHead>
-                <TableHead className="px-5 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[25%]">
+                <TableHead className="px-5 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[25%]">
                   Score
                 </TableHead>
-                <TableHead className="px-5 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[18%]">
+                <TableHead className="px-5 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[18%]">
                   Grade
                 </TableHead>
-                <TableHead className="px-5 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right w-[22%]">
+                <TableHead className="px-5 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-right w-[22%]">
                   Actions
                 </TableHead>
               </TableRow>
@@ -456,7 +456,7 @@ export default function TutorEvaluationManager({
                       <p className="text-sm font-bold text-slate-750 truncate leading-none">
                         {ev.studentName}
                       </p>
-                      <span className="text-[10px] text-slate-400 font-semibold block mt-1.5 truncate">
+                      <span className="text-[10px] text-slate-600 font-semibold block mt-1.5 truncate">
                         {ev.assessmentType}: {ev.assessmentTitle}
                       </span>
                     </TableCell>
@@ -466,7 +466,7 @@ export default function TutorEvaluationManager({
                       <span className="text-sm font-semibold text-slate-650">
                         {ev.obtainedMarks} / {ev.maxMarks}
                       </span>
-                      <span className="text-[10px] text-slate-400 block mt-0.5">
+                      <span className="text-[10px] text-slate-600 block mt-0.5">
                         ({Math.round((ev.obtainedMarks / ev.maxMarks) * 100)}%)
                       </span>
                     </TableCell>
@@ -489,7 +489,7 @@ export default function TutorEvaluationManager({
                         {ev.remarks && (
                           <span
                             title={ev.remarks}
-                            className="text-[10px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md cursor-help max-w-[80px] truncate"
+                            className="text-[10px] font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md cursor-help max-w-[80px] truncate"
                           >
                             Remarks
                           </span>
@@ -499,7 +499,7 @@ export default function TutorEvaluationManager({
                           size="icon-sm"
                           onClick={() => handleDelete(ev.id, ev.studentName, ev.assessmentTitle)}
                           title="Delete Evaluation"
-                          className="rounded-lg text-slate-450 hover:text-red-650 hover:bg-red-50 transition-all cursor-pointer"
+                          className="rounded-lg text-slate-600 hover:text-red-650 hover:bg-red-50 transition-all cursor-pointer"
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
@@ -511,7 +511,7 @@ export default function TutorEvaluationManager({
                 <TableRow>
                   <TableCell
                     colSpan={4}
-                    className="px-5 py-12 text-center text-slate-450 text-sm"
+                    className="px-5 py-12 text-center text-slate-600 text-sm"
                   >
                     No evaluation records found matching search.
                   </TableCell>

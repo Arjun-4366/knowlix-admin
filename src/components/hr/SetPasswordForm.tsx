@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { X, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -34,14 +34,14 @@ export default function SetPasswordForm({
           <h3 className="font-bold text-slate-800 text-lg">
             Change Password
           </h3>
-          <p className="text-xs text-slate-450 mt-0.5">
+          <p className="text-xs text-slate-600 mt-0.5">
             Update the HR member's password.
           </p>
         </div>
         <button
           onClick={onClose}
           disabled={isSubmitting}
-          className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer disabled:opacity-50"
+          className="p-1.5 rounded-lg text-slate-600 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer disabled:opacity-50"
         >
           <X className="w-5 h-5" />
         </button>
@@ -50,7 +50,7 @@ export default function SetPasswordForm({
       {/* Form */}
       <form onSubmit={handleSubmit} className="p-6 space-y-4">
         <div className="space-y-1.5">
-          <Label className="text-xs font-semibold text-slate-500">New Password *</Label>
+          <Label className="text-xs font-semibold text-slate-600">New Password *</Label>
           <Input
             type="password"
             required
@@ -68,7 +68,7 @@ export default function SetPasswordForm({
             variant="outline"
             disabled={isSubmitting}
             onClick={onClose}
-            className="px-4 py-2 border border-slate-200 rounded-xl text-slate-500 hover:bg-slate-50"
+            className="px-4 py-2 border border-slate-200 rounded-xl text-slate-600 hover:bg-slate-50"
           >
             Cancel
           </Button>

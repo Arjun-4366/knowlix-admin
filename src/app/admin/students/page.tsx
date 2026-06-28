@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -170,7 +170,7 @@ function StudentsContent() {
       {/* Filter UI */}
       <div className="flex flex-col sm:flex-row gap-4 mb-6">
         <div className="relative flex-1 bg-white">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-600" />
           <Input 
             placeholder="Search students by name, email..." 
             value={searchInput}
@@ -232,7 +232,7 @@ function StudentsContent() {
       {/* Pagination */}
       {!isLoading && (studentsResponse?.totalPages ?? 1) > 1 && (
         <div className="flex items-center justify-between pt-2">
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-slate-600">
             Page {page} of {studentsResponse?.totalPages ?? 1} &mdash; {studentsResponse?.total ?? 0} students
           </p>
           <div className="flex items-center gap-2">

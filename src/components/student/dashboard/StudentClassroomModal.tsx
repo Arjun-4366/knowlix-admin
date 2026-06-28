@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Laptop, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -33,7 +33,7 @@ export default function StudentClassroomModal({
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+            className="p-1.5 rounded-lg text-slate-600 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -43,14 +43,14 @@ export default function StudentClassroomModal({
         <div className="p-6 space-y-6">
           <div className="aspect-video bg-black rounded-xl border border-slate-800 flex flex-col items-center justify-center relative overflow-hidden shadow-inner">
             {/* Simulated webcam stream */}
-            <div className="absolute top-4 right-4 w-28 h-20 bg-slate-850 rounded-lg border border-slate-700 flex items-center justify-center text-[10px] font-bold text-slate-400">
+            <div className="absolute top-4 right-4 w-28 h-20 bg-slate-850 rounded-lg border border-slate-700 flex items-center justify-center text-[10px] font-bold text-slate-600">
               You (Rahul)
             </div>
 
             <div className="w-16 h-16 rounded-full bg-[var(--brand-green)]/15 border border-[var(--brand-green)]/35 flex items-center justify-center text-[var(--brand-green)] text-2xl font-black animate-pulse">
               {activeClass.tutor.split(" ").pop()?.charAt(0)}
             </div>
-            <p className="text-xs font-bold text-slate-200 mt-4">{activeClass.tutor}</p>
+            <p className="text-xs font-bold text-slate-600 mt-4">{activeClass.tutor}</p>
             <p className="text-[10px] text-[var(--brand-green)] font-semibold flex items-center gap-1.5 mt-1.5">
               <span className="w-2 h-2 rounded-full bg-[var(--brand-green)] animate-ping"></span>
               Presenting: Screen Share Active
@@ -59,12 +59,12 @@ export default function StudentClassroomModal({
 
           <div className="bg-slate-950/60 p-4 border border-slate-850 rounded-xl flex items-center justify-between text-xs">
             <div>
-              <span className="text-[9px] font-black text-slate-400 uppercase block">Active Course Unit</span>
-              <p className="font-bold mt-1 text-slate-100">{activeClass.subject}: {activeClass.topic}</p>
+              <span className="text-[9px] font-black text-slate-600 uppercase block">Active Course Unit</span>
+              <p className="font-bold mt-1 text-slate-600">{activeClass.subject}: {activeClass.topic}</p>
             </div>
             <div className="text-right">
-              <span className="text-[9px] font-black text-slate-450 uppercase block">Meeting ID</span>
-              <p className="font-mono font-bold mt-1 text-slate-350">{activeClass.id}</p>
+              <span className="text-[9px] font-black text-slate-600 uppercase block">Meeting ID</span>
+              <p className="font-mono font-bold mt-1 text-slate-600">{activeClass.id}</p>
             </div>
           </div>
 

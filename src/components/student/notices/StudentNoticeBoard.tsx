@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useRef } from "react";
 import { Megaphone, FileText, Calendar, Search, Filter, ChevronLeft, ChevronRight, Bell } from "lucide-react";
@@ -66,7 +66,7 @@ export default function StudentNoticeBoard() {
         <div className="flex flex-wrap items-center gap-3 flex-1">
           {/* Search */}
           <div className="relative flex-1 min-w-[220px]">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600" />
             <Input
               type="text"
               placeholder="Search by title or content..."
@@ -78,7 +78,7 @@ export default function StudentNoticeBoard() {
 
           {/* Category filter pills */}
           <div className="flex items-center gap-1.5">
-            <Filter className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+            <Filter className="w-3.5 h-3.5 text-slate-600 flex-shrink-0" />
             {(["all", "announcement", "notice"] as CategoryFilter[]).map((cat) => (
               <button
                 key={cat}
@@ -97,7 +97,7 @@ export default function StudentNoticeBoard() {
         </div>
 
         {total > 0 && (
-          <span className="text-xs font-semibold text-slate-400 flex-shrink-0">
+          <span className="text-xs font-semibold text-slate-600 flex-shrink-0">
             {total} result{total !== 1 ? "s" : ""}
           </span>
         )}
@@ -110,10 +110,10 @@ export default function StudentNoticeBoard() {
         </div>
       ) : items.length === 0 ? (
         <div className="flex flex-col items-center justify-center min-h-[30vh] bg-white border border-slate-150 rounded-2xl shadow-sm">
-          <Bell className="w-10 h-10 text-slate-200 mb-3" />
-          <p className="text-sm font-semibold text-slate-400">No notices found</p>
+          <Bell className="w-10 h-10 text-slate-600 mb-3" />
+          <p className="text-sm font-semibold text-slate-600">No notices found</p>
           {debouncedSearch && (
-            <p className="text-xs text-slate-400 mt-1">Try a different search term</p>
+            <p className="text-xs text-slate-600 mt-1">Try a different search term</p>
           )}
         </div>
       ) : (
@@ -149,7 +149,7 @@ export default function StudentNoticeBoard() {
                   </Badge>
 
                   {item.department && (
-                    <Badge variant="outline" className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-slate-50 text-slate-500 border-slate-200">
+                    <Badge variant="outline" className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-slate-50 text-slate-600 border-slate-200">
                       {item.department}
                     </Badge>
                   )}
@@ -158,13 +158,13 @@ export default function StudentNoticeBoard() {
                 {/* Title & Content */}
                 <div className="space-y-1.5">
                   <h3 className="text-sm font-bold text-slate-800 leading-tight">{item.title}</h3>
-                  <p className="text-xs text-slate-500 leading-relaxed line-clamp-3">{item.content}</p>
+                  <p className="text-xs text-slate-600 leading-relaxed line-clamp-3">{item.content}</p>
                 </div>
               </CardContent>
 
               {/* Footer */}
-              <div className="px-5 py-3 bg-slate-50/50 border-t border-slate-100 flex items-center justify-between text-[10px] font-semibold text-slate-400">
-                <span className="capitalize bg-slate-100 px-2 py-0.5 rounded-full text-slate-500">
+              <div className="px-5 py-3 bg-slate-50/50 border-t border-slate-100 flex items-center justify-between text-[10px] font-semibold text-slate-600">
+                <span className="capitalize bg-slate-100 px-2 py-0.5 rounded-full text-slate-600">
                   {item.audience}
                 </span>
                 <div className="flex items-center gap-1">
@@ -192,7 +192,7 @@ export default function StudentNoticeBoard() {
           >
             <ChevronLeft className="w-4 h-4 mr-1" /> Previous
           </Button>
-          <span className="text-xs font-bold text-slate-500 px-2">
+          <span className="text-xs font-bold text-slate-600 px-2">
             {page} / {totalPages}
           </span>
           <Button

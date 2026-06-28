@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useRef } from "react";
 import { Plus, Trash2, Download, Settings2 } from "lucide-react";
@@ -220,7 +220,7 @@ export default function TutorReportGenerator({
 
               {/* Report Type */}
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Report Type</label>
+                <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Report Type</label>
                 <Select
                   value={activeTemplateId}
                   onValueChange={(v) => setActiveTemplateId(v as "monthly" | "five-month" | "annual")}
@@ -239,7 +239,7 @@ export default function TutorReportGenerator({
               {/* Month (only for Monthly) */}
               {activeTemplateId === "monthly" && (
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Month</label>
+                  <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Month</label>
                   <Select value={selectedMonth} onValueChange={setSelectedMonth}>
                     <SelectTrigger className="h-9 bg-white border-slate-200 rounded-lg text-sm font-medium">
                       <SelectValue />
@@ -255,7 +255,7 @@ export default function TutorReportGenerator({
 
               {/* Academic Year */}
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Academic Year</label>
+                <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Academic Year</label>
                 <Input
                   value={academicYear}
                   onChange={(e) => setAcademicYear(e.target.value)}
@@ -266,7 +266,7 @@ export default function TutorReportGenerator({
 
               {/* Student */}
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Student</label>
+                <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Student</label>
                 {students.length > 0 ? (
                   <>
                     <Select value={selectedStudentId} onValueChange={setSelectedStudentId}>
@@ -282,7 +282,7 @@ export default function TutorReportGenerator({
                       </SelectContent>
                     </Select>
                     {selectedStudent && (
-                      <p className="text-[10px] text-slate-400 font-medium px-1">
+                      <p className="text-[10px] text-slate-600 font-medium px-1">
                         Program: <span className="font-semibold text-slate-600">{selectedStudent.programName || "—"}</span>
                         {" "}· Adm: <span className="font-semibold text-slate-600">{selectedStudent.admissionNo}</span>
                       </p>
@@ -297,7 +297,7 @@ export default function TutorReportGenerator({
 
               {/* Exam Title */}
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Exam Title</label>
+                <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Exam Title</label>
                 <Input
                   value={examTitle}
                   onChange={(e) => setExamTitle(e.target.value)}
@@ -308,7 +308,7 @@ export default function TutorReportGenerator({
 
               {/* Issue Date */}
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Issue Date</label>
+                <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Issue Date</label>
                 <Input
                   type="date"
                   value={issueDate}
@@ -346,7 +346,7 @@ export default function TutorReportGenerator({
             </Button>
           </div>
 
-          <div className="rounded-2xl overflow-hidden shadow-sm">
+          <div className="rounded-2xl shadow-sm">
             <div ref={previewRef}>
               <GradeCardPreview report={liveReport} />
             </div>
@@ -373,21 +373,21 @@ export default function TutorReportGenerator({
           <table className="w-full">
             <thead>
               <tr className="bg-slate-50/60 border-b border-slate-100">
-                <th className="px-5 py-3 text-left text-[10px] font-bold text-slate-500 uppercase tracking-wider w-[28%]">
+                <th className="px-5 py-3 text-left text-[10px] font-bold text-slate-600 uppercase tracking-wider w-[28%]">
                   Subject
                 </th>
-                <th className="px-4 py-3 text-center text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                <th className="px-4 py-3 text-center text-[10px] font-bold text-slate-600 uppercase tracking-wider">
                   FA Max
                 </th>
-                <th className="px-4 py-3 text-center text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                <th className="px-4 py-3 text-center text-[10px] font-bold text-slate-600 uppercase tracking-wider">
                   FA Scored
                 </th>
                 {isAnnual && (
                   <>
-                    <th className="px-4 py-3 text-center text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-center text-[10px] font-bold text-slate-600 uppercase tracking-wider">
                       SA Max
                     </th>
-                    <th className="px-4 py-3 text-center text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-center text-[10px] font-bold text-slate-600 uppercase tracking-wider">
                       SA Scored
                     </th>
                   </>
@@ -483,7 +483,7 @@ export default function TutorReportGenerator({
                         type="button"
                         onClick={() => removeSubject(i)}
                         disabled={subjects.length === 1}
-                        className="p-1 rounded text-slate-300 hover:text-red-500 transition-colors disabled:opacity-20 disabled:pointer-events-none cursor-pointer"
+                        className="p-1 rounded text-slate-600 hover:text-red-500 transition-colors disabled:opacity-20 disabled:pointer-events-none cursor-pointer"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>

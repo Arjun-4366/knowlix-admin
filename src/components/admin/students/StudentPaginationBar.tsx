@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+﻿import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface Props {
@@ -17,7 +17,7 @@ export default function StudentPaginationBar({ page, totalPages, total, limit, o
 
   return (
     <div className="flex items-center justify-between pt-4 border-t border-slate-100 mt-2">
-      <p className="text-xs text-slate-500">
+      <p className="text-xs text-slate-600">
         Showing {from}–{to} of {total}
       </p>
       <div className="flex items-center gap-1.5">

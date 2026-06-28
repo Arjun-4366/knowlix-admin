@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { ThumbsDown, ThumbsUp } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -42,7 +42,7 @@ export function TutorRemarksCard({ positiveRemarks, negativeRemarks }: TutorRema
             <ThumbsUp className="w-3 h-3" /> Positive Remarks
           </p>
           {positive.length === 0 ? (
-            <p className="text-xs text-slate-400 italic">No positive remarks recorded.</p>
+            <p className="text-xs text-slate-600 italic">No positive remarks recorded.</p>
           ) : (
             <ul className="space-y-2">
               {positive.map((r, i) => (
@@ -63,7 +63,7 @@ export function TutorRemarksCard({ positiveRemarks, negativeRemarks }: TutorRema
             <ThumbsDown className="w-3 h-3" /> Areas of Improvement
           </p>
           {negative.length === 0 ? (
-            <p className="text-xs text-slate-400 italic">No areas of improvement recorded.</p>
+            <p className="text-xs text-slate-600 italic">No areas of improvement recorded.</p>
           ) : (
             <ul className="space-y-2">
               {negative.map((r, i) => (

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useMemo, Suspense } from "react";
 import { Plus, Search, Trash2, ShieldAlert, KeyRound, Briefcase, Mail, Phone, Users } from "lucide-react";
@@ -138,7 +138,7 @@ function HrContent() {
       {/* Filters */}
       <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100/60 flex flex-col sm:flex-row gap-4 justify-between items-center z-10 relative">
         <div className="relative w-full sm:w-96">
-          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-600" />
           <Input
             placeholder="Search by name, email, phone, or dept..."
             value={searchQuery}
@@ -190,9 +190,9 @@ function HrContent() {
               ) : filteredHRs.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={6} className="h-[400px] text-center">
-                    <div className="flex flex-col items-center justify-center text-slate-400 space-y-3">
+                    <div className="flex flex-col items-center justify-center text-slate-600 space-y-3">
                       <div className="w-16 h-16 rounded-full bg-slate-50 flex items-center justify-center">
-                        <Users className="w-8 h-8 text-slate-300" />
+                        <Users className="w-8 h-8 text-slate-600" />
                       </div>
                       <p className="text-sm">No HR members found.</p>
                       {(searchQuery || roleFilter !== "All") && (
@@ -226,7 +226,7 @@ function HrContent() {
                         </div>
                         <div>
                           <div className="font-semibold text-slate-800">{hr.name}</div>
-                          <div className="text-xs text-slate-400 mt-0.5 flex items-center gap-1">
+                          <div className="text-xs text-slate-600 mt-0.5 flex items-center gap-1">
                             Added {new Date(hr.createdAt).toLocaleDateString()}
                           </div>
                         </div>
@@ -236,13 +236,13 @@ function HrContent() {
                     <TableCell>
                       <div className="space-y-1.5">
                         <div className="flex items-center gap-2 text-sm text-slate-600">
-                          <Mail className="w-3.5 h-3.5 text-slate-400" />
+                          <Mail className="w-3.5 h-3.5 text-slate-600" />
                           <a href={`mailto:${hr.email}`} className="hover:text-[var(--brand-green)] transition-colors truncate max-w-[150px]">
                             {hr.email}
                           </a>
                         </div>
                         <div className="flex items-center gap-2 text-sm text-slate-600">
-                          <Phone className="w-3.5 h-3.5 text-slate-400" />
+                          <Phone className="w-3.5 h-3.5 text-slate-600" />
                           {hr.phone}
                         </div>
                       </div>
@@ -250,7 +250,7 @@ function HrContent() {
 
                     <TableCell>
                       <div className="flex items-center gap-2 text-sm text-slate-600">
-                        <Briefcase className="w-4 h-4 text-slate-400" />
+                        <Briefcase className="w-4 h-4 text-slate-600" />
                         {hr.department}
                       </div>
                     </TableCell>
@@ -285,7 +285,7 @@ function HrContent() {
                           variant="ghost"
                           size="sm"
                           onClick={() => setPasswordModalHrId(hr.id)}
-                          className="h-8 w-8 cursor-pointer p-0 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg"
+                          className="h-8 w-8 cursor-pointer p-0 text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg"
                           title="Set Password"
                         >
                           <KeyRound className="w-4 h-4" />
@@ -294,7 +294,7 @@ function HrContent() {
                           variant="ghost"
                           size="sm"
                           onClick={() => handleDeleteHr(hr.id)}
-                          className="h-8 cursor-pointer w-8 p-0 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg"
+                          className="h-8 cursor-pointer w-8 p-0 text-slate-600 hover:text-red-600 hover:bg-red-50 rounded-lg"
                           title="Delete HR"
                         >
                           <Trash2 className="w-4 h-4" />

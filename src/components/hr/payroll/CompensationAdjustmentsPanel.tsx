@@ -1,4 +1,4 @@
-import { Clock3, TrendingDown, TrendingUp } from "lucide-react";
+﻿import { Clock3, TrendingDown, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -44,7 +44,7 @@ export default function CompensationAdjustmentsPanel({
       <div className="p-5 border-b border-slate-100 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <h2 className="text-sm font-bold text-slate-850">Bonuses & Deductions</h2>
-          <p className="text-xs text-slate-500 mt-1">
+          <p className="text-xs text-slate-600 mt-1">
             {cycleLabel} variable pay ledger, deduction approvals, and final
             payroll adjustments.
           </p>
@@ -64,35 +64,35 @@ export default function CompensationAdjustmentsPanel({
       <div className="p-5 space-y-5">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div className="rounded-2xl border border-slate-150 bg-slate-50/50 p-4">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-450">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-600">
               Bonus Value
             </p>
             <p className="text-lg font-bold text-emerald-700 mt-2">
               {formatCurrency(bonusTotal)}
             </p>
-            <p className="text-[11px] text-slate-500 mt-1 inline-flex items-center gap-1">
+            <p className="text-[11px] text-slate-600 mt-1 inline-flex items-center gap-1">
               <TrendingUp className="w-3.5 h-3.5" />
               Applied plus approved variable additions
             </p>
           </div>
           <div className="rounded-2xl border border-slate-150 bg-slate-50/50 p-4">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-450">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-600">
               Deduction Value
             </p>
             <p className="text-lg font-bold text-rose-700 mt-2">
               {formatCurrency(deductionTotal)}
             </p>
-            <p className="text-[11px] text-slate-500 mt-1 inline-flex items-center gap-1">
+            <p className="text-[11px] text-slate-600 mt-1 inline-flex items-center gap-1">
               <TrendingDown className="w-3.5 h-3.5" />
               Recoveries tied to payroll and attendance governance
             </p>
           </div>
           <div className="rounded-2xl border border-slate-150 bg-slate-50/50 p-4">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-450">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-600">
               Pending Approvals
             </p>
             <p className="text-lg font-bold text-slate-800 mt-2">{pendingCount}</p>
-            <p className="text-[11px] text-slate-500 mt-1 inline-flex items-center gap-1">
+            <p className="text-[11px] text-slate-600 mt-1 inline-flex items-center gap-1">
               <Clock3 className="w-3.5 h-3.5" />
               Items still open before the payroll lock date
             </p>
@@ -111,7 +111,7 @@ export default function CompensationAdjustmentsPanel({
                     <p className="text-sm font-bold text-slate-800">
                       {adjustment.employeeName}
                     </p>
-                    <p className="text-[11px] text-slate-500">
+                    <p className="text-[11px] text-slate-600">
                       {adjustment.designation} / {adjustment.department}
                     </p>
                   </div>
@@ -140,7 +140,7 @@ export default function CompensationAdjustmentsPanel({
                     <p className="text-xs font-semibold text-slate-700">
                       {adjustment.label}
                     </p>
-                    <p className="text-[11px] text-slate-500 mt-1">
+                    <p className="text-[11px] text-slate-600 mt-1">
                       Owner: {adjustment.owner}
                     </p>
                   </div>
@@ -163,7 +163,7 @@ export default function CompensationAdjustmentsPanel({
               </div>
             ))
           ) : (
-            <div className="py-16 text-center text-sm text-slate-500">
+            <div className="py-16 text-center text-sm text-slate-600">
               No bonuses or deductions are mapped for the current filter.
             </div>
           )}

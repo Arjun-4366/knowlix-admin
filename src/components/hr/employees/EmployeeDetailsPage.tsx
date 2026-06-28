@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -128,7 +128,7 @@ export default function EmployeeDetailsPage({
           <p className="text-sm font-semibold text-slate-700">
             No employee exists for ID `{employeeId}`.
           </p>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-slate-600">
             The record may have been deleted or the URL may be incorrect.
           </p>
           <div>
@@ -225,12 +225,12 @@ export default function EmployeeDetailsPage({
             </div>
             <div className="divide-y divide-slate-100">
               {positiveRemarks.length === 0 ? (
-                <p className="px-5 py-6 text-xs text-slate-400 text-center">No positive remarks yet.</p>
+                <p className="px-5 py-6 text-xs text-slate-600 text-center">No positive remarks yet.</p>
               ) : (
                 positiveRemarks.map((r, i) => (
                   <div key={i} className="px-5 py-4 space-y-1">
                     <p className="text-xs text-slate-700 leading-relaxed">{r.text}</p>
-                    <p className="text-[10px] text-slate-400 font-semibold">
+                    <p className="text-[10px] text-slate-600 font-semibold">
                       — {r.addedBy} &middot;{" "}
                       {new Date(r.addedAt).toLocaleDateString("en-IN", {
                         day: "2-digit", month: "short", year: "numeric",
@@ -255,12 +255,12 @@ export default function EmployeeDetailsPage({
             </div>
             <div className="divide-y divide-slate-100">
               {negativeRemarks.length === 0 ? (
-                <p className="px-5 py-6 text-xs text-slate-400 text-center">No negative remarks yet.</p>
+                <p className="px-5 py-6 text-xs text-slate-600 text-center">No negative remarks yet.</p>
               ) : (
                 negativeRemarks.map((r, i) => (
                   <div key={i} className="px-5 py-4 space-y-1">
                     <p className="text-xs text-slate-700 leading-relaxed">{r.text}</p>
-                    <p className="text-[10px] text-slate-400 font-semibold">
+                    <p className="text-[10px] text-slate-600 font-semibold">
                       — {r.addedBy} &middot;{" "}
                       {new Date(r.addedAt).toLocaleDateString("en-IN", {
                         day: "2-digit", month: "short", year: "numeric",
@@ -322,12 +322,12 @@ function AddRemarkDialog({ tutorName, isSubmitting, onClose, onSubmit }: AddRema
         <div className="px-6 py-5 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
           <div>
             <h3 className="font-bold text-slate-800 text-sm">Add Remark</h3>
-            <p className="text-[11px] text-slate-400 mt-0.5">{tutorName}</p>
+            <p className="text-[11px] text-slate-600 mt-0.5">{tutorName}</p>
           </div>
           <button
             onClick={onClose}
             disabled={isSubmitting}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer disabled:opacity-50"
+            className="p-1.5 rounded-lg text-slate-600 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer disabled:opacity-50"
           >
             <span className="sr-only">Close</span>
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -339,7 +339,7 @@ function AddRemarkDialog({ tutorName, isSubmitting, onClose, onSubmit }: AddRema
         <form onSubmit={handleSubmit} className="p-6 space-y-5">
           {/* Type toggle */}
           <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Remark Type</label>
+            <label className="text-xs font-bold text-slate-600 uppercase tracking-wider block">Remark Type</label>
             <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
@@ -347,7 +347,7 @@ function AddRemarkDialog({ tutorName, isSubmitting, onClose, onSubmit }: AddRema
                 className={`flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
                   type === "positive"
                     ? "bg-emerald-50 text-emerald-700 border-emerald-300"
-                    : "bg-white text-slate-500 border-slate-200 hover:bg-slate-50"
+                    : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
                 }`}
               >
                 <ThumbsUp className="w-3.5 h-3.5" /> Positive
@@ -358,7 +358,7 @@ function AddRemarkDialog({ tutorName, isSubmitting, onClose, onSubmit }: AddRema
                 className={`flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
                   type === "negative"
                     ? "bg-red-50 text-red-600 border-red-300"
-                    : "bg-white text-slate-500 border-slate-200 hover:bg-slate-50"
+                    : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
                 }`}
               >
                 <ThumbsDown className="w-3.5 h-3.5" /> Negative
@@ -368,7 +368,7 @@ function AddRemarkDialog({ tutorName, isSubmitting, onClose, onSubmit }: AddRema
 
           {/* Text */}
           <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Remark *</label>
+            <label className="text-xs font-bold text-slate-600 uppercase tracking-wider block">Remark *</label>
             <Textarea
               value={text}
               onChange={(e) => setText(e.target.value)}
@@ -391,7 +391,7 @@ function AddRemarkDialog({ tutorName, isSubmitting, onClose, onSubmit }: AddRema
               variant="outline"
               disabled={isSubmitting}
               onClick={onClose}
-              className="px-4 text-xs font-bold border-slate-200 rounded-xl text-slate-500 hover:bg-slate-50"
+              className="px-4 text-xs font-bold border-slate-200 rounded-xl text-slate-600 hover:bg-slate-50"
             >
               Cancel
             </Button>

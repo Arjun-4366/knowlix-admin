@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { format, parseISO } from "date-fns";
@@ -44,7 +44,7 @@ export default function LeaveRequestBoard({
     <Card className="bg-white border border-slate-150 rounded-2xl shadow-sm overflow-hidden h-full">
       <div className="p-5 border-b border-slate-100">
         <h2 className="text-sm font-bold text-slate-850">Leave Requests & Approvals</h2>
-        <p className="text-xs text-slate-500 mt-1">
+        <p className="text-xs text-slate-600 mt-1">
           Review pending leave demand, approve cover plans, and close requests.
         </p>
         <div className="flex flex-wrap gap-2 mt-4">
@@ -57,7 +57,7 @@ export default function LeaveRequestBoard({
                 "px-3 py-1.5 rounded-full text-[10px] font-bold border transition-colors cursor-pointer",
                 activeFilter === option
                   ? "bg-[var(--brand-green)] text-white border-[var(--brand-green)]"
-                  : "bg-white text-slate-500 border-slate-200 hover:border-slate-300 hover:text-slate-700"
+                  : "bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:text-slate-700"
               )}
             >
               {option}
@@ -76,7 +76,7 @@ export default function LeaveRequestBoard({
               <div className="flex items-start justify-between gap-3">
                 <div className="space-y-1">
                   <p className="text-sm font-bold text-slate-800">{request.employeeName}</p>
-                  <p className="text-[11px] font-semibold text-slate-500">
+                  <p className="text-[11px] font-semibold text-slate-600">
                     {request.designation} • {request.department}
                   </p>
                 </div>
@@ -93,11 +93,11 @@ export default function LeaveRequestBoard({
 
               <div className="flex flex-wrap gap-2 text-[10px] font-semibold text-slate-600">
                 <span className="inline-flex items-center gap-1 rounded-full bg-white border border-slate-200 px-2.5 py-1">
-                  <CalendarRange className="w-3 h-3 text-slate-400" />
+                  <CalendarRange className="w-3 h-3 text-slate-600" />
                   {formatDateRange(request.startDate, request.endDate)}
                 </span>
                 <span className="inline-flex items-center gap-1 rounded-full bg-white border border-slate-200 px-2.5 py-1">
-                  <Clock3 className="w-3 h-3 text-slate-400" />
+                  <Clock3 className="w-3 h-3 text-slate-600" />
                   {request.days} day{request.days > 1 ? "s" : ""}
                 </span>
                 <span className="inline-flex items-center gap-1 rounded-full bg-white border border-slate-200 px-2.5 py-1">
@@ -107,7 +107,7 @@ export default function LeaveRequestBoard({
 
               <div className="space-y-2">
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-slate-450">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-slate-600">
                     Reason
                   </p>
                   <p className="text-xs text-slate-700 leading-normal mt-1">
@@ -115,7 +115,7 @@ export default function LeaveRequestBoard({
                   </p>
                 </div>
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-slate-450">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-slate-600">
                     Coverage Plan
                   </p>
                   <p className="text-xs text-slate-600 leading-normal mt-1">
@@ -125,7 +125,7 @@ export default function LeaveRequestBoard({
               </div>
 
               <div className="flex items-center justify-between gap-3 pt-1">
-                <p className="text-[10px] font-semibold text-slate-450">
+                <p className="text-[10px] font-semibold text-slate-600">
                   Requested on {format(parseISO(request.requestedOn), "dd MMM yyyy")}
                 </p>
 
@@ -156,7 +156,7 @@ export default function LeaveRequestBoard({
             </div>
           ))
         ) : (
-          <div className="py-16 text-center text-sm text-slate-500">
+          <div className="py-16 text-center text-sm text-slate-600">
             No leave requests match the current filter.
           </div>
         )}

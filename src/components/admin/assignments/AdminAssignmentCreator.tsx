@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import { Plus, Trash2, Calendar, FileText, CheckCircle2, AlertCircle, X, Search, Filter, Check, Award, Download } from "lucide-react";
@@ -288,7 +288,7 @@ export default function AdminAssignmentCreator() {
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                     {/* Title */}
                     <div className="md:col-span-2 space-y-1">
-                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                      <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
                         Assignment Title
                       </label>
                       <Input
@@ -303,7 +303,7 @@ export default function AdminAssignmentCreator() {
 
                     {/* Subject */}
                     <div className="space-y-1">
-                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                      <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
                         Subject
                       </label>
                       <Select value={newSubject} onValueChange={setNewSubject}>
@@ -322,7 +322,7 @@ export default function AdminAssignmentCreator() {
 
                     {/* Target Grade */}
                     <div className="space-y-1">
-                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                      <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
                         Target Grade
                       </label>
                       <Select value={newTargetGrade} onValueChange={setNewTargetGrade}>
@@ -343,7 +343,7 @@ export default function AdminAssignmentCreator() {
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                     {/* Due Date */}
                     <div className="space-y-1">
-                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                      <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
                         Due Date
                       </label>
                       <Input
@@ -357,7 +357,7 @@ export default function AdminAssignmentCreator() {
 
                     {/* Description */}
                     <div className="md:col-span-3 space-y-1">
-                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                      <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
                         Description / Instructions
                       </label>
                       <Textarea
@@ -389,22 +389,22 @@ export default function AdminAssignmentCreator() {
             <Table className="table-fixed w-full">
               <TableHeader className="bg-slate-50/50">
                 <TableRow>
-                  <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[10%]">
+                  <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[10%]">
                     Active
                   </TableHead>
-                  <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[35%]">
+                  <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[35%]">
                     Assignment Details
                   </TableHead>
-                  <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[18%]">
+                  <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[18%]">
                     Due Date
                   </TableHead>
-                  <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[17%]">
+                  <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[17%]">
                     Submissions
                   </TableHead>
-                  <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[12%]">
+                  <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[12%]">
                     Status
                   </TableHead>
-                  <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right w-[8%]">
+                  <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-right w-[8%]">
                     Actions
                   </TableHead>
                 </TableRow>
@@ -415,7 +415,7 @@ export default function AdminAssignmentCreator() {
                     <TableRow
                       key={asg.id}
                       className={`hover:bg-slate-50/60 transition-colors ${
-                        asg.status === "Completed" ? "bg-slate-50/30 text-slate-400" : ""
+                        asg.status === "Completed" ? "bg-slate-50/30 text-slate-600" : ""
                       }`}
                     >
                       <TableCell className="px-6 py-4">
@@ -428,10 +428,10 @@ export default function AdminAssignmentCreator() {
                         />
                       </TableCell>
                       <TableCell className="px-6 py-4">
-                        <p className={`text-sm font-bold text-slate-700 leading-none truncate ${asg.status === "Completed" ? "line-through text-slate-400" : ""}`}>
+                        <p className={`text-sm font-bold text-slate-700 leading-none truncate ${asg.status === "Completed" ? "line-through text-slate-600" : ""}`}>
                           {asg.title}
                         </p>
-                        <span className="text-[10px] text-slate-400 font-semibold block mt-1">
+                        <span className="text-[10px] text-slate-600 font-semibold block mt-1">
                           {asg.subject} · {asg.description || "No description"}
                         </span>
                       </TableCell>
@@ -453,7 +453,7 @@ export default function AdminAssignmentCreator() {
                         {asg.status === "Completed" ? (
                           <Badge
                             variant="outline"
-                            className="bg-slate-100 text-slate-500 border-slate-200 text-[10px] font-bold px-2 py-0.5 rounded-full"
+                            className="bg-slate-100 text-slate-600 border-slate-200 text-[10px] font-bold px-2 py-0.5 rounded-full"
                           >
                             <CheckCircle2 className="w-3 h-3 mr-1" /> Completed
                           </Badge>
@@ -471,7 +471,7 @@ export default function AdminAssignmentCreator() {
                           variant="ghost"
                           size="icon-sm"
                           onClick={() => handleDeleteAssignment(asg.id)}
-                          className="rounded-lg text-slate-450 hover:text-red-650 hover:bg-red-50 transition-all cursor-pointer"
+                          className="rounded-lg text-slate-600 hover:text-red-650 hover:bg-red-50 transition-all cursor-pointer"
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
@@ -480,7 +480,7 @@ export default function AdminAssignmentCreator() {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={6} className="px-6 py-12 text-center text-slate-450 text-sm font-medium">
+                    <TableCell colSpan={6} className="px-6 py-12 text-center text-slate-600 text-sm font-medium">
                       No assignments created yet.
                     </TableCell>
                   </TableRow>
@@ -497,10 +497,10 @@ export default function AdminAssignmentCreator() {
               <Table className="table-fixed w-full">
                 <TableHeader className="bg-slate-50/50">
                   <TableRow>
-                    <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[30%]">Student</TableHead>
-                    <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[35%]">Assignment</TableHead>
-                    <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[20%]">Submitted</TableHead>
-                    <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right w-[15%]">Grade</TableHead>
+                    <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[30%]">Student</TableHead>
+                    <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[35%]">Assignment</TableHead>
+                    <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[20%]">Submitted</TableHead>
+                    <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-right w-[15%]">Grade</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody className="divide-y divide-slate-100">
@@ -510,12 +510,12 @@ export default function AdminAssignmentCreator() {
                         key={sub.id}
                         onClick={() => sub.status === "Submitted" && setEvaluatingSub(sub)}
                         className={`transition-colors cursor-pointer ${
-                          sub.status === "Submitted" ? "hover:bg-slate-50 font-semibold" : "hover:bg-slate-50/50 text-slate-400"
+                          sub.status === "Submitted" ? "hover:bg-slate-50 font-semibold" : "hover:bg-slate-50/50 text-slate-600"
                         }`}
                       >
                         <TableCell className="px-6 py-4">
                           <p className="text-xs font-bold text-slate-800 leading-none">{sub.studentName}</p>
-                          <span className="text-[9px] text-slate-400 font-semibold mt-1 block">ID: {sub.studentId}</span>
+                          <span className="text-[9px] text-slate-600 font-semibold mt-1 block">ID: {sub.studentId}</span>
                         </TableCell>
                         <TableCell className="px-6 py-4">
                           <p className="text-xs font-bold text-slate-700 leading-none truncate">{sub.assignmentTitle}</p>
@@ -539,7 +539,7 @@ export default function AdminAssignmentCreator() {
                     ))
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={4} className="px-6 py-12 text-center text-slate-450 text-xs font-medium">
+                      <TableCell colSpan={4} className="px-6 py-12 text-center text-slate-600 text-xs font-medium">
                         No submissions uploaded by students yet.
                       </TableCell>
                     </TableRow>
@@ -556,25 +556,25 @@ export default function AdminAssignmentCreator() {
                     <CardTitle className="text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center justify-between">
                       <span>Evaluate Student</span>
                       <Button variant="ghost" size="icon-sm" onClick={() => setEvaluatingSub(null)} className="rounded-lg">
-                        <X className="w-4 h-4 text-slate-400" />
+                        <X className="w-4 h-4 text-slate-600" />
                       </Button>
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="p-6">
                     <form onSubmit={handleEvaluateSubmit} className="space-y-4">
                       <div>
-                        <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Student Name</h4>
+                        <h4 className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Student Name</h4>
                         <p className="text-xs font-bold text-slate-700 mt-1">{evaluatingSub.studentName} ({evaluatingSub.studentId})</p>
                       </div>
 
                       <div>
-                        <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Assignment</h4>
+                        <h4 className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Assignment</h4>
                         <p className="text-xs font-bold text-slate-700 mt-1">{evaluatingSub.assignmentTitle}</p>
                       </div>
 
                       <div className="bg-slate-50 border border-slate-100 p-3 rounded-lg flex items-center justify-between">
                         <div className="truncate pr-4">
-                          <span className="text-[9px] font-bold text-slate-450 uppercase tracking-wider block">Attached File</span>
+                          <span className="text-[9px] font-bold text-slate-600 uppercase tracking-wider block">Attached File</span>
                           <span className="text-xs font-semibold text-slate-700 truncate block mt-0.5">{evaluatingSub.fileName}</span>
                         </div>
                         <Button
@@ -590,7 +590,7 @@ export default function AdminAssignmentCreator() {
                       {/* Marks */}
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-1">
-                          <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Marks Obtained</label>
+                          <label className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Marks Obtained</label>
                           <Input
                             type="number"
                             min="0"
@@ -603,12 +603,12 @@ export default function AdminAssignmentCreator() {
                           />
                         </div>
                         <div className="space-y-1">
-                          <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Out Of</label>
+                          <label className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Out Of</label>
                           <Input
                             type="number"
                             value={maxMarks}
                             onChange={(e) => setMaxMarks(e.target.value)}
-                            className="h-9 rounded-lg text-xs bg-slate-50 text-slate-500"
+                            className="h-9 rounded-lg text-xs bg-slate-50 text-slate-600"
                             disabled
                           />
                         </div>
@@ -616,7 +616,7 @@ export default function AdminAssignmentCreator() {
 
                       {/* Feedback */}
                       <div className="space-y-1">
-                        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Feedback / Comments</label>
+                        <label className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Feedback / Comments</label>
                         <Textarea
                           value={feedback}
                           onChange={(e) => setFeedback(e.target.value)}
@@ -635,7 +635,7 @@ export default function AdminAssignmentCreator() {
                   </CardContent>
                 </Card>
               ) : (
-                <div className="border border-dashed border-slate-200 rounded-2xl p-8 text-center text-slate-450 text-xs font-semibold">
+                <div className="border border-dashed border-slate-200 rounded-2xl p-8 text-center text-slate-600 text-xs font-semibold">
                   Select a student submission to evaluate.
                 </div>
               )}

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -11,6 +11,7 @@ import {
   Save,
   Users,
   BookOpen,
+  Lock,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -32,6 +33,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import {
   useGetTutorExams,
   useCreateTutorExam,
@@ -191,7 +193,7 @@ export default function TutorExamManager() {
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 {/* Title */}
                 <div className="md:col-span-2 space-y-1">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
                     Exam Title
                   </label>
                   <Input
@@ -206,7 +208,7 @@ export default function TutorExamManager() {
 
                 {/* Subject */}
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
                     Subject
                   </label>
                   <Select value={newSubject} onValueChange={setNewSubject}>
@@ -229,11 +231,11 @@ export default function TutorExamManager() {
 
                 {/* Exam Date */}
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
                     Exam Date
                   </label>
                   <div className="relative">
-                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 z-10" />
+                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600 z-10" />
                     <Input
                       type="date"
                       value={newDate}
@@ -248,7 +250,7 @@ export default function TutorExamManager() {
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 {/* Max Marks */}
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
                     Maximum Marks
                   </label>
                   <Input
@@ -264,11 +266,11 @@ export default function TutorExamManager() {
 
               {/* Student checkboxes */}
               <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
                   Assign To Students ({selectedStudentIds.length} selected)
                 </label>
                 {students.length === 0 ? (
-                  <p className="text-xs text-slate-400 font-semibold">
+                  <p className="text-xs text-slate-600 font-semibold">
                     No students in your roster.
                   </p>
                 ) : (
@@ -329,22 +331,22 @@ export default function TutorExamManager() {
         <Table className="table-fixed w-full">
           <TableHeader className="bg-slate-50/50">
             <TableRow>
-              <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[33%]">
+              <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[33%]">
                 Exam Title
               </TableHead>
-              <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[18%]">
+              <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[18%]">
                 Exam Date
               </TableHead>
-              <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[18%]">
+              <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[18%]">
                 Students
               </TableHead>
-              <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[16%]">
+              <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[16%]">
                 Max Marks
               </TableHead>
-              <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[15%]">
+              <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[15%]">
                 Status
               </TableHead>
-              <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[15%]">
+              <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[15%]">
                 Actons
               </TableHead>
             </TableRow>
@@ -361,18 +363,18 @@ export default function TutorExamManager() {
                     key={exm.id}
                     className={`hover:bg-slate-50/60 transition-colors ${
                       exm.status === "conducted"
-                        ? "bg-slate-50/30 text-slate-400"
+                        ? "bg-slate-50/30 text-slate-600"
                         : ""
                     }`}
                   >
                     {/* Title and Subject */}
                     <TableCell className="px-6 py-4">
                       <p
-                        className={`text-sm font-bold text-slate-700 leading-none truncate ${exm.status === "conducted" ? "line-through text-slate-400" : ""}`}
+                        className={`text-sm font-bold text-slate-700 leading-none truncate ${exm.status === "conducted" ? "line-through text-slate-600" : ""}`}
                       >
                         {exm.title}
                       </p>
-                      <span className="text-[10px] text-slate-400 font-semibold block mt-1">
+                      <span className="text-[10px] text-slate-600 font-semibold block mt-1">
                         {exm.subject}
                       </span>
                     </TableCell>
@@ -391,14 +393,14 @@ export default function TutorExamManager() {
                     {/* Students Assigned */}
                     <TableCell className="px-6 py-4">
                       <div className="flex items-center gap-1 mb-0.5">
-                        <Users className="w-3 h-3 text-slate-400 flex-shrink-0" />
+                        <Users className="w-3 h-3 text-slate-600 flex-shrink-0" />
                         <span className="text-xs font-bold text-slate-700">
                           {exm.studentIds.length} Student
                           {exm.studentIds.length !== 1 ? "s" : ""}
                         </span>
                       </div>
                       <p
-                        className="text-[10px] text-slate-400 font-semibold truncate"
+                        className="text-[10px] text-slate-600 font-semibold truncate"
                         title={namesList}
                       >
                         {namesList}
@@ -412,7 +414,7 @@ export default function TutorExamManager() {
                           <span className="text-sm font-black text-slate-800">
                             {exm.maxMarks}
                           </span>
-                          <span className="text-[10px] text-slate-400 font-semibold block">
+                          <span className="text-[10px] text-slate-600 font-semibold block">
                             marks
                           </span>
                         </div>
@@ -454,13 +456,13 @@ export default function TutorExamManager() {
                         
                       </div>
                     </TableCell>
-                    <TableCell className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[15%]">
+                    <TableCell className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[15%]">
                        {exm.status === "conducted" && (
                           <Button
                             variant="ghost"
-                            size="sm"
+                            size="lg"
                             onClick={() => setResultsExam(exm)}
-                            className="w-full text-[10px] font-bold text-[var(--brand-mid)] hover:bg-[var(--brand-light-green)]/35 px-2 py-1 rounded-lg border border-[var(--brand-green)]/20 cursor-pointer"
+                            className="w-full text-[10px] font-bold text-[var(--brand-mid)] hover:bg-[var(--brand-light-green)]/35 px-2  rounded-lg border border-[var(--brand-green)]/20 cursor-pointer"
                           >
                             <Award className="w-3 h-3 mr-1" /> Enter Results
                           </Button>
@@ -473,7 +475,7 @@ export default function TutorExamManager() {
               <TableRow>
                 <TableCell
                   colSpan={5}
-                  className="px-6 py-12 text-center text-slate-450 text-sm"
+                  className="px-6 py-12 text-center text-slate-600 text-sm"
                 >
                   No exams scheduled yet.
                 </TableCell>
@@ -541,7 +543,7 @@ function ExamResultsModal({ exam, studentMap, isSubmitting, onClose, onSubmit }:
             <Award className="w-4 h-4 text-[var(--brand-green)]" />
             <h3 className="text-sm font-bold text-slate-800">Enter Exam Results</h3>
           </div>
-          <button onClick={onClose} disabled={isSubmitting} className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 transition-colors cursor-pointer disabled:opacity-50">
+          <button onClick={onClose} disabled={isSubmitting} className="p-1.5 rounded-lg text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer disabled:opacity-50">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -550,17 +552,16 @@ function ExamResultsModal({ exam, studentMap, isSubmitting, onClose, onSubmit }:
           {/* Exam info */}
           <div className="bg-slate-50 border border-slate-100 rounded-xl p-3">
             <p className="text-sm font-bold text-slate-800 leading-tight">{exam.title}</p>
-            <span className="text-[10px] text-slate-400 font-semibold">{exam.subject} · Max {exam.maxMarks} marks</span>
           </div>
 
           {/* Student */}
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Student</label>
+          <div className="space-y-2">
+            <Label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Student</Label>
             <Select value={studentId} onValueChange={setStudentId}>
-              <SelectTrigger className="h-10 bg-white border-slate-200 rounded-xl text-sm font-medium">
+              <SelectTrigger className="bg-white border-slate-200 rounded-xl text-sm font-medium">
                 <SelectValue placeholder="Select Student" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="z-[200]">
                 {exam.studentIds.map((id) => (
                   <SelectItem key={id} value={id} className="text-xs font-medium">
                     {studentMap.get(id) ?? id}
@@ -570,36 +571,49 @@ function ExamResultsModal({ exam, studentMap, isSubmitting, onClose, onSubmit }:
             </Select>
           </div>
 
-          {/* Marks + Grade */}
+          {/* Marks Obtained + Max Marks (locked) */}
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Marks Obtained</label>
+            <div className="space-y-2">
+              <Label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Marks Obtained</Label>
               <Input
                 type="number" min="0" max={exam.maxMarks} step="any"
-                value={marks} onChange={(e) => setMarks(e.target.value)}
-                placeholder={`0 – ${exam.maxMarks}`}
-                className="h-10 bg-white border-slate-200 rounded-xl text-sm"
+                value={marks}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  if (v === "" || parseFloat(v) <= exam.maxMarks) setMarks(v);
+                }}
+                placeholder="e.g. 45"
+                className="bg-white border-slate-200 rounded-xl text-sm"
                 required
               />
             </div>
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Grade</label>
-              <Select value={grade} onValueChange={setGrade}>
-                <SelectTrigger className="h-10 bg-white border-slate-200 rounded-xl text-sm font-medium">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {GRADE_OPTIONS.map((g) => (
-                    <SelectItem key={g} value={g} className="text-xs font-medium">{g}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <div className="space-y-2">
+              <Label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Max Marks</Label>
+              <div className="h-10 flex items-center justify-between px-3 bg-slate-50 border border-slate-200 rounded-xl">
+                <span className="text-sm font-bold text-slate-700">{exam.maxMarks}</span>
+                <Lock className="w-3.5 h-3.5 text-slate-600 flex-shrink-0" />
+              </div>
             </div>
           </div>
 
+          {/* Grade */}
+          <div className="space-y-2">
+            <Label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Grade</Label>
+            <Select value={grade} onValueChange={setGrade}>
+              <SelectTrigger className="bg-white border-slate-200 rounded-xl text-sm font-medium">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="z-[200]">
+                {GRADE_OPTIONS.map((g) => (
+                  <SelectItem key={g} value={g} className="text-xs font-medium">{g}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
           {/* Remarks */}
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Remarks</label>
+          <div className="space-y-2">
+            <Label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Remarks</Label>
             <Textarea
               value={remarks} onChange={(e) => setRemarks(e.target.value)}
               placeholder="e.g. Good understanding of the topic..."

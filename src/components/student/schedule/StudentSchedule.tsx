@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useRef } from "react";
 import { Calendar, Clock, Video, BookOpen, Search, Filter, ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
@@ -87,7 +87,7 @@ export default function StudentSchedule() {
         <div className="flex flex-wrap items-center gap-3 flex-1">
           {/* Search */}
           <div className="relative flex-1 min-w-[220px]">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600" />
             <Input
               type="text"
               placeholder="Search by title or subject..."
@@ -99,7 +99,7 @@ export default function StudentSchedule() {
 
           {/* Filter pills */}
           <div className="flex items-center gap-1.5">
-            <Filter className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+            <Filter className="w-3.5 h-3.5 text-slate-600 flex-shrink-0" />
             {(["all", "today", "upcoming", "past"] as FilterType[]).map((f) => (
               <button
                 key={f}
@@ -118,7 +118,7 @@ export default function StudentSchedule() {
         </div>
 
         {total > 0 && (
-          <span className="text-xs font-semibold text-slate-400 flex-shrink-0">
+          <span className="text-xs font-semibold text-slate-600 flex-shrink-0">
             {total} session{total !== 1 ? "s" : ""}
           </span>
         )}
@@ -131,10 +131,10 @@ export default function StudentSchedule() {
         </div>
       ) : sessions.length === 0 ? (
         <div className="flex flex-col items-center justify-center min-h-[30vh] bg-white border border-slate-150 rounded-2xl shadow-sm">
-          <CalendarDays className="w-10 h-10 text-slate-200 mb-3" />
-          <p className="text-sm font-semibold text-slate-400">No sessions found</p>
+          <CalendarDays className="w-10 h-10 text-slate-600 mb-3" />
+          <p className="text-sm font-semibold text-slate-600">No sessions found</p>
           {debouncedSearch && (
-            <p className="text-xs text-slate-400 mt-1">Try a different search term</p>
+            <p className="text-xs text-slate-600 mt-1">Try a different search term</p>
           )}
         </div>
       ) : (
@@ -152,7 +152,7 @@ export default function StudentSchedule() {
 
             let statusCls = "bg-amber-50 text-amber-700 border-amber-100";
             if (active) statusCls = "bg-emerald-50 text-emerald-700 border-emerald-100 border-2 animate-pulse";
-            if (isCompleted) statusCls = "bg-slate-100 text-slate-500 border-slate-200";
+            if (isCompleted) statusCls = "bg-slate-100 text-slate-600 border-slate-200";
             if (isCancelled) statusCls = "bg-rose-50 text-rose-700 border-rose-100";
 
             return (
@@ -167,14 +167,14 @@ export default function StudentSchedule() {
                     <Badge variant="outline" className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${statusCls}`}>
                       {statusLabel}
                     </Badge>
-                    <Badge variant="outline" className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-slate-50 text-slate-500 border-slate-200 capitalize">
+                    <Badge variant="outline" className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-slate-50 text-slate-600 border-slate-200 capitalize">
                       {session.type}
                     </Badge>
                   </div>
 
                   <div>
                     {session.subject && (
-                      <span className="text-[10px] text-slate-450 font-bold uppercase tracking-wider block">
+                      <span className="text-[10px] text-slate-600 font-bold uppercase tracking-wider block">
                         {session.subject}
                       </span>
                     )}
@@ -182,7 +182,7 @@ export default function StudentSchedule() {
                       {session.title}
                     </h3>
                     {session.notes && (
-                      <p className="text-[11px] text-slate-500 mt-1 line-clamp-2 leading-relaxed">
+                      <p className="text-[11px] text-slate-600 mt-1 line-clamp-2 leading-relaxed">
                         {session.notes}
                       </p>
                     )}
@@ -190,11 +190,11 @@ export default function StudentSchedule() {
 
                   <div className="grid grid-cols-2 gap-4 text-xs font-semibold text-slate-650 bg-slate-50 p-3 rounded-xl border border-slate-100">
                     <div className="flex items-center gap-1.5">
-                      <Calendar className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                      <Calendar className="w-4 h-4 text-slate-600 flex-shrink-0" />
                       <span className="truncate">{formatDate(session.scheduledAt)}</span>
                     </div>
                     <div className="flex items-center gap-1.5">
-                      <Clock className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                      <Clock className="w-4 h-4 text-slate-600 flex-shrink-0" />
                       <span className="truncate">
                         {formatTime(scheduledDate)} - {formatTime(endDate)}
                       </span>
@@ -203,14 +203,14 @@ export default function StudentSchedule() {
                 </CardContent>
 
                 <div className="px-6 py-4 bg-slate-50/50 border-t border-slate-100 flex items-center justify-between">
-                  <div className="flex items-center gap-1.5 text-[10px] font-semibold text-slate-500">
-                    <BookOpen className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+                  <div className="flex items-center gap-1.5 text-[10px] font-semibold text-slate-600">
+                    <BookOpen className="w-3.5 h-3.5 text-slate-600 flex-shrink-0" />
                     <span>{session.durationMinutes || 60} min</span>
                   </div>
 
                   {isCompleted || isCancelled ? (
                     <Badge className={`text-[10px] font-bold px-2 py-0.5 rounded-full shadow-none border ${
-                      isCompleted ? "bg-slate-100 text-slate-400 border-slate-200" : "bg-rose-50 text-rose-400 border-rose-100"
+                      isCompleted ? "bg-slate-100 text-slate-600 border-slate-200" : "bg-rose-50 text-rose-400 border-rose-100"
                     }`}>
                       {isCompleted ? "Session Ended" : "Cancelled"}
                     </Badge>
@@ -246,7 +246,7 @@ export default function StudentSchedule() {
           >
             <ChevronLeft className="w-4 h-4 mr-1" /> Previous
           </Button>
-          <span className="text-xs font-bold text-slate-500 px-2">
+          <span className="text-xs font-bold text-slate-600 px-2">
             {page} / {totalPages}
           </span>
           <Button

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -57,9 +57,9 @@ const YEARS = Array.from({ length: 5 }, (_, i) => (currentYear - i).toString());
 
 function rankIcon(rank: number) {
   if (rank === 1) return <Crown className="w-4 h-4 text-yellow-500" />;
-  if (rank === 2) return <Medal className="w-4 h-4 text-slate-400" />;
+  if (rank === 2) return <Medal className="w-4 h-4 text-slate-600" />;
   if (rank === 3) return <Medal className="w-4 h-4 text-amber-600" />;
-  return <span className="text-xs font-bold text-slate-400">#{rank}</span>;
+  return <span className="text-xs font-bold text-slate-600">#{rank}</span>;
 }
 
 // ── Award / Edit Dialog ───────────────────────────────────────────────────────
@@ -127,14 +127,14 @@ function AwardDialog({ open, onClose, onSubmit, saving, tutors }: AwardDialogPro
               <h3 className="font-bold text-slate-800 text-base">
                 Award Performance Points
               </h3>
-              <p className="text-[10px] text-slate-400 font-semibold mt-0.5">
+              <p className="text-[10px] text-slate-600 font-semibold mt-0.5">
                 Each score is 0–5 per category
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors"
+            className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-600 hover:text-slate-600 transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -142,7 +142,7 @@ function AwardDialog({ open, onClose, onSubmit, saving, tutors }: AwardDialogPro
 
         <form onSubmit={handleSubmit} className="p-6 space-y-5">
           <div className="space-y-1.5">
-            <Label className="text-[10px] uppercase font-bold text-slate-500">Tutor</Label>
+            <Label className="text-[10px] uppercase font-bold text-slate-600">Tutor</Label>
             <Select value={tutorId} onValueChange={setTutorId} required>
               <SelectTrigger className="h-9 text-sm font-semibold bg-slate-50 border-slate-200">
                 <SelectValue placeholder="Select tutor…" />
@@ -157,7 +157,7 @@ function AwardDialog({ open, onClose, onSubmit, saving, tutors }: AwardDialogPro
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label className="text-[10px] uppercase font-bold text-slate-500">Month</Label>
+              <Label className="text-[10px] uppercase font-bold text-slate-600">Month</Label>
               <Select value={month} onValueChange={setMonth}>
                 <SelectTrigger className="h-9 text-sm font-semibold bg-slate-50 border-slate-200">
                   <SelectValue />
@@ -170,7 +170,7 @@ function AwardDialog({ open, onClose, onSubmit, saving, tutors }: AwardDialogPro
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-[10px] uppercase font-bold text-slate-500">Year</Label>
+              <Label className="text-[10px] uppercase font-bold text-slate-600">Year</Label>
               <Select value={year} onValueChange={setYear}>
                 <SelectTrigger className="h-9 text-sm font-semibold bg-slate-50 border-slate-200">
                   <SelectValue />
@@ -186,7 +186,7 @@ function AwardDialog({ open, onClose, onSubmit, saving, tutors }: AwardDialogPro
 
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label className="text-[10px] uppercase font-bold text-slate-500">
+              <Label className="text-[10px] uppercase font-bold text-slate-600">
                 G-R-O-W-T-H Scores
               </Label>
               <span className="text-[10px] font-bold text-[var(--brand-green)] bg-[var(--brand-light-green)] px-2 py-0.5 rounded-md border border-[var(--brand-green)]/20">
@@ -196,7 +196,7 @@ function AwardDialog({ open, onClose, onSubmit, saving, tutors }: AwardDialogPro
             <div className="grid grid-cols-3 gap-3">
               {GROWTH_KEYS.map((key) => (
                 <div key={key} className="space-y-1">
-                  <Label className="text-[10px] font-bold text-slate-500 uppercase">
+                  <Label className="text-[10px] font-bold text-slate-600 uppercase">
                     {key} — {GROWTH_LABELS[key]}
                   </Label>
                   <Input
@@ -213,7 +213,7 @@ function AwardDialog({ open, onClose, onSubmit, saving, tutors }: AwardDialogPro
           </div>
 
           <div className="space-y-1.5">
-            <Label className="text-[10px] uppercase font-bold text-slate-500">Description</Label>
+            <Label className="text-[10px] uppercase font-bold text-slate-600">Description</Label>
             <Textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -300,7 +300,7 @@ export default function PerformanceManager() {
               <Trophy className="w-5 h-5 text-[var(--brand-green)]" />
             </div>
             <div>
-              <p className="text-[10px] uppercase font-bold text-slate-400">Total Tutors</p>
+              <p className="text-[10px] uppercase font-bold text-slate-600">Total Tutors</p>
               <p className="text-2xl font-bold text-slate-800">{leaderboard.length}</p>
             </div>
           </CardContent>
@@ -311,7 +311,7 @@ export default function PerformanceManager() {
               <Crown className="w-5 h-5 text-yellow-500" />
             </div>
             <div>
-              <p className="text-[10px] uppercase font-bold text-slate-400">Top Performer</p>
+              <p className="text-[10px] uppercase font-bold text-slate-600">Top Performer</p>
               <p className="text-sm font-bold text-slate-800 truncate max-w-[160px]">
                 {topTutor?.tutorName ?? "—"}
               </p>
@@ -329,7 +329,7 @@ export default function PerformanceManager() {
               <TrendingUp className="w-5 h-5 text-blue-500" />
             </div>
             <div>
-              <p className="text-[10px] uppercase font-bold text-slate-400">Total Points Awarded</p>
+              <p className="text-[10px] uppercase font-bold text-slate-600">Total Points Awarded</p>
               <p className="text-2xl font-bold text-slate-800">{totalPoints}</p>
             </div>
           </CardContent>
@@ -366,14 +366,14 @@ export default function PerformanceManager() {
                   <Table>
                     <TableHeader className="bg-slate-50">
                       <TableRow className="border-slate-100 hover:bg-slate-50">
-                        <TableHead className="text-xs font-bold text-slate-500 w-16 px-6 py-3">Rank</TableHead>
-                        <TableHead className="text-xs font-bold text-slate-500 py-3">Tutor</TableHead>
+                        <TableHead className="text-xs font-bold text-slate-600 w-16 px-6 py-3">Rank</TableHead>
+                        <TableHead className="text-xs font-bold text-slate-600 py-3">Tutor</TableHead>
                         {GROWTH_KEYS.map((k) => (
-                          <TableHead key={k} className="text-xs font-bold text-slate-500 text-center py-3 whitespace-nowrap">
+                          <TableHead key={k} className="text-xs font-bold text-slate-600 text-center py-3 whitespace-nowrap">
                             {k} — {GROWTH_LABELS[k]}
                           </TableHead>
                         ))}
-                        <TableHead className="text-xs font-bold text-slate-500 text-center px-6 py-3">Total</TableHead>
+                        <TableHead className="text-xs font-bold text-slate-600 text-center px-6 py-3">Total</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -401,8 +401,8 @@ export default function PerformanceManager() {
                   </Table>
                 </div>
               ) : (
-                <div className="py-16 text-center text-slate-500">
-                  <Trophy className="w-8 h-8 mx-auto text-slate-300 mb-3" />
+                <div className="py-16 text-center text-slate-600">
+                  <Trophy className="w-8 h-8 mx-auto text-slate-600 mb-3" />
                   <p className="text-sm font-medium">No leaderboard data yet.</p>
                 </div>
               )}
@@ -466,13 +466,13 @@ export default function PerformanceManager() {
                   <Table>
                     <TableHeader className="bg-slate-50">
                       <TableRow className="border-slate-100 hover:bg-slate-50">
-                        <TableHead className="text-xs font-bold text-slate-500 px-6 py-3 whitespace-nowrap">Period</TableHead>
-                        <TableHead className="text-xs font-bold text-slate-500 py-3 whitespace-nowrap">Awarded At</TableHead>
+                        <TableHead className="text-xs font-bold text-slate-600 px-6 py-3 whitespace-nowrap">Period</TableHead>
+                        <TableHead className="text-xs font-bold text-slate-600 py-3 whitespace-nowrap">Awarded At</TableHead>
                         {GROWTH_KEYS.map((k) => (
-                          <TableHead key={k} className="text-xs font-bold text-slate-500 text-center py-3">{k}</TableHead>
+                          <TableHead key={k} className="text-xs font-bold text-slate-600 text-center py-3">{k}</TableHead>
                         ))}
-                        <TableHead className="text-xs font-bold text-slate-500 text-center py-3">Total</TableHead>
-                        <TableHead className="text-xs font-bold text-slate-500 px-6 py-3">Description</TableHead>
+                        <TableHead className="text-xs font-bold text-slate-600 text-center py-3">Total</TableHead>
+                        <TableHead className="text-xs font-bold text-slate-600 px-6 py-3">Description</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -483,7 +483,7 @@ export default function PerformanceManager() {
                               {item.month} {item.year}
                             </span>
                           </TableCell>
-                          <TableCell className="py-4 text-[11px] text-slate-400 whitespace-nowrap">
+                          <TableCell className="py-4 text-[11px] text-slate-600 whitespace-nowrap">
                             {item.awardedAt ? format(new Date(item.awardedAt), "MMM d, yyyy") : "—"}
                           </TableCell>
                           {GROWTH_KEYS.map((k) => (
@@ -505,8 +505,8 @@ export default function PerformanceManager() {
                   </Table>
                 </div>
               ) : (
-                <div className="py-16 text-center text-slate-500">
-                  <History className="w-8 h-8 mx-auto text-slate-300 mb-3" />
+                <div className="py-16 text-center text-slate-600">
+                  <History className="w-8 h-8 mx-auto text-slate-600 mb-3" />
                   <p className="text-sm font-medium">No performance history found.</p>
                 </div>
               )}

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -118,7 +118,7 @@ export default function TutorDashboard() {
                 title={showSalary ? "Switch to Earnings" : "Switch to Salary"}
                 className="w-8 h-8 rounded-xl flex items-center justify-center border border-slate-200 hover:bg-slate-50 transition-colors cursor-pointer"
               >
-                <ChevronRight className={cn("w-4 h-4 text-slate-500 transition-transform duration-200", showSalary && "rotate-180")} />
+                <ChevronRight className={cn("w-4 h-4 text-slate-600 transition-transform duration-200", showSalary && "rotate-180")} />
               </button>
             </div>
           </div>
@@ -131,7 +131,7 @@ export default function TutorDashboard() {
               <p className="text-sm font-semibold text-slate-650 mt-1">
                 Earnings ({sessionPeriod.charAt(0).toUpperCase() + sessionPeriod.slice(1)})
               </p>
-              <p className="text-xs mt-3 text-slate-450 font-semibold">
+              <p className="text-xs mt-3 text-slate-600 font-semibold">
                 Pending: {formatCurrency(sessionData?.totalEarnings?.pending || 0, sessionData?.totalEarnings?.currency)}
               </p>
             </div>
@@ -152,9 +152,9 @@ export default function TutorDashboard() {
                 </>
               ) : (
                 <>
-                  <p className="text-3xl font-bold font-heading text-slate-400">—</p>
+                  <p className="text-3xl font-bold font-heading text-slate-600">—</p>
                   <p className="text-sm font-semibold text-slate-650 mt-1">Salary</p>
-                  <p className="text-xs mt-3 text-slate-400 font-semibold">No salary records found</p>
+                  <p className="text-xs mt-3 text-slate-600 font-semibold">No salary records found</p>
                 </>
               )}
             </div>
@@ -171,22 +171,22 @@ export default function TutorDashboard() {
               <CardTitle className="font-bold text-slate-800 text-sm uppercase tracking-wider">
                 Salary Breakdown
               </CardTitle>
-              <span className="ml-auto text-xs font-semibold text-slate-400">{salaryList.length} record{salaryList.length !== 1 ? "s" : ""}</span>
+              <span className="ml-auto text-xs font-semibold text-slate-600">{salaryList.length} record{salaryList.length !== 1 ? "s" : ""}</span>
             </div>
           </CardHeader>
           <CardContent className="p-0">
             <Table className="table-fixed w-full">
               <TableHeader className="bg-slate-50/50">
                 <TableRow>
-                  <TableHead className="px-6 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider w-[14%]">Sl no.</TableHead>
-                  <TableHead className="px-6 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider w-[14%]">Month</TableHead>
-                  <TableHead className="px-6 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider w-[8%]">Year</TableHead>
-                  <TableHead className="px-6 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider w-[15%]">Total</TableHead>
-                  <TableHead className="px-6 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider w-[15%]">Paid</TableHead>
-                  <TableHead className="px-6 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider w-[15%]">Pending</TableHead>
-                  <TableHead className="px-6 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider w-[12%]">Status</TableHead>
-                  <TableHead className="px-6 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider w-[14%]">Payment Date</TableHead>
-                  <TableHead className="px-6 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider w-[20%]">Remarks</TableHead>
+                  <TableHead className="px-6 py-3 text-[10px] font-bold text-slate-600 uppercase tracking-wider w-[14%]">Sl no.</TableHead>
+                  <TableHead className="px-6 py-3 text-[10px] font-bold text-slate-600 uppercase tracking-wider w-[14%]">Month</TableHead>
+                  <TableHead className="px-6 py-3 text-[10px] font-bold text-slate-600 uppercase tracking-wider w-[8%]">Year</TableHead>
+                  <TableHead className="px-6 py-3 text-[10px] font-bold text-slate-600 uppercase tracking-wider w-[15%]">Total</TableHead>
+                  <TableHead className="px-6 py-3 text-[10px] font-bold text-slate-600 uppercase tracking-wider w-[15%]">Paid</TableHead>
+                  <TableHead className="px-6 py-3 text-[10px] font-bold text-slate-600 uppercase tracking-wider w-[15%]">Pending</TableHead>
+                  <TableHead className="px-6 py-3 text-[10px] font-bold text-slate-600 uppercase tracking-wider w-[12%]">Status</TableHead>
+                  <TableHead className="px-6 py-3 text-[10px] font-bold text-slate-600 uppercase tracking-wider w-[14%]">Payment Date</TableHead>
+                  <TableHead className="px-6 py-3 text-[10px] font-bold text-slate-600 uppercase tracking-wider w-[20%]">Remarks</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody className="divide-y divide-slate-100">
@@ -206,12 +206,12 @@ export default function TutorDashboard() {
                         {s.status}
                       </Badge>
                     </TableCell>
-                    <TableCell className="px-6 py-4 text-xs font-semibold text-slate-500">
+                    <TableCell className="px-6 py-4 text-xs font-semibold text-slate-600">
                       {s.paymentDate
                         ? new Date(s.paymentDate).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })
                         : "—"}
                     </TableCell>
-                    <TableCell className="px-6 py-4 text-xs text-slate-500 truncate">
+                    <TableCell className="px-6 py-4 text-xs text-slate-600 truncate">
                       {s.remarks || "—"}
                     </TableCell>
                   </TableRow>
@@ -224,7 +224,7 @@ export default function TutorDashboard() {
 
       {/* ── Period Filter Tabs ── */}
       <div className="flex items-center gap-3">
-        <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Filter Period:</span>
+        <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">Filter Period:</span>
         <Tabs value={sessionPeriod} onValueChange={(v) => setSessionPeriod(v as typeof sessionPeriod)}>
           <TabsList className="flex gap-1 bg-white border border-gray-200 rounded-xl p-1 w-fit">
             {(["weekly", "monthly", "yearly"] as const).map((p) => (
@@ -264,29 +264,29 @@ export default function TutorDashboard() {
             <div className="p-4 rounded-xl border border-slate-100 bg-slate-50/40 text-center">
               <Star className="w-4 h-4 fill-[var(--brand-green)] text-[var(--brand-green)] mx-auto mb-1" />
               <p className="text-2xl font-bold text-slate-800">{kpiData?.kpiPerformance?.growthPoints || 0}</p>
-              <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mt-0.5">Growth Points</p>
+              <p className="text-[10px] font-semibold text-slate-600 uppercase tracking-wider mt-0.5">Growth Points</p>
             </div>
             <div className="p-4 rounded-xl border border-slate-100 bg-slate-50/40 text-center">
               <CheckCircle2 className="w-4 h-4 text-[var(--brand-green)] mx-auto mb-1" />
               <p className="text-2xl font-bold text-slate-800">{Math.round(kpiData?.kpiPerformance?.attendanceRate || 0)}%</p>
-              <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mt-0.5">Attendance Rate</p>
+              <p className="text-[10px] font-semibold text-slate-600 uppercase tracking-wider mt-0.5">Attendance Rate</p>
             </div>
             <div className="p-4 rounded-xl border border-slate-100 bg-slate-50/40 text-center">
               <FileText className="w-4 h-4 text-[var(--brand-green)] mx-auto mb-1" />
               <p className="text-2xl font-bold text-slate-800">{kpiData?.exams?.conducted || 0}</p>
-              <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mt-0.5">Exams Conducted</p>
+              <p className="text-[10px] font-semibold text-slate-600 uppercase tracking-wider mt-0.5">Exams Conducted</p>
             </div>
             <div className="p-4 rounded-xl border border-slate-100 bg-slate-50/40 text-center">
               <AlertCircle className="w-4 h-4 text-[var(--brand-green)] mx-auto mb-1" />
               <p className="text-2xl font-bold text-slate-800">{kpiData?.exams?.pending || 0}</p>
-              <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mt-0.5">Exams Pending</p>
+              <p className="text-[10px] font-semibold text-slate-600 uppercase tracking-wider mt-0.5">Exams Pending</p>
             </div>
             <div className="p-4 rounded-xl border border-slate-100 bg-slate-50/40 text-center">
               <Calendar className="w-4 h-4 text-[var(--brand-green)] mx-auto mb-1" />
               <p className="text-2xl font-bold text-slate-800">
                 {totalSlots > 0 ? Math.round((filledSlots / totalSlots) * 100) : 0}%
               </p>
-              <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mt-0.5">Slot Fill Rate</p>
+              <p className="text-[10px] font-semibold text-slate-600 uppercase tracking-wider mt-0.5">Slot Fill Rate</p>
             </div>
           </div>
 
@@ -308,7 +308,7 @@ export default function TutorDashboard() {
           </div>
 
           <div className="mt-6 pt-6 border-t border-slate-100">
-            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">GROWTH Points Breakdown</p>
+            <p className="text-xs font-bold text-slate-600 uppercase tracking-wider mb-3">GROWTH Points Breakdown</p>
             <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
               {letters.map((letter) => (
                 <div key={letter} className="p-3 rounded-xl border border-slate-100 bg-slate-50 text-center">
@@ -352,13 +352,13 @@ export default function TutorDashboard() {
                             return (
                               <div key={s.id || i} className="flex items-center gap-3 p-3 rounded-xl border border-slate-100 hover:bg-slate-50/50 transition-colors">
                                 <div className="w-16 text-center flex-shrink-0">
-                                  <p className={cn("text-xs font-bold", day === "today" ? "text-[var(--brand-green)]" : "text-slate-500")}>{time}</p>
-                                  <p className="text-[10px] text-slate-400">{s.durationMinutes} min</p>
+                                  <p className={cn("text-xs font-bold", day === "today" ? "text-[var(--brand-green)]" : "text-slate-600")}>{time}</p>
+                                  <p className="text-[10px] text-slate-600">{s.durationMinutes} min</p>
                                 </div>
                                 <div className="w-px h-8 bg-slate-200 flex-shrink-0" />
                                 <div className="flex-1 min-w-0">
                                   <p className="text-sm font-bold text-slate-800 truncate">{s.title}</p>
-                                  <p className="text-xs text-slate-450 font-semibold capitalize">{s.subject}</p>
+                                  <p className="text-xs text-slate-600 font-semibold capitalize">{s.subject}</p>
                                 </div>
                                 <Badge variant="outline" className={cn("text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0 capitalize", statusStyle)}>
                                   {s.status.replace("_", " ")}
@@ -388,16 +388,16 @@ export default function TutorDashboard() {
             <div className="grid grid-cols-2 gap-3">
               <div className="p-3 rounded-xl border border-[var(--brand-green)]/30 bg-[var(--brand-light-green)]/10 text-center">
                 <p className="text-xl font-bold text-[var(--brand-green)]">{availableSlots}</p>
-                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mt-0.5">Available</p>
+                <p className="text-[10px] font-bold text-slate-600 uppercase tracking-wider mt-0.5">Available</p>
               </div>
               <div className="p-3 rounded-xl border border-slate-200 bg-slate-50/60 text-center">
                 <p className="text-xl font-bold text-slate-700">{filledSlots}</p>
-                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mt-0.5">Filled</p>
+                <p className="text-[10px] font-bold text-slate-600 uppercase tracking-wider mt-0.5">Filled</p>
               </div>
             </div>
             <div className="pt-2 border-t border-slate-100">
               <div className="flex justify-between items-center">
-                <span className="text-xs font-semibold text-slate-500">Fill Rate</span>
+                <span className="text-xs font-semibold text-slate-600">Fill Rate</span>
                 <span className="text-xs font-bold text-[var(--brand-green)]">
                   {totalSlots > 0 ? Math.round((filledSlots / totalSlots) * 100) : 0}%
                 </span>

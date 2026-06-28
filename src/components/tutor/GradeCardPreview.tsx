@@ -26,7 +26,7 @@ export default function GradeCardPreview({ report }: GradeCardPreviewProps) {
   const overallGrade = totalMax > 0 ? calcGrade(totalScored, totalMax) : "—";
 
   const tb = "1px solid #d0d0d0";
-  const ob = "1.5px solid #c0c0c0";
+  const ob = "1px solid #d0d0d0";
 
   const td = (extra?: React.CSSProperties): React.CSSProperties => ({
     border: tb,
@@ -65,7 +65,9 @@ export default function GradeCardPreview({ report }: GradeCardPreviewProps) {
         background: "#fff",
         color: "#111",
         border: ob,
+        borderRadius: "16px",
         boxSizing: "border-box",
+        overflow: "hidden",
       }}>
       {/* ─── HEADER ─── */}
       <div
@@ -212,8 +214,6 @@ export default function GradeCardPreview({ report }: GradeCardPreviewProps) {
       <div
         style={{
           background: "#f5f5f5",
-          borderTop: tb,
-          borderBottom: tb,
           padding: "9px 20px",
           textAlign: "center",
           fontSize: "13px",

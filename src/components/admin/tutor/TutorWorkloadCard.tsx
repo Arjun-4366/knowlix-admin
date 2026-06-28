@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useMemo, useState } from "react";
 import { Users, X, Loader2 } from "lucide-react";
@@ -102,7 +102,7 @@ export function TutorWorkloadCard({ tutorId, isApproved, assignedStudents }: Tut
                 <Button
                   variant="ghost"
                   size="icon-sm"
-                  className="text-slate-400 opacity-0 group-hover:opacity-100 hover:text-red-600 hover:bg-red-50 transition-all rounded-full w-6 h-6"
+                  className="text-slate-600 opacity-0 group-hover:opacity-100 hover:text-red-600 hover:bg-red-50 transition-all rounded-full w-6 h-6"
                   onClick={() => handleRemoveStudent(s.id)}
                   disabled={isAssigning}
                   title="Remove Student"
@@ -132,7 +132,7 @@ export function TutorWorkloadCard({ tutorId, isApproved, assignedStudents }: Tut
                       {student.studentName}
                       <button
                         onClick={() => setSelectedStudentIds((prev) => prev.filter((s) => s !== sid))}
-                        className="text-slate-400 hover:text-red-500 rounded-full p-0.5"
+                        className="text-slate-600 hover:text-red-500 rounded-full p-0.5"
                       >
                         <X className="w-3 h-3" />
                       </button>

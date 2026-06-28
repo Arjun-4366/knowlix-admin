@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import Image from "next/image";
 import { useState, type FormEvent } from "react";
 import { BarChart3, ClipboardCheck, UserPlus, Users, X } from "lucide-react";
@@ -92,7 +92,7 @@ export default function DashboardOverviewModals({
 
           <button
             onClick={onClose}
-            className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700"
+            className="rounded-lg p-1.5 text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-700"
           >
             <X className="h-4 w-4" />
           </button>
@@ -101,7 +101,7 @@ export default function DashboardOverviewModals({
         {activeModal === "add-tutor" && (
           <form onSubmit={handleAddTutorSubmit} className="space-y-4 p-6">
             <div>
-              <Label className="mb-1.5 block text-xs font-semibold text-slate-500">
+              <Label className="mb-1.5 block text-xs font-semibold text-slate-600">
                 Tutor Name
               </Label>
               <Input
@@ -115,7 +115,7 @@ export default function DashboardOverviewModals({
             </div>
 
             <div>
-              <Label className="mb-1.5 block text-xs font-semibold text-slate-500">
+              <Label className="mb-1.5 block text-xs font-semibold text-slate-600">
                 Subject Expertise
               </Label>
               <Input
@@ -129,7 +129,7 @@ export default function DashboardOverviewModals({
             </div>
 
             <div>
-              <Label className="mb-1.5 block text-xs font-semibold text-slate-500">
+              <Label className="mb-1.5 block text-xs font-semibold text-slate-600">
                 Experience
               </Label>
               <Input
@@ -147,7 +147,7 @@ export default function DashboardOverviewModals({
                 type="button"
                 onClick={onClose}
                 variant="outline"
-                className="rounded-xl border border-slate-200 px-4 py-2 text-xs font-bold text-slate-555"
+                className="rounded-xl border border-slate-200 px-4 py-2 text-xs font-bold text-slate-600"
               >
                 Cancel
               </Button>
@@ -164,7 +164,7 @@ export default function DashboardOverviewModals({
         {activeModal === "assign-tutor" && (
           <form onSubmit={handleAssignTutorSubmit} className="space-y-4 p-6">
             <div>
-              <Label className="mb-1.5 block text-xs font-semibold text-slate-500">
+              <Label className="mb-1.5 block text-xs font-semibold text-slate-600">
                 Select Student
               </Label>
               <select
@@ -181,7 +181,7 @@ export default function DashboardOverviewModals({
             </div>
 
             <div>
-              <Label className="mb-1.5 block text-xs font-semibold text-slate-500">
+              <Label className="mb-1.5 block text-xs font-semibold text-slate-600">
                 Select Tutor
               </Label>
               <select
@@ -202,7 +202,7 @@ export default function DashboardOverviewModals({
                 type="button"
                 onClick={onClose}
                 variant="outline"
-                className="rounded-xl border border-slate-200 px-4 py-2 text-xs font-bold text-slate-555"
+                className="rounded-xl border border-slate-200 px-4 py-2 text-xs font-bold text-slate-600"
               >
                 Cancel
               </Button>
@@ -237,7 +237,7 @@ export default function DashboardOverviewModals({
                 <h4 className="text-sm font-bold leading-none text-slate-800">
                   {selectedTutor.name}
                 </h4>
-                <p className="mt-1 text-xs text-slate-500">
+                <p className="mt-1 text-xs text-slate-600">
                   {formatTutorRole(selectedTutor.role)}
                 </p>
               </div>
@@ -245,7 +245,7 @@ export default function DashboardOverviewModals({
 
             <div className="grid grid-cols-2 gap-4 rounded-2xl border border-slate-100 bg-slate-50 p-4">
               <div>
-                <span className="block text-[10px] font-bold uppercase text-slate-400">
+                <span className="block text-[10px] font-bold uppercase text-slate-600">
                   Rank
                 </span>
                 <span className="mt-0.5 flex items-center gap-1.5 text-lg font-bold text-slate-850">
@@ -255,7 +255,7 @@ export default function DashboardOverviewModals({
               </div>
 
               <div>
-                <span className="block text-[10px] font-bold uppercase text-slate-400">
+                <span className="block text-[10px] font-bold uppercase text-slate-600">
                   Performance Score
                 </span>
                 <span className="mt-0.5 flex items-center gap-1.5 text-lg font-bold text-[var(--brand-green)]">
@@ -265,7 +265,7 @@ export default function DashboardOverviewModals({
               </div>
 
               <div>
-                <span className="block text-[10px] font-bold uppercase text-slate-400">
+                <span className="block text-[10px] font-bold uppercase text-slate-600">
                   Growth Points
                 </span>
                 <span className="mt-0.5 text-lg font-bold text-slate-850">
@@ -274,7 +274,7 @@ export default function DashboardOverviewModals({
               </div>
 
               <div>
-                <span className="block text-[10px] font-bold uppercase text-slate-400">
+                <span className="block text-[10px] font-bold uppercase text-slate-600">
                   Tutor ID
                 </span>
                 <span className="mt-0.5 block truncate font-mono text-xs text-slate-600">
@@ -284,7 +284,7 @@ export default function DashboardOverviewModals({
             </div>
 
             <div className="rounded-2xl border border-slate-100 bg-slate-50/70 p-4">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">
                 Dashboard Note
               </p>
               <p className="mt-2 text-sm text-slate-600">

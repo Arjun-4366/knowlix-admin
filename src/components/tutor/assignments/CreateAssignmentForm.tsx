@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { Calendar, CheckCircle2, Save } from "lucide-react";
@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "react-hot-toast";
 import { useTutorStore } from "@/store/tutorStore";
 import { ICreateAssignmentPayload } from "@/types/tutor/assignments";
@@ -97,53 +99,55 @@ export default function CreateAssignmentForm({
         <form onSubmit={handleSubmit} className="space-y-5">
           {/* Row 1: Title + Subject + Due Date */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="md:col-span-2 space-y-1.5">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+            <div className="md:col-span-2 space-y-2">
+              <Label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
                 Title
-              </label>
+              </Label>
               <Input
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="e.g. Algebra Worksheet - Chapter 5"
-                className="h-10 bg-white border border-slate-200 rounded-xl text-sm"
+                className="bg-white border border-slate-200 rounded-xl text-sm"
                 required
               />
             </div>
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+            <div className="space-y-2">
+              <Label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
                 Subject
-              </label>
+              </Label>
               {subjects.length > 0 ? (
-                <select
-                  value={subject}
-                  onChange={(e) => setSubject(e.target.value)}
-                  className="h-10 w-full bg-white border border-slate-200 rounded-xl text-sm px-3 font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-[var(--brand-green)]/30">
-                  {subjects.map((s) => (
-                    <option key={s} value={s}>
-                      {s}
-                    </option>
-                  ))}
-                </select>
+                <Select value={subject} onValueChange={setSubject}>
+                  <SelectTrigger className="bg-white border-slate-200 rounded-xl text-sm font-medium">
+                    <SelectValue placeholder="Select subject" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {subjects.map((s) => (
+                      <SelectItem key={s} value={s} className="text-xs font-medium">
+                        {s}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               ) : (
                 <Input
                   value={subject}
                   onChange={(e) => setSubject(e.target.value)}
                   placeholder="Enter subject"
-                  className="h-10 bg-white border border-slate-200 rounded-xl text-sm"
+                  className="bg-white border border-slate-200 rounded-xl text-sm"
                 />
               )}
             </div>
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+            <div className="space-y-2">
+              <Label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
                 Due Date
-              </label>
+              </Label>
               <div className="relative">
-                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 z-10" />
+                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600 z-10" />
                 <Input
                   type="date"
                   value={dueDate}
                   onChange={(e) => setDueDate(e.target.value)}
-                  className="h-10 pl-10 bg-white border border-slate-200 rounded-xl text-sm"
+                  className="pl-10 bg-white border border-slate-200 rounded-xl text-sm"
                   required
                 />
               </div>
@@ -152,10 +156,10 @@ export default function CreateAssignmentForm({
 
           {/* Row 2: Description + Max Marks */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="md:col-span-3 space-y-1.5">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+            <div className="md:col-span-3 space-y-2">
+              <Label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
                 Description / Instructions
-              </label>
+              </Label>
               <Textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
@@ -163,16 +167,16 @@ export default function CreateAssignmentForm({
                 className="min-h-[72px] max-h-28 bg-white border border-slate-200 rounded-xl text-sm"
               />
             </div>
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+            <div className="space-y-2">
+              <Label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
                 Max Marks
-              </label>
+              </Label>
               <Input
                 type="number"
                 min="1"
                 value={maxMarks}
                 onChange={(e) => setMaxMarks(e.target.value)}
-                className="h-10 bg-white border border-slate-200 rounded-xl text-sm"
+                className="bg-white border border-slate-200 rounded-xl text-sm"
                 required
               />
             </div>
@@ -180,11 +184,11 @@ export default function CreateAssignmentForm({
 
           {/* Row 3: Student multi-select */}
           <div className="space-y-2">
-            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+            <Label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
               Assign To Students ({selectedStudentIds.length} selected)
-            </label>
+            </Label>
             {students.length === 0 ? (
-              <p className="text-xs text-slate-400 font-semibold">
+              <p className="text-xs text-slate-600 font-semibold">
                 No students in your roster.
               </p>
             ) : (

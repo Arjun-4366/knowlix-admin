@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { X, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -70,14 +70,14 @@ export default function AddCoordinatorForm({
           <h3 className="font-bold text-slate-800 text-lg">
             {coordinatorToEdit ? "Edit Coordinator Details" : "Register New Coordinator"}
           </h3>
-          <p className="text-xs text-slate-455 mt-0.5">
+          <p className="text-xs text-slate-600 mt-0.5">
             Configure contact details, department, and designations.
           </p>
         </div>
         <button
           onClick={onClose}
           disabled={isSubmitting}
-          className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer disabled:opacity-50"
+          className="p-1.5 rounded-lg text-slate-600 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer disabled:opacity-50"
         >
           <X className="w-5 h-5" />
         </button>
@@ -86,7 +86,7 @@ export default function AddCoordinatorForm({
       {/* Form */}
       <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
         <div className="space-y-1.5">
-          <Label className="text-xs font-semibold text-slate-550">Full Name *</Label>
+          <Label className="text-xs font-semibold text-slate-600">Full Name *</Label>
           <Input
             type="text"
             required
@@ -100,7 +100,7 @@ export default function AddCoordinatorForm({
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-1.5">
-            <Label className="text-xs font-semibold text-slate-550">Email Address *</Label>
+            <Label className="text-xs font-semibold text-slate-600">Email Address *</Label>
             <Input
               type="email"
               required
@@ -112,7 +112,7 @@ export default function AddCoordinatorForm({
             />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs font-semibold text-slate-555">Phone Number *</Label>
+            <Label className="text-xs font-semibold text-slate-600">Phone Number *</Label>
             <Input
               type="tel"
               required
@@ -127,7 +127,7 @@ export default function AddCoordinatorForm({
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-1.5">
-            <Label className="text-xs font-semibold text-slate-550">Department *</Label>
+            <Label className="text-xs font-semibold text-slate-600">Department *</Label>
             <Input
               type="text"
               required
@@ -139,7 +139,7 @@ export default function AddCoordinatorForm({
             />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs font-semibold text-slate-550">Designation *</Label>
+            <Label className="text-xs font-semibold text-slate-600">Designation *</Label>
             <Input
               type="text"
               required
@@ -154,7 +154,7 @@ export default function AddCoordinatorForm({
 
         {coordinatorToEdit && (
           <div className="space-y-1.5">
-            <Label className="text-xs font-semibold text-slate-550">Status *</Label>
+            <Label className="text-xs font-semibold text-slate-600">Status *</Label>
             <Select disabled={isSubmitting} value={status} onValueChange={setStatus}>
               <SelectTrigger className="w-full text-sm bg-slate-50 border border-slate-200 rounded-xl">
                 <SelectValue placeholder="Status" />
@@ -173,7 +173,7 @@ export default function AddCoordinatorForm({
             variant="outline"
             disabled={isSubmitting}
             onClick={onClose}
-            className="px-4 py-2 border border-slate-200 rounded-xl text-slate-500 hover:bg-slate-55"
+            className="px-4 py-2 border border-slate-200 rounded-xl text-slate-600 hover:bg-slate-55"
           >
             Cancel
           </Button>

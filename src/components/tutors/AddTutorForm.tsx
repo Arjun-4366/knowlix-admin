@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+﻿import { useEffect, useMemo, useState } from "react";
 import { X, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -192,14 +192,14 @@ export default function AddTutorForm({
           <h3 className="font-bold text-slate-800 text-lg">
             {tutorToEdit ? "Edit Tutor Details" : "Register New Tutor"}
           </h3>
-          <p className="text-xs text-slate-450 mt-0.5">
+          <p className="text-xs text-slate-600 mt-0.5">
             Configure subjects, availability slots, workloads, and workspace permissions.
           </p>
         </div>
         <button
           onClick={onClose}
           disabled={isSubmitting}
-          className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer disabled:opacity-50"
+          className="p-1.5 rounded-lg text-slate-600 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer disabled:opacity-50"
         >
           <X className="w-5 h-5" />
         </button>
@@ -209,7 +209,7 @@ export default function AddTutorForm({
       <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-1.5">
-            <Label className="text-xs font-semibold text-slate-500">Full Name *</Label>
+            <Label className="text-xs font-semibold text-slate-600">Full Name *</Label>
             <Input
               type="text"
               required
@@ -221,7 +221,7 @@ export default function AddTutorForm({
             />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs font-semibold text-slate-500">Email Address *</Label>
+            <Label className="text-xs font-semibold text-slate-600">Email Address *</Label>
             <Input
               type="email"
               required
@@ -236,7 +236,7 @@ export default function AddTutorForm({
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-1.5">
-            <Label className="text-xs font-semibold text-slate-500">Phone Number *</Label>
+            <Label className="text-xs font-semibold text-slate-600">Phone Number *</Label>
             <Input
               type="tel"
               required
@@ -248,7 +248,7 @@ export default function AddTutorForm({
             />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs font-semibold text-slate-500">Experience *</Label>
+            <Label className="text-xs font-semibold text-slate-600">Experience *</Label>
             <Select
               key={`exp-${tutorToEdit?.id || "new"}`}
               disabled={isSubmitting}
@@ -270,9 +270,9 @@ export default function AddTutorForm({
         </div>
 
         <div className="space-y-1.5">
-          <Label className="text-xs font-semibold text-slate-500">
+          <Label className="text-xs font-semibold text-slate-600">
             Password {tutorToEdit
-              ? <span className="font-normal text-slate-400 ml-1">(leave blank to keep current)</span>
+              ? <span className="font-normal text-slate-600 ml-1">(leave blank to keep current)</span>
               : "*"}
           </Label>
           <Input
@@ -288,7 +288,7 @@ export default function AddTutorForm({
 
         {/* Availability */}
         <div className="space-y-1.5">
-          <Label className="text-xs font-semibold text-slate-500 block">Availability *</Label>
+          <Label className="text-xs font-semibold text-slate-600 block">Availability *</Label>
           <div className="flex gap-2">
             {AVAILABILITY_OPTIONS.map((option) => {
               const isSelected = availability.includes(option);
@@ -301,7 +301,7 @@ export default function AddTutorForm({
                     "px-4 py-2 text-xs font-bold border rounded-xl transition-all cursor-pointer",
                     isSelected
                       ? "bg-[var(--brand-light-green)] text-[var(--brand-green)] border-[var(--brand-green)]"
-                      : "bg-slate-50 text-slate-500 border-slate-200 hover:bg-slate-100"
+                      : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
                   )}
                 >
                   {option}
@@ -313,7 +313,7 @@ export default function AddTutorForm({
 
         {/* Subjects & Syllabi */}
         <div className="space-y-3 pt-2">
-          <Label className="text-xs font-semibold text-slate-500 block">Subjects & Syllabi *</Label>
+          <Label className="text-xs font-semibold text-slate-600 block">Subjects & Syllabi *</Label>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {subjectOptions.map((subj) => {
               const entry = subjectEntries.find((e) => e.name === subj);
@@ -327,7 +327,7 @@ export default function AddTutorForm({
                     "px-3 py-2 text-xs font-bold border rounded-xl transition-all cursor-pointer text-left flex justify-between items-center",
                     isSelected
                       ? "bg-[var(--brand-light-green)] text-[var(--brand-green)] border-[var(--brand-green)]"
-                      : "bg-slate-50 text-slate-500 border-slate-200 hover:bg-slate-100"
+                      : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
                   )}
                 >
                   <span>{subj}</span>
@@ -343,7 +343,7 @@ export default function AddTutorForm({
 
           {subjectEntries.length > 0 && (
             <div className="space-y-3 bg-slate-50/50 p-4 border border-slate-150 rounded-2xl mt-2">
-              <Label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+              <Label className="text-[10px] font-bold text-slate-600 uppercase tracking-wider block">
                 Assign Syllabi for Selected Subjects
               </Label>
               <div className="space-y-3">
@@ -362,7 +362,7 @@ export default function AddTutorForm({
                               "px-2.5 py-1 text-[10px] font-bold border rounded-lg transition-all cursor-pointer",
                               isSylChecked
                                 ? "bg-green-600 text-white border-green-600"
-                                : "bg-white text-slate-500 border-slate-200 hover:bg-slate-50"
+                                : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
                             )}
                           >
                             {syl}
@@ -381,7 +381,7 @@ export default function AddTutorForm({
         {(!hrMode || tutorToEdit) && (
           <div className="grid grid-cols-1 gap-4">
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-slate-500">Status *</Label>
+              <Label className="text-xs font-semibold text-slate-600">Status *</Label>
               <Select
                 key={`status-${tutorToEdit?.id || "new"}`}
                 disabled={isSubmitting}
@@ -417,7 +417,7 @@ export default function AddTutorForm({
             variant="outline"
             disabled={isSubmitting}
             onClick={onClose}
-            className="px-4 py-2 border border-slate-200 rounded-xl text-slate-500 hover:bg-slate-50"
+            className="px-4 py-2 border border-slate-200 rounded-xl text-slate-600 hover:bg-slate-50"
           >
             Cancel
           </Button>

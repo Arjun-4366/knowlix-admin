@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Calendar, BarChart2, BookOpen, CheckCircle2, ArrowRight } from "lucide-react";
 
@@ -72,7 +72,7 @@ export default function TutorReportTemplates({ onSelectTemplate }: TutorReportTe
         <h2 className="text-xl font-bold font-heading text-slate-800">
           Select Progress Report Template
         </h2>
-        <p className="text-sm text-slate-500 mt-1">
+        <p className="text-sm text-slate-600 mt-1">
           Choose a report type to generate an official grade card for your student.
         </p>
       </div>
@@ -97,7 +97,7 @@ export default function TutorReportTemplates({ onSelectTemplate }: TutorReportTe
                 {tpl.description}
               </p>
               <div className="space-y-2 border-t border-slate-100 pt-4">
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                <p className="text-xs font-bold text-slate-600 uppercase tracking-wider">
                   Features included:
                 </p>
                 <ul className="space-y-1.5">
@@ -112,7 +112,7 @@ export default function TutorReportTemplates({ onSelectTemplate }: TutorReportTe
             </div>
             <div className="mt-6 space-y-4">
               <div className="bg-slate-50 border border-slate-100 rounded-lg p-3">
-                <p className="text-xs font-medium text-slate-500">
+                <p className="text-xs font-medium text-slate-600">
                   <span className="font-bold text-slate-700">Recommended for:</span>{" "}
                   {tpl.recommendedFor}
                 </p>

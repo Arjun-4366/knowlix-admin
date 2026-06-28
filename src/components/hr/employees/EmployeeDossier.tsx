@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import {
   X,
@@ -30,10 +30,10 @@ export default function EmployeeDossier({
 }: EmployeeDossierProps) {
   if (!employee) {
     return (
-      <div className="p-10 border border-dashed border-slate-200 rounded-2xl bg-white text-center text-slate-450 text-xs font-medium space-y-2">
-        <Eye className="w-6 h-6 text-slate-350 mx-auto" />
+      <div className="p-10 border border-dashed border-slate-200 rounded-2xl bg-white text-center text-slate-600 text-xs font-medium space-y-2">
+        <Eye className="w-6 h-6 text-slate-600 mx-auto" />
         <p>No employee selected.</p>
-        <p className="text-[10px] font-semibold text-slate-400">
+        <p className="text-[10px] font-semibold text-slate-600">
           Click on any employee in the directory to inspect records.
         </p>
       </div>
@@ -56,7 +56,7 @@ export default function EmployeeDossier({
               <CardTitle className="text-xs font-bold text-slate-800 leading-none">
                 {employee.name}
               </CardTitle>
-              <p className="text-[10px] font-semibold text-slate-450 mt-1">
+              <p className="text-[10px] font-semibold text-slate-600 mt-1">
                 {employee.id} &bull; {employee.designation}
               </p>
             </div>
@@ -66,7 +66,7 @@ export default function EmployeeDossier({
               variant="ghost"
               size="icon-sm"
               onClick={onClose}
-              className="text-slate-400 hover:text-slate-600 rounded-full"
+              className="text-slate-600 hover:text-slate-600 rounded-full"
             >
               <X className="w-3.5 h-3.5" />
             </Button>
@@ -80,16 +80,16 @@ export default function EmployeeDossier({
         <div className="space-y-4">
           {/* Personal Details */}
           <div>
-            <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2 border-b pb-0.5 flex items-center gap-1.5">
+            <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-2 border-b pb-0.5 flex items-center gap-1.5">
               <User className="w-3.5 h-3.5" /> Personal Information
             </h4>
             <div className="grid grid-cols-2 gap-y-2.5 gap-x-1 text-xs">
               <div>
-                <p className="text-[10px] font-bold text-slate-450 uppercase">Email</p>
+                <p className="text-[10px] font-bold text-slate-600 uppercase">Email</p>
                 <p className="font-semibold text-slate-800 break-all">{employee.email}</p>
               </div>
               <div>
-                <p className="text-[10px] font-bold text-slate-450 uppercase">Phone</p>
+                <p className="text-[10px] font-bold text-slate-600 uppercase">Phone</p>
                 <p className="font-semibold text-slate-800">{employee.phone || "N/A"}</p>
               </div>
             </div>
@@ -97,24 +97,24 @@ export default function EmployeeDossier({
 
           {/* Job Details */}
           <div>
-            <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2 border-b pb-0.5 flex items-center gap-1.5">
+            <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-2 border-b pb-0.5 flex items-center gap-1.5">
               <Briefcase className="w-3.5 h-3.5" /> Job & Alignment
             </h4>
             <div className="grid grid-cols-2 gap-y-2.5 gap-x-1 text-xs">
               <div>
-                <p className="text-[10px] font-bold text-slate-450 uppercase">Role</p>
+                <p className="text-[10px] font-bold text-slate-600 uppercase">Role</p>
                 <p className="font-semibold text-slate-800">{employee.role}</p>
               </div>
               <div>
-                <p className="text-[10px] font-bold text-slate-450 uppercase">Department</p>
+                <p className="text-[10px] font-bold text-slate-600 uppercase">Department</p>
                 <p className="font-semibold text-slate-800">{employee.department}</p>
               </div>
               <div>
-                <p className="text-[10px] font-bold text-slate-450 uppercase">D.O.J.</p>
+                <p className="text-[10px] font-bold text-slate-600 uppercase">D.O.J.</p>
                 <p className="font-semibold text-slate-800">{employee.dateOfJoining}</p>
               </div>
               <div>
-                <p className="text-[10px] font-bold text-slate-450 uppercase">Status</p>
+                <p className="text-[10px] font-bold text-slate-600 uppercase">Status</p>
                 <p className="font-semibold text-slate-800 flex items-center gap-1 mt-0.5">
                   <span className={`w-1.5 h-1.5 rounded-full ${employee.status === "Active" ? "bg-emerald-500" : employee.status === "Pending" ? "bg-amber-500" : "bg-red-500"}`} />
                   {employee.status}
@@ -125,20 +125,20 @@ export default function EmployeeDossier({
 
           {/* Tutor specific details */}
           <div>
-            <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2 border-b pb-0.5 flex items-center gap-1.5">
+            <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-2 border-b pb-0.5 flex items-center gap-1.5">
               <AlertCircle className="w-3.5 h-3.5" /> Profile Information
             </h4>
             <div className="grid grid-cols-2 gap-y-2.5 gap-x-1 text-xs">
               <div>
-                <p className="text-[10px] font-bold text-slate-450 uppercase">Experience</p>
+                <p className="text-[10px] font-bold text-slate-600 uppercase">Experience</p>
                 <p className="font-semibold text-slate-800">{employee.experience ? `${employee.experience} Years` : "N/A"}</p>
               </div>
               <div>
-                <p className="text-[10px] font-bold text-slate-450 uppercase">Availability</p>
+                <p className="text-[10px] font-bold text-slate-600 uppercase">Availability</p>
                 <p className="font-semibold text-slate-800">{employee.availability?.length ? employee.availability.join(", ") : "N/A"}</p>
               </div>
               <div className="col-span-2">
-                <p className="text-[10px] font-bold text-slate-450 uppercase">Subjects</p>
+                <p className="text-[10px] font-bold text-slate-600 uppercase">Subjects</p>
                 <div className="flex gap-1.5 mt-1 flex-wrap">
                   {employee.subjects?.length ? employee.subjects.map(s => (
                     <span key={s} className="bg-slate-100 border border-slate-200 text-slate-600 px-2 py-0.5 rounded-full text-[10px] font-bold">

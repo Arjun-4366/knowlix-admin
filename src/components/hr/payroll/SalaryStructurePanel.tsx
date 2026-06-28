@@ -1,4 +1,4 @@
-import { Building2, CircleDollarSign, Shield } from "lucide-react";
+﻿import { Building2, CircleDollarSign, Shield } from "lucide-react";
 import { Employee } from "../employees/types";
 import { SalaryStructureTemplate } from "./types";
 import { formatCurrency } from "./utils";
@@ -25,7 +25,7 @@ export default function SalaryStructurePanel({
     <Card className="bg-white border border-slate-150 rounded-2xl shadow-sm overflow-hidden">
       <div className="p-5 border-b border-slate-100">
         <h2 className="text-sm font-bold text-slate-850">Salary Structure Setup</h2>
-        <p className="text-xs text-slate-500 mt-1">
+        <p className="text-xs text-slate-600 mt-1">
           Standard payroll templates and live employee mapping for monthly fixed,
           allowance, and statutory components.
         </p>
@@ -40,12 +40,12 @@ export default function SalaryStructurePanel({
             >
               <div className="space-y-1">
                 <p className="text-sm font-bold text-slate-800">{template.title}</p>
-                <p className="text-[11px] text-slate-500">{template.targetGroup}</p>
+                <p className="text-[11px] text-slate-600">{template.targetGroup}</p>
               </div>
 
               <div className="grid grid-cols-3 gap-2 text-[11px]">
                 <div className="rounded-xl bg-white border border-slate-150 p-2.5 space-y-1">
-                  <div className="inline-flex items-center gap-1 text-slate-500">
+                  <div className="inline-flex items-center gap-1 text-slate-600">
                     <Building2 className="w-3.5 h-3.5" />
                     Fixed
                   </div>
@@ -54,7 +54,7 @@ export default function SalaryStructurePanel({
                   </p>
                 </div>
                 <div className="rounded-xl bg-white border border-slate-150 p-2.5 space-y-1">
-                  <div className="inline-flex items-center gap-1 text-slate-500">
+                  <div className="inline-flex items-center gap-1 text-slate-600">
                     <CircleDollarSign className="w-3.5 h-3.5" />
                     Allow
                   </div>
@@ -63,7 +63,7 @@ export default function SalaryStructurePanel({
                   </p>
                 </div>
                 <div className="rounded-xl bg-white border border-slate-150 p-2.5 space-y-1">
-                  <div className="inline-flex items-center gap-1 text-slate-500">
+                  <div className="inline-flex items-center gap-1 text-slate-600">
                     <Shield className="w-3.5 h-3.5" />
                     PF
                   </div>
@@ -90,7 +90,7 @@ export default function SalaryStructurePanel({
 
         <div className="rounded-2xl border border-slate-150 overflow-hidden">
           <div className="px-4 py-3 border-b border-slate-100 bg-slate-50/70">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-600">
               Active Structure Mapping
             </h3>
           </div>
@@ -98,25 +98,25 @@ export default function SalaryStructurePanel({
           <Table>
             <TableHeader className="bg-white">
               <TableRow className="border-slate-100 hover:bg-white">
-                <TableHead className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                <TableHead className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-600">
                   Employee
                 </TableHead>
-                <TableHead className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                <TableHead className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-600">
                   Department
                 </TableHead>
-                <TableHead className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                <TableHead className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-600">
                   Basic
                 </TableHead>
-                <TableHead className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                <TableHead className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-600">
                   Allowance
                 </TableHead>
-                <TableHead className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                <TableHead className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-600">
                   PF
                 </TableHead>
-                <TableHead className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                <TableHead className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-600">
                   Gross / Month
                 </TableHead>
-                <TableHead className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                <TableHead className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-600">
                   CTC / Year
                 </TableHead>
               </TableRow>
@@ -137,7 +137,7 @@ export default function SalaryStructurePanel({
                           <p className="text-xs font-bold text-slate-800">
                             {employee.name}
                           </p>
-                          <p className="text-[10px] text-slate-500 mt-1">
+                          <p className="text-[10px] text-slate-600 mt-1">
                             {employee.designation}
                           </p>
                         </div>
@@ -167,7 +167,7 @@ export default function SalaryStructurePanel({
                 <TableRow className="border-slate-100 hover:bg-white">
                   <TableCell
                     colSpan={7}
-                    className="px-4 py-12 text-center text-sm text-slate-500 whitespace-normal"
+                    className="px-4 py-12 text-center text-sm text-slate-600 whitespace-normal"
                   >
                     No employees match the selected payroll filter.
                   </TableCell>

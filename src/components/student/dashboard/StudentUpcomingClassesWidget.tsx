@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { ExternalLink } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -25,7 +25,7 @@ export default function StudentUpcomingClassesWidget({
     <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
       <div className="px-6 py-5 border-b border-slate-50 bg-slate-50/20">
         <h2 className="text-sm font-bold text-slate-800">Upcoming Live Classes</h2>
-        <p className="text-xs text-slate-455 mt-0.5">Click join to open virtual classroom portal</p>
+        <p className="text-xs text-slate-600 mt-0.5">Click join to open virtual classroom portal</p>
       </div>
       <div className="p-5 space-y-4">
         {classes.map((cls) => {
@@ -40,7 +40,7 @@ export default function StudentUpcomingClassesWidget({
               }`}
             >
               <div className="flex items-center justify-between">
-                <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider block">
+                <span className="text-[9px] font-black text-slate-600 uppercase tracking-wider block">
                   {cls.date} • {cls.time}
                 </span>
                 {isActive && (
@@ -51,10 +51,10 @@ export default function StudentUpcomingClassesWidget({
               </div>
               <div>
                 <h4 className="text-xs font-bold text-slate-805">{cls.subject}</h4>
-                <p className="text-[10px] text-slate-500 mt-0.5">Topic: {cls.topic}</p>
+                <p className="text-[10px] text-slate-600 mt-0.5">Topic: {cls.topic}</p>
               </div>
               <div className="flex items-center justify-between border-t border-slate-100/50 pt-3">
-                <span className="text-[10px] text-slate-450 font-semibold">Tutor: {cls.tutor}</span>
+                <span className="text-[10px] text-slate-600 font-semibold">Tutor: {cls.tutor}</span>
                 <a
                   href={cls.meetLink}
                   target="_blank"

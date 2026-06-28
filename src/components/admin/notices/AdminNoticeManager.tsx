@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import { Plus, Trash2, Megaphone, Calendar, User, Search, Filter, X } from "lucide-react";
@@ -148,7 +148,7 @@ export default function AdminNoticeManager() {
         {/* Search & Filters */}
         <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
           <div className="relative flex-1 md:flex-initial min-w-[200px]">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600" />
             <Input
               type="text"
               placeholder="Search announcements..."
@@ -161,7 +161,7 @@ export default function AdminNoticeManager() {
           <Select value={selectedCategory} onValueChange={setSelectedCategory}>
             <SelectTrigger className="h-10 w-[140px] bg-white border-slate-200 rounded-xl text-xs font-semibold text-slate-700">
               <div className="flex items-center gap-1.5">
-                <Filter className="w-3.5 h-3.5 text-slate-400" />
+                <Filter className="w-3.5 h-3.5 text-slate-600" />
                 <SelectValue placeholder="Category" />
               </div>
             </SelectTrigger>
@@ -178,7 +178,7 @@ export default function AdminNoticeManager() {
           <Select value={selectedGrade} onValueChange={setSelectedGrade}>
             <SelectTrigger className="h-10 w-[140px] bg-white border-slate-200 rounded-xl text-xs font-semibold text-slate-700">
               <div className="flex items-center gap-1.5">
-                <Filter className="w-3.5 h-3.5 text-slate-400" />
+                <Filter className="w-3.5 h-3.5 text-slate-600" />
                 <SelectValue placeholder="Grade" />
               </div>
             </SelectTrigger>
@@ -227,7 +227,7 @@ export default function AdminNoticeManager() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* Title */}
                 <div className="md:col-span-1 space-y-1">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
                     Notice Title
                   </label>
                   <Input
@@ -242,7 +242,7 @@ export default function AdminNoticeManager() {
 
                 {/* Category */}
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
                     Category
                   </label>
                   <Select value={newCategory} onValueChange={(val: any) => setNewCategory(val)}>
@@ -261,7 +261,7 @@ export default function AdminNoticeManager() {
 
                 {/* Target Grade */}
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
                     Target Grade
                   </label>
                   <Select value={newTargetGrade} onValueChange={setNewTargetGrade}>
@@ -281,7 +281,7 @@ export default function AdminNoticeManager() {
 
               {/* Content */}
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
                   Notice Content / Description
                 </label>
                 <Textarea
@@ -337,7 +337,7 @@ export default function AdminNoticeManager() {
                       variant="ghost"
                       size="icon-sm"
                       onClick={() => handleDeleteNotice(notice.id)}
-                      className="text-slate-400 hover:text-red-650 hover:bg-red-50 rounded-lg cursor-pointer transition-colors"
+                      className="text-slate-600 hover:text-red-650 hover:bg-red-50 rounded-lg cursor-pointer transition-colors"
                       title="Delete Announcement"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -356,16 +356,16 @@ export default function AdminNoticeManager() {
                 </CardContent>
 
                 {/* Footer with Metadata */}
-                <div className="px-6 py-4 bg-slate-50/50 border-t border-slate-100 rounded-b-2xl flex items-center justify-between text-[10px] font-semibold text-slate-450">
+                <div className="px-6 py-4 bg-slate-50/50 border-t border-slate-100 rounded-b-2xl flex items-center justify-between text-[10px] font-semibold text-slate-600">
                   <div className="flex items-center gap-1.5">
-                    <User className="w-3.5 h-3.5 text-slate-400" />
+                    <User className="w-3.5 h-3.5 text-slate-600" />
                     <span className="truncate max-w-[120px]">
                       {notice.authorName} ({notice.authorRole})
                     </span>
                   </div>
 
                   <div className="flex items-center gap-1">
-                    <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                    <Calendar className="w-3.5 h-3.5 text-slate-600" />
                     <span>
                       {new Date(notice.date).toLocaleDateString("en-US", {
                         month: "short",
@@ -378,7 +378,7 @@ export default function AdminNoticeManager() {
             );
           })
         ) : (
-          <div className="col-span-full py-16 bg-white border border-slate-150 rounded-2xl shadow-sm text-center text-slate-450 text-sm font-medium">
+          <div className="col-span-full py-16 bg-white border border-slate-150 rounded-2xl shadow-sm text-center text-slate-600 text-sm font-medium">
             No notices found. Create one to get started!
           </div>
         )}

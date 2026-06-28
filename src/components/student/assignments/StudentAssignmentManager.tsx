@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useRef } from "react";
 import {
@@ -186,24 +186,24 @@ export default function StudentAssignmentManager() {
           <div className="bg-white border border-slate-100 rounded-2xl shadow-sm overflow-hidden">
             <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
               <p className="text-sm font-bold text-slate-800">Assigned Homework</p>
-              <p className="text-xs text-slate-400 mt-0.5">Click "Submit" on any pending task to upload your work.</p>
+              <p className="text-xs text-slate-600 mt-0.5">Click "Submit" on any pending task to upload your work.</p>
             </div>
             <div className="overflow-x-auto">
               <Table className="table-fixed w-full">
                 <TableHeader className="bg-slate-50/30">
                   <TableRow>
-                    <TableHead className="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider w-[35%]">Assignment</TableHead>
-                    <TableHead className="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider w-[15%]">Subject</TableHead>
-                    <TableHead className="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider text-center w-[15%]">Due Date</TableHead>
-                    <TableHead className="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider text-center w-[12%]">Max Marks</TableHead>
-                    <TableHead className="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider text-center w-[13%]">Status</TableHead>
-                    <TableHead className="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider text-right w-[10%]">Action</TableHead>
+                    <TableHead className="px-6 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider w-[35%]">Assignment</TableHead>
+                    <TableHead className="px-6 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider w-[15%]">Subject</TableHead>
+                    <TableHead className="px-6 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider text-center w-[15%]">Due Date</TableHead>
+                    <TableHead className="px-6 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider text-center w-[12%]">Max Marks</TableHead>
+                    <TableHead className="px-6 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider text-center w-[13%]">Status</TableHead>
+                    <TableHead className="px-6 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider text-right w-[10%]">Action</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody className="divide-y divide-slate-50">
                   {isLoadingAsg ? (
                     <TableRow>
-                      <TableCell colSpan={6} className="px-6 py-12 text-center text-xs text-slate-400">
+                      <TableCell colSpan={6} className="px-6 py-12 text-center text-xs text-slate-600">
                         <div className="flex justify-center items-center gap-2">
                           <div className="w-4 h-4 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: "var(--brand-green)", borderTopColor: "transparent" }} />
                           Loading assignments...
@@ -212,7 +212,7 @@ export default function StudentAssignmentManager() {
                     </TableRow>
                   ) : assignments.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={6} className="px-6 py-12 text-center text-xs text-slate-400 font-medium">
+                      <TableCell colSpan={6} className="px-6 py-12 text-center text-xs text-slate-600 font-medium">
                         No assignments found.
                       </TableCell>
                     </TableRow>
@@ -224,7 +224,7 @@ export default function StudentAssignmentManager() {
                           <TableCell className="px-6 py-4">
                             <p className="text-xs font-bold text-slate-800 truncate leading-none">{asg.title}</p>
                             {asg.description && (
-                              <p className="text-[10px] text-slate-400 mt-1 truncate">{asg.description}</p>
+                              <p className="text-[10px] text-slate-600 mt-1 truncate">{asg.description}</p>
                             )}
                           </TableCell>
                           <TableCell className="px-6 py-4 text-xs font-medium text-slate-600">{asg.subject}</TableCell>
@@ -237,9 +237,9 @@ export default function StudentAssignmentManager() {
                           </TableCell>
                           <TableCell className="px-6 py-4 text-right">
                             {statusText === "Graded" ? (
-                              <span className="text-[10px] font-semibold text-slate-400">Evaluated</span>
+                              <span className="text-[10px] font-semibold text-slate-600">Evaluated</span>
                             ) : statusText === "Submitted" || statusText === "Late" ? (
-                              <span className="text-[10px] font-semibold text-slate-400">Awaiting review</span>
+                              <span className="text-[10px] font-semibold text-slate-600">Awaiting review</span>
                             ) : (
                               <Button
                                 onClick={() => setSubmitAsg(asg)}
@@ -262,10 +262,10 @@ export default function StudentAssignmentManager() {
           {/* Pagination */}
           {totalPages > 1 && (
             <div className="flex items-center justify-between px-2 pt-4">
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-slate-600">
                 Page <span className="font-semibold text-slate-600">{page}</span> of{" "}
                 <span className="font-semibold text-slate-600">{totalPages}</span>
-                <span className="ml-2 text-slate-400">· {totalAssignments} total</span>
+                <span className="ml-2 text-slate-600">· {totalAssignments} total</span>
               </p>
               <div className="flex items-center gap-1">
                 <button
@@ -306,25 +306,25 @@ export default function StudentAssignmentManager() {
           <div className="bg-white border border-slate-100 rounded-2xl shadow-sm overflow-hidden">
             <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
               <p className="text-sm font-bold text-slate-800">Submission History</p>
-              <p className="text-xs text-slate-400 mt-0.5">All your uploaded work and evaluation results.</p>
+              <p className="text-xs text-slate-600 mt-0.5">All your uploaded work and evaluation results.</p>
             </div>
             <div className="overflow-x-auto">
               <Table className="table-fixed w-full">
                 <TableHeader className="bg-slate-50/30">
                   <TableRow>
-                    <TableHead className="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider w-[30%]">Assignment</TableHead>
-                    <TableHead className="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider w-[13%]">Subject</TableHead>
-                    <TableHead className="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider text-center w-[15%]">Submitted</TableHead>
-                    <TableHead className="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider text-center w-[12%]">Files</TableHead>
-                    <TableHead className="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider text-center w-[13%]">Status</TableHead>
-                    <TableHead className="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider text-center w-[10%]">Grade</TableHead>
-                    <TableHead className="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider text-right w-[7%]"></TableHead>
+                    <TableHead className="px-6 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider w-[30%]">Assignment</TableHead>
+                    <TableHead className="px-6 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider w-[13%]">Subject</TableHead>
+                    <TableHead className="px-6 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider text-center w-[15%]">Submitted</TableHead>
+                    <TableHead className="px-6 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider text-center w-[12%]">Files</TableHead>
+                    <TableHead className="px-6 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider text-center w-[13%]">Status</TableHead>
+                    <TableHead className="px-6 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider text-center w-[10%]">Grade</TableHead>
+                    <TableHead className="px-6 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider text-right w-[7%]"></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody className="divide-y divide-slate-50">
                   {submissionsHistory.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={7} className="px-6 py-12 text-center text-xs text-slate-400 font-medium">
+                      <TableCell colSpan={7} className="px-6 py-12 text-center text-xs text-slate-600 font-medium">
                         No submissions yet.
                       </TableCell>
                     </TableRow>
@@ -335,10 +335,10 @@ export default function StudentAssignmentManager() {
                           <p className="text-xs font-bold text-slate-800 truncate leading-none">{sub.assignmentTitle}</p>
                         </TableCell>
                         <TableCell className="px-6 py-4 text-xs font-medium text-slate-600">{sub.subject}</TableCell>
-                        <TableCell className="px-6 py-4 text-[10px] text-center text-slate-500 font-medium">{sub.submittedAt}</TableCell>
+                        <TableCell className="px-6 py-4 text-[10px] text-center text-slate-600 font-medium">{sub.submittedAt}</TableCell>
                         <TableCell className="px-6 py-4 text-center">
                           <span className="text-xs font-bold text-slate-700">{(sub.fileNames as string[]).length}</span>
-                          <span className="text-[10px] text-slate-400 ml-1">file{(sub.fileNames as string[]).length !== 1 ? "s" : ""}</span>
+                          <span className="text-[10px] text-slate-600 ml-1">file{(sub.fileNames as string[]).length !== 1 ? "s" : ""}</span>
                         </TableCell>
                         <TableCell className="px-6 py-4">
                           <div className="flex justify-center">
@@ -349,7 +349,7 @@ export default function StudentAssignmentManager() {
                           {sub.grade ? (
                             <span className="text-xs font-black" style={{ color: "var(--brand-green)" }}>{sub.grade}</span>
                           ) : (
-                            <span className="text-[10px] text-slate-400">—</span>
+                            <span className="text-[10px] text-slate-600">—</span>
                           )}
                         </TableCell>
                         <TableCell className="px-6 py-4 text-right">
@@ -359,7 +359,7 @@ export default function StudentAssignmentManager() {
                             className="p-1.5 rounded-lg transition-colors cursor-pointer hover:bg-slate-100"
                             title="View details"
                           >
-                            <Eye className="w-3.5 h-3.5 text-slate-400 hover:text-slate-700" />
+                            <Eye className="w-3.5 h-3.5 text-slate-600 hover:text-slate-700" />
                           </button>
                         </TableCell>
                       </TableRow>
@@ -387,13 +387,13 @@ export default function StudentAssignmentManager() {
                   Submit Assignment
                 </p>
                 <h3 className="text-sm font-bold text-slate-800 mt-0.5">{submitAsg.title}</h3>
-                <p className="text-[10px] text-slate-400 mt-0.5">{submitAsg.subject}</p>
+                <p className="text-[10px] text-slate-600 mt-0.5">{submitAsg.subject}</p>
               </div>
               <button
                 type="button"
                 onClick={closeDialog}
                 disabled={isSubmitting}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer disabled:opacity-50 mt-0.5"
+                className="p-1.5 rounded-lg text-slate-600 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer disabled:opacity-50 mt-0.5"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -402,14 +402,14 @@ export default function StudentAssignmentManager() {
             {/* Dialog body */}
             <form onSubmit={handleUploadSubmit} className="p-6 space-y-4">
               {submitAsg.description && (
-                <div className="text-[10px] text-slate-500 leading-relaxed bg-slate-50 border border-slate-100 rounded-xl p-3">
+                <div className="text-[10px] text-slate-600 leading-relaxed bg-slate-50 border border-slate-100 rounded-xl p-3">
                   {submitAsg.description}
                 </div>
               )}
 
               {/* File dropzone */}
               <div className="space-y-2">
-                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
+                <label className="text-[10px] font-bold text-slate-600 uppercase tracking-wider block">
                   Upload Files <span style={{ color: "var(--brand-green)" }}>*</span>
                 </label>
                 <input
@@ -427,7 +427,7 @@ export default function StudentAssignmentManager() {
                 >
                   <Upload className="w-6 h-6 mx-auto mb-2" style={{ color: "var(--brand-green)" }} />
                   <p className="text-xs font-bold text-slate-700">Click or drag files here</p>
-                  <p className="text-[9px] text-slate-400 mt-0.5">PDF, DOCX, XLSX, PNG, JPG — multiple allowed</p>
+                  <p className="text-[9px] text-slate-600 mt-0.5">PDF, DOCX, XLSX, PNG, JPG — multiple allowed</p>
                 </div>
 
                 {selectedFiles.length > 0 && (
@@ -443,11 +443,11 @@ export default function StudentAssignmentManager() {
                           <span className="text-[10px] font-semibold text-slate-700 truncate">{file.name}</span>
                         </div>
                         <div className="flex items-center gap-2 flex-shrink-0">
-                          <span className="text-[9px] text-slate-400">{(file.size / 1024).toFixed(0)} KB</span>
+                          <span className="text-[9px] text-slate-600">{(file.size / 1024).toFixed(0)} KB</span>
                           <button
                             type="button"
                             onClick={() => handleRemoveFile(file.name)}
-                            className="text-slate-400 hover:text-red-500 transition-colors cursor-pointer"
+                            className="text-slate-600 hover:text-red-500 transition-colors cursor-pointer"
                           >
                             <X className="w-3.5 h-3.5" />
                           </button>
@@ -460,8 +460,8 @@ export default function StudentAssignmentManager() {
 
               {/* Remarks */}
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
-                  Remarks <span className="font-normal text-slate-400">(optional)</span>
+                <label className="text-[10px] font-bold text-slate-600 uppercase tracking-wider block">
+                  Remarks <span className="font-normal text-slate-600">(optional)</span>
                 </label>
                 <Textarea
                   value={remarks}
@@ -478,7 +478,7 @@ export default function StudentAssignmentManager() {
                   variant="outline"
                   disabled={isSubmitting}
                   onClick={closeDialog}
-                  className="flex-1 rounded-xl border-slate-200 text-slate-500 text-xs font-semibold cursor-pointer"
+                  className="flex-1 rounded-xl border-slate-200 text-slate-600 text-xs font-semibold cursor-pointer"
                 >
                   Cancel
                 </Button>
@@ -518,12 +518,12 @@ export default function StudentAssignmentManager() {
                   Submission Details
                 </p>
                 <h3 className="text-sm font-bold text-slate-800 mt-0.5">{viewSub.assignmentTitle}</h3>
-                <p className="text-[10px] text-slate-400 mt-0.5">{viewSub.subject} · Submitted {viewSub.submittedAt}</p>
+                <p className="text-[10px] text-slate-600 mt-0.5">{viewSub.subject} · Submitted {viewSub.submittedAt}</p>
               </div>
               <button
                 type="button"
                 onClick={() => setViewSub(null)}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer mt-0.5"
+                className="p-1.5 rounded-lg text-slate-600 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer mt-0.5"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -551,7 +551,7 @@ export default function StudentAssignmentManager() {
 
               {/* Uploaded files */}
               <div className="space-y-2">
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                <p className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">
                   Uploaded Files ({(viewSub.files as { url: string; name: string }[]).length})
                 </p>
                 <div className="space-y-1.5">
@@ -584,7 +584,7 @@ export default function StudentAssignmentManager() {
               {/* Remarks (student) */}
               {viewSub.remarks && (
                 <div className="space-y-1.5">
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Your Remarks</p>
+                  <p className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Your Remarks</p>
                   <p className="text-xs text-slate-600 bg-slate-50 border border-slate-100 rounded-xl p-3 leading-relaxed italic">
                     "{viewSub.remarks}"
                   </p>
@@ -606,7 +606,7 @@ export default function StudentAssignmentManager() {
                     </div>
                     {viewSub.feedback && (
                       <div className="space-y-1">
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Feedback</p>
+                        <p className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Feedback</p>
                         <p className="text-xs text-slate-600 bg-white border border-emerald-100 rounded-lg p-3 leading-relaxed italic">
                           "{viewSub.feedback}"
                         </p>

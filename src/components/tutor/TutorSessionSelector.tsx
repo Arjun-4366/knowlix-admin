@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Check, Video, Clock, Users, BookOpen, Loader2 } from "lucide-react";
 import { ITutorSession } from "@/types/tutor/attendance";
@@ -9,6 +9,13 @@ interface TutorSessionSelectorProps {
   onSelect: (session: ITutorSession | null) => void;
   date?: "today" | "yesterday";
 }
+
+  const STATUS_LABELS: Record<string, string> = {
+    scheduled: "Scheduled",
+    conducted: "Conducted",
+    completed: "Completed",
+    not_conducted: "Not Conducted",
+  };
 
 const STATUS_STYLES: Record<string, string> = {
   scheduled: "bg-blue-50 text-blue-700 border-blue-200",
@@ -24,10 +31,10 @@ export default function TutorSessionSelector({ selectedSessionId, onSelect, date
   if (isLoading) {
     return (
       <div className="space-y-2">
-        <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+        <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
           Session (Optional)
         </label>
-        <div className="flex items-center gap-2 py-4 text-slate-400 text-sm">
+        <div className="flex items-center gap-2 py-4 text-slate-600 text-sm">
           <Loader2 className="w-4 h-4 animate-spin" />
           Loading sessions...
         </div>
@@ -38,14 +45,14 @@ export default function TutorSessionSelector({ selectedSessionId, onSelect, date
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+        <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
           Link to Session (Optional)
         </label>
         {selectedSessionId && (
           <button
             type="button"
             onClick={() => onSelect(null)}
-            className="text-[10px] font-bold text-slate-400 hover:text-red-500 transition-colors cursor-pointer underline"
+            className="text-[10px] font-bold text-slate-600 hover:text-red-500 transition-colors cursor-pointer underline"
           >
             Clear selection
           </button>
@@ -53,7 +60,7 @@ export default function TutorSessionSelector({ selectedSessionId, onSelect, date
       </div>
 
       {sessions.length === 0 ? (
-        <div className="py-4 text-center text-slate-400 text-xs font-semibold border border-dashed border-slate-200 rounded-xl">
+        <div className="py-4 text-center text-slate-600 text-xs font-semibold border border-dashed border-slate-200 rounded-xl">
           No sessions found. Attendance will be logged without a session link.
         </div>
       ) : (
@@ -80,12 +87,12 @@ export default function TutorSessionSelector({ selectedSessionId, onSelect, date
                     {session.title}
                   </p>
                   <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border flex-shrink-0 capitalize ${statusStyle}`}>
-                    {session.status}
+                    {STATUS_LABELS[session.status]}
                   </span>
                 </div>
 
                 {/* Meta row */}
-                <div className="flex flex-wrap items-center gap-3 text-[11px] font-semibold text-slate-500">
+                <div className="flex flex-wrap items-center gap-3 text-[11px] font-semibold text-slate-600">
                   <span className="flex items-center gap-1">
                     <BookOpen className="w-3 h-3" />
                     {session.subject}
@@ -108,7 +115,7 @@ export default function TutorSessionSelector({ selectedSessionId, onSelect, date
 
                 {/* Selected checkmark */}
                 {isSelected && (
-                  <div className="absolute right-3.5 top-3.5 w-5 h-5 rounded-full bg-[var(--brand-green)] flex items-center justify-center shadow-sm">
+                  <div className="absolute right-3.5 bottom-2 w-5 h-5 rounded-full bg-[var(--brand-green)] flex items-center justify-center shadow-sm">
                     <Check className="w-3 h-3 text-white stroke-[3px]" />
                   </div>
                 )}

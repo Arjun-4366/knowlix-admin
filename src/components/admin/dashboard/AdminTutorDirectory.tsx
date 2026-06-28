@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useMemo, useEffect } from "react";
 import { Search } from "lucide-react";
@@ -35,7 +35,7 @@ export default function AdminTutorDirectory({ onBack }: AdminTutorDirectoryProps
 
   const searchAction = (
     <div className="relative w-full">
-      <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+      <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600" />
       <input
         type="text"
         placeholder="Search tutors, subjects..."
@@ -61,7 +61,7 @@ export default function AdminTutorDirectory({ onBack }: AdminTutorDirectoryProps
         <>
           <TutorTable tutors={filteredTutors} />
           <div className="flex items-center justify-between mt-4 bg-white p-4 rounded-xl border border-slate-150 shadow-sm">
-            <span className="text-sm text-slate-500 font-medium">
+            <span className="text-sm text-slate-600 font-medium">
               Showing page {page} (Total {tutorsResponse?.total || 0})
             </span>
             <div className="flex gap-2">

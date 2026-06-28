@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import {
   Table,
   TableBody,
@@ -105,7 +105,7 @@ function KpiCard({
       <div>
         <p className="text-xl font-bold text-slate-850">{value}</p>
         <p className="text-xs font-semibold text-slate-700 mt-0.5">{label}</p>
-        {sub && <p className="text-[11px] text-slate-400 mt-0.5">{sub}</p>}
+        {sub && <p className="text-[11px] text-slate-600 mt-0.5">{sub}</p>}
       </div>
     </Card>
   );
@@ -115,7 +115,7 @@ function SectionHeader({ title, description }: { title: string; description: str
   return (
     <div>
       <h2 className="text-sm font-bold text-slate-800">{title}</h2>
-      <p className="text-xs text-slate-500 mt-0.5">{description}</p>
+      <p className="text-xs text-slate-600 mt-0.5">{description}</p>
     </div>
   );
 }
@@ -168,10 +168,10 @@ function SalaryCreateModal({
             </div>
             <div>
               <h3 className="font-bold text-slate-800 text-base">Add Salary Record</h3>
-              <p className="text-[10px] text-slate-400 font-semibold mt-0.5">Fill in the salary details</p>
+              <p className="text-[10px] text-slate-600 font-semibold mt-0.5">Fill in the salary details</p>
             </div>
           </div>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors">
+          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-600 hover:text-slate-600 transition-colors">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -179,7 +179,7 @@ function SalaryCreateModal({
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           {/* Tutor */}
           <div className="space-y-1.5">
-            <Label className="text-[10px] uppercase font-bold text-slate-500">Tutor</Label>
+            <Label className="text-[10px] uppercase font-bold text-slate-600">Tutor</Label>
             <Select value={tutorId} onValueChange={setTutorId}>
               <SelectTrigger className="h-9 text-sm font-semibold bg-slate-50 border-slate-200">
                 <SelectValue placeholder="Select tutor" />
@@ -195,7 +195,7 @@ function SalaryCreateModal({
           {/* Month + Year */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label className="text-[10px] uppercase font-bold text-slate-500">Month</Label>
+              <Label className="text-[10px] uppercase font-bold text-slate-600">Month</Label>
               <Select value={month} onValueChange={setMonth}>
                 <SelectTrigger className="h-9 text-sm font-semibold bg-slate-50 border-slate-200">
                   <SelectValue />
@@ -208,7 +208,7 @@ function SalaryCreateModal({
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-[10px] uppercase font-bold text-slate-500">Year</Label>
+              <Label className="text-[10px] uppercase font-bold text-slate-600">Year</Label>
               <Input
                 type="number"
                 value={year}
@@ -223,7 +223,7 @@ function SalaryCreateModal({
           {/* Total + Paid */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label className="text-[10px] uppercase font-bold text-slate-500">Total Amount (₹)</Label>
+              <Label className="text-[10px] uppercase font-bold text-slate-600">Total Amount (₹)</Label>
               <Input
                 type="number"
                 value={totalAmount}
@@ -234,7 +234,7 @@ function SalaryCreateModal({
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-[10px] uppercase font-bold text-slate-500">Paid Amount (₹)</Label>
+              <Label className="text-[10px] uppercase font-bold text-slate-600">Paid Amount (₹)</Label>
               <Input
                 type="number"
                 value={paidAmount}
@@ -248,7 +248,7 @@ function SalaryCreateModal({
 
           {/* Remarks */}
           <div className="space-y-1.5">
-            <Label className="text-[10px] uppercase font-bold text-slate-500">Remarks</Label>
+            <Label className="text-[10px] uppercase font-bold text-slate-600">Remarks</Label>
             <Input
               value={remarks}
               onChange={(e) => setRemarks(e.target.value)}
@@ -306,10 +306,10 @@ function SalaryUpdateModal({
             </div>
             <div>
               <h3 className="font-bold text-slate-800 text-base">Update Salary</h3>
-              <p className="text-[10px] text-slate-400 font-semibold mt-0.5">{tutorName}</p>
+              <p className="text-[10px] text-slate-600 font-semibold mt-0.5">{tutorName}</p>
             </div>
           </div>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors">
+          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-600 hover:text-slate-600 transition-colors">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -317,7 +317,7 @@ function SalaryUpdateModal({
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label className="text-[10px] uppercase font-bold text-slate-500">Month</Label>
+              <Label className="text-[10px] uppercase font-bold text-slate-600">Month</Label>
               <Select value={month} onValueChange={setMonth}>
                 <SelectTrigger className="h-9 text-sm font-semibold bg-slate-50 border-slate-200">
                   <SelectValue />
@@ -330,7 +330,7 @@ function SalaryUpdateModal({
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-[10px] uppercase font-bold text-slate-500">Year</Label>
+              <Label className="text-[10px] uppercase font-bold text-slate-600">Year</Label>
               <Input
                 type="number"
                 value={year}
@@ -343,7 +343,7 @@ function SalaryUpdateModal({
           </div>
 
           <div className="space-y-1.5">
-            <Label className="text-[10px] uppercase font-bold text-slate-500">Paid Amount (₹)</Label>
+            <Label className="text-[10px] uppercase font-bold text-slate-600">Paid Amount (₹)</Label>
             <Input
               type="number"
               value={paidAmount}
@@ -442,19 +442,19 @@ function SalaryManagementPanel() {
             <div className="flex items-center gap-4 mt-3">
               <div className="text-center">
                 <p className="text-base font-bold text-slate-800">{formatCurrency(totalAmount)}</p>
-                <p className="text-[10px] text-slate-500">Total</p>
+                <p className="text-[10px] text-slate-600">Total</p>
               </div>
               <div className="w-px h-8 bg-slate-100" />
               <div className="text-center">
                 <p className="text-base font-bold text-emerald-700">{formatCurrency(totalPaid)}</p>
-                <p className="text-[10px] text-slate-500">Paid</p>
+                <p className="text-[10px] text-slate-600">Paid</p>
               </div>
               <div className="w-px h-8 bg-slate-100" />
               <div className="text-center">
                 <p className="text-base font-bold text-rose-600">{formatCurrency(totalPending)}</p>
-                <p className="text-[10px] text-slate-500">Pending</p>
+                <p className="text-[10px] text-slate-600">Pending</p>
               </div>
-              <p className="ml-auto text-[11px] text-slate-400">
+              <p className="ml-auto text-[11px] text-slate-600">
                 {records.length} record{records.length !== 1 ? "s" : ""}
               </p>
             </div>
@@ -464,10 +464,10 @@ function SalaryManagementPanel() {
         <div className="p-5">
           {isLoading ? (
             <div className="flex items-center justify-center py-10">
-              <Loader2 className="w-6 h-6 animate-spin text-slate-400" />
+              <Loader2 className="w-6 h-6 animate-spin text-slate-600" />
             </div>
           ) : records.length === 0 ? (
-            <div className="py-10 text-center text-sm text-slate-400">
+            <div className="py-10 text-center text-sm text-slate-600">
               No salary records yet. Click &ldquo;Add Record&rdquo; to create one.
             </div>
           ) : (
@@ -478,7 +478,7 @@ function SalaryManagementPanel() {
                     {["Tutor", "Period", "Total", "Paid", "Pending", "Status", ""].map((h) => (
                       <TableHead
                         key={h}
-                        className="text-left py-2 px-3 font-semibold text-slate-500 uppercase tracking-wider text-[10px]">
+                        className="text-left py-2 px-3 font-semibold text-slate-600 uppercase tracking-wider text-[10px]">
                         {h}
                       </TableHead>
                     ))}
@@ -491,7 +491,7 @@ function SalaryManagementPanel() {
                       className={cn("border-b border-slate-50", i % 2 !== 0 && "bg-slate-50/50")}>
                       <TableCell className="py-2.5 px-3 font-semibold text-slate-800">
                         {r.tutorId?.name ?? (
-                          <span className="font-mono text-slate-400 text-[10px]">
+                          <span className="font-mono text-slate-600 text-[10px]">
                             …{r.id.slice(-8)}
                           </span>
                         )}
@@ -522,13 +522,13 @@ function SalaryManagementPanel() {
                         <div className="flex items-center gap-1.5">
                           <button
                             onClick={() => setEditRecord(r)}
-                            className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors">
+                            className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-600 hover:text-slate-600 transition-colors">
                             <Pencil className="w-3.5 h-3.5" />
                           </button>
                           <button
                             onClick={() => handleDelete(r)}
                             disabled={deleteMutation.isPending}
-                            className="p-1.5 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-600 transition-colors">
+                            className="p-1.5 rounded-lg hover:bg-red-50 text-slate-600 hover:text-red-600 transition-colors">
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
                         </div>
@@ -560,16 +560,16 @@ function AttendanceReportPanel({ dateFrom, dateTo }: { dateFrom: string; dateTo:
           description="Per-tutor attendance summary for the selected date range."
         />
         {data && (
-          <p className="text-[11px] text-slate-400 font-medium mt-0.5">{data.total} records</p>
+          <p className="text-[11px] text-slate-600 font-medium mt-0.5">{data.total} records</p>
         )}
       </div>
       <div className="p-5">
         {isLoading ? (
           <div className="flex items-center justify-center py-10">
-            <Loader2 className="w-6 h-6 animate-spin text-slate-400" />
+            <Loader2 className="w-6 h-6 animate-spin text-slate-600" />
           </div>
         ) : summary.length === 0 ? (
-          <div className="py-10 text-center text-sm text-slate-400">
+          <div className="py-10 text-center text-sm text-slate-600">
             No attendance records found for the selected range.
           </div>
         ) : (
@@ -580,7 +580,7 @@ function AttendanceReportPanel({ dateFrom, dateTo }: { dateFrom: string; dateTo:
                   {["Tutor", "Present", "Absent", "Late", "Total Records"].map((h) => (
                     <TableHead
                       key={h}
-                      className="text-left py-2 px-3 font-semibold text-slate-500 uppercase tracking-wider text-[10px]">
+                      className="text-left py-2 px-3 font-semibold text-slate-600 uppercase tracking-wider text-[10px]">
                       {h}
                     </TableHead>
                   ))}
@@ -593,7 +593,7 @@ function AttendanceReportPanel({ dateFrom, dateTo }: { dateFrom: string; dateTo:
                     className={cn("border-b border-slate-50", i % 2 !== 0 && "bg-slate-50/50")}>
                     <TableCell className="py-2.5 px-3 font-semibold text-slate-800">
                       {row.tutorName || (
-                        <span className="font-mono text-slate-400 text-[10px]">{row.tutorId.slice(-8)}</span>
+                        <span className="font-mono text-slate-600 text-[10px]">{row.tutorId.slice(-8)}</span>
                       )}
                     </TableCell>
                     <TableCell className="py-2.5 px-3 text-emerald-700 font-semibold">{row.present}</TableCell>
@@ -631,10 +631,10 @@ function TurnoverPanel() {
       <div className="p-5">
         {isLoading ? (
           <div className="flex items-center justify-center py-10">
-            <Loader2 className="w-6 h-6 animate-spin text-slate-400" />
+            <Loader2 className="w-6 h-6 animate-spin text-slate-600" />
           </div>
         ) : !data ? (
-          <div className="py-10 text-center text-sm text-slate-400">No turnover data available.</div>
+          <div className="py-10 text-center text-sm text-slate-600">No turnover data available.</div>
         ) : (
           <div className="space-y-6">
             <div className="grid grid-cols-2 xl:grid-cols-5 gap-3">
@@ -653,7 +653,7 @@ function TurnoverPanel() {
             </div>
 
             <div>
-              <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-3">
+              <p className="text-[11px] font-semibold text-slate-600 uppercase tracking-wider mb-3">
                 Monthly Joinings &amp; Exits (Current Year)
               </p>
               <div className="flex items-end gap-1.5 h-20">
@@ -667,7 +667,7 @@ function TurnoverPanel() {
                         opacity: m.joinings > 0 ? 1 : 0.2,
                       }}
                     />
-                    <span className="text-[9px] text-slate-400 font-medium">{m.month.slice(5)}</span>
+                    <span className="text-[9px] text-slate-600 font-medium">{m.month.slice(5)}</span>
                   </div>
                 ))}
               </div>
@@ -675,7 +675,7 @@ function TurnoverPanel() {
 
             {data.tutors?.active?.length > 0 && (
               <div>
-                <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-2">
+                <p className="text-[11px] font-semibold text-slate-600 uppercase tracking-wider mb-2">
                   Active Tutors ({data.tutors.active.length})
                 </p>
                 <div className="space-y-2">
@@ -686,7 +686,7 @@ function TurnoverPanel() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-xs font-semibold text-slate-800 truncate">{t.name}</p>
-                        <p className="text-[10px] text-slate-400 truncate">{t.email}</p>
+                        <p className="text-[10px] text-slate-600 truncate">{t.email}</p>
                       </div>
                       <Badge variant="outline" className="text-[10px] bg-emerald-50 text-emerald-700 border-emerald-200">
                         Active
@@ -699,18 +699,18 @@ function TurnoverPanel() {
 
             {data.tutors?.inactive?.length > 0 && (
               <div>
-                <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-2">
+                <p className="text-[11px] font-semibold text-slate-600 uppercase tracking-wider mb-2">
                   Inactive Tutors ({data.tutors.inactive.length})
                 </p>
                 <div className="space-y-2">
                   {data.tutors.inactive.map((t) => (
                     <div key={t.id} className="flex items-center gap-3 rounded-xl border border-slate-100 p-2.5 bg-slate-50/40">
                       <div className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0">
-                        <UserX className="w-3.5 h-3.5 text-slate-500" />
+                        <UserX className="w-3.5 h-3.5 text-slate-600" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-xs font-semibold text-slate-800 truncate">{t.name}</p>
-                        <p className="text-[10px] text-slate-400 truncate">{t.email}</p>
+                        <p className="text-[10px] text-slate-600 truncate">{t.email}</p>
                       </div>
                       <Badge variant="outline" className="text-[10px] bg-slate-50 text-slate-600 border-slate-200">
                         Inactive
@@ -775,12 +775,12 @@ export default function HRReportsManager() {
       <Card className="bg-white border border-slate-150 rounded-2xl shadow-sm p-4">
         <div className="flex flex-wrap items-center gap-4">
           <div className="flex items-center gap-2">
-            <Clock className="w-4 h-4 text-slate-400" />
+            <Clock className="w-4 h-4 text-slate-600" />
             <span className="text-xs font-semibold text-slate-600">Attendance Date Range:</span>
           </div>
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2">
-              <label className="text-[11px] text-slate-500">From</label>
+              <label className="text-[11px] text-slate-600">From</label>
               <input
                 type="date"
                 value={dateFrom}
@@ -789,7 +789,7 @@ export default function HRReportsManager() {
               />
             </div>
             <div className="flex items-center gap-2">
-              <label className="text-[11px] text-slate-500">To</label>
+              <label className="text-[11px] text-slate-600">To</label>
               <input
                 type="date"
                 value={dateTo}

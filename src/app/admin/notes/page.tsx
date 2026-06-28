@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { Plus, Search, RotateCcw } from "lucide-react";
@@ -164,7 +164,7 @@ function NotesContent() {
       {/* Filters */}
       <div className="flex flex-col gap-4">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-600" />
           <Input
             placeholder="Search by title, subject, chapter..."
             value={searchInput}
@@ -271,7 +271,7 @@ function NotesContent() {
               filterStatus === "all" &&
               filterAttachmentType === "all"
             }
-            className="h-8 px-3 bg-white border-slate-200 text-slate-500 hover:text-slate-800 rounded-xl disabled:opacity-40"
+            className="h-8 px-3 bg-white border-slate-200 text-slate-600 hover:text-slate-800 rounded-xl disabled:opacity-40"
             title="Reset filters">
             <RotateCcw className="w-3.5 h-3.5" />
           </Button>

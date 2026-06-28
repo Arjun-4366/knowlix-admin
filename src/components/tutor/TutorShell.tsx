@@ -21,7 +21,7 @@ export default function TutorShell({
         />
         <main
           className="flex-1 overflow-y-auto p-6 animate-in fade-in slide-in-from-bottom-4 duration-500"
-          style={{ background: "var(--brand-bg)" }}
+          style={{ background: "var(--brand-bg)", scrollbarGutter: "stable" }}
         >
           {children}
         </main>

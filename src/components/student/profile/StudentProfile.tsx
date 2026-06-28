@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import {
   User, Mail, Phone, MapPin, BookOpen, GraduationCap,
@@ -12,7 +12,7 @@ import { useGetStudentProfile } from "@/querys/student/studentQuery";
 const STATUS_STYLES: Record<string, string> = {
   admission_taken: "bg-emerald-50 text-emerald-700 border-emerald-100",
   pending: "bg-amber-50 text-amber-700 border-amber-100",
-  inactive: "bg-slate-100 text-slate-500 border-slate-200",
+  inactive: "bg-slate-100 text-slate-600 border-slate-200",
 };
 
 const STATUS_LABELS: Record<string, string> = {
@@ -34,7 +34,7 @@ function InfoRow({ label, value }: { label: string; value?: string | null }) {
   if (!value) return null;
   return (
     <div className="flex flex-col gap-0.5">
-      <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">{label}</span>
+      <span className="text-[10px] text-slate-600 font-bold uppercase tracking-wider">{label}</span>
       <span className="text-sm font-semibold text-slate-800">{value}</span>
     </div>
   );
@@ -54,8 +54,8 @@ export default function StudentProfile() {
   if (!profile) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[40vh] bg-white border border-slate-150 rounded-2xl shadow-sm">
-        <User className="w-10 h-10 text-slate-200 mb-3" />
-        <p className="text-sm font-semibold text-slate-400">Profile not available</p>
+        <User className="w-10 h-10 text-slate-600 mb-3" />
+        <p className="text-sm font-semibold text-slate-600">Profile not available</p>
       </div>
     );
   }
@@ -139,31 +139,31 @@ export default function StudentProfile() {
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                 <div className="flex items-start gap-3">
                   <div className="w-8 h-8 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center flex-shrink-0">
-                    <Mail className="w-4 h-4 text-slate-400" />
+                    <Mail className="w-4 h-4 text-slate-600" />
                   </div>
                   <InfoRow label="Email Address" value={profile.email} />
                 </div>
                 <div className="flex items-start gap-3">
                   <div className="w-8 h-8 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center flex-shrink-0">
-                    <Phone className="w-4 h-4 text-slate-400" />
+                    <Phone className="w-4 h-4 text-slate-600" />
                   </div>
                   <InfoRow label="Phone Number" value={profile.phone} />
                 </div>
                 <div className="flex items-start gap-3">
                   <div className="w-8 h-8 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center flex-shrink-0">
-                    <Users className="w-4 h-4 text-slate-400" />
+                    <Users className="w-4 h-4 text-slate-600" />
                   </div>
                   <InfoRow label="Parent / Guardian" value={profile.parentName} />
                 </div>
                 <div className="flex items-start gap-3">
                   <div className="w-8 h-8 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center flex-shrink-0">
-                    <MapPin className="w-4 h-4 text-slate-400" />
+                    <MapPin className="w-4 h-4 text-slate-600" />
                   </div>
                   <InfoRow label="Location" value={profile.place} />
                 </div>
                 <div className="flex items-start gap-3">
                   <div className="w-8 h-8 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center flex-shrink-0">
-                    <Calendar className="w-4 h-4 text-slate-400" />
+                    <Calendar className="w-4 h-4 text-slate-600" />
                   </div>
                   <InfoRow
                     label="Enrolled On"
@@ -174,7 +174,7 @@ export default function StudentProfile() {
                 </div>
                 <div className="flex items-start gap-3">
                   <div className="w-8 h-8 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center flex-shrink-0">
-                    <ShieldCheck className="w-4 h-4 text-slate-400" />
+                    <ShieldCheck className="w-4 h-4 text-slate-600" />
                   </div>
                   <InfoRow label="Admission Status" value={statusLabel} />
                 </div>
@@ -221,7 +221,7 @@ export default function StudentProfile() {
                     {profile.mentorName[0].toUpperCase()}
                   </div>
                   <div>
-                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Mentor</p>
+                    <p className="text-[10px] text-slate-600 font-bold uppercase tracking-wider">Mentor</p>
                     <p className="text-sm font-bold text-slate-800">{profile.mentorName}</p>
                   </div>
                 </div>
@@ -232,13 +232,13 @@ export default function StudentProfile() {
                     {profile.coordinatorName[0].toUpperCase()}
                   </div>
                   <div>
-                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Coordinator</p>
+                    <p className="text-[10px] text-slate-600 font-bold uppercase tracking-wider">Coordinator</p>
                     <p className="text-sm font-bold text-slate-800">{profile.coordinatorName}</p>
                   </div>
                 </div>
               )}
               {!profile.mentorName && !profile.coordinatorName && (
-                <p className="text-xs text-slate-400 text-center py-4">No staff assigned yet</p>
+                <p className="text-xs text-slate-600 text-center py-4">No staff assigned yet</p>
               )}
             </CardContent>
           </Card>
@@ -256,7 +256,7 @@ export default function StudentProfile() {
                 {/* Progress bar */}
                 <div>
                   <div className="flex justify-between items-center mb-1.5">
-                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Payment Progress</span>
+                    <span className="text-[10px] text-slate-600 font-bold uppercase tracking-wider">Payment Progress</span>
                     <span className="text-[10px] font-bold text-[var(--brand-green)]">{paidPercent}%</span>
                   </div>
                   <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
@@ -269,15 +269,15 @@ export default function StudentProfile() {
 
                 <div className="space-y-3">
                   <div className="flex justify-between items-center text-xs font-semibold py-2 border-b border-slate-50">
-                    <span className="text-slate-500">Total Fee</span>
+                    <span className="text-slate-600">Total Fee</span>
                     <span className="text-slate-800 font-bold">₹{profile.totalFee.toLocaleString("en-IN")}</span>
                   </div>
                   <div className="flex justify-between items-center text-xs font-semibold py-2 border-b border-slate-50">
-                    <span className="text-slate-500">Amount Paid</span>
+                    <span className="text-slate-600">Amount Paid</span>
                     <span className="text-emerald-600 font-bold">₹{(profile.paidAmount || 0).toLocaleString("en-IN")}</span>
                   </div>
                   <div className="flex justify-between items-center text-xs font-semibold py-2">
-                    <span className="text-slate-500">Outstanding</span>
+                    <span className="text-slate-600">Outstanding</span>
                     <span className={`font-bold ${dueAmount > 0 ? "text-rose-600" : "text-emerald-600"}`}>
                       ₹{dueAmount.toLocaleString("en-IN")}
                     </span>
@@ -301,10 +301,10 @@ export default function StudentProfile() {
                   <BookOpen className="w-5 h-5 text-[var(--brand-green)]" />
                 </div>
                 <div>
-                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Enrolled Course</p>
+                  <p className="text-[10px] text-slate-600 font-bold uppercase tracking-wider">Enrolled Course</p>
                   <p className="text-sm font-bold text-slate-800 mt-0.5">{profile.courseName}</p>
                   {profile.programName && (
-                    <p className="text-xs text-slate-500 mt-0.5">{profile.programName}</p>
+                    <p className="text-xs text-slate-600 mt-0.5">{profile.programName}</p>
                   )}
                 </div>
               </CardContent>

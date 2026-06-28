@@ -1,4 +1,4 @@
-import { X, Star, AlertCircle, UserCheck } from "lucide-react";
+﻿import { X, Star, AlertCircle, UserCheck } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -98,13 +98,13 @@ export default function TutorDrawer({
                   {selectedTutor.status}
                 </Badge>
               </div>
-              <p className="text-xs text-slate-450 mt-1">
+              <p className="text-xs text-slate-600 mt-1">
                 {selectedTutor.id} • {selectedTutor.email}
               </p>
             </div>
             <button
               onClick={onClose}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+              className="p-1.5 rounded-lg text-slate-600 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -114,12 +114,12 @@ export default function TutorDrawer({
           <div className="p-6 space-y-6 divide-y divide-slate-100 flex-1">
             {/* 1. Core Profile */}
             <div className="space-y-3.5">
-              <h4 className="text-xs font-bold text-slate-450 uppercase tracking-wider">
+              <h4 className="text-xs font-bold text-slate-600 uppercase tracking-wider">
                 Tutor Profile Details
               </h4>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <span className="block text-[10px] uppercase font-bold text-slate-400">
+                  <span className="block text-[10px] uppercase font-bold text-slate-600">
                     Expertise Subject
                   </span>
                   <span className="text-sm font-semibold text-slate-750">
@@ -127,7 +127,7 @@ export default function TutorDrawer({
                   </span>
                 </div>
                 <div>
-                  <span className="block text-[10px] uppercase font-bold text-slate-400">
+                  <span className="block text-[10px] uppercase font-bold text-slate-600">
                     Experience
                   </span>
                   <span className="text-sm font-semibold text-slate-750">
@@ -135,7 +135,7 @@ export default function TutorDrawer({
                   </span>
                 </div>
                 <div>
-                  <span className="block text-[10px] uppercase font-bold text-slate-400">
+                  <span className="block text-[10px] uppercase font-bold text-slate-600">
                     Availability
                   </span>
                   <span className="text-sm font-semibold text-slate-750">
@@ -143,7 +143,7 @@ export default function TutorDrawer({
                   </span>
                 </div>
                 <div>
-                  <span className="block text-[10px] uppercase font-bold text-slate-400">
+                  <span className="block text-[10px] uppercase font-bold text-slate-600">
                     Overall GROWTH
                   </span>
                   <span className="text-sm font-bold text-[var(--brand-green)] flex items-center gap-0.5">
@@ -179,12 +179,12 @@ export default function TutorDrawer({
             {/* 2. Access Control Permissions */}
             <div className="pt-5 space-y-3.5">
               <div className="flex items-center justify-between">
-                <h4 className="text-xs font-bold text-slate-450 uppercase tracking-wider">
+                <h4 className="text-xs font-bold text-slate-600 uppercase tracking-wider">
                   Access Control
                 </h4>
                 <Badge
                   variant="outline"
-                  className="text-[10px] bg-slate-100 border border-slate-200 text-slate-500 px-2 py-0.5 rounded-md font-bold uppercase"
+                  className="text-[10px] bg-slate-100 border border-slate-200 text-slate-600 px-2 py-0.5 rounded-md font-bold uppercase"
                 >
                   Permissions
                 </Badge>
@@ -229,7 +229,7 @@ export default function TutorDrawer({
                         <span className="block text-xs font-bold text-slate-700">
                           {perm.label}
                         </span>
-                        <span className="block text-[10px] text-slate-405 mt-0.5">
+                        <span className="block text-[10px] text-slate-600 mt-0.5">
                           {perm.desc}
                         </span>
                       </div>
@@ -239,7 +239,7 @@ export default function TutorDrawer({
                         Enabled
                       </span>
                     ) : (
-                      <span className="text-[10px] text-slate-400 font-semibold uppercase mt-0.5">
+                      <span className="text-[10px] text-slate-600 font-semibold uppercase mt-0.5">
                         Disabled
                       </span>
                     )}
@@ -251,10 +251,10 @@ export default function TutorDrawer({
             {/* 3. GROWTH Performance Star Rating */}
             <div className="pt-5 space-y-4">
               <div>
-                <h4 className="text-xs font-bold text-slate-450 uppercase tracking-wider">
+                <h4 className="text-xs font-bold text-slate-600 uppercase tracking-wider">
                   Performance Rating (G-R-O-W-T-H)
                 </h4>
-                <p className="text-[10px] text-slate-400 mt-0.5">
+                <p className="text-[10px] text-slate-600 mt-0.5">
                   Award ratings from 1 to 5 stars. Values calculate to live average score.
                 </p>
               </div>
@@ -297,7 +297,7 @@ export default function TutorDrawer({
                       <span className="block text-xs font-bold text-slate-750">
                         {metric.label}
                       </span>
-                      <span className="block text-[9px] text-slate-400">{metric.desc}</span>
+                      <span className="block text-[9px] text-slate-600">{metric.desc}</span>
                     </div>
                     <div className="flex items-center gap-1.5 flex-shrink-0">
                       {[1, 2, 3, 4, 5].map((val) => (
@@ -313,7 +313,7 @@ export default function TutorDrawer({
                               "w-4 h-4",
                               val <= selectedTutor.growthMetrics[metric.key]
                                 ? "fill-amber-400 text-amber-400"
-                                : "text-slate-200"
+                                : "text-slate-600"
                             )}
                           />
                         </button>
@@ -326,7 +326,7 @@ export default function TutorDrawer({
 
             {/* 4. Student Assignment */}
             <div className="pt-5 space-y-4">
-              <h4 className="text-xs font-bold text-slate-450 uppercase tracking-wider">
+              <h4 className="text-xs font-bold text-slate-600 uppercase tracking-wider">
                 Student Assignments
               </h4>
 
@@ -334,7 +334,7 @@ export default function TutorDrawer({
                 <div className="space-y-3">
                   {/* Assign Form */}
                   <div>
-                    <label className="block text-[10px] font-bold text-slate-400 mb-1">
+                    <label className="block text-[10px] font-bold text-slate-600 mb-1">
                       Assign Student to Tutor
                     </label>
                     <Select
@@ -359,7 +359,7 @@ export default function TutorDrawer({
 
                   {/* Currently Assigned List */}
                   <div className="space-y-2">
-                    <span className="block text-[10px] uppercase font-bold text-slate-400">
+                    <span className="block text-[10px] uppercase font-bold text-slate-600">
                       Assigned Student Workload
                     </span>
                     {assignedStudents.length > 0 ? (
@@ -371,7 +371,7 @@ export default function TutorDrawer({
                           >
                             <div>
                               <p className="font-bold text-slate-700">{s.name}</p>
-                              <p className="text-[10px] text-slate-400 font-semibold">
+                              <p className="text-[10px] text-slate-600 font-semibold">
                                 {s.courseName || "General"} • {s.grade}
                               </p>
                             </div>
@@ -385,14 +385,14 @@ export default function TutorDrawer({
                         ))}
                       </div>
                     ) : (
-                      <p className="text-xs text-slate-400 italic">
+                      <p className="text-xs text-slate-600 italic">
                         No students currently assigned to this tutor.
                       </p>
                     )}
                   </div>
                 </div>
               ) : (
-                <p className="text-xs text-slate-400 italic">
+                <p className="text-xs text-slate-600 italic">
                   Assigning students is only available for HR approved tutors.
                 </p>
               )}

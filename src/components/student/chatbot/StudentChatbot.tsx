@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useRef, useEffect } from "react";
 import {
@@ -110,14 +110,14 @@ function NoteCard({ note }: { note: IStudentNote }) {
 
         {/* Meta row: standard + syllabus + date */}
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-slate-100 text-slate-500">
+          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-slate-100 text-slate-600">
             Class {note.standard}
           </span>
-          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-slate-100 text-slate-500">
+          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-slate-100 text-slate-600">
             {note.syllabus}
           </span>
           {formattedDate && (
-            <span className="text-[10px] text-slate-400 ml-auto">{formattedDate}</span>
+            <span className="text-[10px] text-slate-600 ml-auto">{formattedDate}</span>
           )}
         </div>
 
@@ -355,20 +355,20 @@ export default function StudentChatbot() {
             <CardContent className="p-4 flex-1 overflow-y-auto space-y-4">
               {/* Current selection */}
               <div className="space-y-2">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-slate-600">
                   Current Selection
                 </p>
                 <div className="rounded-xl border border-slate-100 bg-slate-50 p-3 space-y-2">
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-semibold text-slate-400 w-14">Subject</span>
+                    <span className="text-[10px] font-semibold text-slate-600 w-14">Subject</span>
                     <span className="text-xs font-bold text-slate-700 flex-1 truncate">
-                      {selectedSubject ?? <span className="text-slate-300 font-normal">—</span>}
+                      {selectedSubject ?? <span className="text-slate-600 font-normal">—</span>}
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-semibold text-slate-400 w-14">Chapter</span>
+                    <span className="text-[10px] font-semibold text-slate-600 w-14">Chapter</span>
                     <span className="text-xs font-bold text-slate-700 flex-1 truncate">
-                      {selectedChapter ?? <span className="text-slate-300 font-normal">—</span>}
+                      {selectedChapter ?? <span className="text-slate-600 font-normal">—</span>}
                     </span>
                   </div>
                 </div>
@@ -376,7 +376,7 @@ export default function StudentChatbot() {
 
               {/* Progress steps */}
               <div className="space-y-1.5">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-slate-600">
                   Steps
                 </p>
                 {(["subject", "chapter", "results"] as Step[]).map((s, i) => {
@@ -392,8 +392,8 @@ export default function StudentChatbot() {
                         isActive
                           ? "bg-[var(--brand-light-green)] text-[var(--brand-mid)] font-bold"
                           : isDone
-                            ? "text-slate-400"
-                            : "text-slate-300"
+                            ? "text-slate-600"
+                            : "text-slate-600"
                       }`}
                     >
                       <span
@@ -402,7 +402,7 @@ export default function StudentChatbot() {
                             ? "bg-[var(--brand-green)] text-white"
                             : isActive
                               ? "bg-[var(--brand-mid)] text-white"
-                              : "bg-slate-100 text-slate-300"
+                              : "bg-slate-100 text-slate-600"
                         }`}
                       >
                         {i + 1}
@@ -426,7 +426,7 @@ export default function StudentChatbot() {
 
               {/* Tip */}
               <div className="rounded-xl bg-slate-50 border border-slate-100 p-3">
-                <p className="text-[10px] text-slate-500 leading-relaxed">
+                <p className="text-[10px] text-slate-600 leading-relaxed">
                   <span className="font-bold text-slate-600">Tip:</span> Select a subject, then a
                   chapter to browse all available study notes.
                 </p>
@@ -457,7 +457,7 @@ export default function StudentChatbot() {
                 size="icon-sm"
                 onClick={handleReset}
                 title="Reset Chat"
-                className="rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100"
+                className="rounded-lg text-slate-600 hover:text-slate-600 hover:bg-slate-100"
               >
                 <RefreshCw className="w-4 h-4" />
               </Button>
@@ -487,7 +487,7 @@ export default function StudentChatbot() {
                         {msg.notes.map((note) => (
                           <NoteCard key={note.id} note={note} />
                         ))}
-                        <span className="text-[8px] text-slate-400 block px-1">
+                        <span className="text-[8px] text-slate-600 block px-1">
                           {msg.timestamp.toLocaleTimeString("en-US", {
                             hour: "numeric",
                             minute: "2-digit",
@@ -524,7 +524,7 @@ export default function StudentChatbot() {
                         {msg.text}
                       </div>
                       <span
-                        className={`text-[8px] text-slate-400 block px-1 ${!isBot && "text-right"}`}
+                        className={`text-[8px] text-slate-600 block px-1 ${!isBot && "text-right"}`}
                       >
                         {msg.timestamp.toLocaleTimeString("en-US", {
                           hour: "numeric",
@@ -544,7 +544,7 @@ export default function StudentChatbot() {
             <div className="p-4 border-t border-slate-150 bg-white flex-shrink-0">
               {step === "subject" && (
                 <div className="space-y-2">
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-slate-600">
                     Select a subject
                   </p>
                   {subjectsLoading ? (
@@ -554,7 +554,7 @@ export default function StudentChatbot() {
                       ))}
                     </div>
                   ) : subjects.length === 0 ? (
-                    <p className="text-xs text-slate-400">No subjects available.</p>
+                    <p className="text-xs text-slate-600">No subjects available.</p>
                   ) : (
                     <div className="flex flex-wrap gap-2">
                       {subjects.map((subject) => (
@@ -576,12 +576,12 @@ export default function StudentChatbot() {
               {step === "chapter" && (
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-600">
                       Select a chapter in {selectedSubject}
                     </p>
                     <button
                       onClick={handleReset}
-                      className="text-[10px] font-semibold text-slate-400 hover:text-[var(--brand-green)] flex items-center gap-1"
+                      className="text-[10px] font-semibold text-slate-600 hover:text-[var(--brand-green)] flex items-center gap-1"
                     >
                       <RotateCcw className="w-3 h-3" /> Change subject
                     </button>
@@ -613,7 +613,7 @@ export default function StudentChatbot() {
               {step === "results" && (
                 <div className="flex items-center gap-3">
                   {notesLoading ? (
-                    <p className="text-xs text-slate-400 animate-pulse">Loading notes…</p>
+                    <p className="text-xs text-slate-600 animate-pulse">Loading notes…</p>
                   ) : (
                     <>
                       <button

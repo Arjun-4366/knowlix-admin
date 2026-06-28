@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { ArrowRight, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -11,7 +11,7 @@ export default function DashboardRecentEnquiriesCard() {
         <div className="flex items-center justify-between border-b border-slate-50 bg-slate-50/20 px-6 py-5">
           <div>
             <h2 className="text-md font-bold text-slate-800">Recent Enquiries</h2>
-            <p className="mt-0.5 text-xs text-slate-455">
+            <p className="mt-0.5 text-xs text-slate-600">
               Submissions from contact forms
             </p>
           </div>
@@ -31,7 +31,7 @@ export default function DashboardRecentEnquiriesCard() {
             >
               <div>
                 <p className="text-sm font-semibold text-slate-850">{enquiry.name}</p>
-                <p className="mt-0.5 text-xs text-slate-400">{enquiry.grade}</p>
+                <p className="mt-0.5 text-xs text-slate-600">{enquiry.grade}</p>
               </div>
 
               <div className="text-right">
@@ -46,8 +46,8 @@ export default function DashboardRecentEnquiriesCard() {
                 >
                   {enquiry.status}
                 </Badge>
-                <p className="mt-1.5 flex items-center justify-end gap-1 text-[10px] text-slate-400">
-                  <Clock className="h-3 w-3 text-slate-350" />
+                <p className="mt-1.5 flex items-center justify-end gap-1 text-[10px] text-slate-600">
+                  <Clock className="h-3 w-3 text-slate-600" />
                   {enquiry.time}
                 </p>
               </div>

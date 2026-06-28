@@ -1,4 +1,4 @@
-import Image from "next/image";
+﻿import Image from "next/image";
 import { Trophy } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -46,7 +46,7 @@ export default function DashboardTopTutorsCard({
       <div className="flex items-center justify-between border-b border-slate-50 bg-slate-50/20 px-6 py-5">
         <div>
           <h2 className="text-md font-bold text-slate-800">Top Tutors</h2>
-          <p className="mt-0.5 text-xs text-slate-455">
+          <p className="mt-0.5 text-xs text-slate-600">
             Ranked using growth points and performance score
           </p>
         </div>
@@ -63,22 +63,22 @@ export default function DashboardTopTutorsCard({
           <Table>
             <TableHeader>
               <TableRow className="border-b border-slate-100 bg-slate-50/50">
-                <TableHead className="w-16 px-6 py-3 text-center text-xs font-bold uppercase tracking-wider text-slate-500">
+                <TableHead className="w-16 px-6 py-3 text-center text-xs font-bold uppercase tracking-wider text-slate-600">
                   Rank
                 </TableHead>
-                <TableHead className="px-6 py-3 text-xs font-bold uppercase tracking-wider text-slate-500">
+                <TableHead className="px-6 py-3 text-xs font-bold uppercase tracking-wider text-slate-600">
                   Tutor
                 </TableHead>
-                <TableHead className="px-6 py-3 text-xs font-bold uppercase tracking-wider text-slate-500">
+                <TableHead className="px-6 py-3 text-xs font-bold uppercase tracking-wider text-slate-600">
                   Role
                 </TableHead>
-                <TableHead className="px-6 py-3 text-center text-xs font-bold uppercase tracking-wider text-slate-500">
+                <TableHead className="px-6 py-3 text-center text-xs font-bold uppercase tracking-wider text-slate-600">
                   Growth Points
                 </TableHead>
-                <TableHead className="px-6 py-3 text-center text-xs font-bold uppercase tracking-wider text-slate-500">
+                <TableHead className="px-6 py-3 text-center text-xs font-bold uppercase tracking-wider text-slate-600">
                   Performance Score
                 </TableHead>
-                <TableHead className="px-6 py-3 text-xs font-bold uppercase tracking-wider text-slate-500">
+                <TableHead className="px-6 py-3 text-xs font-bold uppercase tracking-wider text-slate-600">
                   Status
                 </TableHead>
               </TableRow>
@@ -94,14 +94,14 @@ export default function DashboardTopTutorsCard({
                     onClick={() => onTutorSelect(tutor)}
                     className="cursor-pointer transition-colors hover:bg-slate-50/60"
                   >
-                    <TableCell className="px-6 py-4 text-center text-sm font-bold text-slate-500">
+                    <TableCell className="px-6 py-4 text-center text-sm font-bold text-slate-600">
                       <span
                         className={cn(
                           "inline-flex h-6 w-6 items-center justify-center rounded-full border text-xs font-bold",
                           tutor.rank === 1 && "border-amber-200 bg-amber-50 text-amber-800",
                           tutor.rank === 2 && "border-slate-200 bg-slate-100 text-slate-800",
                           tutor.rank === 3 && "border-orange-200 bg-orange-50 text-orange-800",
-                          tutor.rank > 3 && "text-slate-400"
+                          tutor.rank > 3 && "text-slate-600"
                         )}
                       >
                         {tutor.rank}
@@ -127,7 +127,7 @@ export default function DashboardTopTutorsCard({
                           <p className="text-sm font-semibold text-slate-800">
                             {tutor.name}
                           </p>
-                          <p className="text-xs text-slate-400">{tutor.id}</p>
+                          <p className="text-xs text-slate-600">{tutor.id}</p>
                         </div>
                       </div>
                     </TableCell>
@@ -163,14 +163,14 @@ export default function DashboardTopTutorsCard({
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center gap-3 px-6 py-16 text-center">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-slate-400">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-slate-600">
             <Trophy className="h-5 w-5" />
           </div>
           <div>
             <p className="text-sm font-semibold text-slate-700">
               No tutor ranking data available
             </p>
-            <p className="mt-1 text-xs text-slate-400">
+            <p className="mt-1 text-xs text-slate-600">
               This section will populate once tutor performance data is returned by the dashboard API.
             </p>
           </div>

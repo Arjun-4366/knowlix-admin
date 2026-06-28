@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { dashboardSectionLinks } from "./dashboardOverviewData";
 
@@ -7,7 +7,7 @@ export default function DashboardContentLinksCard() {
     <div className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm">
       <div className="border-b border-slate-50 bg-slate-50/20 px-6 py-5">
         <h2 className="text-md font-bold text-slate-800">Manage Website Content</h2>
-        <p className="mt-0.5 text-xs text-slate-455">
+        <p className="mt-0.5 text-xs text-slate-600">
           Quick access to admin editors for public pages
         </p>
       </div>
@@ -25,10 +25,10 @@ export default function DashboardContentLinksCard() {
                 <p className="text-sm font-bold text-slate-750 transition-colors group-hover:text-[var(--brand-green)]">
                   {section.label}
                 </p>
-                <p className="mt-1 text-xs text-slate-455">{section.desc}</p>
+                <p className="mt-1 text-xs text-slate-600">{section.desc}</p>
               </div>
             </div>
-            <ArrowUpRight className="h-4 w-4 flex-shrink-0 text-slate-300 transition-all group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-[var(--brand-green)]" />
+            <ArrowUpRight className="h-4 w-4 flex-shrink-0 text-slate-600 transition-all group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-[var(--brand-green)]" />
           </Link>
         ))}
       </div>

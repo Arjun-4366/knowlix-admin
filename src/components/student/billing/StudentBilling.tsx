@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import { CreditCard, Calendar, CheckCircle2, AlertCircle, DollarSign, Wallet, FileText } from "lucide-react";
@@ -130,7 +130,7 @@ export default function StudentBilling() {
             <DollarSign className="w-6 h-6" />
           </div>
           <div>
-            <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Outstanding Fees</span>
+            <span className="text-[10px] text-slate-600 font-bold uppercase tracking-wider block">Outstanding Fees</span>
             <p className="text-xl font-black text-slate-800 mt-0.5">₹{dueAmount.toLocaleString("en-IN")}</p>
             {dueAmount > 0 && (
               <span className="text-[9px] font-bold text-amber-600 mt-0.5 block">Action Required</span>
@@ -143,9 +143,9 @@ export default function StudentBilling() {
             <CreditCard className="w-6 h-6" />
           </div>
           <div>
-            <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Amount Paid</span>
+            <span className="text-[10px] text-slate-600 font-bold uppercase tracking-wider block">Amount Paid</span>
             <p className="text-xl font-black text-slate-800 mt-0.5">₹{paidAmount.toLocaleString("en-IN")}</p>
-            <span className="text-[9px] text-slate-400 font-semibold mt-0.5 block">of ₹{totalFee.toLocaleString("en-IN")} total</span>
+            <span className="text-[9px] text-slate-600 font-semibold mt-0.5 block">of ₹{totalFee.toLocaleString("en-IN")} total</span>
           </div>
         </Card>
 
@@ -154,9 +154,9 @@ export default function StudentBilling() {
             <Wallet className="w-6 h-6" />
           </div>
           <div>
-            <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Billing Profile</span>
+            <span className="text-[10px] text-slate-600 font-bold uppercase tracking-wider block">Billing Profile</span>
             <p className="text-sm font-black text-slate-800 mt-0.5">{studentUser.name}</p>
-            <span className="text-[9px] text-slate-400 font-semibold mt-0.5 block">{studentUser.admissionNumber} · {studentUser.class}</span>
+            <span className="text-[9px] text-slate-600 font-semibold mt-0.5 block">{studentUser.admissionNumber} · {studentUser.class}</span>
           </div>
         </Card>
       </div>
@@ -170,7 +170,7 @@ export default function StudentBilling() {
               <AlertCircle className="w-6 h-6" />
             </div>
             <div>
-              <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Currently Outstanding</span>
+              <span className="text-[10px] text-slate-600 font-bold uppercase tracking-wider block">Currently Outstanding</span>
               <p className="text-xl font-black text-slate-800 mt-0.5">₹{dueAmount.toLocaleString("en-IN")}</p>
               <span className="text-[9px] font-bold text-amber-600 mt-0.5 block">Please pay before the due date</span>
             </div>
@@ -181,9 +181,9 @@ export default function StudentBilling() {
               <CheckCircle2 className="w-6 h-6" />
             </div>
             <div>
-              <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Fee Status</span>
+              <span className="text-[10px] text-slate-600 font-bold uppercase tracking-wider block">Fee Status</span>
               <p className="text-sm font-black text-slate-800 mt-0.5">All Fees Paid!</p>
-              <span className="text-[9px] text-slate-400 font-semibold mt-0.5 block">Account fully up-to-date</span>
+              <span className="text-[9px] text-slate-600 font-semibold mt-0.5 block">Account fully up-to-date</span>
             </div>
           </Card>
         )}
@@ -212,7 +212,7 @@ export default function StudentBilling() {
                 <div key={up.id} className="flex justify-between items-center text-xs font-semibold border-b border-slate-50 pb-2 last:border-0 last:pb-0">
                   <div>
                     <span className="text-slate-800 block">{up.month}</span>
-                    <span className="text-[9px] text-slate-400">
+                    <span className="text-[9px] text-slate-600">
                       Due: {new Date(up.dueDate).toLocaleDateString("en-IN", { month: "short", day: "numeric", year: "numeric" })}
                     </span>
                   </div>
@@ -233,7 +233,7 @@ export default function StudentBilling() {
             <div className="flex justify-between items-center text-xs font-semibold">
               <div>
                 <span className="text-slate-800 block">{currentMonth.month}</span>
-                <span className="text-[9px] text-slate-400">
+                <span className="text-[9px] text-slate-600">
                   Due: {new Date(currentMonth.dueDate).toLocaleDateString("en-IN", { month: "short", day: "numeric", year: "numeric" })}
                 </span>
               </div>

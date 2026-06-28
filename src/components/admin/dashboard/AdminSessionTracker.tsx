@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { Search, CheckCircle, XCircle, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import DashboardHeader from "@/components/dashboard/shared/DashboardHeader";
@@ -38,7 +38,7 @@ export default function AdminSessionTracker({ onBack }: AdminSessionTrackerProps
 
   const searchAction = (
     <div className="relative w-full">
-      <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+      <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600" />
       <input
         type="text"
         placeholder="Search class, tutor..."
@@ -69,7 +69,7 @@ export default function AdminSessionTracker({ onBack }: AdminSessionTrackerProps
                 "px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer",
                 sessionFilter === filter
                   ? "bg-[var(--brand-green)] text-white shadow-none"
-                  : "text-slate-500 hover:text-slate-850"
+                  : "text-slate-600 hover:text-slate-850"
               )}
             >
               {filter === "all" ? "All Sessions" : filter}
@@ -83,12 +83,12 @@ export default function AdminSessionTracker({ onBack }: AdminSessionTrackerProps
           <Table className="w-full border-collapse text-left">
             <TableHeader>
               <TableRow className="border-b border-slate-100 bg-slate-50/50">
-                <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Time Slot</TableHead>
-                <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Class / Subject</TableHead>
-                <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Tutor</TableHead>
-                <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Status</TableHead>
-                <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Reason for Postponement</TableHead>
-                <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Tutor Remarks</TableHead>
+                <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider">Time Slot</TableHead>
+                <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider">Class / Subject</TableHead>
+                <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider">Tutor</TableHead>
+                <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider">Status</TableHead>
+                <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider">Reason for Postponement</TableHead>
+                <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider">Tutor Remarks</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody className="divide-y divide-slate-100">
@@ -111,11 +111,11 @@ export default function AdminSessionTracker({ onBack }: AdminSessionTrackerProps
                         {session.status}
                       </span>
                     </TableCell>
-                    <TableCell className="px-6 py-4 text-sm text-slate-550">
+                    <TableCell className="px-6 py-4 text-sm text-slate-600">
                       {session.status === "Postponed" ? (
                         <span className="text-amber-700 font-medium bg-amber-50/50 px-2 py-1 rounded border border-amber-100">{session.reason}</span>
                       ) : (
-                        <span className="text-slate-350">—</span>
+                        <span className="text-slate-600">—</span>
                       )}
                     </TableCell>
                     <TableCell className="px-6 py-4 text-sm text-slate-600 italic">
@@ -125,7 +125,7 @@ export default function AdminSessionTracker({ onBack }: AdminSessionTrackerProps
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={6} className="px-6 py-8 text-center text-slate-400 text-sm">
+                  <TableCell colSpan={6} className="px-6 py-8 text-center text-slate-600 text-sm">
                     No sessions found matching your query.
                   </TableCell>
                 </TableRow>

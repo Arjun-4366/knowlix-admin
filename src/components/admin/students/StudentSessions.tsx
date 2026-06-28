@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { Video, Clock, User, Calendar, ExternalLink } from "lucide-react";
@@ -30,14 +30,14 @@ function SessionCard({ session }: { session: IStudentSession }) {
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 min-w-0">
           <p className="text-sm font-bold text-slate-800 truncate">{session.title}</p>
-          <p className="text-xs text-slate-500 mt-0.5">{session.subject}</p>
+          <p className="text-xs text-slate-600 mt-0.5">{session.subject}</p>
         </div>
         <Badge variant="outline" className={`text-[10px] font-semibold shrink-0 ${status.className}`}>
           {status.label}
         </Badge>
       </div>
 
-      <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-slate-500">
+      <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-slate-600">
         <span className="flex items-center gap-1">
           <Calendar className="w-3 h-3" />
           {new Date(session.scheduledAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
@@ -59,7 +59,7 @@ function SessionCard({ session }: { session: IStudentSession }) {
             {att.label}
           </span>
         ) : (
-          <span className="text-[11px] text-slate-400">No attendance recorded</span>
+          <span className="text-[11px] text-slate-600">No attendance recorded</span>
         )}
         {session.meetLink && (
           <a
@@ -124,7 +124,7 @@ export default function StudentSessions({ studentId }: { studentId: string }) {
               <span className="text-[var(--brand-mid)]">{summary.present} Present</span>
               <span className="text-amber-600">{summary.late} Late</span>
               <span className="text-red-500">{summary.absent} Absent</span>
-              <span className="text-slate-500">/ {summary.total} Total</span>
+              <span className="text-slate-600">/ {summary.total} Total</span>
             </div>
           )}
         </div>
@@ -133,7 +133,7 @@ export default function StudentSessions({ studentId }: { studentId: string }) {
         {isLoading ? (
           <SessionsSkeleton />
         ) : sessions.length === 0 ? (
-          <p className="text-sm text-slate-400 text-center py-8">No sessions found.</p>
+          <p className="text-sm text-slate-600 text-center py-8">No sessions found.</p>
         ) : (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

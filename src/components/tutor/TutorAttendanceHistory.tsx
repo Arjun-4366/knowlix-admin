@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import { useDebounce } from "@/hooks/useDebounce";
@@ -80,7 +80,7 @@ export default function TutorAttendanceHistory({
       {/* ── Search & Filter Controls ── */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-50/50 p-4 rounded-2xl border border-slate-150">
         <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 z-10" />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600 z-10" />
           <Input
             type="text"
             placeholder="Search by student name..."
@@ -93,7 +93,7 @@ export default function TutorAttendanceHistory({
         <div className="flex flex-wrap items-center gap-3">
           {/* Date Selector */}
           <div className="relative">
-            <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 z-10" />
+            <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600 z-10" />
             <Input
               type="date"
               value={date}
@@ -124,16 +124,16 @@ export default function TutorAttendanceHistory({
         <Table className="table-fixed w-full">
           <TableHeader className="bg-slate-50/50">
             <TableRow>
-              <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[18%]">
+              <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[18%]">
                 Date & Time
               </TableHead>
-              <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[35%]">
+              <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[35%]">
                 Log Type
               </TableHead>
-              <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[30%]">
+              <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[30%]">
                 Attendance Breakdown
               </TableHead>
-              <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right w-[17%]">
+              <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-right w-[17%]">
                 Actions
               </TableHead>
             </TableRow>
@@ -156,7 +156,7 @@ export default function TutorAttendanceHistory({
                           year: "numeric",
                         })}
                       </p>
-                      <span className="text-[10px] text-slate-400 font-semibold block mt-1">
+                      <span className="text-[10px] text-slate-600 font-semibold block mt-1">
                         {log.time}
                       </span>
                     </TableCell>
@@ -166,7 +166,7 @@ export default function TutorAttendanceHistory({
                       <p className="text-sm font-bold text-slate-700 leading-none truncate">
                         {log.sessionName || "Daily Attendance"}
                       </p>
-                      <span className="text-[10px] text-slate-400 font-semibold block mt-1">
+                      <span className="text-[10px] text-slate-600 font-semibold block mt-1">
                         Logged by {log.tutorName}
                       </span>
                     </TableCell>
@@ -185,7 +185,7 @@ export default function TutorAttendanceHistory({
                         <span className="text-xs font-bold text-red-700 bg-red-50 px-2 py-0.5 rounded-md border border-red-200">
                           {absent} A
                         </span>
-                        <span className="text-[10px] font-semibold text-slate-400 ml-1">
+                        <span className="text-[10px] font-semibold text-slate-600 ml-1">
                           ({pct}% Rate)
                         </span>
                       </div>
@@ -199,7 +199,7 @@ export default function TutorAttendanceHistory({
                           size="icon-sm"
                           onClick={() => setSelectedLog(log)}
                           title="View Log Details"
-                          className="rounded-lg text-slate-450 hover:text-[var(--brand-green)] hover:bg-slate-50 transition-all cursor-pointer"
+                          className="rounded-lg text-slate-600 hover:text-[var(--brand-green)] hover:bg-slate-50 transition-all cursor-pointer"
                         >
                           <Eye className="w-4 h-4" />
                         </Button>
@@ -210,7 +210,7 @@ export default function TutorAttendanceHistory({
               })
             ) : (
               <TableRow>
-                <TableCell colSpan={4} className="px-6 py-12 text-center text-slate-450 text-sm">
+                <TableCell colSpan={4} className="px-6 py-12 text-center text-slate-600 text-sm">
                   No attendance records found matching filters.
                 </TableCell>
               </TableRow>
@@ -232,7 +232,7 @@ export default function TutorAttendanceHistory({
                 <h3 className="text-base font-bold text-slate-800 mt-2 font-heading">
                   {selectedLog.sessionName || "Daily Attendance"}
                 </h3>
-                <p className="text-xs text-slate-450 font-semibold mt-1">
+                <p className="text-xs text-slate-600 font-semibold mt-1">
                   Logged on {new Date(selectedLog.date).toLocaleDateString("en-US", {
                     weekday: "long",
                     month: "long",
@@ -245,7 +245,7 @@ export default function TutorAttendanceHistory({
                 variant="ghost"
                 size="icon"
                 onClick={() => setSelectedLog(null)}
-                className="rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer"
+                className="rounded-lg text-slate-600 hover:text-slate-700 hover:bg-slate-100 cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </Button>
@@ -253,7 +253,7 @@ export default function TutorAttendanceHistory({
 
             {/* Content List */}
             <div className="p-6 overflow-y-auto flex-1 space-y-4">
-              <div className="bg-slate-50/60 p-4 rounded-xl border border-slate-150 flex items-center justify-between text-xs font-bold text-slate-500 uppercase tracking-wider">
+              <div className="bg-slate-50/60 p-4 rounded-xl border border-slate-150 flex items-center justify-between text-xs font-bold text-slate-600 uppercase tracking-wider">
                 <span>Student Details</span>
                 <span>Status & Comments</span>
               </div>
@@ -267,14 +267,14 @@ export default function TutorAttendanceHistory({
                       </div>
                       <div>
                         <p className="text-sm font-bold text-slate-700">{record.studentName}</p>
-                        <p className="text-[10px] text-slate-400 font-semibold mt-0.5">ID: {record.studentId}</p>
+                        <p className="text-[10px] text-slate-600 font-semibold mt-0.5">ID: {record.studentId}</p>
                       </div>
                     </div>
 
                     <div className="flex flex-col sm:items-end gap-1.5">
                       {getStatusBadge(record.status)}
                       {record.remark && (
-                        <p className="text-[11px] font-semibold text-slate-500 italic bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-150/60 mt-0.5 max-w-xs text-left sm:text-right">
+                        <p className="text-[11px] font-semibold text-slate-600 italic bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-150/60 mt-0.5 max-w-xs text-left sm:text-right">
                           "{record.remark}"
                         </p>
                       )}

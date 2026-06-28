@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Search, Filter, ChevronLeft, ChevronRight, Edit2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -41,7 +41,7 @@ interface EmployeeTableProps {
 const statusBadgeClass = (status: string) => {
   if (status === "approved") return "bg-emerald-50 text-emerald-700 border-emerald-200";
   if (status === "pending")  return "bg-amber-50 text-amber-700 border-amber-200";
-  if (status === "inactive") return "bg-slate-100 text-slate-500 border-slate-200";
+  if (status === "inactive") return "bg-slate-100 text-slate-600 border-slate-200";
   if (status === "resigned") return "bg-red-50 text-red-600 border-red-200";
   return "bg-slate-100 text-slate-600 border-slate-200";
 };
@@ -72,7 +72,7 @@ export default function EmployeeTable({
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-3">
         <div className="relative flex-1 min-w-[220px]">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600" />
           <Input
             placeholder="Search by name, email or phone..."
             value={search}
@@ -84,7 +84,7 @@ export default function EmployeeTable({
         <Select value={status} onValueChange={onStatusChange}>
           <SelectTrigger className="h-10 w-[140px] bg-white border-slate-200 rounded-xl text-xs font-semibold text-slate-700">
             <div className="flex items-center gap-1.5">
-              <Filter className="w-3.5 h-3.5 text-slate-400" />
+              <Filter className="w-3.5 h-3.5 text-slate-600" />
               <SelectValue placeholder="Status" />
             </div>
           </SelectTrigger>
@@ -99,7 +99,7 @@ export default function EmployeeTable({
         <Select value={syllabus} onValueChange={onSyllabusChange}>
           <SelectTrigger className="h-10 w-[140px] bg-white border-slate-200 rounded-xl text-xs font-semibold text-slate-700">
             <div className="flex items-center gap-1.5">
-              <Filter className="w-3.5 h-3.5 text-slate-400" />
+              <Filter className="w-3.5 h-3.5 text-slate-600" />
               <SelectValue placeholder="Syllabus" />
             </div>
           </SelectTrigger>
@@ -114,7 +114,7 @@ export default function EmployeeTable({
         <Select value={availability} onValueChange={onAvailabilityChange}>
           <SelectTrigger className="h-10 w-[150px] bg-white border-slate-200 rounded-xl text-xs font-semibold text-slate-700">
             <div className="flex items-center gap-1.5">
-              <Filter className="w-3.5 h-3.5 text-slate-400" />
+              <Filter className="w-3.5 h-3.5 text-slate-600" />
               <SelectValue placeholder="Availability" />
             </div>
           </SelectTrigger>
@@ -133,14 +133,14 @@ export default function EmployeeTable({
           <Table className="w-full text-left">
             <TableHeader>
               <TableRow className="border-b border-slate-100 bg-slate-50/50">
-                <TableHead className="px-5 py-3.5 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Tutor</TableHead>
-                <TableHead className="px-5 py-3.5 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Subjects</TableHead>
-                <TableHead className="px-5 py-3.5 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Syllabus</TableHead>
-                <TableHead className="px-5 py-3.5 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Availability</TableHead>
-                <TableHead className="px-5 py-3.5 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Status</TableHead>
-                <TableHead className="px-5 py-3.5 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Experience</TableHead>
-                <TableHead className="px-5 py-3.5 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Joined</TableHead>
-                <TableHead className="px-5 py-3.5 text-[10px] font-bold text-slate-500 uppercase tracking-wider text-right">Actions</TableHead>
+                <TableHead className="px-5 py-3.5 text-[10px] font-bold text-slate-600 uppercase tracking-wider">Tutor</TableHead>
+                <TableHead className="px-5 py-3.5 text-[10px] font-bold text-slate-600 uppercase tracking-wider">Subjects</TableHead>
+                <TableHead className="px-5 py-3.5 text-[10px] font-bold text-slate-600 uppercase tracking-wider">Syllabus</TableHead>
+                <TableHead className="px-5 py-3.5 text-[10px] font-bold text-slate-600 uppercase tracking-wider">Availability</TableHead>
+                <TableHead className="px-5 py-3.5 text-[10px] font-bold text-slate-600 uppercase tracking-wider">Status</TableHead>
+                <TableHead className="px-5 py-3.5 text-[10px] font-bold text-slate-600 uppercase tracking-wider">Experience</TableHead>
+                <TableHead className="px-5 py-3.5 text-[10px] font-bold text-slate-600 uppercase tracking-wider">Joined</TableHead>
+                <TableHead className="px-5 py-3.5 text-[10px] font-bold text-slate-600 uppercase tracking-wider text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody className="divide-y divide-slate-100">
@@ -158,8 +158,8 @@ export default function EmployeeTable({
                         </div>
                         <div>
                           <p className="text-xs font-bold text-slate-800 leading-none">{tutor.name}</p>
-                          <p className="text-[10px] text-slate-400 mt-0.5">{tutor.email}</p>
-                          <p className="text-[10px] text-slate-400">{tutor.phone}</p>
+                          <p className="text-[10px] text-slate-600 mt-0.5">{tutor.email}</p>
+                          <p className="text-[10px] text-slate-600">{tutor.phone}</p>
                         </div>
                       </div>
                     </TableCell>
@@ -170,7 +170,7 @@ export default function EmployeeTable({
                           <Badge key={s} variant="outline" className="text-[9px] font-semibold px-1.5 py-0 border-slate-200 text-slate-600">{s}</Badge>
                         ))}
                         {(tutor.subjects ?? []).length > 3 && (
-                          <Badge variant="outline" className="text-[9px] font-semibold px-1.5 py-0 border-slate-200 text-slate-400">
+                          <Badge variant="outline" className="text-[9px] font-semibold px-1.5 py-0 border-slate-200 text-slate-600">
                             +{tutor.subjects.length - 3}
                           </Badge>
                         )}
@@ -203,7 +203,7 @@ export default function EmployeeTable({
                       {tutor.experience || "—"}
                     </TableCell>
 
-                    <TableCell className="px-5 py-4 text-xs text-slate-500">
+                    <TableCell className="px-5 py-4 text-xs text-slate-600">
                       {tutor.createdAt ? new Date(tutor.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" }) : "—"}
                     </TableCell>
 
@@ -212,7 +212,7 @@ export default function EmployeeTable({
                         variant="ghost"
                         size="icon-sm"
                         onClick={() => onEditTutor(tutor)}
-                        className="text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg cursor-pointer"
+                        className="text-slate-600 hover:text-slate-700 hover:bg-slate-100 rounded-lg cursor-pointer"
                         title="Edit Tutor"
                       >
                         <Edit2 className="w-3.5 h-3.5" />
@@ -222,7 +222,7 @@ export default function EmployeeTable({
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={8} className="py-16 text-center text-slate-400 text-xs font-medium">
+                  <TableCell colSpan={8} className="py-16 text-center text-slate-600 text-xs font-medium">
                     No tutors found matching your filters.
                   </TableCell>
                 </TableRow>
@@ -233,7 +233,7 @@ export default function EmployeeTable({
 
         {/* Pagination */}
         <div className="flex items-center justify-between px-5 py-3.5 border-t border-slate-100 bg-slate-50/30">
-          <p className="text-[11px] text-slate-500 font-medium">
+          <p className="text-[11px] text-slate-600 font-medium">
             Showing {tutors.length === 0 ? 0 : (page - 1) * limit + 1}–{Math.min(page * limit, total)} of {total} tutors
           </p>
           <div className="flex items-center gap-1.5">
@@ -242,7 +242,7 @@ export default function EmployeeTable({
               size="icon-sm"
               onClick={() => onPageChange(page - 1)}
               disabled={page <= 1}
-              className="h-7 w-7 rounded-lg border-slate-200 text-slate-500 disabled:opacity-40"
+              className="h-7 w-7 rounded-lg border-slate-200 text-slate-600 disabled:opacity-40"
             >
               <ChevronLeft className="w-3.5 h-3.5" />
             </Button>
@@ -254,7 +254,7 @@ export default function EmployeeTable({
               size="icon-sm"
               onClick={() => onPageChange(page + 1)}
               disabled={page >= totalPages}
-              className="h-7 w-7 rounded-lg border-slate-200 text-slate-500 disabled:opacity-40"
+              className="h-7 w-7 rounded-lg border-slate-200 text-slate-600 disabled:opacity-40"
             >
               <ChevronRight className="w-3.5 h-3.5" />
             </Button>

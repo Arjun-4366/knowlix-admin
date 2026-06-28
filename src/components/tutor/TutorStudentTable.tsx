@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Search, Eye, Loader2 } from "lucide-react";
 import { IStudent } from "@/types/admin/student";
@@ -47,7 +47,7 @@ export default function TutorStudentTable({
       {/* ── Search & Filter Controls ── */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-50/50 p-4 rounded-2xl border border-slate-150">
         <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 z-10" />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600 z-10" />
           <Input
             type="text"
             placeholder="Search by name, email, phone or admission no..."
@@ -84,22 +84,22 @@ export default function TutorStudentTable({
         <Table className="table-fixed w-full">
           <TableHeader className="bg-slate-50/50">
             <TableRow>
-              <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[22%]">
+              <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[22%]">
                 Admission ID / No
               </TableHead>
-              <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[28%]">
+              <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[28%]">
                 Student Name
               </TableHead>
-              <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[25%]">
+              <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[25%]">
                 Program
               </TableHead>
-              <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[15%]">
+              <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[15%]">
                 Package
               </TableHead>
-              <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[12%]">
+              <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[12%]">
                 Class
               </TableHead>
-              <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right w-[10%]">
+              <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-right w-[10%]">
                 Actions
               </TableHead>
             </TableRow>
@@ -112,7 +112,7 @@ export default function TutorStudentTable({
                   className="hover:bg-slate-50/60 transition-colors"
                 >
                   {/* Admission ID */}
-                  <TableCell className="px-6 py-4 text-xs font-semibold text-slate-500 truncate">
+                  <TableCell className="px-6 py-4 text-xs font-semibold text-slate-600 truncate">
                     {student.admissionNumber || "N/A"}
                   </TableCell>
 
@@ -137,7 +137,7 @@ export default function TutorStudentTable({
 
                   {/* Package */}
                   <TableCell className="px-6 py-4">
-                    <span className="text-xs font-bold text-slate-500 capitalize truncate block">
+                    <span className="text-xs font-bold text-slate-600 capitalize truncate block">
                       {student.package?.replace("_", " ") || "—"}
                     </span>
                   </TableCell>
@@ -157,7 +157,7 @@ export default function TutorStudentTable({
                         size="icon"
                         onClick={() => onViewStudent(student.id)}
                         title="View Details"
-                        className="h-8 w-8 rounded-lg text-slate-400 hover:text-[var(--brand-green)] hover:bg-slate-50 transition-all cursor-pointer"
+                        className="h-8 w-8 rounded-lg text-slate-600 hover:text-[var(--brand-green)] hover:bg-slate-50 transition-all cursor-pointer"
                       >
                         <Eye className="w-4 h-4" />
                       </Button>
@@ -169,7 +169,7 @@ export default function TutorStudentTable({
               <TableRow>
                 <TableCell
                   colSpan={6}
-                  className="px-6 py-12 text-center text-slate-450 text-sm"
+                  className="px-6 py-12 text-center text-slate-600 text-sm"
                 >
                   No students found.
                 </TableCell>

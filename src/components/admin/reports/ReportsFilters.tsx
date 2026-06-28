@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Input } from "@/components/ui/input";
 import {
@@ -78,7 +78,7 @@ export default function ReportsFilters({
     <div className="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm space-y-6">
       {/* Report Types Tabs */}
       <div>
-        <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">
+        <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-3">
           Select Report Type
         </label>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
@@ -111,7 +111,7 @@ export default function ReportsFilters({
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
         {/* Date Presets */}
         <div>
-          <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+          <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">
             Time Period
           </label>
           <Select
@@ -135,11 +135,11 @@ export default function ReportsFilters({
         {filters.dateRange.preset === "custom" && (
           <>
             <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+              <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">
                 Start Date
               </label>
               <div className="relative">
-                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600" />
                 <Input
                   type="date"
                   value={filters.dateRange.startDate}
@@ -154,11 +154,11 @@ export default function ReportsFilters({
               </div>
             </div>
             <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+              <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">
                 End Date
               </label>
               <div className="relative">
-                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600" />
                 <Input
                   type="date"
                   value={filters.dateRange.endDate}
@@ -180,7 +180,7 @@ export default function ReportsFilters({
           <>
 
             <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+              <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">
                 Filter by Tutor
               </label>
               <Select

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { ClipboardList, Calendar, User, ExternalLink } from "lucide-react";
@@ -26,7 +26,7 @@ function AssignmentCard({ assignment }: { assignment: IStudentAssignment }) {
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 min-w-0">
           <p className="text-sm font-bold text-slate-800 truncate">{assignment.title}</p>
-          <p className="text-xs text-slate-500 mt-0.5">{assignment.subject}</p>
+          <p className="text-xs text-slate-600 mt-0.5">{assignment.subject}</p>
         </div>
         <Badge variant="outline" className={`text-[10px] font-semibold shrink-0 ${status.className}`}>
           {status.label}
@@ -34,10 +34,10 @@ function AssignmentCard({ assignment }: { assignment: IStudentAssignment }) {
       </div>
 
       {assignment.description && (
-        <p className="text-[11px] text-slate-500 line-clamp-2">{assignment.description}</p>
+        <p className="text-[11px] text-slate-600 line-clamp-2">{assignment.description}</p>
       )}
 
-      <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500">
+      <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-600">
         <span className="flex items-center gap-1">
           <Calendar className="w-3 h-3" />
           Due: {new Date(assignment.dueDate).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
@@ -70,7 +70,7 @@ function AssignmentCard({ assignment }: { assignment: IStudentAssignment }) {
       {evaluation ? (
         <div className="pt-2 border-t border-slate-50 space-y-1.5">
           <div className="flex items-center justify-between">
-            <span className="text-xs text-slate-500">
+            <span className="text-xs text-slate-600">
               Score: <strong className="text-slate-700">{evaluation.marksObtained} / {assignment.maxMarks}</strong>
             </span>
             <span className="text-xs font-bold text-[var(--brand-mid)]">{percent}%</span>
@@ -82,11 +82,11 @@ function AssignmentCard({ assignment }: { assignment: IStudentAssignment }) {
             />
           </div>
           {evaluation.remarks && (
-            <p className="text-[11px] text-slate-500 line-clamp-2">{evaluation.remarks}</p>
+            <p className="text-[11px] text-slate-600 line-clamp-2">{evaluation.remarks}</p>
           )}
         </div>
       ) : !submission ? (
-        <p className="text-[11px] text-slate-400 pt-1 border-t border-slate-50">No submission yet</p>
+        <p className="text-[11px] text-slate-600 pt-1 border-t border-slate-50">No submission yet</p>
       ) : null}
     </div>
   );
@@ -139,7 +139,7 @@ export default function StudentAssignments({ studentId }: { studentId: string })
               <span className="text-[var(--brand-mid)]">{summary.evaluated} Evaluated</span>
               <span className="text-blue-600">{summary.submitted} Submitted</span>
               <span className="text-amber-600">{summary.pending} Pending</span>
-              <span className="text-slate-500">/ {summary.total} Total</span>
+              <span className="text-slate-600">/ {summary.total} Total</span>
             </div>
           )}
         </div>
@@ -148,7 +148,7 @@ export default function StudentAssignments({ studentId }: { studentId: string })
         {isLoading ? (
           <AssignmentsSkeleton />
         ) : assignments.length === 0 ? (
-          <p className="text-sm text-slate-400 text-center py-8">No assignments found.</p>
+          <p className="text-sm text-slate-600 text-center py-8">No assignments found.</p>
         ) : (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

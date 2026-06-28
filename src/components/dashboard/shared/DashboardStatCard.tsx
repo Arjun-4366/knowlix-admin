@@ -1,4 +1,4 @@
-import {
+﻿import {
   cloneElement,
   isValidElement,
   ReactElement,
@@ -36,7 +36,7 @@ export default function DashboardStatCard({
   const footerToneClass =
     isClickable && footerLink
       ? "text-[var(--brand-green)] font-semibold"
-      : "text-slate-450 font-semibold";
+      : "text-slate-600 font-semibold";
 
   return (
     <Component

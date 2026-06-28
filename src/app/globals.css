@@ -132,6 +132,7 @@
   body {
     @apply bg-background text-foreground font-sans;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    scrollbar-gutter: stable;
   }
   html {
     @apply font-sans;
@@ -252,4 +253,9 @@
 /* Prevent layout scrolling when chatbot is open */
 body.chatbot-open main {
   overflow: hidden !important;
+}
+
+/* Isolate Radix portal overlays so they never cause page layout shifts */
+[data-radix-popper-content-wrapper] {
+  contain: layout style;
 }

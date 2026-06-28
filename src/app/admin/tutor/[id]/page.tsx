@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { use, useMemo, Suspense } from "react";
 import { useRouter } from "next/navigation";
@@ -72,12 +72,12 @@ function TutorDetailContent({ params }: PageProps) {
   if (isError || !tutor) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[50vh] space-y-4 w-full">
-        <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-400">
+        <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-600">
           <GraduationCap className="w-6 h-6" />
         </div>
         <div className="text-center">
           <h3 className="font-bold text-slate-800 text-lg">Tutor Not Found</h3>
-          <p className="text-sm text-slate-500 mt-1">
+          <p className="text-sm text-slate-600 mt-1">
             No tutor matching ID &quot;{id}&quot; was found.
           </p>
         </div>
@@ -145,7 +145,7 @@ function TutorDetailContent({ params }: PageProps) {
 
 export default function TutorDetailPage({ params }: PageProps) {
   return (
-    <Suspense fallback={<div className="p-8 text-center text-slate-500">Loading tutor details...</div>}>
+    <Suspense fallback={<div className="p-8 text-center text-slate-600">Loading tutor details...</div>}>
       <TutorDetailContent params={params} />
     </Suspense>
   );

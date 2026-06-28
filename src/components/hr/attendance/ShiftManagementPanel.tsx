@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Clock3, Users2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -54,7 +54,7 @@ export default function ShiftManagementPanel({
       <div className="p-5 border-b border-slate-100 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <h2 className="text-sm font-bold text-slate-850">Work Hours & Shift Management</h2>
-          <p className="text-xs text-slate-500 mt-1">
+          <p className="text-xs text-slate-600 mt-1">
             Map employee shift plans, weekly capacity, and attendance policy anchors.
           </p>
         </div>
@@ -95,7 +95,7 @@ export default function ShiftManagementPanel({
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="text-sm font-bold text-slate-800">{shift.name}</p>
-                    <p className="text-[11px] text-slate-500 mt-1">
+                    <p className="text-[11px] text-slate-600 mt-1">
                       {shift.startTime} - {shift.endTime}
                     </p>
                   </div>
@@ -114,16 +114,16 @@ export default function ShiftManagementPanel({
 
                 <div className="flex items-center justify-between text-[11px] font-semibold text-slate-600">
                   <span className="inline-flex items-center gap-1">
-                    <Clock3 className="w-3.5 h-3.5 text-slate-400" />
+                    <Clock3 className="w-3.5 h-3.5 text-slate-600" />
                     {shift.weeklyHours}h/week
                   </span>
                   <span className="inline-flex items-center gap-1">
-                    <Users2 className="w-3.5 h-3.5 text-slate-400" />
+                    <Users2 className="w-3.5 h-3.5 text-slate-600" />
                     {assignedEmployees.length} assigned
                   </span>
                 </div>
 
-                <p className="text-[10px] font-semibold text-slate-450">
+                <p className="text-[10px] font-semibold text-slate-600">
                   Grace window: {shift.graceMinutes} minutes
                 </p>
               </div>
@@ -134,23 +134,23 @@ export default function ShiftManagementPanel({
         <div className="grid grid-cols-1 xl:grid-cols-[1.8fr_1fr] gap-5">
           <div className="rounded-2xl border border-slate-150 overflow-hidden">
             <div className="px-4 py-3 border-b border-slate-100 bg-slate-50/70">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-600">
                 Current Shift Assignments
               </h3>
             </div>
             <Table>
               <TableHeader className="bg-white">
                 <TableRow className="border-slate-100 hover:bg-white">
-                  <TableHead className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                  <TableHead className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-600">
                     Employee
                   </TableHead>
-                  <TableHead className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                  <TableHead className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-600">
                     Department
                   </TableHead>
-                  <TableHead className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                  <TableHead className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-600">
                     Shift
                   </TableHead>
-                  <TableHead className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                  <TableHead className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-600">
                     Weekly Hours
                   </TableHead>
                 </TableRow>
@@ -167,7 +167,7 @@ export default function ShiftManagementPanel({
                           <p className="text-xs font-bold text-slate-800">
                             {assignment.employeeName}
                           </p>
-                          <p className="text-[10px] text-slate-500 mt-1">
+                          <p className="text-[10px] text-slate-600 mt-1">
                             {assignment.designation}
                           </p>
                         </div>
@@ -195,7 +195,7 @@ export default function ShiftManagementPanel({
                         <p className="text-xs font-semibold text-slate-700">
                           {assignment.weeklyHours}h
                         </p>
-                        <p className="text-[10px] text-slate-500 mt-1">
+                        <p className="text-[10px] text-slate-600 mt-1">
                           Week off: {assignment.weekOff}
                         </p>
                       </TableCell>
@@ -205,7 +205,7 @@ export default function ShiftManagementPanel({
                   <TableRow className="border-slate-100 hover:bg-white">
                     <TableCell
                       colSpan={4}
-                      className="px-4 py-12 text-center text-sm text-slate-500 whitespace-normal"
+                      className="px-4 py-12 text-center text-sm text-slate-600 whitespace-normal"
                     >
                       No shift assignments match the selected department.
                     </TableCell>
@@ -216,7 +216,7 @@ export default function ShiftManagementPanel({
           </div>
 
           <div className="rounded-2xl border border-slate-150 bg-slate-50/40 p-4 space-y-3">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-600">
               Work Hours Policy
             </h3>
             <div className="space-y-3">
@@ -225,11 +225,11 @@ export default function ShiftManagementPanel({
                   key={policy.id}
                   className="rounded-xl border border-slate-150 bg-white p-3 space-y-1.5"
                 >
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-slate-450">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-slate-600">
                     {policy.label}
                   </p>
                   <p className="text-sm font-bold text-slate-800">{policy.value}</p>
-                  <p className="text-[11px] text-slate-500 leading-normal">
+                  <p className="text-[11px] text-slate-600 leading-normal">
                     {policy.note}
                   </p>
                 </div>

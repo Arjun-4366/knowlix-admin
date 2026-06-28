@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { use } from "react";
 import { useRouter } from "next/navigation";
@@ -30,12 +30,12 @@ function TutorStudentDetailsContent({ params }: PageProps) {
   if (!student) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[50vh] space-y-4">
-        <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-400">
+        <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-600">
           <Info className="w-6 h-6" />
         </div>
         <div className="text-center">
           <h3 className="font-bold text-slate-800 text-lg">Student Not Found</h3>
-          <p className="text-sm text-slate-500 mt-1">We couldn&apos;t find a student matching ID &quot;{id}&quot;.</p>
+          <p className="text-sm text-slate-600 mt-1">We couldn&apos;t find a student matching ID &quot;{id}&quot;.</p>
         </div>
         <Button
           variant="outline"

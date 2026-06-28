@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Award, BookOpen, TrendingUp, BarChart2 } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -147,7 +147,7 @@ export default function StudentResults() {
                   </svg>
                   <div className="absolute top-4 left-6 flex items-center gap-1.5">
                     <span className="w-2 h-2 rounded-full bg-[var(--brand-green)]" />
-                    <span className="text-[10px] font-bold text-slate-450 uppercase">Average Score (%)</span>
+                    <span className="text-[10px] font-bold text-slate-600 uppercase">Average Score (%)</span>
                   </div>
                 </>
               ) : chartPoints.length === 1 ? (
@@ -157,12 +157,12 @@ export default function StudentResults() {
                   </div>
                   <div className="text-center">
                     <p className="text-sm font-bold text-slate-700">Average Score</p>
-                    <p className="text-xs text-slate-400 font-semibold mt-0.5">{chartPoints[0].label}</p>
+                    <p className="text-xs text-slate-600 font-semibold mt-0.5">{chartPoints[0].label}</p>
                   </div>
-                  <p className="text-[10px] text-slate-400 font-medium">More months will appear as data accumulates</p>
+                  <p className="text-[10px] text-slate-600 font-medium">More months will appear as data accumulates</p>
                 </div>
               ) : (
-                <p className="text-xs text-slate-400 font-semibold">No trend data available yet.</p>
+                <p className="text-xs text-slate-600 font-semibold">No trend data available yet.</p>
               )}
             </div>
           </CardContent>
@@ -197,13 +197,13 @@ export default function StudentResults() {
                       style={{ width: `${Math.round(g.percentage)}%` }}
                     />
                   </div>
-                  <span className="text-[9px] text-slate-400 font-bold block">
+                  <span className="text-[9px] text-slate-600 font-bold block">
                     {g.totalExams} exam{g.totalExams !== 1 ? "s" : ""} · Avg {Math.round(g.averageScore)}/{g.maxMarks / g.totalExams} marks
                   </span>
                 </div>
               ))
             ) : (
-              <p className="text-center py-12 text-xs text-slate-400 font-medium">No subject grades available.</p>
+              <p className="text-center py-12 text-xs text-slate-600 font-medium">No subject grades available.</p>
             )}
           </CardContent>
         </Card>
@@ -221,12 +221,12 @@ export default function StudentResults() {
             <Table className="table-fixed w-full">
               <TableHeader className="bg-slate-50/20">
                 <TableRow>
-                  <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[28%]">Exam Title</TableHead>
-                  <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[15%]">Subject</TableHead>
-                  <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[18%]">Tutor</TableHead>
-                  <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[14%]">Date</TableHead>
-                  <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[10%]">Score</TableHead>
-                  <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right w-[15%]">Grade</TableHead>
+                  <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[28%]">Exam Title</TableHead>
+                  <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[15%]">Subject</TableHead>
+                  <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[18%]">Tutor</TableHead>
+                  <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[14%]">Date</TableHead>
+                  <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[10%]">Score</TableHead>
+                  <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-right w-[15%]">Grade</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody className="divide-y divide-slate-100">
@@ -255,7 +255,7 @@ export default function StudentResults() {
                             {res.grade} · {Math.round(res.percentage)}%
                           </Badge>
                           {res.remarks && (
-                            <span className="text-[9px] text-slate-400 italic max-w-[140px] truncate" title={res.remarks}>
+                            <span className="text-[9px] text-slate-600 italic max-w-[140px] truncate" title={res.remarks}>
                               "{res.remarks}"
                             </span>
                           )}
@@ -265,7 +265,7 @@ export default function StudentResults() {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={6} className="px-6 py-12 text-center text-slate-450 text-xs font-medium">
+                    <TableCell colSpan={6} className="px-6 py-12 text-center text-slate-600 text-xs font-medium">
                       No results published yet.
                     </TableCell>
                   </TableRow>

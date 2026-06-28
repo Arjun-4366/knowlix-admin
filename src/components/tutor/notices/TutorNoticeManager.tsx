@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { useDebounce } from "@/hooks/useDebounce";
@@ -40,7 +40,7 @@ function AnnouncementCard({ item }: { item: ITutorAnnouncement }) {
               </Badge>
             )}
           </div>
-          <div className="flex items-center gap-1 text-[10px] text-slate-400 font-semibold flex-shrink-0">
+          <div className="flex items-center gap-1 text-[10px] text-slate-600 font-semibold flex-shrink-0">
             <Calendar className="w-3 h-3" />
             {new Date(item.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
           </div>
@@ -49,7 +49,7 @@ function AnnouncementCard({ item }: { item: ITutorAnnouncement }) {
           <h3 className="text-sm font-bold text-slate-800 leading-tight">{item.title}</h3>
           <p className="text-xs text-slate-600 leading-relaxed line-clamp-5">{item.content}</p>
         </div>
-        <div className="mt-auto pt-2 border-t border-slate-100 flex items-center gap-1.5 text-[10px] font-semibold text-slate-400">
+        <div className="mt-auto pt-2 border-t border-slate-100 flex items-center gap-1.5 text-[10px] font-semibold text-slate-600">
           <Megaphone className="w-3 h-3" />
           Audience: <span className="capitalize">{item.audience}</span>
         </div>
@@ -66,7 +66,7 @@ function NoticeCard({ item }: { item: ITutorNotice }) {
           <Badge variant="outline" className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-[var(--brand-light-green)] text-[var(--brand-mid)] border-[var(--brand-green)]/20">
             Notice
           </Badge>
-          <div className="flex items-center gap-1 text-[10px] text-slate-400 font-semibold flex-shrink-0">
+          <div className="flex items-center gap-1 text-[10px] text-slate-600 font-semibold flex-shrink-0">
             <Calendar className="w-3 h-3" />
             {new Date(item.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
           </div>
@@ -108,7 +108,7 @@ function Pagination({
 }) {
   return (
     <div className="flex items-center justify-between pt-4 border-t border-slate-100 mt-2">
-      <span className="text-xs font-semibold text-slate-400">Page {page}</span>
+      <span className="text-xs font-semibold text-slate-600">Page {page}</span>
       <div className="flex items-center gap-2">
         <Button
           variant="outline"
@@ -166,7 +166,7 @@ export default function TutorNoticeManager() {
       {/* ── Filter Bar ── */}
       <div className="flex items-center gap-4 bg-slate-50/50 p-4 rounded-2xl border border-slate-150">
         <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 z-10" />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600 z-10" />
           <Input
             placeholder="Search notices and announcements..."
             value={search}
@@ -177,7 +177,7 @@ export default function TutorNoticeManager() {
       </div>
 
       {isError && (
-        <div className="py-12 text-center text-slate-500 text-sm font-medium bg-white border border-slate-150 rounded-2xl">
+        <div className="py-12 text-center text-slate-600 text-sm font-medium bg-white border border-slate-150 rounded-2xl">
           Failed to load notices. Please try again.
         </div>
       )}
@@ -227,8 +227,8 @@ export default function TutorNoticeManager() {
                 </div>
               ) : (
                 <div className="py-16 bg-white border border-slate-150 rounded-2xl text-center">
-                  <Megaphone className="w-8 h-8 text-slate-300 mx-auto mb-3" />
-                  <p className="text-sm font-semibold text-slate-500">No announcements found.</p>
+                  <Megaphone className="w-8 h-8 text-slate-600 mx-auto mb-3" />
+                  <p className="text-sm font-semibold text-slate-600">No announcements found.</p>
                 </div>
               )}
             </div>
@@ -259,8 +259,8 @@ export default function TutorNoticeManager() {
                 </div>
               ) : (
                 <div className="py-16 bg-white border border-slate-150 rounded-2xl text-center">
-                  <FileText className="w-8 h-8 text-slate-300 mx-auto mb-3" />
-                  <p className="text-sm font-semibold text-slate-500">No notices at the moment.</p>
+                  <FileText className="w-8 h-8 text-slate-600 mx-auto mb-3" />
+                  <p className="text-sm font-semibold text-slate-600">No notices at the moment.</p>
                 </div>
               )}
             </div>

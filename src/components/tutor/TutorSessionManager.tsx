@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import { Plus, Calendar, Video, Clock, Users, CheckCircle2, AlertCircle, X, Save, ExternalLink, Edit2, Trash2 } from "lucide-react";
@@ -222,14 +222,10 @@ export default function TutorSessionManager() {
     not_conducted: "bg-red-50 text-red-700 border-red-200",
   };
 
-  const STATUS_LABELS: Record<string, string> = {
-    scheduled: "Scheduled",
-    conducted: "Conducted",
-    completed: "Completed",
-    not_conducted: "Not Conducted",
+  const isSessionEnded = (session: ITutorSession): boolean => {
+    const endTime = new Date(session.scheduledAt).getTime() + session.durationMinutes * 60 * 1000;
+    return Date.now() > endTime;
   };
-
-  const UPDATABLE_STATUSES = ["conducted","completed","not_conducted"] as const;
 
   const handleStatusChange = (sessionId: string, newStatus: string) => {
     updateSession(
@@ -293,7 +289,7 @@ export default function TutorSessionManager() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* Title */}
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
                     Session Title
                   </label>
                   <Input
@@ -308,7 +304,7 @@ export default function TutorSessionManager() {
 
                 {/* Subject */}
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
                     Subject
                   </label>
                   <Select value={subject} onValueChange={setSubject} disabled={storeSubjects.length === 0}>
@@ -327,7 +323,7 @@ export default function TutorSessionManager() {
 
                 {/* Session Type */}
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
                     Session Type
                   </label>
                   <Select
@@ -354,11 +350,11 @@ export default function TutorSessionManager() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* Scheduled At */}
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
                     Date & Time
                   </label>
                   <div className="relative">
-                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 z-10" />
+                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600 z-10" />
                     <Input
                       type="datetime-local"
                       value={scheduledAt}
@@ -371,7 +367,7 @@ export default function TutorSessionManager() {
 
                 {/* Duration */}
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
                     Duration (Minutes)
                   </label>
                   <Input
@@ -386,11 +382,11 @@ export default function TutorSessionManager() {
 
                 {/* Meet Link */}
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
                     Google Meet Link
                   </label>
                   <div className="relative">
-                    <Video className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 z-10" />
+                    <Video className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600 z-10" />
                     <Input
                       type="url"
                       value={meetLink}
@@ -405,7 +401,7 @@ export default function TutorSessionManager() {
 
               {/* Notes */}
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
                   Session Notes / Agenda
                 </label>
                 <Textarea
@@ -418,12 +414,12 @@ export default function TutorSessionManager() {
 
               {/* Student checkboxes */}
               <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
                   Assign Students ({selectedStudentIds.length} selected
                   {sessionType === "individual" ? " · max 1" : ""})
                 </label>
                 {activeStudents.length === 0 ? (
-                  <p className="text-xs text-slate-455 font-semibold p-2 border border-dashed border-slate-200 rounded-xl bg-slate-50/50">
+                  <p className="text-xs text-slate-600 font-semibold p-2 border border-dashed border-slate-200 rounded-xl bg-slate-50/50">
                     You have no active students in your roster.
                   </p>
                 ) : (
@@ -460,7 +456,7 @@ export default function TutorSessionManager() {
                   type="button"
                   variant="outline"
                   onClick={handleCancel}
-                  className="px-5 py-2.5 rounded-xl text-xs font-bold transition-all border border-slate-200 text-slate-500 bg-white hover:bg-slate-50"
+                  className="px-5 py-2.5 rounded-xl text-xs font-bold transition-all border border-slate-200 text-slate-600 bg-white hover:bg-slate-50"
                 >
                   Cancel
                 </Button>
@@ -505,25 +501,25 @@ export default function TutorSessionManager() {
         <Table className="table-fixed w-full">
           <TableHeader className="bg-slate-50/50">
             <TableRow>
-              <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[20%]">
+              <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[20%]">
                 Session Info
               </TableHead>
-              <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[18%]">
+              <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[18%]">
                 Date & Time
               </TableHead>
-              <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[10%]">
+              <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[10%]">
                 Duration
               </TableHead>
-              <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[12%]">
+              <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[12%]">
                 Students
               </TableHead>
-              <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[14%]">
+              <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[14%]">
                 Meeting Link
               </TableHead>
-              <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[12%]">
+              <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[12%]">
                 Status
               </TableHead>
-              <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right w-[14%]">
+              <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-right w-[14%]">
                 Actions
               </TableHead>
             </TableRow>
@@ -544,7 +540,7 @@ export default function TutorSessionManager() {
                       <p className="text-sm font-bold text-slate-750 truncate leading-none" title={session.title}>
                         {session.title}
                       </p>
-                      <span className="text-[10px] text-slate-400 font-semibold block mt-1.5 truncate">
+                      <span className="text-[10px] text-slate-600 font-semibold block mt-1.5 truncate">
                         {session.subject} · {session.type === "individual" ? "1-on-1" : "Group"}
                       </span>
                     </TableCell>
@@ -558,7 +554,7 @@ export default function TutorSessionManager() {
                           year: "numeric",
                         })}
                       </p>
-                      <span className="text-[10px] text-slate-400 font-semibold block mt-1">
+                      <span className="text-[10px] text-slate-600 font-semibold block mt-1">
                         {scheduledDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                       </span>
                     </TableCell>
@@ -566,7 +562,7 @@ export default function TutorSessionManager() {
                     {/* Duration */}
                     <TableCell className="px-6 py-4">
                       <div className="flex items-center gap-1">
-                        <Clock className="w-3.5 h-3.5 text-slate-400" />
+                        <Clock className="w-3.5 h-3.5 text-slate-600" />
                         <span className="text-xs font-bold text-slate-700">
                           {session.durationMinutes} min
                         </span>
@@ -576,12 +572,12 @@ export default function TutorSessionManager() {
                     {/* Students */}
                     <TableCell className="px-6 py-4">
                       <div className="flex items-center gap-1 mb-0.5">
-                        <Users className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+                        <Users className="w-3.5 h-3.5 text-slate-600 flex-shrink-0" />
                         <span className="text-xs font-bold text-slate-700">
                           {session.studentIds.length} {session.type === "individual" ? "Student" : "Students"}
                         </span>
                       </div>
-                      <p className="text-[10px] text-slate-400 font-semibold truncate" title={namesList}>
+                      <p className="text-[10px] text-slate-600 font-semibold truncate" title={namesList}>
                         {namesList}
                       </p>
                     </TableCell>
@@ -592,7 +588,7 @@ export default function TutorSessionManager() {
                         href={session.meetLink}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-[10px] font-bold text-[var(--brand-green)] bg-[var(--brand-light-green)]/40 hover:bg-[var(--brand-light-green)]/70 px-2.5 py-1 rounded-lg border border-[var(--brand-light)]/20 transition-all shadow-sm"
+                        className="inline-flex items-center py-2.5 rounded-full gap-1 text-[10px] font-bold text-[var(--brand-green)] bg-[var(--brand-light-green)]/40 hover:bg-[var(--brand-light-green)]/70 px-2.5 py-1 border border-[var(--brand-light)]/20 transition-all shadow-sm"
                       >
                         <Video className="w-3 h-3 text-[var(--brand-green)]" />
                         Join Class
@@ -600,38 +596,35 @@ export default function TutorSessionManager() {
                       </a>
                     </TableCell>
 
-                    {/* Status — inline dropdown for actionable statuses */}
+                    {/* Status — shadcn Select */}
                     <TableCell className="px-6 py-4">
-                      {session.status === "scheduled" ? (
-                        <select
-                          defaultValue=""
-                          disabled={isUpdating}
-                          onChange={(e) => {
-                            if (e.target.value) handleStatusChange(session.id, e.target.value);
-                          }}
-                          className={`text-[10px] font-bold px-2 py-1 rounded-full border shadow-sm cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--brand-green)]/30 appearance-none pr-5 ${statusStyle}`}
+                      <Select
+                        value={session.status}
+                        onValueChange={(val) => handleStatusChange(session.id, val)}
+                        disabled={isUpdating}
+                      >
+                        <SelectTrigger
+                          className={`h-7 text-[10px] font-bold px-2.5 py-4.5 rounded-full border shadow-sm w-[130px] ${statusStyle}`}
                         >
-                          <option value="" disabled>Scheduled</option>
-                          {UPDATABLE_STATUSES.map((s) => (
-                            <option key={s} value={s} className="bg-white text-slate-700">
-                              {STATUS_LABELS[s]}
-                            </option>
-                          ))}
-                        </select>
-                      ) : (
-                        <select
-                          value={session.status}
-                          disabled={isUpdating}
-                          onChange={(e) => handleStatusChange(session.id, e.target.value)}
-                          className={`text-[10px] font-bold px-2 py-1 rounded-full border shadow-sm cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--brand-green)]/30 appearance-none pr-5 ${statusStyle}`}
-                        >
-                          {UPDATABLE_STATUSES.map((s) => (
-                            <option key={s} value={s} className="bg-white text-slate-700">
-                              {STATUS_LABELS[s]}
-                            </option>
-                          ))}
-                        </select>
-                      )}
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="scheduled" disabled className="text-xs font-semibold">
+                            Scheduled
+                          </SelectItem>
+                          <SelectItem value="conducted" className="text-xs font-semibold">
+                            Conducted
+                          </SelectItem>
+                          <SelectItem value="not_conducted" className="text-xs font-semibold">
+                            Not Conducted
+                          </SelectItem>
+                          {isSessionEnded(session) && (
+                            <SelectItem value="completed" className="text-xs font-semibold">
+                              Completed
+                            </SelectItem>
+                          )}
+                        </SelectContent>
+                      </Select>
                     </TableCell>
 
                     {/* Actions Column: Edit / Delete */}
@@ -642,7 +635,7 @@ export default function TutorSessionManager() {
                           size="icon-sm"
                           onClick={() => handleEdit(session)}
                           title="Edit Session"
-                          className="rounded-lg text-slate-450 hover:text-[var(--brand-green)] hover:bg-slate-50 transition-all cursor-pointer"
+                          className="rounded-lg text-slate-600 hover:text-[var(--brand-green)] hover:bg-slate-50 transition-all cursor-pointer"
                         >
                           <Edit2 className="w-4 h-4" />
                         </Button>
@@ -651,7 +644,7 @@ export default function TutorSessionManager() {
                           size="icon-sm"
                           onClick={() => handleDelete(session.id, session.title)}
                           title="Delete Session"
-                          className="rounded-lg text-slate-450 hover:text-red-650 hover:bg-red-50 transition-all cursor-pointer"
+                          className="rounded-lg text-slate-600 hover:text-red-650 hover:bg-red-50 transition-all cursor-pointer"
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
@@ -664,7 +657,7 @@ export default function TutorSessionManager() {
               <TableRow>
                 <TableCell
                   colSpan={7}
-                  className="px-6 py-12 text-center text-slate-450 text-sm"
+                  className="px-6 py-12 text-center text-slate-600 text-sm"
                 >
                   No scheduled classes found. Schedule a session above.
                 </TableCell>

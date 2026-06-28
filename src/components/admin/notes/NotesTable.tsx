@@ -1,4 +1,4 @@
-import { FileText, FileImage, File, Pencil, Trash2, ExternalLink } from "lucide-react";
+﻿import { FileText, FileImage, File, Pencil, Trash2, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   Table,
@@ -42,25 +42,25 @@ export default function NotesTable({ notes, onEdit, onDelete, onUpdateStatus }: 
       <Table className="table-fixed">
         <TableHeader className="bg-slate-50/50">
           <TableRow>
-            <TableHead className="w-[28%] px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">
+            <TableHead className="w-[28%] px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-600">
               Title
             </TableHead>
-            <TableHead className="w-[16%] px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">
+            <TableHead className="w-[16%] px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-600">
               Subject / Chapter
             </TableHead>
-            <TableHead className="w-[14%] px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">
+            <TableHead className="w-[14%] px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-600">
               Standard / Syllabus
             </TableHead>
-            <TableHead className="w-[12%] px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">
+            <TableHead className="w-[12%] px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-600">
               Type
             </TableHead>
-            <TableHead className="w-[12%] px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">
+            <TableHead className="w-[12%] px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-600">
               Status
             </TableHead>
-            <TableHead className="w-[14%] px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">
+            <TableHead className="w-[14%] px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-600">
               Tags
             </TableHead>
-            <TableHead className="w-[10%] px-6 py-4 text-right text-xs font-bold uppercase tracking-wider text-slate-500">
+            <TableHead className="w-[10%] px-6 py-4 text-right text-xs font-bold uppercase tracking-wider text-slate-600">
               Actions
             </TableHead>
           </TableRow>
@@ -71,15 +71,15 @@ export default function NotesTable({ notes, onEdit, onDelete, onUpdateStatus }: 
               <TableRow key={note.id} className="transition-colors hover:bg-slate-50/60">
                 <TableCell className="px-6 py-4">
                   <p className="truncate text-sm font-semibold text-slate-800">{note.title}</p>
-                  <p className="mt-0.5 truncate text-xs text-slate-450">{note.description}</p>
+                  <p className="mt-0.5 truncate text-xs text-slate-600">{note.description}</p>
                 </TableCell>
                 <TableCell className="px-6 py-4">
                   <p className="truncate text-sm font-semibold text-slate-700">{note.subject}</p>
-                  <p className="mt-0.5 truncate text-xs text-slate-450">{note.chapter}</p>
+                  <p className="mt-0.5 truncate text-xs text-slate-600">{note.chapter}</p>
                 </TableCell>
                 <TableCell className="px-6 py-4">
                   <p className="text-sm font-semibold text-slate-700">Class {note.standard}</p>
-                  <p className="mt-0.5 truncate text-xs text-slate-450">{note.syllabus}</p>
+                  <p className="mt-0.5 truncate text-xs text-slate-600">{note.syllabus}</p>
                 </TableCell>
                 <TableCell className="px-6 py-4">
                   <Badge
@@ -111,13 +111,13 @@ export default function NotesTable({ notes, onEdit, onDelete, onUpdateStatus }: 
                     {note.tags.slice(0, 2).map((tag) => (
                       <span
                         key={tag}
-                        className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-550"
+                        className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600"
                       >
                         {tag}
                       </span>
                     ))}
                     {note.tags.length > 2 && (
-                      <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-550">
+                      <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">
                         +{note.tags.length - 2}
                       </span>
                     )}
@@ -130,7 +130,7 @@ export default function NotesTable({ notes, onEdit, onDelete, onUpdateStatus }: 
                       target="_blank"
                       rel="noopener noreferrer"
                       title="View file"
-                      className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-50 hover:text-[var(--brand-green)]"
+                      className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-600 transition-colors hover:bg-slate-50 hover:text-[var(--brand-green)]"
                     >
                       <ExternalLink className="h-4 w-4" />
                     </a>
@@ -139,7 +139,7 @@ export default function NotesTable({ notes, onEdit, onDelete, onUpdateStatus }: 
                       size="icon-sm"
                       onClick={() => onEdit(note)}
                       title="Edit note"
-                      className="rounded-lg text-slate-400 hover:bg-slate-50 hover:text-[var(--brand-green)]"
+                      className="rounded-lg text-slate-600 hover:bg-slate-50 hover:text-[var(--brand-green)]"
                     >
                       <Pencil className="h-4 w-4" />
                     </Button>
@@ -148,7 +148,7 @@ export default function NotesTable({ notes, onEdit, onDelete, onUpdateStatus }: 
                       size="icon-sm"
                       onClick={() => onDelete(note.id)}
                       title="Delete note"
-                      className="rounded-lg text-slate-400 hover:bg-red-50/50 hover:text-red-600"
+                      className="rounded-lg text-slate-600 hover:bg-red-50/50 hover:text-red-600"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -158,7 +158,7 @@ export default function NotesTable({ notes, onEdit, onDelete, onUpdateStatus }: 
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={7} className="px-6 py-16 text-center text-sm text-slate-400">
+              <TableCell colSpan={7} className="px-6 py-16 text-center text-sm text-slate-600">
                 No notes found. Add your first note to get started.
               </TableCell>
             </TableRow>

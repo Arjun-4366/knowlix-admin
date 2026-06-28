@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useRef } from "react";
 import { useDebounce } from "@/hooks/useDebounce";
@@ -164,13 +164,13 @@ function EditReportModal({ report, student, onClose }: EditModalProps) {
         <div className="flex items-center justify-between p-5 border-b border-slate-100 flex-shrink-0">
           <div>
             <p className="text-sm font-bold text-slate-800">Edit Report</p>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-xs text-slate-600 mt-0.5">
               {student?.name ?? "Unknown Student"} — {report.academicYear}
             </p>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 cursor-pointer"
+            className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-600 cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -180,7 +180,7 @@ function EditReportModal({ report, student, onClose }: EditModalProps) {
         <div className="overflow-y-auto p-6 space-y-5">
           {/* Exam Title */}
           <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+            <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
               Exam Title
             </label>
             <Input
@@ -194,7 +194,7 @@ function EditReportModal({ report, student, onClose }: EditModalProps) {
           {/* Subjects */}
           <div>
             <div className="flex items-center justify-between mb-3">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+              <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
                 Subjects &amp; Marks
               </label>
               <button
@@ -208,9 +208,9 @@ function EditReportModal({ report, student, onClose }: EditModalProps) {
               <table className="w-full text-xs">
                 <thead>
                   <tr className="bg-slate-50 border-b border-slate-200">
-                    <th className="text-left px-3 py-2.5 font-bold text-slate-500">Subject</th>
+                    <th className="text-left px-3 py-2.5 font-bold text-slate-600">Subject</th>
                     {numFields.map((f) => (
-                      <th key={f.field} className="text-center px-3 py-2.5 font-bold text-slate-500">
+                      <th key={f.field} className="text-center px-3 py-2.5 font-bold text-slate-600">
                         {f.label}
                       </th>
                     ))}
@@ -244,7 +244,7 @@ function EditReportModal({ report, student, onClose }: EditModalProps) {
                       <td className="px-2 py-1.5 text-center">
                         <button
                           onClick={() => removeSubject(i)}
-                          className="p-1 rounded text-slate-400 hover:text-red-500 hover:bg-red-50 cursor-pointer"
+                          className="p-1 rounded text-slate-600 hover:text-red-500 hover:bg-red-50 cursor-pointer"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -385,7 +385,7 @@ export default function TutorReportHistory({
         {/* Filters */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-50/50 p-4 rounded-2xl border border-slate-150">
           <div className="relative flex-1">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 z-10" />
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600 z-10" />
             <Input
               type="text"
               placeholder="Search by student name or exam title…"
@@ -419,22 +419,22 @@ export default function TutorReportHistory({
             <Table className="table-fixed w-full">
               <TableHeader className="bg-slate-50/50">
                 <TableRow>
-                  <TableHead className="px-5 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[26%]">
+                  <TableHead className="px-5 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[26%]">
                     Student
                   </TableHead>
-                  <TableHead className="px-5 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[13%]">
+                  <TableHead className="px-5 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[13%]">
                     Type
                   </TableHead>
-                  <TableHead className="px-5 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[28%]">
+                  <TableHead className="px-5 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[28%]">
                     Exam Title
                   </TableHead>
-                  <TableHead className="px-5 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[15%]">
+                  <TableHead className="px-5 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[15%]">
                     Year
                   </TableHead>
-                  <TableHead className="px-5 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[8%]">
+                  <TableHead className="px-5 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[8%]">
                     Subjects
                   </TableHead>
-                  <TableHead className="px-5 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right w-[10%]">
+                  <TableHead className="px-5 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-right w-[10%]">
                     Actions
                   </TableHead>
                 </TableRow>
@@ -452,7 +452,7 @@ export default function TutorReportHistory({
                           <p className="text-sm font-bold text-slate-750 truncate">
                             {student?.name ?? "Unknown Student"}
                           </p>
-                          <span className="text-[10px] text-slate-400 font-semibold">
+                          <span className="text-[10px] text-slate-600 font-semibold">
                             {student?.admissionNo ?? report.studentId}
                           </span>
                         </TableCell>
@@ -470,7 +470,7 @@ export default function TutorReportHistory({
                           </span>
                         </TableCell>
                         <TableCell className="px-5 py-3.5">
-                          <span className="text-xs text-slate-500 font-semibold flex items-center gap-1">
+                          <span className="text-xs text-slate-600 font-semibold flex items-center gap-1">
                             <Calendar className="w-3.5 h-3.5" />
                             {report.academicYear}
                           </span>
@@ -491,14 +491,14 @@ export default function TutorReportHistory({
                             </button>
                             <button
                               onClick={() => setEditReport(report)}
-                              className="p-1.5 rounded-lg text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition-all cursor-pointer"
+                              className="p-1.5 rounded-lg text-slate-600 hover:text-blue-600 hover:bg-blue-50 transition-all cursor-pointer"
                               title="Edit Report"
                             >
                               <Pencil className="w-4 h-4" />
                             </button>
                             <button
                               onClick={() => handleDelete(report)}
-                              className="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all cursor-pointer"
+                              className="p-1.5 rounded-lg text-slate-600 hover:text-red-500 hover:bg-red-50 transition-all cursor-pointer"
                               title="Delete Report"
                             >
                               <Trash2 className="w-4 h-4" />
@@ -512,7 +512,7 @@ export default function TutorReportHistory({
                   <TableRow>
                     <TableCell
                       colSpan={6}
-                      className="px-5 py-12 text-center text-slate-400 text-sm"
+                      className="px-5 py-12 text-center text-slate-600 text-sm"
                     >
                       No reports found.
                     </TableCell>
@@ -541,7 +541,7 @@ export default function TutorReportHistory({
                 </button>
                 <button
                   onClick={() => setViewReport(null)}
-                  className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 transition-all cursor-pointer"
+                  className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-600 transition-all cursor-pointer"
                 >
                   <X className="w-5 h-5" />
                 </button>

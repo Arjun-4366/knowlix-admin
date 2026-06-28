@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import {
   ArrowLeft,
@@ -67,7 +67,7 @@ export default function TutorStudentDetails({
       <div>
         <button
           onClick={onBack}
-          className="flex items-center gap-2 text-slate-500 hover:text-[var(--brand-green)] font-semibold text-sm transition-colors cursor-pointer group"
+          className="flex items-center gap-2 text-slate-600 hover:text-[var(--brand-green)] font-semibold text-sm transition-colors cursor-pointer group"
         >
           <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
           Back to Student Roster
@@ -83,11 +83,11 @@ export default function TutorStudentDetails({
           <div>
             <div className="flex items-center flex-wrap gap-2.5">
               <h1 className="text-2xl font-bold text-slate-800 tracking-tight">{student.studentName}</h1>
-              <Badge variant="outline" className="text-xs font-semibold px-2 py-0.5 rounded-md bg-slate-100 text-slate-500 border border-slate-200">
+              <Badge variant="outline" className="text-xs font-semibold px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 border border-slate-200">
                 {student.admissionNumber || student.id.substring(0, 8)}
               </Badge>
             </div>
-            <p className="text-sm text-slate-550 font-semibold mt-1">
+            <p className="text-sm text-slate-600 font-semibold mt-1">
               {student.courseName || student.courseType} • Class {student.class}
             </p>
           </div>
@@ -95,7 +95,7 @@ export default function TutorStudentDetails({
 
         {/* Admission Status */}
         <div className="flex flex-col sm:items-end gap-1 pt-4 border-t md:border-t-0 md:pt-0">
-          <span className="block text-[10px] uppercase font-bold text-slate-400">Admission Status</span>
+          <span className="block text-[10px] uppercase font-bold text-slate-600">Admission Status</span>
           <Badge variant="outline" className={cn(
             "inline-flex px-3 py-1 rounded-full text-xs font-bold border mt-1 shadow-sm h-6",
             getStatusBadgeClass(student.admissionStatus)
@@ -117,19 +117,19 @@ export default function TutorStudentDetails({
           </CardHeader>
           <CardContent className="p-6 pt-3 space-y-3.5">
             <div>
-              <span className="block text-[10px] uppercase font-bold text-slate-400">Class / Grade</span>
+              <span className="block text-[10px] uppercase font-bold text-slate-600">Class / Grade</span>
               <span className="text-sm font-semibold text-slate-700">Class {student.class}</span>
             </div>
             <div>
-              <span className="block text-[10px] uppercase font-bold text-slate-400">Syllabus</span>
+              <span className="block text-[10px] uppercase font-bold text-slate-600">Syllabus</span>
               <span className="text-sm font-semibold text-slate-700">{student.syllabus || "N/A"}</span>
             </div>
             <div>
-              <span className="block text-[10px] uppercase font-bold text-slate-400">Course</span>
+              <span className="block text-[10px] uppercase font-bold text-slate-600">Course</span>
               <span className="text-sm font-semibold text-slate-700">{student.courseName || student.courseType}</span>
             </div>
             <div>
-              <span className="block text-[10px] uppercase font-bold text-slate-400">Program</span>
+              <span className="block text-[10px] uppercase font-bold text-slate-600">Program</span>
               <span className="text-sm font-semibold text-slate-700">{student.programName || "N/A"}</span>
             </div>
           </CardContent>
@@ -145,28 +145,28 @@ export default function TutorStudentDetails({
           </CardHeader>
           <CardContent className="p-6 pt-3 space-y-3.5">
             <div>
-              <span className="block text-[10px] uppercase font-bold text-slate-400">Parent / Guardian Name</span>
+              <span className="block text-[10px] uppercase font-bold text-slate-600">Parent / Guardian Name</span>
               <span className="text-sm font-semibold text-slate-700">{student.parentName}</span>
             </div>
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <span className="block text-[10px] uppercase font-bold text-slate-400">Email</span>
+                <span className="block text-[10px] uppercase font-bold text-slate-600">Email</span>
                 <span className="text-sm font-semibold text-slate-700 truncate block">{student.email || "N/A"}</span>
               </div>
               <div>
-                <span className="block text-[10px] uppercase font-bold text-slate-400">Phone</span>
+                <span className="block text-[10px] uppercase font-bold text-slate-600">Phone</span>
                 <span className="text-sm font-semibold text-slate-700">{student.phone || "N/A"}</span>
               </div>
             </div>
             <div>
-              <span className="block text-[10px] uppercase font-bold text-slate-400">Location / Origin</span>
+              <span className="block text-[10px] uppercase font-bold text-slate-600">Location / Origin</span>
               <span className="text-sm font-semibold text-slate-700 flex items-center gap-1">
-                <MapPin className="w-3.5 h-3.5 text-slate-400" />
+                <MapPin className="w-3.5 h-3.5 text-slate-600" />
                 {student.place || "N/A"}
               </span>
             </div>
             <div>
-              <span className="block text-[10px] uppercase font-bold text-slate-400">Package Selected</span>
+              <span className="block text-[10px] uppercase font-bold text-slate-600">Package Selected</span>
               <span className="text-sm font-semibold text-slate-700 capitalize">{student.package?.replace("_", " ")}</span>
             </div>
           </CardContent>
@@ -182,7 +182,7 @@ export default function TutorStudentDetails({
           </CardHeader>
           <CardContent className="p-6 pt-3 space-y-3.5">
             <div>
-              <span className="block text-[10px] uppercase font-bold text-slate-400 font-heading">Academic Coordinator</span>
+              <span className="block text-[10px] uppercase font-bold text-slate-600 font-heading">Academic Coordinator</span>
               <span className="text-sm font-semibold text-slate-700 block mt-0.5">{student.coordinatorName || "Not Assigned"}</span>
             </div>
           </CardContent>
@@ -213,7 +213,7 @@ export default function TutorStudentDetails({
                 <span className="text-xl font-black text-slate-800">{attendanceSummary.absent}</span>
               </div>
             </div>
-            <div className="mt-4 text-center text-xs font-semibold text-slate-500">
+            <div className="mt-4 text-center text-xs font-semibold text-slate-600">
               Total Recorded Sessions: <span className="font-bold text-slate-700">{attendanceSummary.total}</span>
             </div>
           </CardContent>
@@ -234,13 +234,13 @@ export default function TutorStudentDetails({
                     <div className="flex justify-between items-start mb-1">
                       <div>
                         <h4 className="text-sm font-bold text-slate-800">{exam.title}</h4>
-                        <p className="text-xs text-slate-500 font-semibold">
+                        <p className="text-xs text-slate-600 font-semibold">
                           {exam.subject}
                           {typeof exam.tutorId === "object" && exam.tutorId?.name && ` • By ${exam.tutorId.name}`}
                         </p>
                       </div>
                       {exam.status === "conducted" ? (
-                        <Badge variant="outline" className="bg-slate-100 text-slate-500 border-slate-200 text-[10px] font-bold">
+                        <Badge variant="outline" className="bg-slate-100 text-slate-600 border-slate-200 text-[10px] font-bold">
                           Conducted
                         </Badge>
                       ) : exam.status === "cancelled" ? (
@@ -262,7 +262,7 @@ export default function TutorStudentDetails({
                           <p className="text-xs font-bold text-slate-700">
                             {exam.result.marksObtained} / {exam.maxMarks} marks
                           </p>
-                          <p className="text-[10px] text-slate-500 truncate max-w-[200px]">
+                          <p className="text-[10px] text-slate-600 truncate max-w-[200px]">
                             {exam.result.remarks || "No remarks"}
                           </p>
                         </div>
@@ -272,7 +272,7 @@ export default function TutorStudentDetails({
                 ))}
               </div>
             ) : (
-              <div className="p-8 text-center text-sm text-slate-400 font-semibold">
+              <div className="p-8 text-center text-sm text-slate-600 font-semibold">
                 No exams recorded for this student.
               </div>
             )}
@@ -310,7 +310,7 @@ export default function TutorStudentDetails({
                           day: "numeric",
                         })}
                       </p>
-                      <p className="text-xs font-semibold text-slate-500 mt-0.5 flex items-center gap-1.5">
+                      <p className="text-xs font-semibold text-slate-600 mt-0.5 flex items-center gap-1.5">
                         {record.sessionTitle ? (
                           <>
                             <span className="w-1.5 h-1.5 rounded-full bg-[var(--brand-green)]"></span>
@@ -325,7 +325,7 @@ export default function TutorStudentDetails({
                         {typeof record.tutorId === "object" && record.tutorId?.name && ` • ${record.tutorId.name}`}
                       </p>
                       {record.remarks && (
-                        <p className="text-[10px] text-slate-400 mt-1 italic">
+                        <p className="text-[10px] text-slate-600 mt-1 italic">
                           "{record.remarks}"
                         </p>
                       )}
@@ -349,7 +349,7 @@ export default function TutorStudentDetails({
                 ))}
             </div>
           ) : (
-            <div className="p-8 text-center text-sm text-slate-400 font-semibold">
+            <div className="p-8 text-center text-sm text-slate-600 font-semibold">
               No attendance records found.
             </div>
           )}

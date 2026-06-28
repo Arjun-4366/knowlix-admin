@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import { ReportFiltersState } from "./types";
@@ -228,7 +228,7 @@ export default function ReportsDashboard() {
               <h2 className="text-sm font-bold text-slate-800 font-heading">
                 {getReportLabel(activeFilters.type)}
               </h2>
-              <p className="text-[11px] text-slate-450 mt-1">
+              <p className="text-[11px] text-slate-600 mt-1">
                 Issued on {new Date().toLocaleDateString("en-IN")} • Active Filter: {activeFilters.dateRange.preset.toUpperCase()}
               </p>
             </div>
@@ -261,7 +261,7 @@ export default function ReportsDashboard() {
           <div className="bg-white border border-slate-100 rounded-2xl shadow-sm overflow-hidden">
             <div className="px-6 py-5 border-b border-slate-50">
               <h3 className="text-sm font-bold text-slate-800">Detailed Dataset</h3>
-              <p className="text-xs text-slate-400 mt-1">Tabular breakdown of the generated report parameters.</p>
+              <p className="text-xs text-slate-600 mt-1">Tabular breakdown of the generated report parameters.</p>
             </div>
             {activeFilters.type === "tutor" && <RealTutorTable data={realReportsResponse?.data ?? []} />}
             {activeFilters.type === "student_performance" && <StudentPerformanceTable data={studentReportsResponse?.data ?? []} />}
@@ -306,17 +306,17 @@ function RealTutorKPI({ data }: RealTutorKPIProps) {
 }
 
 function RealTutorVisuals({ data }: { data: ITutorPerformanceReportItem[] }) {
-  if (data.length === 0) return <div className="text-xs text-slate-400 text-center py-6">No data to display.</div>;
+  if (data.length === 0) return <div className="text-xs text-slate-600 text-center py-6">No data to display.</div>;
 
   return (
     <div className="space-y-5">
-      <p className="text-xs font-semibold text-slate-500">Tutors growth points and sessions conduction rates:</p>
+      <p className="text-xs font-semibold text-slate-600">Tutors growth points and sessions conduction rates:</p>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
 
         {/* Growth Points */}
         <div className="rounded-xl border border-slate-100 overflow-hidden">
           <div className="px-4 py-2.5 bg-slate-50 border-b border-slate-100">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Tutors by Growth Points</span>
+            <span className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Tutors by Growth Points</span>
           </div>
           <div className="divide-y divide-slate-50">
             {data.slice(0, 4).map((t) => (
@@ -333,7 +333,7 @@ function RealTutorVisuals({ data }: { data: ITutorPerformanceReportItem[] }) {
         {/* Sessions */}
         <div className="rounded-xl border border-slate-100 overflow-hidden">
           <div className="px-4 py-2.5 bg-slate-50 border-b border-slate-100">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Sessions Conducted</span>
+            <span className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Sessions Conducted</span>
           </div>
           <div className="divide-y divide-slate-50">
             {data.slice(0, 4).map((t) => {
@@ -345,7 +345,7 @@ function RealTutorVisuals({ data }: { data: ITutorPerformanceReportItem[] }) {
                     <span className="text-xs font-bold text-blue-600 bg-blue-50 border border-blue-100 rounded-lg px-2.5 py-1">
                       {t.conductedSessions}/{t.totalSessions}
                     </span>
-                    <span className="text-[10px] font-bold text-slate-400 w-9 text-right">{ratio}%</span>
+                    <span className="text-[10px] font-bold text-slate-600 w-9 text-right">{ratio}%</span>
                   </div>
                 </div>
               );
@@ -363,13 +363,13 @@ function RealTutorTable({ data }: { data: ITutorPerformanceReportItem[] }) {
     <Table className="table-fixed w-full">
       <TableHeader className="bg-slate-50/50">
         <TableRow>
-          <TableHead className="px-5 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[22%]">Tutor</TableHead>
-          <TableHead className="px-5 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[18%]">Subjects</TableHead>
-          <TableHead className="px-5 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center w-[12%]">Students</TableHead>
-          <TableHead className="px-5 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center w-[14%]">Growth Pts</TableHead>
-          <TableHead className="px-5 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center w-[18%]">Sessions</TableHead>
-          <TableHead className="px-5 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center w-[10%]">Work Hrs</TableHead>
-          <TableHead className="px-5 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right w-[6%]">Attend.</TableHead>
+          <TableHead className="px-5 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[22%]">Tutor</TableHead>
+          <TableHead className="px-5 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[18%]">Subjects</TableHead>
+          <TableHead className="px-5 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-center w-[12%]">Students</TableHead>
+          <TableHead className="px-5 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-center w-[14%]">Growth Pts</TableHead>
+          <TableHead className="px-5 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-center w-[18%]">Sessions</TableHead>
+          <TableHead className="px-5 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-center w-[10%]">Work Hrs</TableHead>
+          <TableHead className="px-5 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-right w-[6%]">Attend.</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody className="divide-y divide-slate-100">
@@ -378,7 +378,7 @@ function RealTutorTable({ data }: { data: ITutorPerformanceReportItem[] }) {
             <TableRow key={tutor.tutorId} className="hover:bg-slate-50/60 transition-colors">
               <TableCell className="px-5 py-4">
                 <p className="text-xs font-bold text-slate-800 leading-none">{tutor.name}</p>
-                <span className="text-[10px] text-slate-400 mt-0.5 block">{tutor.experience}</span>
+                <span className="text-[10px] text-slate-600 mt-0.5 block">{tutor.experience}</span>
               </TableCell>
               <TableCell className="px-5 py-4">
                 <div className="flex flex-wrap gap-1">
@@ -388,7 +388,7 @@ function RealTutorTable({ data }: { data: ITutorPerformanceReportItem[] }) {
                     </Badge>
                   ))}
                   {tutor.subjects.length > 3 && (
-                    <Badge variant="outline" className="text-[9px] font-bold px-1.5 bg-slate-50 text-slate-400 border-slate-200">
+                    <Badge variant="outline" className="text-[9px] font-bold px-1.5 bg-slate-50 text-slate-600 border-slate-200">
                       +{tutor.subjects.length - 3}
                     </Badge>
                   )}
@@ -402,7 +402,7 @@ function RealTutorTable({ data }: { data: ITutorPerformanceReportItem[] }) {
               </TableCell>
               <TableCell className="px-5 py-4 text-center">
                 <p className="text-xs font-bold text-blue-600">{tutor.conductedSessions}/{tutor.totalSessions}</p>
-                <span className="text-[10px] text-slate-400">{tutor.notConductedSessions} not done</span>
+                <span className="text-[10px] text-slate-600">{tutor.notConductedSessions} not done</span>
               </TableCell>
               <TableCell className="px-5 py-4 text-xs text-center font-bold text-purple-600">
                 {tutor.totalWorkHours}h
@@ -414,7 +414,7 @@ function RealTutorTable({ data }: { data: ITutorPerformanceReportItem[] }) {
           ))
         ) : (
           <TableRow>
-            <TableCell colSpan={7} className="px-5 py-12 text-center text-slate-400 text-xs">
+            <TableCell colSpan={7} className="px-5 py-12 text-center text-slate-600 text-xs">
               No tutor performance records match the selected filter presets.
             </TableCell>
           </TableRow>
@@ -428,7 +428,7 @@ function KPICard({ label, value, icon }: { label: string; value: string | number
   return (
     <div className="bg-white border border-slate-100 p-5 rounded-2xl shadow-sm flex items-center justify-between">
       <div className="space-y-1">
-        <p className="text-slate-400 text-xs font-semibold">{label}</p>
+        <p className="text-slate-600 text-xs font-semibold">{label}</p>
         <p className="text-xl font-bold font-heading text-slate-800">{value}</p>
       </div>
       <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center">
@@ -439,7 +439,7 @@ function KPICard({ label, value, icon }: { label: string; value: string | number
 }
 
 function StudentPerformanceVisuals({ data }: { data: IStudentPerformanceReportItem[] }) {
-  if (data.length === 0) return <div className="text-xs text-slate-400 text-center py-6">No data to display.</div>;
+  if (data.length === 0) return <div className="text-xs text-slate-600 text-center py-6">No data to display.</div>;
 
   const totalStudents = data.length;
   const completed = data.filter(d => d.admissionStatus === "course_completed").length;
@@ -453,7 +453,7 @@ function StudentPerformanceVisuals({ data }: { data: IStudentPerformanceReportIt
 
   return (
     <div className="space-y-4">
-      <p className="text-xs font-semibold text-slate-500">Student admissions & fee overview:</p>
+      <p className="text-xs font-semibold text-slate-600">Student admissions & fee overview:</p>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         <KPICard label="Total Students" value={totalStudents} icon={<Users className="w-5 h-5 text-blue-500" />} />
         <KPICard label="Completed" value={completed} icon={<CheckCircle className="w-5 h-5 text-emerald-500" />} />
@@ -476,7 +476,7 @@ function StudentPerformanceTable({ data }: { data: IStudentPerformanceReportItem
       case "pending":
         return <Badge className="bg-orange-100 text-orange-700 hover:bg-orange-100 border-transparent text-[10px]">Pending</Badge>;
       default:
-        return <Badge variant="outline" className="text-[10px] text-slate-500">{status}</Badge>;
+        return <Badge variant="outline" className="text-[10px] text-slate-600">{status}</Badge>;
     }
   };
 
@@ -488,13 +488,13 @@ function StudentPerformanceTable({ data }: { data: IStudentPerformanceReportItem
       <Table className="w-full">
         <TableHeader className="bg-slate-50/50">
           <TableRow>
-            <TableHead className="px-5 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Student</TableHead>
-            <TableHead className="px-5 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Course</TableHead>
-            <TableHead className="px-5 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Mentor</TableHead>
-            <TableHead className="px-5 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">Status</TableHead>
-            <TableHead className="px-5 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">Sessions</TableHead>
-            <TableHead className="px-5 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">Attendance</TableHead>
-            <TableHead className="px-5 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Fee Status</TableHead>
+            <TableHead className="px-5 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider">Student</TableHead>
+            <TableHead className="px-5 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider">Course</TableHead>
+            <TableHead className="px-5 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider">Mentor</TableHead>
+            <TableHead className="px-5 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-center">Status</TableHead>
+            <TableHead className="px-5 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-center">Sessions</TableHead>
+            <TableHead className="px-5 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-center">Attendance</TableHead>
+            <TableHead className="px-5 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-right">Fee Status</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody className="divide-y divide-slate-100">
@@ -503,17 +503,17 @@ function StudentPerformanceTable({ data }: { data: IStudentPerformanceReportItem
               <TableRow key={student.studentId} className="hover:bg-slate-50/60 transition-colors">
                 <TableCell className="px-5 py-4">
                   <p className="text-xs font-bold text-slate-800 leading-none">{student.studentName}</p>
-                  <span className="text-[10px] text-slate-400 font-semibold mt-1 block">
+                  <span className="text-[10px] text-slate-600 font-semibold mt-1 block">
                     {student.admissionNumber || "No Admission No."}
                   </span>
-                  <span className="text-[10px] text-slate-400 block">Class {student.class}{student.syllabus ? ` · ${student.syllabus}` : ""}</span>
+                  <span className="text-[10px] text-slate-600 block">Class {student.class}{student.syllabus ? ` · ${student.syllabus}` : ""}</span>
                 </TableCell>
                 <TableCell className="px-5 py-4">
                   <p className="text-xs font-semibold text-slate-700 leading-none truncate max-w-[140px]">
                     {student.courseName || student.programName || "—"}
                   </p>
                   {student.programName && student.courseName && (
-                    <span className="text-[10px] text-slate-400 mt-0.5 block truncate max-w-[140px]">{student.programName}</span>
+                    <span className="text-[10px] text-slate-600 mt-0.5 block truncate max-w-[140px]">{student.programName}</span>
                   )}
                 </TableCell>
                 <TableCell className="px-5 py-4">
@@ -524,11 +524,11 @@ function StudentPerformanceTable({ data }: { data: IStudentPerformanceReportItem
                 </TableCell>
                 <TableCell className="px-5 py-4 text-center">
                   <p className="text-xs font-bold text-blue-600">{student.conducted}/{student.totalSessions}</p>
-                  <span className="text-[10px] text-slate-400">done/total</span>
+                  <span className="text-[10px] text-slate-600">done/total</span>
                 </TableCell>
                 <TableCell className="px-5 py-4 text-center">
                   <p className="text-xs font-bold text-emerald-600">{student.attendanceRate.toFixed(0)}%</p>
-                  <span className="text-[10px] text-slate-400">{student.attendancePresent}P · {student.attendanceAbsent}A · {student.attendanceLate}L</span>
+                  <span className="text-[10px] text-slate-600">{student.attendancePresent}P · {student.attendanceAbsent}A · {student.attendanceLate}L</span>
                 </TableCell>
                 <TableCell className="px-5 py-4 text-right">
                   <p className="text-xs font-bold text-emerald-600">{fmtFee(student.paidAmount)} paid</p>
@@ -540,7 +540,7 @@ function StudentPerformanceTable({ data }: { data: IStudentPerformanceReportItem
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={7} className="px-5 py-12 text-center text-slate-400 text-xs">
+              <TableCell colSpan={7} className="px-5 py-12 text-center text-slate-600 text-xs">
                 No student performance records match the selected filter presets.
               </TableCell>
             </TableRow>
@@ -552,7 +552,7 @@ function StudentPerformanceTable({ data }: { data: IStudentPerformanceReportItem
 }
 
 function AttendanceVisuals({ data }: { data: IAttendanceReportResponse | undefined }) {
-  if (!data) return <div className="text-xs text-slate-400 text-center py-6">No data to display.</div>;
+  if (!data) return <div className="text-xs text-slate-600 text-center py-6">No data to display.</div>;
 
   const avgHoursPerTutor = data.totalTutors > 0
     ? (data.totalWorkHours / data.totalTutors).toFixed(1)
@@ -560,7 +560,7 @@ function AttendanceVisuals({ data }: { data: IAttendanceReportResponse | undefin
 
   return (
     <div className="space-y-4">
-      <p className="text-xs font-semibold text-slate-500">Tutor attendance & work hours summary:</p>
+      <p className="text-xs font-semibold text-slate-600">Tutor attendance & work hours summary:</p>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <KPICard label="Total Tutors" value={data.totalTutors} icon={<Users className="w-5 h-5 text-blue-500" />} />
         <KPICard label="Total Sessions" value={data.totalSessions} icon={<Calendar className="w-5 h-5 text-purple-500" />} />
@@ -575,8 +575,8 @@ function AttendanceTable({ data }: { data: IAttendanceReportItem[] }) {
   if (data.length === 0) {
     return (
       <div className="p-12 text-center">
-        <p className="text-sm text-slate-500 font-semibold mb-2">No Records</p>
-        <p className="text-xs text-slate-400">No attendance data found for the selected period.</p>
+        <p className="text-sm text-slate-600 font-semibold mb-2">No Records</p>
+        <p className="text-xs text-slate-600">No attendance data found for the selected period.</p>
       </div>
     );
   }
@@ -592,11 +592,11 @@ function AttendanceTable({ data }: { data: IAttendanceReportItem[] }) {
       <Table className="w-full">
         <TableHeader className="bg-slate-50/50">
           <TableRow>
-            <TableHead className="px-5 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Tutor</TableHead>
-            <TableHead className="px-5 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">Days Present</TableHead>
-            <TableHead className="px-5 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">Total Minutes</TableHead>
-            <TableHead className="px-5 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">Work Hours</TableHead>
-            <TableHead className="px-5 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Sessions</TableHead>
+            <TableHead className="px-5 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider">Tutor</TableHead>
+            <TableHead className="px-5 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-center">Days Present</TableHead>
+            <TableHead className="px-5 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-center">Total Minutes</TableHead>
+            <TableHead className="px-5 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-center">Work Hours</TableHead>
+            <TableHead className="px-5 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-right">Sessions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody className="divide-y divide-slate-100">
@@ -607,7 +607,7 @@ function AttendanceTable({ data }: { data: IAttendanceReportItem[] }) {
                   {row.tutorName || "Unknown Tutor"}
                 </p>
                 {row.tutorEmail && (
-                  <span className="text-[10px] text-slate-400 mt-0.5 block">{row.tutorEmail}</span>
+                  <span className="text-[10px] text-slate-600 mt-0.5 block">{row.tutorEmail}</span>
                 )}
               </TableCell>
               <TableCell className="px-5 py-4 text-xs text-center font-bold text-slate-700">
@@ -631,13 +631,13 @@ function AttendanceTable({ data }: { data: IAttendanceReportItem[] }) {
 }
 
 function SessionVisuals({ response }: { response: ISessionReportResponse | undefined }) {
-  if (!response || !response.total) return <div className="text-xs text-slate-400 text-center py-6">No session data to display.</div>;
+  if (!response || !response.total) return <div className="text-xs text-slate-600 text-center py-6">No session data to display.</div>;
 
   const completed = response.data?.filter((d) => d.status === "completed").length ?? 0;
 
   return (
     <div className="space-y-4">
-      <p className="text-xs font-semibold text-slate-500">Session overview across the selected period:</p>
+      <p className="text-xs font-semibold text-slate-600">Session overview across the selected period:</p>
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         <KPICard label="Total Sessions" value={response.total} icon={<Calendar className="w-5 h-5 text-blue-500" />} />
         <KPICard label="Conducted" value={response.conducted} icon={<CheckCircle className="w-5 h-5 text-emerald-500" />} />
@@ -653,8 +653,8 @@ function SessionTable({ data }: { data: ISessionReportItem[] }) {
   if (data.length === 0) {
     return (
       <div className="p-12 text-center">
-        <p className="text-sm text-slate-500 font-semibold mb-2">No Session Records</p>
-        <p className="text-xs text-slate-400">No session data found for the selected period.</p>
+        <p className="text-sm text-slate-600 font-semibold mb-2">No Session Records</p>
+        <p className="text-xs text-slate-600">No session data found for the selected period.</p>
       </div>
     );
   }
@@ -673,7 +673,7 @@ function SessionTable({ data }: { data: ISessionReportItem[] }) {
       case "scheduled":
         return <Badge className="bg-orange-100 text-orange-700 hover:bg-orange-100 border-transparent text-[10px]">Scheduled</Badge>;
       default:
-        return <Badge variant="outline" className="text-[10px] text-slate-500">{status}</Badge>;
+        return <Badge variant="outline" className="text-[10px] text-slate-600">{status}</Badge>;
     }
   };
 
@@ -682,12 +682,12 @@ function SessionTable({ data }: { data: ISessionReportItem[] }) {
       <Table className="w-full">
         <TableHeader className="bg-slate-50/50">
           <TableRow>
-            <TableHead className="px-5 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[26%]">Session</TableHead>
-            <TableHead className="px-5 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[18%]">Tutor</TableHead>
-            <TableHead className="px-5 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center w-[10%]">Type</TableHead>
-            <TableHead className="px-5 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[22%]">Students</TableHead>
-            <TableHead className="px-5 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[16%]">Scheduled At</TableHead>
-            <TableHead className="px-5 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center w-[8%]">Status</TableHead>
+            <TableHead className="px-5 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[26%]">Session</TableHead>
+            <TableHead className="px-5 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[18%]">Tutor</TableHead>
+            <TableHead className="px-5 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-center w-[10%]">Type</TableHead>
+            <TableHead className="px-5 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[22%]">Students</TableHead>
+            <TableHead className="px-5 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[16%]">Scheduled At</TableHead>
+            <TableHead className="px-5 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-center w-[8%]">Status</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody className="divide-y divide-slate-100">
@@ -695,7 +695,7 @@ function SessionTable({ data }: { data: ISessionReportItem[] }) {
             <TableRow key={row.id} className="hover:bg-slate-50/60 transition-colors">
               <TableCell className="px-5 py-4">
                 <p className="text-xs font-bold text-slate-800 leading-none truncate max-w-[180px]">{row.title}</p>
-                <span className="text-[10px] text-slate-400 mt-0.5 block">{row.subject} · {row.durationMinutes}m</span>
+                <span className="text-[10px] text-slate-600 mt-0.5 block">{row.subject} · {row.durationMinutes}m</span>
               </TableCell>
               <TableCell className="px-5 py-4">
                 <p className="text-xs font-semibold text-slate-700">{row.tutorName || "—"}</p>
@@ -707,14 +707,14 @@ function SessionTable({ data }: { data: ISessionReportItem[] }) {
               </TableCell>
               <TableCell className="px-5 py-4">
                 {row.students.length === 0 ? (
-                  <span className="text-[10px] text-slate-400">No students</span>
+                  <span className="text-[10px] text-slate-600">No students</span>
                 ) : (
                   <div>
                     <p className="text-xs font-semibold text-slate-700 leading-none">
                       {row.students.slice(0, 2).map((s) => s.studentName).join(", ")}
                       {row.students.length > 2 && ` +${row.students.length - 2}`}
                     </p>
-                    <span className="text-[10px] text-slate-400">{row.students.length} student{row.students.length > 1 ? "s" : ""}</span>
+                    <span className="text-[10px] text-slate-600">{row.students.length} student{row.students.length > 1 ? "s" : ""}</span>
                   </div>
                 )}
               </TableCell>

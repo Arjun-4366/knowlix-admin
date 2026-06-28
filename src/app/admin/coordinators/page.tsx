@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useMemo, Suspense, useEffect } from "react";
 import { Plus, Search, Trash2, Pencil, Briefcase, Mail, Phone, Users, ShieldAlert, Award, ChevronLeft, ChevronRight } from "lucide-react";
@@ -168,7 +168,7 @@ function CoordinatorsContent() {
               </div>
               <div>
                 <p className="text-2xl font-bold text-slate-800">{summary?.total ?? 0}</p>
-                <p className="text-xs font-semibold text-slate-500">Total Coordinators</p>
+                <p className="text-xs font-semibold text-slate-600">Total Coordinators</p>
               </div>
             </div>
 
@@ -178,7 +178,7 @@ function CoordinatorsContent() {
               </div>
               <div>
                 <p className="text-2xl font-bold text-emerald-600">{summary?.active ?? 0}</p>
-                <p className="text-xs font-semibold text-slate-500">Active Coordinators</p>
+                <p className="text-xs font-semibold text-slate-600">Active Coordinators</p>
               </div>
             </div>
 
@@ -188,7 +188,7 @@ function CoordinatorsContent() {
               </div>
               <div>
                 <p className="text-2xl font-bold text-amber-600">{summary?.inactive ?? 0}</p>
-                <p className="text-xs font-semibold text-slate-500">Inactive Coordinators</p>
+                <p className="text-xs font-semibold text-slate-600">Inactive Coordinators</p>
               </div>
             </div>
           </>
@@ -198,7 +198,7 @@ function CoordinatorsContent() {
       {/* Filter Bar */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-50/50 p-4 rounded-2xl border border-slate-100 mb-6">
         <div className="relative flex-1 max-w-xl">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 z-10" />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600 z-10" />
           <Input
             type="text"
             placeholder="Search coordinators by name, email, designation..."
@@ -248,22 +248,22 @@ function CoordinatorsContent() {
             <Table className="w-full table-fixed">
               <TableHeader className="bg-slate-50/50">
                 <TableRow>
-                  <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[5%]">
+                  <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[5%]">
                     Sl.
                   </TableHead>
-                  <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[22%]">
+                  <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[22%]">
                     Coordinator
                   </TableHead>
-                  <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[20%]">
+                  <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[20%]">
                     Contact
                   </TableHead>
-                  <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[20%]">
+                  <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[20%]">
                     Role Details
                   </TableHead>
-                  <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[13%]">
+                  <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[13%]">
                     Status
                   </TableHead>
-                  <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right w-[20%]">
+                  <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-right w-[20%]">
                     Actions
                   </TableHead>
                 </TableRow>
@@ -272,7 +272,7 @@ function CoordinatorsContent() {
                 {coordinatorsList.length > 0 ? (
                   coordinatorsList.map((coordinator, index) => (
                     <TableRow key={coordinator.id} className="hover:bg-slate-50/60 transition-colors">
-                      <TableCell className="px-6 py-4 text-sm font-semibold text-slate-400">
+                      <TableCell className="px-6 py-4 text-sm font-semibold text-slate-600">
                         {(page - 1) * LIMIT + index + 1}
                       </TableCell>
                       <TableCell className="px-6 py-4">
@@ -288,11 +288,11 @@ function CoordinatorsContent() {
                       <TableCell className="px-6 py-4">
                         <div className="space-y-1 text-slate-700">
                           <div className="flex items-center gap-1.5 text-xs truncate">
-                            <Mail className="w-3.5 h-3.5 text-slate-400" />
+                            <Mail className="w-3.5 h-3.5 text-slate-600" />
                             <span className="truncate">{coordinator.email}</span>
                           </div>
                           <div className="flex items-center gap-1.5 text-xs">
-                            <Phone className="w-3.5 h-3.5 text-slate-400" />
+                            <Phone className="w-3.5 h-3.5 text-slate-600" />
                             <span>{coordinator.phone}</span>
                           </div>
                         </div>
@@ -303,7 +303,7 @@ function CoordinatorsContent() {
                             {coordinator.department}
                           </span>
                           <p className="text-xs font-semibold text-slate-700 mt-1 flex items-center gap-1">
-                            <Briefcase className="w-3 h-3 text-slate-500" />
+                            <Briefcase className="w-3 h-3 text-slate-600" />
                             {coordinator.designation}
                           </p>
                         </div>
@@ -325,7 +325,7 @@ function CoordinatorsContent() {
                             size="icon-sm"
                             onClick={() => handleEditCoordinator(coordinator.id)}
                             title="Edit Coordinator"
-                            className="rounded-lg text-slate-400 hover:text-[var(--brand-green)] hover:bg-slate-50"
+                            className="rounded-lg text-slate-600 hover:text-[var(--brand-green)] hover:bg-slate-50"
                           >
                             <Pencil className="w-4 h-4" />
                           </Button>
@@ -334,7 +334,7 @@ function CoordinatorsContent() {
                             size="icon-sm"
                             onClick={() => handleDeleteCoordinator(coordinator.id)}
                             title="Delete Coordinator"
-                            className="rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50"
+                            className="rounded-lg text-slate-600 hover:text-red-600 hover:bg-red-50"
                           >
                             <Trash2 className="w-4 h-4" />
                           </Button>
@@ -344,7 +344,7 @@ function CoordinatorsContent() {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={6} className="px-6 py-12 text-center text-slate-400 text-sm">
+                    <TableCell colSpan={6} className="px-6 py-12 text-center text-slate-600 text-sm">
                       No coordinators found matching current criteria.
                     </TableCell>
                   </TableRow>
@@ -355,7 +355,7 @@ function CoordinatorsContent() {
 
           {totalPages > 1 && (
             <div className="flex items-center justify-between mt-4 bg-white p-4 rounded-xl border border-slate-150 shadow-sm">
-              <span className="text-sm text-slate-500 font-medium">
+              <span className="text-sm text-slate-600 font-medium">
                 Showing page {page} of {totalPages} (Total {coordinatorsResponse?.total ?? 0})
               </span>
               <div className="flex items-center gap-1.5">

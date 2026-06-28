@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Calendar } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -36,7 +36,7 @@ export default function StudentAttendanceWidget({
         <div className="px-6 py-5 border-b border-slate-50 flex items-center justify-between bg-slate-50/20">
           <div>
             <h2 className="text-sm font-bold text-slate-800">Attendance Overview</h2>
-            <p className="text-xs text-slate-455 mt-0.5">Summary of attendance compliance & logs</p>
+            <p className="text-xs text-slate-600 mt-0.5">Summary of attendance compliance & logs</p>
           </div>
           <Badge className="bg-[var(--brand-light-green)] text-[var(--brand-mid)] border-[var(--brand-light)]/20 shadow-none text-[10px]">
             Presence Ratio
@@ -61,18 +61,18 @@ export default function StudentAttendanceWidget({
             </svg>
             <div className="absolute flex flex-col items-center">
               <span className="text-xl font-black text-slate-800 font-heading">{rate}%</span>
-              <span className="text-[9px] font-bold text-slate-400 uppercase">Rate</span>
+              <span className="text-[9px] font-bold text-slate-600 uppercase">Rate</span>
             </div>
           </div>
 
           {/* Quick Metrics */}
           <div className="grid grid-cols-2 gap-4 w-full text-center">
             <div className="bg-slate-50/50 p-2.5 rounded-xl border border-slate-100">
-              <span className="text-[9px] font-bold text-slate-450 uppercase block">Present</span>
+              <span className="text-[9px] font-bold text-slate-600 uppercase block">Present</span>
               <span className="text-sm font-black text-emerald-600 mt-1 block">{present}</span>
             </div>
             <div className="bg-slate-50/50 p-2.5 rounded-xl border border-slate-100">
-              <span className="text-[9px] font-bold text-slate-450 uppercase block">Absent</span>
+              <span className="text-[9px] font-bold text-slate-600 uppercase block">Absent</span>
               <span className="text-sm font-black text-red-500 mt-1 block">{absent}</span>
             </div>
           </div>
@@ -83,16 +83,16 @@ export default function StudentAttendanceWidget({
           <Table className="table-fixed w-full">
             <TableHeader className="bg-slate-50/20">
               <TableRow>
-                <TableHead className="px-5 py-2.5 text-xs font-bold text-slate-455 uppercase tracking-wider w-[40%]">Date</TableHead>
-                <TableHead className="px-5 py-2.5 text-xs font-bold text-slate-455 uppercase tracking-wider w-[40%]">Subject</TableHead>
-                <TableHead className="px-5 py-2.5 text-xs font-bold text-slate-455 uppercase tracking-wider text-right w-[20%]">Status</TableHead>
+                <TableHead className="px-5 py-2.5 text-xs font-bold text-slate-600 uppercase tracking-wider w-[40%]">Date</TableHead>
+                <TableHead className="px-5 py-2.5 text-xs font-bold text-slate-600 uppercase tracking-wider w-[40%]">Subject</TableHead>
+                <TableHead className="px-5 py-2.5 text-xs font-bold text-slate-600 uppercase tracking-wider text-right w-[20%]">Status</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody className="divide-y divide-slate-100">
               {history.map((log, idx) => (
                 <TableRow key={idx} className="hover:bg-slate-50/40 transition-colors">
                   <TableCell className="px-5 py-3 text-xs text-slate-600 font-semibold flex items-center gap-1.5 flex-shrink-0 min-w-0">
-                    <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                    <Calendar className="w-3.5 h-3.5 text-slate-600" />
                     {log.date}
                   </TableCell>
                   <TableCell className="px-5 py-3 text-xs font-semibold text-slate-750 truncate">{log.subject}</TableCell>

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { BookOpen, Calendar, User } from "lucide-react";
@@ -28,20 +28,20 @@ function ExamCard({ exam }: { exam: IStudentExam }) {
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 min-w-0">
           <p className="text-sm font-bold text-slate-800 truncate">{exam.title}</p>
-          <p className="text-xs text-slate-500 mt-0.5">{exam.subject}</p>
+          <p className="text-xs text-slate-600 mt-0.5">{exam.subject}</p>
         </div>
         {result ? (
           <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${gradeClass}`}>
             {result.grade}
           </span>
         ) : (
-          <Badge variant="outline" className="text-[10px] bg-slate-50 text-slate-500 border-slate-200">
+          <Badge variant="outline" className="text-[10px] bg-slate-50 text-slate-600 border-slate-200">
             Pending
           </Badge>
         )}
       </div>
 
-      <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500">
+      <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-600">
         <span className="flex items-center gap-1">
           <Calendar className="w-3 h-3" />
           {new Date(exam.examDate).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
@@ -55,7 +55,7 @@ function ExamCard({ exam }: { exam: IStudentExam }) {
       {result ? (
         <div className="pt-2 border-t border-slate-50 space-y-1.5">
           <div className="flex items-center justify-between">
-            <span className="text-xs text-slate-500">
+            <span className="text-xs text-slate-600">
               Score: <strong className="text-slate-700">{result.marksObtained} / {exam.maxMarks}</strong>
             </span>
             <span className="text-xs font-bold text-[var(--brand-mid)]">{percent}%</span>
@@ -67,11 +67,11 @@ function ExamCard({ exam }: { exam: IStudentExam }) {
             />
           </div>
           {result.remarks && (
-            <p className="text-[11px] text-slate-500 line-clamp-2 mt-1">{result.remarks}</p>
+            <p className="text-[11px] text-slate-600 line-clamp-2 mt-1">{result.remarks}</p>
           )}
         </div>
       ) : (
-        <p className="text-[11px] text-slate-400 pt-1 border-t border-slate-50">Result not entered yet</p>
+        <p className="text-[11px] text-slate-600 pt-1 border-t border-slate-50">Result not entered yet</p>
       )}
     </div>
   );
@@ -122,7 +122,7 @@ export default function StudentExams({ studentId }: { studentId: string }) {
             <div className="flex gap-3 text-xs font-semibold">
               <span className="text-[var(--brand-mid)]">{summary.evaluated} Evaluated</span>
               <span className="text-amber-600">{summary.pending} Pending</span>
-              <span className="text-slate-500">/ {summary.total} Total</span>
+              <span className="text-slate-600">/ {summary.total} Total</span>
             </div>
           )}
         </div>
@@ -131,7 +131,7 @@ export default function StudentExams({ studentId }: { studentId: string }) {
         {isLoading ? (
           <ExamsSkeleton />
         ) : exams.length === 0 ? (
-          <p className="text-sm text-slate-400 text-center py-8">No exams found.</p>
+          <p className="text-sm text-slate-600 text-center py-8">No exams found.</p>
         ) : (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

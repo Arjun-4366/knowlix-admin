@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useMemo, useEffect } from "react";
 import {
@@ -46,7 +46,7 @@ function ItemModal({ title, placeholder, defaultValue = "", isPending, onSave, o
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
+            className="rounded-lg p-1.5 text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-600"
           >
             <X className="h-4 w-4" />
           </button>
@@ -116,7 +116,7 @@ function TabPanel({
       {/* Filter bar — same pattern as coordinators/mentors pages */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-50/50 p-4 rounded-2xl border border-slate-100 mb-6">
         <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 z-10" />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600 z-10" />
           <Input
             placeholder={`Search ${label.toLowerCase()}...`}
             value={search}
@@ -145,16 +145,16 @@ function TabPanel({
           <Table className="w-full table-fixed">
             <TableHeader className="bg-slate-50/50">
               <TableRow>
-                <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[8%]">
+                <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[8%]">
                   Sl.
                 </TableHead>
-                <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[52%]">
+                <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[52%]">
                   Name
                 </TableHead>
-                <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[25%]">
+                <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[25%]">
                   Created
                 </TableHead>
-                <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right w-[15%]">
+                <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-right w-[15%]">
                   Actions
                 </TableHead>
               </TableRow>
@@ -163,7 +163,7 @@ function TabPanel({
               {filtered.length > 0 ? (
                 filtered.map((item, index) => (
                   <TableRow key={item._id} className="hover:bg-slate-50/60 transition-colors">
-                    <TableCell className="px-6 py-4 text-sm font-semibold text-slate-400">
+                    <TableCell className="px-6 py-4 text-sm font-semibold text-slate-600">
                       {index + 1}
                     </TableCell>
                     <TableCell className="px-6 py-4">
@@ -175,7 +175,7 @@ function TabPanel({
                       </div>
                     </TableCell>
                     <TableCell className="px-6 py-4">
-                      <p className="text-xs text-slate-500">{formatDate(item.createdAt)}</p>
+                      <p className="text-xs text-slate-600">{formatDate(item.createdAt)}</p>
                     </TableCell>
                     <TableCell className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2.5">
@@ -184,7 +184,7 @@ function TabPanel({
                           size="icon-sm"
                           onClick={() => setEditItem(item)}
                           title={`Edit ${item.name}`}
-                          className="rounded-lg text-slate-400 hover:text-[var(--brand-green)] hover:bg-slate-50"
+                          className="rounded-lg text-slate-600 hover:text-[var(--brand-green)] hover:bg-slate-50"
                         >
                           <Pencil className="w-4 h-4" />
                         </Button>
@@ -193,7 +193,7 @@ function TabPanel({
                           size="icon-sm"
                           onClick={() => onDelete(item)}
                           title={`Delete ${item.name}`}
-                          className="rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50"
+                          className="rounded-lg text-slate-600 hover:text-red-600 hover:bg-red-50"
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
@@ -203,7 +203,7 @@ function TabPanel({
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={4} className="px-6 py-12 text-center text-slate-400 text-sm">
+                  <TableCell colSpan={4} className="px-6 py-12 text-center text-slate-600 text-sm">
                     {search
                       ? `No ${label.toLowerCase()} found matching "${search}".`
                       : `No ${label.toLowerCase()} added yet.`}
@@ -298,7 +298,7 @@ export default function CurriculumPage() {
               </div>
               <div>
                 <p className="text-2xl font-bold text-slate-800">{stdList.length}</p>
-                <p className="text-xs font-semibold text-slate-500">Total Standards</p>
+                <p className="text-xs font-semibold text-slate-600">Total Standards</p>
               </div>
             </div>
             <div className="bg-white border border-slate-150 rounded-2xl p-5 shadow-sm flex items-center gap-4">
@@ -307,7 +307,7 @@ export default function CurriculumPage() {
               </div>
               <div>
                 <p className="text-2xl font-bold text-blue-600">{sylList.length}</p>
-                <p className="text-xs font-semibold text-slate-500">Total Syllabuses</p>
+                <p className="text-xs font-semibold text-slate-600">Total Syllabuses</p>
               </div>
             </div>
             <div className="bg-white border border-slate-150 rounded-2xl p-5 shadow-sm flex items-center gap-4">
@@ -316,7 +316,7 @@ export default function CurriculumPage() {
               </div>
               <div>
                 <p className="text-2xl font-bold text-purple-600">{subList.length}</p>
-                <p className="text-xs font-semibold text-slate-500">Total Subjects</p>
+                <p className="text-xs font-semibold text-slate-600">Total Subjects</p>
               </div>
             </div>
           </>

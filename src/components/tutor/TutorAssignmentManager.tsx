@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { Plus, Calendar, FileText, Trash2, CheckCircle2, AlertCircle, X } from "lucide-react";
@@ -132,7 +132,7 @@ export default function TutorAssignmentManager({
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* Title */}
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
                     Assignment Title
                   </label>
                   <Input
@@ -147,7 +147,7 @@ export default function TutorAssignmentManager({
 
                 {/* Subject */}
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
                     Subject
                   </label>
                   <Select value={newSubject} onValueChange={setNewSubject}>
@@ -166,11 +166,11 @@ export default function TutorAssignmentManager({
 
                 {/* Due Date */}
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
                     Due Date
                   </label>
                   <div className="relative">
-                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 z-10" />
+                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600 z-10" />
                     <Input
                       type="date"
                       value={newDueDate}
@@ -185,7 +185,7 @@ export default function TutorAssignmentManager({
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* Student Target Count */}
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
                     Target Students Count
                   </label>
                   <Input
@@ -201,7 +201,7 @@ export default function TutorAssignmentManager({
 
                 {/* Description */}
                 <div className="md:col-span-2 space-y-1">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
                     Description / Instructions
                   </label>
                   <Textarea
@@ -231,22 +231,22 @@ export default function TutorAssignmentManager({
         <Table className="table-fixed w-full">
           <TableHeader className="bg-slate-50/50">
             <TableRow>
-              <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[10%]">
+              <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[10%]">
                 Complete
               </TableHead>
-              <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[35%]">
+              <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[35%]">
                 Assignment Details
               </TableHead>
-              <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[18%]">
+              <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[18%]">
                 Due Date
               </TableHead>
-              <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[17%]">
+              <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[17%]">
                 Submissions
               </TableHead>
-              <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[12%]">
+              <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[12%]">
                 Status
               </TableHead>
-              <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right w-[8%]">
+              <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-right w-[8%]">
                 Actions
               </TableHead>
             </TableRow>
@@ -257,7 +257,7 @@ export default function TutorAssignmentManager({
                 <TableRow
                   key={asg.id}
                   className={`hover:bg-slate-50/60 transition-colors ${
-                    asg.status === "Completed" ? "bg-slate-50/30 text-slate-400" : ""
+                    asg.status === "Completed" ? "bg-slate-50/30 text-slate-600" : ""
                   }`}
                 >
                   {/* Status Checkbox */}
@@ -273,10 +273,10 @@ export default function TutorAssignmentManager({
 
                   {/* Title and subject */}
                   <TableCell className="px-6 py-4">
-                    <p className={`text-sm font-bold text-slate-700 leading-none truncate ${asg.status === "Completed" ? "line-through text-slate-400" : ""}`}>
+                    <p className={`text-sm font-bold text-slate-700 leading-none truncate ${asg.status === "Completed" ? "line-through text-slate-600" : ""}`}>
                       {asg.title}
                     </p>
-                    <span className="text-[10px] text-slate-400 font-semibold block mt-1">
+                    <span className="text-[10px] text-slate-600 font-semibold block mt-1">
                       {asg.subject} · {asg.description || "No description"}
                     </span>
                   </TableCell>
@@ -312,7 +312,7 @@ export default function TutorAssignmentManager({
                     {asg.status === "Completed" ? (
                       <Badge
                         variant="outline"
-                        className="bg-slate-100 text-slate-500 border-slate-200 text-[10px] font-bold px-2 py-0.5 rounded-full"
+                        className="bg-slate-100 text-slate-600 border-slate-200 text-[10px] font-bold px-2 py-0.5 rounded-full"
                       >
                         <CheckCircle2 className="w-3 h-3 mr-1" /> Checked
                       </Badge>
@@ -334,7 +334,7 @@ export default function TutorAssignmentManager({
                         size="icon-sm"
                         onClick={() => handleDelete(asg.id, asg.title)}
                         title="Delete Assignment"
-                        className="rounded-lg text-slate-450 hover:text-red-650 hover:bg-red-50 transition-all cursor-pointer"
+                        className="rounded-lg text-slate-600 hover:text-red-650 hover:bg-red-50 transition-all cursor-pointer"
                       >
                         <Trash2 className="w-4 h-4" />
                       </Button>
@@ -346,7 +346,7 @@ export default function TutorAssignmentManager({
               <TableRow>
                 <TableCell
                   colSpan={6}
-                  className="px-6 py-12 text-center text-slate-450 text-sm"
+                  className="px-6 py-12 text-center text-slate-600 text-sm"
                 >
                   No assignments created yet.
                 </TableCell>

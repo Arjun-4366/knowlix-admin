@@ -1,4 +1,4 @@
-import { CalendarDays, Clock3, FileText } from "lucide-react";
+﻿import { CalendarDays, Clock3, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -76,7 +76,7 @@ export default function PayrollCyclePanel({
       <div className="p-5 border-b border-slate-100 flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
         <div>
           <h2 className="text-sm font-bold text-slate-850">Payslip Generation</h2>
-          <p className="text-xs text-slate-500 mt-1">
+          <p className="text-xs text-slate-600 mt-1">
             Review the active cycle, validate pay components, and release salary
             slips.
           </p>
@@ -134,7 +134,7 @@ export default function PayrollCyclePanel({
       <div className="p-5 space-y-5">
         <div className="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-4 gap-3">
           <div className="rounded-2xl border border-slate-150 bg-slate-50/50 p-4 space-y-1.5">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-450">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-600">
               Cycle Status
             </p>
             <span
@@ -145,46 +145,46 @@ export default function PayrollCyclePanel({
             >
               {selectedCycle.status}
             </span>
-            <p className="text-[11px] text-slate-500 leading-normal">
+            <p className="text-[11px] text-slate-600 leading-normal">
               {selectedCycle.note}
             </p>
           </div>
 
           <div className="rounded-2xl border border-slate-150 bg-slate-50/50 p-4 space-y-1.5">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-450">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-600">
               Payout Date
             </p>
             <p className="text-sm font-bold text-slate-800">
               {formatDateLabel(selectedCycle.payoutDate)}
             </p>
-            <p className="text-[11px] text-slate-500 inline-flex items-center gap-1">
-              <CalendarDays className="w-3.5 h-3.5 text-slate-400" />
+            <p className="text-[11px] text-slate-600 inline-flex items-center gap-1">
+              <CalendarDays className="w-3.5 h-3.5 text-slate-600" />
               Salary month {formatPayrollMonth(selectedCycle.month)}
             </p>
           </div>
 
           <div className="rounded-2xl border border-slate-150 bg-slate-50/50 p-4 space-y-1.5">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-450">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-600">
               Attendance Lock
             </p>
             <p className="text-sm font-bold text-slate-800">
               {formatDateLabel(selectedCycle.lockDate)}
             </p>
-            <p className="text-[11px] text-slate-500 inline-flex items-center gap-1">
-              <Clock3 className="w-3.5 h-3.5 text-slate-400" />
+            <p className="text-[11px] text-slate-600 inline-flex items-center gap-1">
+              <Clock3 className="w-3.5 h-3.5 text-slate-600" />
               {policies[0]?.value || "Policy pending"}
             </p>
           </div>
 
           <div className="rounded-2xl border border-slate-150 bg-slate-50/50 p-4 space-y-1.5">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-450">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-600">
               Bank Advice
             </p>
             <p className="text-sm font-bold text-slate-800">
               {selectedCycle.bankAdviceStatus}
             </p>
-            <p className="text-[11px] text-slate-500 inline-flex items-center gap-1">
-              <FileText className="w-3.5 h-3.5 text-slate-400" />
+            <p className="text-[11px] text-slate-600 inline-flex items-center gap-1">
+              <FileText className="w-3.5 h-3.5 text-slate-600" />
               {policies[2]?.value || "File upload window not configured"}
             </p>
           </div>
@@ -193,7 +193,7 @@ export default function PayrollCyclePanel({
         <div className="grid grid-cols-1 xl:grid-cols-[0.95fr_1.15fr] gap-5">
           <div className="rounded-2xl border border-slate-150 bg-slate-50/35 overflow-hidden">
             <div className="px-4 py-3 border-b border-slate-100 bg-white">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-600">
                 Cycle Payslips
               </h3>
             </div>
@@ -221,7 +221,7 @@ export default function PayrollCyclePanel({
                           <p className="text-sm font-bold text-slate-800 truncate">
                             {payslip.employeeName}
                           </p>
-                          <p className="text-[11px] text-slate-500 truncate">
+                          <p className="text-[11px] text-slate-600 truncate">
                             {payslip.designation} / {payslip.department}
                           </p>
                         </div>
@@ -238,7 +238,7 @@ export default function PayrollCyclePanel({
 
                     <div className="grid grid-cols-2 gap-3 mt-4 text-[11px]">
                       <div>
-                        <p className="font-bold uppercase tracking-wider text-slate-450">
+                        <p className="font-bold uppercase tracking-wider text-slate-600">
                           Payable Days
                         </p>
                         <p className="text-slate-700 font-semibold mt-1">
@@ -246,7 +246,7 @@ export default function PayrollCyclePanel({
                         </p>
                       </div>
                       <div>
-                        <p className="font-bold uppercase tracking-wider text-slate-450">
+                        <p className="font-bold uppercase tracking-wider text-slate-600">
                           Net Pay
                         </p>
                         <p className="text-slate-700 font-semibold mt-1">
@@ -257,7 +257,7 @@ export default function PayrollCyclePanel({
                   </button>
                 ))
               ) : (
-                <div className="py-16 text-center text-sm text-slate-500">
+                <div className="py-16 text-center text-sm text-slate-600">
                   No active employees match the current payroll filters.
                 </div>
               )}
@@ -268,7 +268,7 @@ export default function PayrollCyclePanel({
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h3 className="text-sm font-bold text-slate-850">Payslip Preview</h3>
-                <p className="text-xs text-slate-500 mt-1">
+                <p className="text-xs text-slate-600 mt-1">
                   Preview of mapped earnings, recoveries, and statutory payroll
                   lines.
                 </p>
@@ -296,10 +296,10 @@ export default function PayrollCyclePanel({
                       <p className="text-sm font-bold text-slate-800">
                         {selectedPayslip.employeeName}
                       </p>
-                      <p className="text-xs text-slate-500 mt-1">
+                      <p className="text-xs text-slate-600 mt-1">
                         {selectedPayslip.designation} / {selectedPayslip.department}
                       </p>
-                      <p className="text-[11px] font-semibold text-slate-450 mt-2">
+                      <p className="text-[11px] font-semibold text-slate-600 mt-2">
                         {formatPayrollMonth(selectedCycle.month)} payslip
                       </p>
                     </div>
@@ -309,31 +309,31 @@ export default function PayrollCyclePanel({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="rounded-2xl border border-slate-150 bg-slate-50/45 p-4 space-y-3">
                     <div>
-                      <p className="text-[10px] font-bold uppercase tracking-wider text-slate-450">
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-slate-600">
                         Earnings
                       </p>
                     </div>
                     <div className="space-y-2 text-xs">
                       <div className="flex items-center justify-between gap-3">
-                        <span className="text-slate-500">Basic salary</span>
+                        <span className="text-slate-600">Basic salary</span>
                         <span className="font-semibold text-slate-800">
                           {formatCurrency(selectedPayslip.monthlyBase)}
                         </span>
                       </div>
                       <div className="flex items-center justify-between gap-3">
-                        <span className="text-slate-500">Allowances</span>
+                        <span className="text-slate-600">Allowances</span>
                         <span className="font-semibold text-slate-800">
                           {formatCurrency(selectedPayslip.monthlyAllowance)}
                         </span>
                       </div>
                       <div className="flex items-center justify-between gap-3">
-                        <span className="text-slate-500">Bonus</span>
+                        <span className="text-slate-600">Bonus</span>
                         <span className="font-semibold text-emerald-700">
                           {formatCurrency(selectedPayslip.bonus)}
                         </span>
                       </div>
                       <div className="flex items-center justify-between gap-3">
-                        <span className="text-slate-500">Reimbursements</span>
+                        <span className="text-slate-600">Reimbursements</span>
                         <span className="font-semibold text-slate-800">
                           {formatCurrency(selectedPayslip.reimbursements)}
                         </span>
@@ -343,25 +343,25 @@ export default function PayrollCyclePanel({
 
                   <div className="rounded-2xl border border-slate-150 bg-slate-50/45 p-4 space-y-3">
                     <div>
-                      <p className="text-[10px] font-bold uppercase tracking-wider text-slate-450">
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-slate-600">
                         Deductions
                       </p>
                     </div>
                     <div className="space-y-2 text-xs">
                       <div className="flex items-center justify-between gap-3">
-                        <span className="text-slate-500">Provident fund</span>
+                        <span className="text-slate-600">Provident fund</span>
                         <span className="font-semibold text-slate-800">
                           {formatCurrency(selectedPayslip.providentFund)}
                         </span>
                       </div>
                       <div className="flex items-center justify-between gap-3">
-                        <span className="text-slate-500">Tax deducted at source</span>
+                        <span className="text-slate-600">Tax deducted at source</span>
                         <span className="font-semibold text-slate-800">
                           {formatCurrency(selectedPayslip.taxDeducted)}
                         </span>
                       </div>
                       <div className="flex items-center justify-between gap-3">
-                        <span className="text-slate-500">Other deductions</span>
+                        <span className="text-slate-600">Other deductions</span>
                         <span className="font-semibold text-rose-700">
                           {formatCurrency(selectedPayslip.deductions)}
                         </span>
@@ -378,7 +378,7 @@ export default function PayrollCyclePanel({
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   <div className="rounded-xl border border-slate-150 bg-slate-50/40 px-3 py-3">
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-450">
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-600">
                       Gross Before Deductions
                     </p>
                     <p className="text-sm font-bold text-slate-800 mt-1">
@@ -390,7 +390,7 @@ export default function PayrollCyclePanel({
                     </p>
                   </div>
                   <div className="rounded-xl border border-slate-150 bg-slate-50/40 px-3 py-3">
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-450">
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-600">
                       Attendance Basis
                     </p>
                     <p className="text-sm font-bold text-slate-800 mt-1">
@@ -398,7 +398,7 @@ export default function PayrollCyclePanel({
                     </p>
                   </div>
                   <div className="rounded-xl border border-slate-150 bg-slate-50/40 px-3 py-3">
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-450">
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-600">
                       Policy Reminder
                     </p>
                     <p className="text-sm font-bold text-slate-800 mt-1">
@@ -408,19 +408,19 @@ export default function PayrollCyclePanel({
                 </div>
 
                 <div className="rounded-2xl border border-slate-150 bg-slate-50/40 p-4 space-y-2">
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-slate-450">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-slate-600">
                     Payroll Notes
                   </p>
                   <p className="text-xs text-slate-600 leading-normal">
                     {selectedPayslip.note || "No cycle-specific note added yet."}
                   </p>
-                  <p className="text-[11px] text-slate-500 leading-normal">
+                  <p className="text-[11px] text-slate-600 leading-normal">
                     {selectedCycle.note}
                   </p>
                 </div>
               </>
             ) : (
-              <div className="py-16 text-center text-sm text-slate-500">
+              <div className="py-16 text-center text-sm text-slate-600">
                 Select a payslip record to preview the payroll breakdown.
               </div>
             )}

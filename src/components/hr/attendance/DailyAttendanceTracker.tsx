@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Calendar1, Check, ChevronLeft, ChevronRight, Clock3, Loader2, Search, X, XCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -98,7 +98,7 @@ export default function DailyAttendanceTracker({
         <div className="flex items-center justify-between gap-3">
           <div>
             <h2 className="text-sm font-bold text-slate-850">Attendance Records</h2>
-            <p className="text-xs text-slate-500 mt-1">
+            <p className="text-xs text-slate-600 mt-1">
               Review and approve tutor attendance. Filter by name, email, or date range.
             </p>
           </div>
@@ -119,7 +119,7 @@ export default function DailyAttendanceTracker({
         <div className="flex flex-wrap items-center gap-2">
           {/* Search */}
           <div className="relative flex-1 min-w-[200px]">
-            <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search className="w-3.5 h-3.5 text-slate-600 absolute left-3 top-1/2 -translate-y-1/2" />
             <Input
               type="text"
               placeholder="Search by name or email…"
@@ -130,7 +130,7 @@ export default function DailyAttendanceTracker({
             {search && (
               <button
                 onClick={() => onSearchChange("")}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-600 hover:text-slate-600"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
@@ -155,7 +155,7 @@ export default function DailyAttendanceTracker({
 
           {/* From date */}
           <div className="relative">
-            <Calendar1 className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <Calendar1 className="w-3.5 h-3.5 text-slate-600 absolute left-3 top-1/2 -translate-y-1/2" />
             <Input
               type="date"
               value={from}
@@ -165,11 +165,11 @@ export default function DailyAttendanceTracker({
             />
           </div>
 
-          <span className="text-[10px] font-semibold text-slate-400">to</span>
+          <span className="text-[10px] font-semibold text-slate-600">to</span>
 
           {/* To date */}
           <div className="relative">
-            <Calendar1 className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <Calendar1 className="w-3.5 h-3.5 text-slate-600 absolute left-3 top-1/2 -translate-y-1/2" />
             <Input
               type="date"
               value={to}
@@ -183,7 +183,7 @@ export default function DailyAttendanceTracker({
           {hasFilters && (
             <button
               onClick={() => { onSearchChange(""); onTutorIdChange(""); onFromChange(""); onToChange(""); }}
-              className="flex items-center gap-1 text-[10px] font-semibold text-slate-400 hover:text-slate-600 transition-colors"
+              className="flex items-center gap-1 text-[10px] font-semibold text-slate-600 hover:text-slate-600 transition-colors"
             >
               <XCircle className="w-3.5 h-3.5" />
               Clear
@@ -202,13 +202,13 @@ export default function DailyAttendanceTracker({
         <Table>
           <TableHeader className="bg-slate-50/70">
             <TableRow className="border-slate-100 hover:bg-slate-50/70">
-              <TableHead className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-500">Tutor</TableHead>
-              <TableHead className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-500">Date</TableHead>
-              <TableHead className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-500">Check In</TableHead>
-              <TableHead className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-500">Check Out</TableHead>
-              <TableHead className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-500">Hours</TableHead>
-              <TableHead className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-500">Status</TableHead>
-              <TableHead className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-500 text-right">Actions</TableHead>
+              <TableHead className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-600">Tutor</TableHead>
+              <TableHead className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-600">Date</TableHead>
+              <TableHead className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-600">Check In</TableHead>
+              <TableHead className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-600">Check Out</TableHead>
+              <TableHead className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-600">Hours</TableHead>
+              <TableHead className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-600">Status</TableHead>
+              <TableHead className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-600 text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -219,10 +219,10 @@ export default function DailyAttendanceTracker({
                     <div className="space-y-0.5">
                       <p className="text-xs font-bold text-slate-800">{record.employeeName}</p>
                       {record.employeeEmail && (
-                        <p className="text-[10px] text-slate-400">{record.employeeEmail}</p>
+                        <p className="text-[10px] text-slate-600">{record.employeeEmail}</p>
                       )}
                       {record.notes && (
-                        <p className="text-[10px] text-slate-500 italic">{record.notes}</p>
+                        <p className="text-[10px] text-slate-600 italic">{record.notes}</p>
                       )}
                     </div>
                   </TableCell>
@@ -237,7 +237,7 @@ export default function DailyAttendanceTracker({
                   </TableCell>
                   <TableCell className="px-4 py-3">
                     <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-700">
-                      <Clock3 className="w-3.5 h-3.5 text-slate-400" />
+                      <Clock3 className="w-3.5 h-3.5 text-slate-600" />
                       {record.hoursWorked > 0 ? `${record.hoursWorked.toFixed(1)}h` : "--"}
                     </div>
                   </TableCell>
@@ -274,14 +274,14 @@ export default function DailyAttendanceTracker({
                         </Button>
                       </div>
                     ) : (
-                      <span className="text-[10px] text-slate-400">—</span>
+                      <span className="text-[10px] text-slate-600">—</span>
                     )}
                   </TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow className="border-slate-100 hover:bg-white">
-                <TableCell colSpan={7} className="px-4 py-16 text-center text-sm text-slate-400">
+                <TableCell colSpan={7} className="px-4 py-16 text-center text-sm text-slate-600">
                   {hasFilters ? "No records match your filters." : "No attendance records found."}
                 </TableCell>
               </TableRow>
@@ -293,7 +293,7 @@ export default function DailyAttendanceTracker({
       {/* Pagination */}
       {total > 0 && (
         <div className="flex items-center justify-between px-5 py-3.5 border-t border-slate-100 bg-slate-50/30">
-          <p className="text-[11px] text-slate-500 font-medium">
+          <p className="text-[11px] text-slate-600 font-medium">
             Showing {records.length === 0 ? 0 : (page - 1) * limit + 1}–{Math.min(page * limit, total)} of {total} records
           </p>
           <div className="flex items-center gap-1.5">
@@ -302,7 +302,7 @@ export default function DailyAttendanceTracker({
               size="icon-sm"
               onClick={() => onPageChange(page - 1)}
               disabled={page <= 1}
-              className="h-7 w-7 rounded-lg border-slate-200 text-slate-500 disabled:opacity-40"
+              className="h-7 w-7 rounded-lg border-slate-200 text-slate-600 disabled:opacity-40"
             >
               <ChevronLeft className="w-3.5 h-3.5" />
             </Button>
@@ -314,7 +314,7 @@ export default function DailyAttendanceTracker({
               size="icon-sm"
               onClick={() => onPageChange(page + 1)}
               disabled={page >= totalPages}
-              className="h-7 w-7 rounded-lg border-slate-200 text-slate-500 disabled:opacity-40"
+              className="h-7 w-7 rounded-lg border-slate-200 text-slate-600 disabled:opacity-40"
             >
               <ChevronRight className="w-3.5 h-3.5" />
             </Button>

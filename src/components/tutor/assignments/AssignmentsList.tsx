@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { FileText, Calendar, BookOpen, Users, Paperclip } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -28,8 +28,8 @@ export default function AssignmentsList({
     return (
       <div className="bg-white border border-slate-150 rounded-2xl shadow-sm overflow-hidden">
         <div className="px-6 py-16 text-center">
-          <FileText className="w-8 h-8 text-slate-300 mx-auto mb-3" />
-          <p className="text-sm font-semibold text-slate-400">
+          <FileText className="w-8 h-8 text-slate-600 mx-auto mb-3" />
+          <p className="text-sm font-semibold text-slate-600">
             No assignments found.
           </p>
         </div>
@@ -42,22 +42,22 @@ export default function AssignmentsList({
       <Table className="table-fixed w-full">
         <TableHeader className="bg-slate-50/50">
           <TableRow>
-            <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[34%]">
+            <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[34%]">
               Assignment Details
             </TableHead>
-            <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[16%]">
+            <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[16%]">
               Due Date
             </TableHead>
-            <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[20%]">
+            <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[20%]">
               Students
             </TableHead>
-            <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[10%]">
+            <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[10%]">
               Max Marks
             </TableHead>
-            <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[10%]">
+            <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[10%]">
               Status
             </TableHead>
-            <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right w-[10%]">
+            <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-right w-[10%]">
               Actions
             </TableHead>
           </TableRow>
@@ -80,13 +80,13 @@ export default function AssignmentsList({
                     {asg.title}
                   </p>
                   <div className="flex items-center gap-1 mt-1">
-                    <BookOpen className="w-3 h-3 text-slate-400 flex-shrink-0" />
-                    <span className="text-[11px] text-slate-400 font-semibold truncate">
+                    <BookOpen className="w-3 h-3 text-slate-600 flex-shrink-0" />
+                    <span className="text-[11px] text-slate-600 font-semibold truncate">
                       {asg.subject}
                     </span>
                   </div>
                   {asg.description && (
-                    <p className="text-[10px] text-slate-400 font-medium mt-0.5 line-clamp-1">
+                    <p className="text-[10px] text-slate-600 font-medium mt-0.5 line-clamp-1">
                       {asg.description}
                     </p>
                   )}
@@ -114,13 +114,13 @@ export default function AssignmentsList({
 
                 <TableCell className="px-6 py-4">
                   <div className="flex items-center gap-1 mb-0.5">
-                    <Users className="w-3 h-3 text-slate-400 flex-shrink-0" />
+                    <Users className="w-3 h-3 text-slate-600 flex-shrink-0" />
                     <span className="text-xs font-bold text-slate-700">
                       {asg.studentIds.length} Student
                       {asg.studentIds.length !== 1 ? "s" : ""}
                     </span>
                   </div>
-                  <p className="text-[10px] text-slate-400 font-semibold truncate">
+                  <p className="text-[10px] text-slate-600 font-semibold truncate">
                     {studentNames}
                   </p>
                   {asg.submittedCount != null && (
@@ -137,7 +137,7 @@ export default function AssignmentsList({
                   <span className="text-sm font-black text-slate-800">
                     {asg.maxMarks}
                   </span>
-                  <span className="text-[10px] text-slate-400 font-semibold block">
+                  <span className="text-[10px] text-slate-600 font-semibold block">
                     marks
                   </span>
                 </TableCell>

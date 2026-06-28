@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Suspense, use, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -64,7 +64,7 @@ const getStatusBadgeClass = (status: string) => {
     case "Inactive":
       return "bg-amber-50 text-amber-700 border-amber-200";
     case "Rejected":
-      return "bg-slate-100 text-slate-500 border-slate-200";
+      return "bg-slate-100 text-slate-600 border-slate-200";
     default:
       return "bg-slate-100 text-slate-700 border-slate-200";
   }
@@ -137,7 +137,7 @@ function StudentDetailsContent({ params }: PageProps) {
 
   if (isLoading) {
     return (
-      <div className="p-8 text-center text-slate-500">
+      <div className="p-8 text-center text-slate-600">
         Loading student details...
       </div>
     );
@@ -146,14 +146,14 @@ function StudentDetailsContent({ params }: PageProps) {
   if (!student) {
     return (
       <div className="flex min-h-[50vh] flex-col items-center justify-center space-y-4">
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-slate-400">
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-slate-600">
           <Info className="h-6 w-6" />
         </div>
         <div className="text-center">
           <h3 className="text-lg font-bold text-slate-800">
             Student Not Found
           </h3>
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="mt-1 text-sm text-slate-600">
             We could not find a student matching ID &quot;{id}&quot;.
           </p>
         </div>
@@ -178,7 +178,7 @@ function StudentDetailsContent({ params }: PageProps) {
       <div>
         <button
           onClick={() => router.push("/admin/students")}
-          className="group flex items-center gap-2 text-sm font-semibold text-slate-500 transition-colors hover:text-[var(--brand-green)]">
+          className="group flex items-center gap-2 text-sm font-semibold text-slate-600 transition-colors hover:text-[var(--brand-green)]">
           <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-0.5" />
           Back to Students Directory
         </button>
@@ -196,11 +196,11 @@ function StudentDetailsContent({ params }: PageProps) {
               </h1>
               <Badge
                 variant="outline"
-                className="rounded-md border border-slate-200 bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-500">
+                className="rounded-md border border-slate-200 bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-600">
                 {student.admissionNumber || student.id}
               </Badge>
             </div>
-            <p className="mt-1 text-sm font-semibold text-slate-550">
+            <p className="mt-1 text-sm font-semibold text-slate-600">
               {student.courseName
                 ? `${student.courseName} (${student.programName})`
                 : student.programName || student.courseType}{" "}
@@ -211,7 +211,7 @@ function StudentDetailsContent({ params }: PageProps) {
 
         <div className="flex flex-col gap-3 border-t pt-4 sm:flex-row sm:items-center md:border-t-0 md:pt-0">
           <div className="w-full sm:w-auto">
-            <span className="mb-1 block text-[10px] font-bold uppercase text-slate-400">
+            <span className="mb-1 block text-[10px] font-bold uppercase text-slate-600">
               Modify Status
             </span>
             <Select
@@ -305,7 +305,7 @@ function StudentDetailsContent({ params }: PageProps) {
             <div>
               <span className="block text-xs font-bold text-slate-700">Location</span>
               <span className="flex items-center gap-1 text-sm font-semibold text-slate-900">
-                <MapPin className="h-3.5 w-3.5 text-slate-400" />
+                <MapPin className="h-3.5 w-3.5 text-slate-600" />
                 {student.place || "—"}
               </span>
             </div>
@@ -468,7 +468,7 @@ function StudentDetailsContent({ params }: PageProps) {
                       "flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg border",
                       isSubmitted
                         ? "border-[var(--brand-light)]/20 bg-[var(--brand-light-green)] text-[var(--brand-green)]"
-                        : "border-slate-200 bg-white text-slate-400",
+                        : "border-slate-200 bg-white text-slate-600",
                     )}>
                     <FileText className="h-4.5 w-4.5" />
                   </div>
@@ -476,7 +476,7 @@ function StudentDetailsContent({ params }: PageProps) {
                     <h4 className="text-sm font-bold text-slate-700">
                       {document.label}
                     </h4>
-                    <p className="mt-0.5 truncate text-[10px] text-slate-450">
+                    <p className="mt-0.5 truncate text-[10px] text-slate-600">
                       {isSubmitted ? (
                         typeof documentUrl === "string" ? (
                           <a
@@ -506,7 +506,7 @@ function StudentDetailsContent({ params }: PageProps) {
                 ) : (
                   <Badge
                     variant="outline"
-                    className="inline-flex h-7 items-center gap-1 rounded-lg border border-slate-200 bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-450 shadow-sm">
+                    className="inline-flex h-7 items-center gap-1 rounded-lg border border-slate-200 bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600 shadow-sm">
                     <ShieldAlert className="h-3.5 w-3.5" />
                     Pending
                   </Badge>
@@ -528,7 +528,7 @@ export default function StudentDetailsPage({ params }: PageProps) {
   return (
     <Suspense
       fallback={
-        <div className="p-8 text-center text-slate-500">
+        <div className="p-8 text-center text-slate-600">
           Loading student details...
         </div>
       }>

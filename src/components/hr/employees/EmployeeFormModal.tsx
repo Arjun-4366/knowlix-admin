@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import { X, User, Briefcase, Key, Shield, Image, Loader2 } from "lucide-react";
@@ -130,7 +130,7 @@ export default function EmployeeFormModal({
           </h3>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-600 rounded-full cursor-pointer"
+            className="text-slate-600 hover:text-slate-600 rounded-full cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -146,7 +146,7 @@ export default function EmployeeFormModal({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Name */}
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
+                <label className="text-xs font-bold text-slate-600 uppercase tracking-wider block">
                   Full Name *
                 </label>
                 <Input
@@ -161,7 +161,7 @@ export default function EmployeeFormModal({
 
               {/* Email */}
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
+                <label className="text-xs font-bold text-slate-600 uppercase tracking-wider block">
                   Email Address *
                 </label>
                 <Input
@@ -176,7 +176,7 @@ export default function EmployeeFormModal({
 
               {/* Phone */}
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
+                <label className="text-xs font-bold text-slate-600 uppercase tracking-wider block">
                   Phone Number
                 </label>
                 <Input
@@ -190,11 +190,11 @@ export default function EmployeeFormModal({
 
               {/* Password */}
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
+                <label className="text-xs font-bold text-slate-600 uppercase tracking-wider block">
                   Password *
                 </label>
                 <div className="relative">
-                  <Key className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
+                  <Key className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-600 w-4 h-4" />
                   <Input
                     type="password"
                     value={password}
@@ -217,7 +217,7 @@ export default function EmployeeFormModal({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Role */}
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
+                <label className="text-xs font-bold text-slate-600 uppercase tracking-wider block">
                   Role *
                 </label>
                 <Select
@@ -237,7 +237,7 @@ export default function EmployeeFormModal({
 
               {/* Subjects */}
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
+                <label className="text-xs font-bold text-slate-600 uppercase tracking-wider block">
                   Subjects (comma separated)
                 </label>
                 <Input
@@ -251,7 +251,7 @@ export default function EmployeeFormModal({
 
               {/* Experience */}
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
+                <label className="text-xs font-bold text-slate-600 uppercase tracking-wider block">
                   Experience
                 </label>
                 <Input
@@ -265,7 +265,7 @@ export default function EmployeeFormModal({
 
               {/* Availability */}
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
+                <label className="text-xs font-bold text-slate-600 uppercase tracking-wider block">
                   Availability
                 </label>
                 <Select
@@ -285,11 +285,11 @@ export default function EmployeeFormModal({
 
               {/* Profile Image */}
               <div className="col-span-1 md:col-span-2 space-y-1">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
+                <label className="text-xs font-bold text-slate-600 uppercase tracking-wider block">
                   Profile Image
                 </label>
                 <div className="relative">
-                  <Image className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4 pointer-events-none" />
+                  <Image className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-600 w-4 h-4 pointer-events-none" />
                   <Input
                     type="file"
                     accept="image/*"
@@ -302,7 +302,7 @@ export default function EmployeeFormModal({
                   />
                 </div>
                 {typeof profileImage === "string" && profileImage && (
-                  <p className="text-xs text-slate-500 mt-1">Current: {profileImage}</p>
+                  <p className="text-xs text-slate-600 mt-1">Current: {profileImage}</p>
                 )}
               </div>
             </div>
@@ -353,7 +353,7 @@ export default function EmployeeFormModal({
               type="button"
               variant="outline"
               onClick={onClose}
-              className="px-4 py-2 border border-slate-200 rounded-xl text-xs font-bold text-slate-550 hover:bg-slate-50 cursor-pointer"
+              className="px-4 py-2 border border-slate-200 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-50 cursor-pointer"
             >
               Cancel
             </Button>

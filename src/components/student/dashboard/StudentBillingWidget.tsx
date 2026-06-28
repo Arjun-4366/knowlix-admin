@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 interface FeesSummary {
   totalFee: number;
@@ -18,13 +18,13 @@ export default function StudentBillingWidget({ summary }: StudentBillingWidgetPr
     <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
       <div className="px-6 py-5 border-b border-slate-50 bg-slate-50/20">
         <h2 className="text-sm font-bold text-slate-800">Billing & Fees</h2>
-        <p className="text-xs text-slate-455 mt-0.5">Fee payment summary for this term</p>
+        <p className="text-xs text-slate-600 mt-0.5">Fee payment summary for this term</p>
       </div>
 
       <div className="p-5 space-y-4">
         {/* Progress bar */}
         <div className="space-y-1.5">
-          <div className="flex justify-between items-center text-[10px] font-bold text-slate-500">
+          <div className="flex justify-between items-center text-[10px] font-bold text-slate-600">
             <span>Amount Paid</span>
             <span>{paidPercent}%</span>
           </div>
@@ -39,7 +39,7 @@ export default function StudentBillingWidget({ summary }: StudentBillingWidgetPr
         {/* Summary rows */}
         <div className="space-y-2">
           <div className="flex items-center justify-between py-2.5 px-3 bg-slate-50 rounded-xl border border-slate-100">
-            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Total Fee</span>
+            <span className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Total Fee</span>
             <span className="text-xs font-black text-slate-800">₹{totalFee.toLocaleString("en-IN")}</span>
           </div>
           <div className="flex items-center justify-between py-2.5 px-3 bg-emerald-50 rounded-xl border border-emerald-100">

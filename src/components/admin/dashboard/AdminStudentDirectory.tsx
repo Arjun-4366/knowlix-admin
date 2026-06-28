@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import DashboardHeader from "@/components/dashboard/shared/DashboardHeader";
@@ -36,7 +36,7 @@ export default function AdminStudentDirectory({ onBack }: AdminStudentDirectoryP
 
   const searchAction = (
     <div className="relative w-full">
-      <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+      <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600" />
       <input
         type="text"
         placeholder="Search students, grades..."
@@ -61,24 +61,24 @@ export default function AdminStudentDirectory({ onBack }: AdminStudentDirectoryP
           <Table className="w-full border-collapse text-left">
             <TableHeader>
               <TableRow className="border-b border-slate-100 bg-slate-50/50">
-                <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Student ID</TableHead>
-                <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Name</TableHead>
-                <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Grade</TableHead>
-                <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Course Enrolled</TableHead>
-                <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Date Joined</TableHead>
-                <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">Attendance</TableHead>
-                <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Status</TableHead>
+                <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider">Student ID</TableHead>
+                <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider">Name</TableHead>
+                <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider">Grade</TableHead>
+                <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider">Course Enrolled</TableHead>
+                <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider">Date Joined</TableHead>
+                <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-center">Attendance</TableHead>
+                <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider">Status</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody className="divide-y divide-slate-100">
               {filteredStudents.length > 0 ? (
                 filteredStudents.map((student) => (
                   <TableRow key={student.id} className="hover:bg-slate-50/60 transition-colors">
-                    <TableCell className="px-6 py-4 text-sm font-semibold text-slate-550">{student.id}</TableCell>
+                    <TableCell className="px-6 py-4 text-sm font-semibold text-slate-600">{student.id}</TableCell>
                     <TableCell className="px-6 py-4 text-sm font-semibold text-slate-800">{student.name}</TableCell>
                     <TableCell className="px-6 py-4 text-sm text-slate-600">{student.grade}</TableCell>
                     <TableCell className="px-6 py-4 text-sm text-slate-600">{student.course}</TableCell>
-                    <TableCell className="px-6 py-4 text-sm text-slate-500">{student.dateJoined}</TableCell>
+                    <TableCell className="px-6 py-4 text-sm text-slate-600">{student.dateJoined}</TableCell>
                     <TableCell className="px-6 py-4 text-sm text-center font-medium text-slate-700">{student.attendance}</TableCell>
                     <TableCell className="px-6 py-4 text-sm">
                       <span className={cn(
@@ -95,7 +95,7 @@ export default function AdminStudentDirectory({ onBack }: AdminStudentDirectoryP
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={7} className="px-6 py-8 text-center text-slate-400 text-sm">
+                  <TableCell colSpan={7} className="px-6 py-8 text-center text-slate-600 text-sm">
                     No students found matching your query.
                   </TableCell>
                 </TableRow>

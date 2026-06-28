@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useMemo, Suspense, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -236,7 +236,7 @@ function TutorsContent() {
         {activeTab !== "leaderboard" && (
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-50/50 p-4 rounded-2xl border border-slate-100 mb-6">
             <div className="relative flex-1 max-w-xl">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 z-10" />
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600 z-10" />
               <Input
                 type="text"
                 placeholder="Search tutors by name, email, or subject..."
@@ -280,7 +280,7 @@ function TutorsContent() {
                 size="sm"
                 onClick={() => { setSearchQuery(""); setSubjectFilter("all"); setExpFilter("all"); }}
                 disabled={searchQuery === "" && subjectFilter === "all" && expFilter === "all"}
-                className="h-9 px-3 bg-white border-slate-200 text-slate-500 hover:text-slate-800 rounded-xl disabled:opacity-40"
+                className="h-9 px-3 bg-white border-slate-200 text-slate-600 hover:text-slate-800 rounded-xl disabled:opacity-40"
                 title="Reset filters"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
@@ -303,7 +303,7 @@ function TutorsContent() {
               />
               {totalPages > 1 && (
                 <div className="flex items-center justify-between mt-4 bg-white p-4 rounded-xl border border-slate-150 shadow-sm">
-                  <span className="text-sm text-slate-500 font-medium">
+                  <span className="text-sm text-slate-600 font-medium">
                     Showing page {page} of {totalPages} (Total {tutorsResponse?.total || 0})
                   </span>
                   <div className="flex gap-2">
@@ -385,16 +385,16 @@ function LeaderboardTable({ leaderboard, isLoading }: LeaderboardTableProps) {
       <Table className="w-full">
         <TableHeader className="bg-slate-50/50">
           <TableRow>
-            <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[8%]">
+            <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[8%]">
               Sl.
             </TableHead>
-            <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[45%]">
+            <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[45%]">
               Tutor Name
             </TableHead>
-            <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-[25%] text-center">
+            <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[25%] text-center">
               Growth Points
             </TableHead>
-            <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right w-[15%]">
+            <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-right w-[15%]">
               Actions
             </TableHead>
           </TableRow>
@@ -403,7 +403,7 @@ function LeaderboardTable({ leaderboard, isLoading }: LeaderboardTableProps) {
           {leaderboard && leaderboard.length > 0 ? (
             leaderboard.map((item, index) => (
               <TableRow key={item.tutorId} className="hover:bg-slate-50/60 transition-colors">
-                <TableCell className="px-6 py-4 text-sm font-semibold text-slate-400">
+                <TableCell className="px-6 py-4 text-sm font-semibold text-slate-600">
                   {index + 1}
                 </TableCell>
                 <TableCell className="px-6 py-4">
@@ -413,7 +413,7 @@ function LeaderboardTable({ leaderboard, isLoading }: LeaderboardTableProps) {
                     </div>
                     <div>
                       <p className="text-sm font-semibold text-slate-800">{item.tutorName}</p>
-                      <p className="text-[10px] text-slate-400 font-mono">ID: {item.tutorId}</p>
+                      <p className="text-[10px] text-slate-600 font-mono">ID: {item.tutorId}</p>
                     </div>
                   </div>
                 </TableCell>
@@ -430,7 +430,7 @@ function LeaderboardTable({ leaderboard, isLoading }: LeaderboardTableProps) {
                     type="button"
                     onClick={() => router.push(`/admin/tutor/${item.tutorId}`)}
                     title="View Tutor Details"
-                    className="rounded-lg text-slate-400 hover:text-[var(--brand-green)] hover:bg-slate-50"
+                    className="rounded-lg text-slate-600 hover:text-[var(--brand-green)] hover:bg-slate-50"
                   >
                     <Eye className="w-4 h-4" />
                   </Button>
@@ -441,7 +441,7 @@ function LeaderboardTable({ leaderboard, isLoading }: LeaderboardTableProps) {
             <TableRow>
               <TableCell
                 colSpan={4}
-                className="px-6 py-12 text-center text-slate-400 text-sm"
+                className="px-6 py-12 text-center text-slate-600 text-sm"
               >
                 No rankings available yet.
               </TableCell>
