@@ -76,9 +76,9 @@ export const useSubmitStudentAssignment = () => {
     mutationFn: ({ id, files, remarks }: { id: string; files: File[]; remarks?: string }) =>
       submitStudentAssignment(id, files, remarks),
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: STUDENT_KEYS.assignments });
-      queryClient.invalidateQueries({ queryKey: STUDENT_KEYS.assignmentStatus(variables.id) });
-      queryClient.invalidateQueries({ queryKey: STUDENT_KEYS.dashboard });
+      queryClient.invalidateQueries({ queryKey: STUDENT_KEYS.assignments, refetchType: "all" });
+      queryClient.invalidateQueries({ queryKey: STUDENT_KEYS.assignmentStatus(variables.id), refetchType: "all" });
+      queryClient.invalidateQueries({ queryKey: STUDENT_KEYS.dashboard, refetchType: "all" });
     },
   });
 };
