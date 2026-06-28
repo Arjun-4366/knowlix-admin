@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, usePathname } from "next/navigation";
-import { Bell, LogOut, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { LogOut, Menu, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { useConfirmation } from "@/context/ConfirmationContext";
 
 const pageTitles: Record<string, { title: string; section?: string }> = {
@@ -16,9 +16,10 @@ const pageTitles: Record<string, { title: string; section?: string }> = {
 interface Props {
   collapsed: boolean;
   onToggle: () => void;
+  onMobileToggle: () => void;
 }
 
-export default function TutorNavbar({ collapsed, onToggle }: Props) {
+export default function TutorNavbar({ collapsed, onToggle, onMobileToggle }: Props) {
   const pathname = usePathname();
   const router = useRouter();
   const { confirm } = useConfirmation();
@@ -40,10 +41,19 @@ export default function TutorNavbar({ collapsed, onToggle }: Props) {
   return (
     <header className="h-14 bg-white border-b border-gray-200 flex items-center justify-between px-4 flex-shrink-0">
       <div className="flex items-center gap-3">
-        {/* Sidebar toggle */}
+        {/* Mobile hamburger */}
+        <button
+          onClick={onMobileToggle}
+          className="md:hidden p-2 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+          title="Open menu"
+        >
+          <Menu className="w-4 h-4" />
+        </button>
+
+        {/* Desktop sidebar toggle */}
         <button
           onClick={onToggle}
-          className="p-2 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+          className="hidden md:flex p-2 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"
           title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
           {collapsed ? (
@@ -68,7 +78,6 @@ export default function TutorNavbar({ collapsed, onToggle }: Props) {
       </div>
 
       <div className="flex items-center gap-1">
-      
         <button
           onClick={handleLogout}
           className="p-2 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors"

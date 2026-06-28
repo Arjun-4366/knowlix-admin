@@ -81,7 +81,8 @@ export default function TutorStudentTable({
             <Loader2 className="w-6 h-6 text-[var(--brand-green)] animate-spin" />
           </div>
         )}
-        <Table className="table-fixed w-full">
+        <div className="overflow-x-auto">
+        <Table className="table-fixed w-full min-w-[600px]">
           <TableHeader className="bg-slate-50/50">
             <TableRow>
               <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[22%]">
@@ -177,6 +178,7 @@ export default function TutorStudentTable({
             )}
           </TableBody>
         </Table>
+        </div>
       </div>
     </div>
   );
