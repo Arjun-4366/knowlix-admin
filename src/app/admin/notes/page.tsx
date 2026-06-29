@@ -35,7 +35,6 @@ function NotesContent() {
   const [filterSubject, setFilterSubject] = useState("all");
   const [filterChapter, setFilterChapter] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
-  const [filterAttachmentType, setFilterAttachmentType] = useState("all");
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [noteToEdit, setNoteToEdit] = useState<INote | null>(null);
@@ -48,13 +47,11 @@ function NotesContent() {
   const queryParams = useMemo(() => {
     const params: Record<string, string> = {};
     if (debouncedSearch) params.search = debouncedSearch;
-    if (filterStandard !== "all") params.standard = filterStandard;
-    if (filterSyllabus !== "all") params.syllabus = filterSyllabus;
-    if (filterSubject !== "all") params.subject = filterSubject;
+    if (filterStandard !== "all") params.standardId = filterStandard;
+    if (filterSyllabus !== "all") params.syllabusId = filterSyllabus;
+    if (filterSubject !== "all") params.subjectId = filterSubject;
     if (filterChapter !== "all") params.chapter = filterChapter;
     if (filterStatus !== "all") params.status = filterStatus;
-    if (filterAttachmentType !== "all")
-      params.attachmentType = filterAttachmentType;
     return params;
   }, [
     debouncedSearch,
@@ -63,12 +60,11 @@ function NotesContent() {
     filterSubject,
     filterChapter,
     filterStatus,
-    filterAttachmentType,
   ]);
 
   const { data: filtersResponse } = useGetNotesFilters();
   const { data: chapterFiltersResponse } = useGetNotesFilters(
-    filterSubject !== "all" ? { subject: filterSubject } : undefined,
+    filterSubject !== "all" ? { subjectId: filterSubject } : undefined,
   );
   const { data: notesResponse, isLoading } = useGetNotes(queryParams);
   const { mutateAsync: createNote, isPending: isCreating } = useCreateNote();
@@ -141,7 +137,6 @@ function NotesContent() {
     setFilterSubject("all");
     setFilterChapter("all");
     setFilterStatus("all");
-    setFilterAttachmentType("all");
   };
 
   const actions = (
@@ -180,8 +175,8 @@ function NotesContent() {
             <SelectContent>
               <SelectItem value="all">All Classes</SelectItem>
               {filters?.standards.map((s) => (
-                <SelectItem key={s} value={s}>
-                  Class {s}
+                <SelectItem key={s.id} value={s.id}>
+                  {s.name}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -194,8 +189,8 @@ function NotesContent() {
             <SelectContent>
               <SelectItem value="all">All Syllabi</SelectItem>
               {filters?.syllabuses.map((s) => (
-                <SelectItem key={s} value={s}>
-                  {s}
+                <SelectItem key={s.id} value={s.id}>
+                  {s.name}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -208,8 +203,8 @@ function NotesContent() {
             <SelectContent>
               <SelectItem value="all">All Subjects</SelectItem>
               {filters?.subjects.map((s) => (
-                <SelectItem key={s} value={s}>
-                  {s}
+                <SelectItem key={s.id} value={s.id}>
+                  {s.name}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -230,20 +225,6 @@ function NotesContent() {
                   {c}
                 </SelectItem>
               ))}
-            </SelectContent>
-          </Select>
-
-          <Select
-            value={filterAttachmentType}
-            onValueChange={setFilterAttachmentType}>
-            <SelectTrigger className="h-10 w-[130px] bg-white">
-              <SelectValue placeholder="Type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Types</SelectItem>
-              <SelectItem value="pdf">PDF</SelectItem>
-              <SelectItem value="document">Document</SelectItem>
-              <SelectItem value="image">Image</SelectItem>
             </SelectContent>
           </Select>
 
@@ -268,8 +249,7 @@ function NotesContent() {
               filterSyllabus === "all" &&
               filterSubject === "all" &&
               filterChapter === "all" &&
-              filterStatus === "all" &&
-              filterAttachmentType === "all"
+              filterStatus === "all"
             }
             className="h-8 px-3 bg-white border-slate-200 text-slate-600 hover:text-slate-800 rounded-xl disabled:opacity-40"
             title="Reset filters">

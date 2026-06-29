@@ -32,9 +32,9 @@ export default function NoteForm({ noteToEdit, isSubmitting, onSubmit, onClose }
   const [title, setTitle] = useState(noteToEdit?.title ?? "");
   const [description, setDescription] = useState(noteToEdit?.description ?? "");
   const [content, setContent] = useState(noteToEdit?.content ?? "");
-  const [standard, setStandard] = useState(noteToEdit?.standard ?? "");
-  const [syllabus, setSyllabus] = useState(noteToEdit?.syllabus ?? "");
-  const [subject, setSubject] = useState(noteToEdit?.subject ?? "");
+  const [standardId, setStandardId] = useState(noteToEdit?.standardId ?? "");
+  const [syllabusId, setSyllabusId] = useState(noteToEdit?.syllabusId ?? "");
+  const [subjectId, setSubjectId] = useState(noteToEdit?.subjectId ?? "");
   const [chapter, setChapter] = useState(noteToEdit?.chapter ?? "");
   const [chapterMode, setChapterMode] = useState<"select" | "manual">("select");
   const [status, setStatus] = useState<NoteStatus>(noteToEdit?.status ?? "published");
@@ -42,7 +42,17 @@ export default function NoteForm({ noteToEdit, isSubmitting, onSubmit, onClose }
   const [tags, setTags] = useState<string[]>(() => {
     const raw = noteToEdit?.tags;
     if (!raw) return [];
-    if (Array.isArray(raw)) return raw;
+    if (Array.isArray(raw)) {
+      // Detect comma-split JSON: server stored JSON.stringify(array) then split by ","
+      // First element would start with '["' in that case
+      if (raw.length > 0 && typeof raw[0] === "string" && raw[0].startsWith('["')) {
+        try {
+          const parsed = JSON.parse(raw.join(","));
+          return Array.isArray(parsed) ? parsed : raw;
+        } catch { return raw; }
+      }
+      return raw;
+    }
     if (typeof raw === "string") {
       try { const p = JSON.parse(raw); return Array.isArray(p) ? p : []; } catch { return []; }
     }
@@ -56,14 +66,14 @@ export default function NoteForm({ noteToEdit, isSubmitting, onSubmit, onClose }
   const { data: syllabusesResponse, isLoading: loadingSyllabuses } = useGetSyllabuses();
   const { data: subjectsResponse, isLoading: loadingSubjects } = useGetSubjects();
 
-  const standardOptions = (standardsResponse?.data ?? []).map((s) => s.name);
-  const syllabusOptions = (syllabusesResponse?.data ?? []).map((s) => s.name);
-  const subjectOptions = (subjectsResponse?.data ?? []).map((s) => s.name);
+  const standardOptions = standardsResponse?.data ?? [];
+  const syllabusOptions = syllabusesResponse?.data ?? [];
+  const subjectOptions = subjectsResponse?.data ?? [];
 
   const isCurriculumLoading = loadingStandards || loadingSyllabuses || loadingSubjects;
 
   const { data: chapterFiltersResponse, isLoading: loadingChapters } = useGetNotesFilters(
-    subject ? { subject } : undefined,
+    subjectId ? { subjectId } : undefined,
   );
   const availableChapters = chapterFiltersResponse?.data?.chapters ?? [];
 
@@ -78,7 +88,7 @@ export default function NoteForm({ noteToEdit, isSubmitting, onSubmit, onClose }
   };
 
   const handleSubjectChange = (value: string) => {
-    setSubject(value);
+    setSubjectId(value);
     setChapter("");
   };
 
@@ -107,7 +117,7 @@ export default function NoteForm({ noteToEdit, isSubmitting, onSubmit, onClose }
   const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!isEdit && !selectedFile) return;
-    onSubmit({ title, description, content, standard, syllabus, subject, chapter, status, tags, file: selectedFile as File });
+    onSubmit({ title, description, content, standardId, syllabusId, subjectId, chapter, status, tags, file: selectedFile as File });
   };
 
   const fileLabel = selectedFile
@@ -192,14 +202,14 @@ export default function NoteForm({ noteToEdit, isSubmitting, onSubmit, onClose }
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <Label className="text-xs font-semibold text-slate-600">Standard *</Label>
-                  <Select required value={standard} onValueChange={setStandard}>
+                  <Select required value={standardId} onValueChange={setStandardId}>
                     <SelectTrigger className="h-10 w-full">
                       <SelectValue placeholder="Select class" />
                     </SelectTrigger>
                     <SelectContent>
                       {standardOptions.length > 0 ? (
                         standardOptions.map((s) => (
-                          <SelectItem key={s} value={s}>{s}</SelectItem>
+                          <SelectItem key={s._id} value={s._id}>{s.name}</SelectItem>
                         ))
                       ) : (
                         <div className="px-3 py-4 text-center text-xs text-slate-600">No standards found</div>
@@ -209,14 +219,14 @@ export default function NoteForm({ noteToEdit, isSubmitting, onSubmit, onClose }
                 </div>
                 <div className="space-y-1.5">
                   <Label className="text-xs font-semibold text-slate-600">Syllabus *</Label>
-                  <Select required value={syllabus} onValueChange={setSyllabus}>
+                  <Select required value={syllabusId} onValueChange={setSyllabusId}>
                     <SelectTrigger className="h-10 w-full">
                       <SelectValue placeholder="Select syllabus" />
                     </SelectTrigger>
                     <SelectContent>
                       {syllabusOptions.length > 0 ? (
                         syllabusOptions.map((s) => (
-                          <SelectItem key={s} value={s}>{s}</SelectItem>
+                          <SelectItem key={s._id} value={s._id}>{s.name}</SelectItem>
                         ))
                       ) : (
                         <div className="px-3 py-4 text-center text-xs text-slate-600">No syllabuses found</div>
@@ -229,14 +239,14 @@ export default function NoteForm({ noteToEdit, isSubmitting, onSubmit, onClose }
               {/* Subject */}
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-slate-600">Subject *</Label>
-                <Select required value={subject} onValueChange={handleSubjectChange}>
+                <Select required value={subjectId} onValueChange={handleSubjectChange}>
                   <SelectTrigger className="h-10 w-full">
                     <SelectValue placeholder="Select subject" />
                   </SelectTrigger>
                   <SelectContent>
                     {subjectOptions.length > 0 ? (
                       subjectOptions.map((s) => (
-                        <SelectItem key={s} value={s}>{s}</SelectItem>
+                        <SelectItem key={s._id} value={s._id}>{s.name}</SelectItem>
                       ))
                     ) : (
                       <div className="px-3 py-4 text-center text-xs text-slate-600">No subjects found</div>
@@ -279,7 +289,7 @@ export default function NoteForm({ noteToEdit, isSubmitting, onSubmit, onClose }
 
                 {chapterMode === "select" ? (
                   <>
-                    {loadingChapters && subject ? (
+                    {loadingChapters && subjectId ? (
                       <div className="flex h-10 items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3.5">
                         <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-slate-300 border-t-[var(--brand-green)]" />
                         <span className="text-xs text-slate-600">Loading chapters...</span>
@@ -289,12 +299,12 @@ export default function NoteForm({ noteToEdit, isSubmitting, onSubmit, onClose }
                         <Select
                           value={chapter}
                           onValueChange={setChapter}
-                          disabled={!subject || availableChapters.length === 0}
+                          disabled={!subjectId || availableChapters.length === 0}
                         >
                           <SelectTrigger className="h-10 w-full">
                             <SelectValue
                               placeholder={
-                                !subject
+                                !subjectId
                                   ? "Select a subject first"
                                   : availableChapters.length === 0
                                     ? "No chapters available"
@@ -310,7 +320,7 @@ export default function NoteForm({ noteToEdit, isSubmitting, onSubmit, onClose }
                             </SelectContent>
                           )}
                         </Select>
-                        {subject && !loadingChapters && availableChapters.length === 0 && (
+                        {subjectId && !loadingChapters && availableChapters.length === 0 && (
                           <p className="text-xs text-amber-500 font-medium">
                             No chapters found for this subject. Switch to &quot;Add new&quot; to create one.
                           </p>

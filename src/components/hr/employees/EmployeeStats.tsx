@@ -8,6 +8,7 @@ interface EmployeeStatsProps {
   activeCount: number;
   probationCount: number;
   departedCount: number;
+  activeFilter: string;
 }
 
 export default function EmployeeStats({
@@ -15,14 +16,17 @@ export default function EmployeeStats({
   activeCount,
   probationCount,
   departedCount,
+  activeFilter,
 }: EmployeeStatsProps) {
+  const isFiltered = activeFilter !== "all";
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
       <DashboardStatCard
         label="Total Strength"
         value={totalCount}
         icon={<Users className="w-6 h-6 text-[var(--brand-green)]" />}
-        footerText="Registered in directory"
+        footerText={isFiltered ? "Apply no filter to see total" : "Registered in directory"}
       />
 
       <DashboardStatCard
@@ -30,7 +34,7 @@ export default function EmployeeStats({
         value={activeCount}
         icon={<UserCheck className="w-6 h-6 text-[var(--brand-green)]" />}
         badgeText="Perm"
-        footerText="Regular operations"
+        footerText={activeFilter === "approved" ? "Regular operations" : "Filter by 'Approved' to see count"}
       />
 
       <DashboardStatCard
@@ -38,7 +42,7 @@ export default function EmployeeStats({
         value={probationCount}
         icon={<Shield className="w-6 h-6 text-[var(--brand-green)]" />}
         badgeText="Review"
-        footerText="Performance tracking"
+        footerText={activeFilter === "pending" ? "Performance tracking" : "Filter by 'Pending' to see count"}
       />
 
       <DashboardStatCard
@@ -46,9 +50,12 @@ export default function EmployeeStats({
         value={departedCount}
         icon={<FileMinus className="w-6 h-6 text-[var(--brand-green)]" />}
         badgeText="Inactive"
-        footerText="Resigned & Terminated"
+        footerText={
+          activeFilter === "inactive" || activeFilter === "resigned"
+            ? "Resigned & Terminated"
+            : "Filter by 'Inactive/Resigned' to see count"
+        }
       />
     </div>
   );
 }
-

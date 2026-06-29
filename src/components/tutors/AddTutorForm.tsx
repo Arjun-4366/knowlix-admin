@@ -66,9 +66,7 @@ export default function AddTutorForm({
   });
 
   const [status, setStatus] = useState<TutorStatus>(() => {
-    const s = (tutorToEdit?.status?.toLowerCase() as TutorStatus) || "pending";
-    if (hrMode && tutorToEdit && s !== "inactive" && s !== "resigned") return "inactive";
-    return s;
+    return (tutorToEdit?.status?.toLowerCase() as TutorStatus) || "pending";
   });
 
   const [subjectEntries, setSubjectEntries] = useState<Array<{ name: string; syllabi: string[] }>>([]);
@@ -90,7 +88,7 @@ export default function AddTutorForm({
       }
 
       const s = (tutorToEdit.status?.toLowerCase() as TutorStatus) || "pending";
-      setStatus(hrMode && s !== "inactive" && s !== "resigned" ? "inactive" : s);
+      setStatus(s);
 
       // Load availability
       if (Array.isArray(tutorToEdit.availability)) {
@@ -190,10 +188,14 @@ export default function AddTutorForm({
       <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
         <div>
           <h3 className="font-bold text-slate-800 text-lg">
-            {tutorToEdit ? "Edit Tutor Details" : "Register New Tutor"}
+            {hrMode
+              ? tutorToEdit ? "Edit Employee Details" : "Register New Employee"
+              : tutorToEdit ? "Edit Tutor Details" : "Register New Tutor"}
           </h3>
           <p className="text-xs text-slate-600 mt-0.5">
-            Configure subjects, availability slots, workloads, and workspace permissions.
+            {hrMode
+              ? "Configure employee information, subjects, availability, and permissions."
+              : "Configure subjects, availability slots, workloads, and workspace permissions."}
           </p>
         </div>
         <button
@@ -269,22 +271,24 @@ export default function AddTutorForm({
           </div>
         </div>
 
-        <div className="space-y-1.5">
-          <Label className="text-xs font-semibold text-slate-600">
-            Password {tutorToEdit
-              ? <span className="font-normal text-slate-600 ml-1">(leave blank to keep current)</span>
-              : "*"}
-          </Label>
-          <Input
-            type="password"
-            required={!tutorToEdit}
-            disabled={isSubmitting}
-            placeholder={tutorToEdit ? "New password (optional)" : "e.g. StrongPassword@123"}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full bg-slate-50 focus:bg-white border-slate-200 rounded-xl"
-          />
-        </div>
+        {(!hrMode || !tutorToEdit) && (
+          <div className="space-y-1.5">
+            <Label className="text-xs font-semibold text-slate-600">
+              Password {tutorToEdit
+                ? <span className="font-normal text-slate-600 ml-1">(leave blank to keep current)</span>
+                : "*"}
+            </Label>
+            <Input
+              type="password"
+              required={!tutorToEdit}
+              disabled={isSubmitting}
+              placeholder={tutorToEdit ? "New password (optional)" : "e.g. StrongPassword@123"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full bg-slate-50 focus:bg-white border-slate-200 rounded-xl"
+            />
+          </div>
+        )}
 
         {/* Availability */}
         <div className="space-y-1.5">
@@ -377,39 +381,27 @@ export default function AddTutorForm({
           )}
         </div>
 
-        {/* HR create: no status shown; HR edit: only inactive/resigned; admin: all four */}
-        {(!hrMode || tutorToEdit) && (
-          <div className="grid grid-cols-1 gap-4">
-            <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-slate-600">Status *</Label>
-              <Select
-                key={`status-${tutorToEdit?.id || "new"}`}
-                disabled={isSubmitting}
-                value={status}
-                onValueChange={(val) => setStatus(val as TutorStatus)}
-              >
-                <SelectTrigger className="w-full text-sm bg-slate-50 border border-slate-200 rounded-xl">
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  {hrMode ? (
-                    <>
-                      <SelectItem value="inactive">Inactive</SelectItem>
-                      <SelectItem value="resigned">Resigned</SelectItem>
-                    </>
-                  ) : (
-                    <>
-                      <SelectItem value="pending">Pending</SelectItem>
-                      <SelectItem value="approved">Approved</SelectItem>
-                      <SelectItem value="inactive">Inactive</SelectItem>
-                      <SelectItem value="resigned">Resigned</SelectItem>
-                    </>
-                  )}
-                </SelectContent>
-              </Select>
-            </div>
+        <div className="grid grid-cols-1 gap-4">
+          <div className="space-y-1.5">
+            <Label className="text-xs font-semibold text-slate-600">Status *</Label>
+            <Select
+              key={`status-${tutorToEdit?.id || "new"}`}
+              disabled={isSubmitting}
+              value={status}
+              onValueChange={(val) => setStatus(val as TutorStatus)}
+            >
+              <SelectTrigger className="w-full text-sm bg-slate-50 border border-slate-200 rounded-xl">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="approved">Approved</SelectItem>
+                <SelectItem value="inactive">Inactive</SelectItem>
+                <SelectItem value="resigned">Resigned</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
-        )}
+        </div>
 
         <div className="pt-4 flex justify-end gap-3 border-t border-slate-100">
           <Button
@@ -427,7 +419,9 @@ export default function AddTutorForm({
             className="px-4 py-2 text-white bg-[var(--brand-green)] hover:bg-[var(--brand-mid)] rounded-xl shadow-md shadow-green-600/10 flex items-center gap-1.5"
           >
             {isSubmitting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-            {tutorToEdit ? "Update Tutor" : "Save Tutor"}
+            {hrMode
+              ? tutorToEdit ? "Update Employee" : "Add Employee"
+              : tutorToEdit ? "Update Tutor" : "Save Tutor"}
           </Button>
         </div>
       </form>

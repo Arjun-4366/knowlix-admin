@@ -48,19 +48,20 @@ export default function EmployeeManager() {
   const { mutateAsync: createTutor, isPending: isCreating } = useCreateTutorByHR();
   const { mutateAsync: updateTutor, isPending: isUpdating } = useUpdateTutorByHR();
 
-  // Lightweight stat queries
-  const { data: statsTotal }    = useGetTutorsHR({ limit: 1 });
-  const { data: statsApproved } = useGetTutorsHR({ status: "approved", limit: 1 });
-  const { data: statsPending }  = useGetTutorsHR({ status: "pending",  limit: 1 });
-  const { data: statsInactive } = useGetTutorsHR({ status: "inactive", limit: 1 });
-  const { data: statsResigned } = useGetTutorsHR({ status: "resigned", limit: 1 });
-
   const tutors = data?.data ?? [];
   const total = data?.total ?? 0;
 
+  // Derive stat counts from the main query — no extra API calls on mount.
+  // Each count is meaningful only when the matching filter is active.
+  const filteredTotal = data?.total ?? 0;
+  const statTotal      = status === "all"      ? filteredTotal : 0;
+  const statActive     = status === "approved" ? filteredTotal : 0;
+  const statProbation  = status === "pending"  ? filteredTotal : 0;
+  const statDeparted   = (status === "inactive" || status === "resigned") ? filteredTotal : 0;
+
   const handleFormSubmit = async (payload: ICreateTutorPayload) => {
     try {
-      await createTutor({ ...payload, status: "pending" });
+      await createTutor(payload);
       setIsAddModalOpen(false);
     } catch {
       // error toast handled inside the mutation
@@ -95,10 +96,11 @@ export default function EmployeeManager() {
       />
 
       <EmployeeStats
-        totalCount={statsTotal?.total ?? 0}
-        activeCount={statsApproved?.total ?? 0}
-        probationCount={statsPending?.total ?? 0}
-        departedCount={(statsInactive?.total ?? 0) + (statsResigned?.total ?? 0)}
+        totalCount={statTotal}
+        activeCount={statActive}
+        probationCount={statProbation}
+        departedCount={statDeparted}
+        activeFilter={status}
       />
 
       {isLoading ? (

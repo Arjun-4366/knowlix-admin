@@ -6,9 +6,9 @@ import { ICreateNotePayload, INotesQueryParams, IUpdateNotePayload } from "@/typ
 const NOTES_KEY = ["notes"] as const;
 const NOTES_FILTERS_KEY = ["notes-filters"] as const;
 
-export const useGetNotesFilters = (params?: { subject?: string }) => {
+export const useGetNotesFilters = (params?: { subjectId?: string }) => {
   return useQuery({
-    queryKey: [...NOTES_FILTERS_KEY, params?.subject ?? null],
+    queryKey: [...NOTES_FILTERS_KEY, params?.subjectId ?? null],
     queryFn: () => getNotesFilters(params),
     staleTime: 5 * 60 * 1000,
   });

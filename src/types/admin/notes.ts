@@ -4,8 +4,11 @@ export type NoteStatus = "published" | "draft";
 export interface INote {
   id: string;
   standard: string;
+  standardId?: string;
   syllabus: string;
+  syllabusId?: string;
   subject: string;
+  subjectId?: string;
   chapter: string;
   title: string;
   description: string;
@@ -30,9 +33,9 @@ export interface INotesResponse {
 }
 
 export interface ICreateNotePayload {
-  standard: string;
-  syllabus: string;
-  subject: string;
+  standardId: string;
+  syllabusId: string;
+  subjectId: string;
   chapter: string;
   title: string;
   description: string;
@@ -43,9 +46,9 @@ export interface ICreateNotePayload {
 }
 
 export interface IUpdateNotePayload {
-  standard?: string;
-  syllabus?: string;
-  subject?: string;
+  standardId?: string;
+  syllabusId?: string;
+  subjectId?: string;
   chapter?: string;
   title?: string;
   description?: string;
@@ -57,9 +60,9 @@ export interface IUpdateNotePayload {
 
 export interface INotesQueryParams {
   search?: string;
-  standard?: string;
-  syllabus?: string;
-  subject?: string;
+  standardId?: string;
+  syllabusId?: string;
+  subjectId?: string;
   chapter?: string;
   status?: string;
   attachmentType?: string;
@@ -67,11 +70,16 @@ export interface INotesQueryParams {
   limit?: number;
 }
 
+export interface INotesFilterItem {
+  id: string;
+  name: string;
+}
+
 export interface INotesFilters {
   chapters: string[];
-  standards: string[];
-  subjects: string[];
-  syllabuses: string[];
+  standards: INotesFilterItem[];
+  subjects: INotesFilterItem[];
+  syllabuses: INotesFilterItem[];
 }
 
 export interface INotesFiltersResponse {

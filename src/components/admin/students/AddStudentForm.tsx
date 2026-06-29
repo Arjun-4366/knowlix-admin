@@ -20,6 +20,7 @@ import {
   IStudent,
 } from "@/types/admin/student";
 import { useGetPrograms, useGetCoursesByProgram } from "@/querys/admin/programQuery";
+import { useGetStandards, useGetSyllabuses } from "@/querys/admin/curriculumQuery";
 import { useGetMentors } from "@/querys/admin/mentorQuery";
 import { useGetCoordinators } from "@/querys/admin/coordinatorQuery";
 
@@ -212,16 +213,21 @@ export default function AddStudentForm({
   const { data: mentorsResponse } = useGetMentors();
   const { data: coordinatorsResponse } = useGetCoordinators();
   const { data: programsResponse } = useGetPrograms();
+  const { data: standardsResponse } = useGetStandards();
+  const { data: syllabusesResponse } = useGetSyllabuses();
 
   const mentorsList = mentorsResponse?.data ?? [];
   const coordinatorsList = coordinatorsResponse?.data ?? [];
   const programsList = programsResponse?.programs ?? [];
+  const standardsList = standardsResponse?.data ?? [];
+  const syllabusesList = syllabusesResponse?.data ?? [];
 
   const [studentName, setStudentName] = useState(
     studentToEdit?.studentName ?? "",
   );
   const [parentName, setParentName] = useState(studentToEdit?.parentName ?? "");
-  const [studentClass, setStudentClass] = useState(studentToEdit?.class ?? "8");
+  const [studentClass, setStudentClass] = useState(studentToEdit?.standardId ?? "");
+  const [syllabusId, setSyllabusId] = useState(studentToEdit?.syllabusId ?? "");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
@@ -307,7 +313,8 @@ export default function AddStudentForm({
     const submitPayload: ICreateStudentPayload = {
       studentName: studentName.trim(),
       parentName: parentName.trim(),
-      class: studentClass,
+      standardId: studentClass,
+      syllabusId: syllabusId || undefined,
       email: email.trim(),
       phone: phone.trim(),
       password: "",
@@ -325,7 +332,7 @@ export default function AddStudentForm({
       coordinatorId: assignedCoordinatorId.trim(),
     };
 
-    if (password.trim()) {
+    if (password.trim()) {  
       submitPayload.password = password;
     } else {
       delete (submitPayload as Partial<ICreateStudentPayload>).password;
@@ -449,16 +456,40 @@ export default function AddStudentForm({
               </Label>
               <Select value={studentClass} onValueChange={setStudentClass}>
                 <SelectTrigger className="rounded-xl border-slate-200 bg-slate-50">
-                  <SelectValue placeholder="Class" />
+                  <SelectValue placeholder="Select Class" />
                 </SelectTrigger>
                 <SelectContent>
-                  {Array.from({ length: 12 }, (_, index) =>
-                    String(index + 1),
-                  ).map((value) => (
-                    <SelectItem key={value} value={value}>
-                      Class {value}
-                    </SelectItem>
-                  ))}
+                  {standardsList.length > 0 ? (
+                    standardsList.map((s) => (
+                      <SelectItem key={s._id} value={s._id}>
+                        {s.name}
+                      </SelectItem>
+                    ))
+                  ) : (
+                    <div className="px-3 py-4 text-center text-xs text-slate-600">No classes found</div>
+                  )}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold text-slate-600">
+                Syllabus
+              </Label>
+              <Select value={syllabusId} onValueChange={setSyllabusId}>
+                <SelectTrigger className="rounded-xl border-slate-200 bg-slate-50">
+                  <SelectValue placeholder="Select Syllabus" />
+                </SelectTrigger>
+                <SelectContent>
+                  {syllabusesList.length > 0 ? (
+                    syllabusesList.map((s) => (
+                      <SelectItem key={s._id} value={s._id}>
+                        {s.name}
+                      </SelectItem>
+                    ))
+                  ) : (
+                    <div className="px-3 py-4 text-center text-xs text-slate-600">No syllabuses found</div>
+                  )}
                 </SelectContent>
               </Select>
             </div>

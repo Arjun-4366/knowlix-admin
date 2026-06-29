@@ -12,6 +12,18 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { INote, NoteStatus } from "@/types/admin/notes";
 
+function parseTags(raw: string[] | undefined): string[] {
+  if (!raw || raw.length === 0) return [];
+  // Detect comma-split JSON: server split JSON.stringify(array) on ","
+  if (typeof raw[0] === "string" && raw[0].startsWith('["')) {
+    try {
+      const parsed = JSON.parse(raw.join(","));
+      return Array.isArray(parsed) ? parsed : raw;
+    } catch { return raw; }
+  }
+  return raw;
+}
+
 interface NotesTableProps {
   notes: INote[];
   onEdit: (note: INote) => void;
@@ -107,21 +119,26 @@ export default function NotesTable({ notes, onEdit, onDelete, onUpdateStatus }: 
                   </button>
                 </TableCell>
                 <TableCell className="px-6 py-4">
-                  <div className="flex flex-wrap gap-1">
-                    {note.tags.slice(0, 2).map((tag) => (
-                      <span
-                        key={tag}
-                        className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                    {note.tags.length > 2 && (
-                      <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">
-                        +{note.tags.length - 2}
-                      </span>
-                    )}
-                  </div>
+                  {(() => {
+                    const cleanTags = parseTags(note.tags);
+                    return (
+                      <div className="flex flex-wrap gap-1">
+                        {cleanTags.slice(0, 2).map((tag) => (
+                          <span
+                            key={tag}
+                            className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                        {cleanTags.length > 2 && (
+                          <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">
+                            +{cleanTags.length - 2}
+                          </span>
+                        )}
+                      </div>
+                    );
+                  })()}
                 </TableCell>
                 <TableCell className="px-6 py-4 text-right">
                   <div className="flex items-center justify-end gap-2">
