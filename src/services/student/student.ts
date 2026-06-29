@@ -99,8 +99,8 @@ export interface IStudentNote {
   chapter: string;
   standard: string;
   syllabus: string;
-  attachmentType: "pdf" | "document" | "image";
-  fileUrl: string;
+  attachmentTypes: ("pdf" | "document" | "image")[];
+  fileUrls: string[];
   tags: string[];
   content: string;
   status: string;
@@ -108,21 +108,21 @@ export interface IStudentNote {
 }
 
 export const getStudentNoteSubjects = async () => {
-  const res = await apiClient.get<{ data: string[]; status: string }>(
+  const res = await apiClient.get<{ data: { id: string; name: string }[]; status: string }>(
     ENDPOINTS.GET_STUDENT_NOTE_SUBJECTS
   );
   return res.data;
 };
 
-export const getStudentNoteChapters = async (subject: string) => {
+export const getStudentNoteChapters = async (subjectId: string) => {
   const res = await apiClient.get<{ data: string[]; status: string }>(
     ENDPOINTS.GET_STUDENT_NOTE_CHAPTERS,
-    { params: { subject } }
+    { params: { subjectId } }
   );
   return res.data;
 };
 
-export const getStudentNotes = async (params: { subject: string; chapter: string }) => {
+export const getStudentNotes = async (params: { subjectId: string; chapter: string }) => {
   const res = await apiClient.get<{
     data: IStudentNote[];
     pagination: { limit: number; page: number; total: number; totalPages: number };

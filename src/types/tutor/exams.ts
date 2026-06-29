@@ -1,5 +1,16 @@
 export type TutorExamStatus = "pending" | "conducted" | "cancelled";
 
+export interface IExamEvaluation {
+  id: string;
+  examId: string;
+  studentId: string;
+  studentName: string;
+  marksObtained: number;
+  grade: string;
+  remarks: string;
+  enteredAt: string;
+}
+
 export interface ITutorExam {
   id: string;
   tutorId: { id: string; name: string; email: string; phone?: string } | string;
@@ -11,6 +22,7 @@ export interface ITutorExam {
   maxMarks: number;
   createdAt: string;
   updatedAt: string;
+  evaluations?: IExamEvaluation[];
 }
 
 export interface ITutorExamsResponse {

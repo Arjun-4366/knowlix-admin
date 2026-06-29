@@ -272,6 +272,7 @@ function NotesContent() {
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-sm animate-in fade-in duration-200">
           <NoteForm
+            key={noteToEdit?.id ?? "new"}
             noteToEdit={noteToEdit ?? undefined}
             isSubmitting={isCreating || isUpdating}
             onSubmit={handleFormSubmit}

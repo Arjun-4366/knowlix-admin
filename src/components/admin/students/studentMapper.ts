@@ -85,7 +85,7 @@ export const mapApiStudentToStudent = (student: IStudent): Student => ({
   admissionNumber: student.admissionNumber,
   name: student.studentName,
   parentName: student.parentName,
-  grade: `Grade ${student.class}`,
+  grade: student.class,
   location: student.place,
   courseType: student.courseType || "",
   courseName: student.courseName || "",

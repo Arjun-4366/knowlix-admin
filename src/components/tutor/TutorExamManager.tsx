@@ -12,6 +12,7 @@ import {
   Users,
   BookOpen,
   Lock,
+  Eye,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -44,6 +45,7 @@ import { useGetTutorStudents } from "@/querys/tutor/studentQuery";
 import { ITutorExam } from "@/types/tutor/exams";
 import { toast } from "react-hot-toast";
 import { useTutorStore } from "@/store/tutorStore";
+import TutorExamDetailModal from "./TutorExamDetailModal";
 
 const SUBJECT_OPTIONS = [
   "Mathematics",
@@ -67,6 +69,7 @@ export default function TutorExamManager() {
 
   const [showAddForm, setShowAddForm] = useState(false);
   const [resultsExam, setResultsExam] = useState<ITutorExam | null>(null);
+  const [detailExam, setDetailExam] = useState<ITutorExam | null>(null);
   const [newTitle, setNewTitle] = useState("");
   const [newSubject, setNewSubject] = useState(subjects[0] ?? "");
   const [newDate, setNewDate] = useState("");
@@ -457,16 +460,27 @@ export default function TutorExamManager() {
                       </div>
                     </TableCell>
                     <TableCell className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[15%]">
-                       {exm.status === "conducted" && (
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          onClick={() => setDetailExam(exm)}
+                          title="View details"
+                          className="rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-800"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </Button>
+                        {exm.status === "conducted" && (
                           <Button
                             variant="ghost"
                             size="lg"
                             onClick={() => setResultsExam(exm)}
-                            className="w-full text-[10px] font-bold text-[var(--brand-mid)] hover:bg-[var(--brand-light-green)]/35 px-2  rounded-lg border border-[var(--brand-green)]/20 cursor-pointer"
+                            className="text-[10px] font-bold text-[var(--brand-mid)] hover:bg-[var(--brand-light-green)]/35 px-2 rounded-lg border border-[var(--brand-green)]/20 cursor-pointer"
                           >
                             <Award className="w-3 h-3 mr-1" /> Enter Results
                           </Button>
                         )}
+                      </div>
                     </TableCell>
                   </TableRow>
                 );
@@ -484,6 +498,13 @@ export default function TutorExamManager() {
           </TableBody>
         </Table>
       </div>
+
+      <TutorExamDetailModal
+        isOpen={!!detailExam}
+        onClose={() => setDetailExam(null)}
+        exam={detailExam}
+        studentMap={studentMap}
+      />
 
       {resultsExam && (
         <ExamResultsModal

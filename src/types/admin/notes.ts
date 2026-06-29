@@ -14,7 +14,7 @@ export interface INote {
   description: string;
   content: string;
   attachmentType: NoteAttachmentType;
-  fileUrl: string;
+  fileUrls: string[];
   tags: string[];
   status: NoteStatus;
   createdAt: string;
@@ -40,7 +40,7 @@ export interface ICreateNotePayload {
   title: string;
   description: string;
   content: string;
-  file: File;
+  files: File[];
   tags: string[];
   status: NoteStatus;
 }
@@ -53,7 +53,7 @@ export interface IUpdateNotePayload {
   title?: string;
   description?: string;
   content?: string;
-  file?: File;
+  files?: File[];
   tags?: string[];
   status?: NoteStatus;
 }

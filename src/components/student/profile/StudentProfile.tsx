@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import {
-  User, Mail, Phone, MapPin, BookOpen, GraduationCap,
+  User, Mail, Phone, MapPin, GraduationCap,
   Users, Calendar, CreditCard, ShieldCheck,
 } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -79,46 +79,54 @@ export default function StudentProfile() {
       />
 
       {/* Profile Banner */}
-      <div className="bg-gradient-to-r from-[var(--brand-dark)] to-[var(--brand-mid)] rounded-2xl p-6 md:p-8 text-white relative overflow-hidden shadow-lg border border-white/5">
+      <div className="bg-gradient-to-r from-[var(--brand-dark)] to-[var(--brand-mid)] rounded-2xl px-6 py-5 md:px-8 md:py-6 text-white relative overflow-hidden shadow-lg border border-white/5">
         <div className="absolute -right-10 -top-10 w-40 h-40 bg-white/5 rounded-full blur-xl pointer-events-none" />
         <div className="absolute -left-10 -bottom-10 w-40 h-40 bg-[var(--brand-green)]/15 rounded-full blur-2xl pointer-events-none" />
 
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 relative z-10">
           {/* Avatar */}
-          <div className="w-16 h-16 rounded-2xl bg-[var(--brand-green)] flex items-center justify-center text-white text-2xl font-black flex-shrink-0 shadow-lg">
+          <div className="w-14 h-14 rounded-2xl bg-[var(--brand-green)] flex items-center justify-center text-white text-xl font-black flex-shrink-0 shadow-lg">
             {initials}
           </div>
 
           {/* Name & ID */}
           <div className="flex-1 min-w-0">
             <div className="flex flex-wrap items-center gap-2 mb-1">
-              <h1 className="text-2xl font-black font-heading">{profile.studentName}</h1>
+              <h1 className="text-xl font-black font-heading">{profile.studentName}</h1>
               <Badge variant="outline" className={`text-[9px] font-bold px-2 py-0.5 rounded-full border ${statusStyle}`}>
                 {statusLabel}
               </Badge>
             </div>
             <p className="text-white/60 text-sm font-semibold">{profile.admissionNumber}</p>
-            <p className="text-white/50 text-xs mt-1">{profile.email}</p>
+            <p className="text-white/50 text-xs mt-0.5">{profile.email}</p>
           </div>
 
           {/* Quick stats */}
-          <div className="grid grid-cols-2 gap-4 bg-white/5 backdrop-blur-md p-4 rounded-xl border border-white/10 text-xs flex-shrink-0">
-            <div>
-              <p className="text-white/45 font-bold uppercase tracking-wider text-[9px]">Program</p>
-              <p className="text-white font-bold text-sm mt-0.5 truncate max-w-[100px]">{profile.programName || "—"}</p>
+          <div className="bg-white/5 backdrop-blur-md p-3.5 rounded-xl border border-white/10 text-xs flex-shrink-0 min-w-[240px]">
+            <div className="grid grid-cols-2 gap-x-8 gap-y-2.5">
+              <div>
+                <p className="text-white/45 font-bold uppercase tracking-wider text-[9px]">Program</p>
+                <p className="text-white font-bold text-sm mt-0.5 truncate max-w-[100px]">{profile.programName || "—"}</p>
+              </div>
+              <div>
+                <p className="text-white/45 font-bold uppercase tracking-wider text-[9px]">Class</p>
+                <p className="text-white font-bold text-sm mt-0.5">{profile.class}</p>
+              </div>
+              <div>
+                <p className="text-white/45 font-bold uppercase tracking-wider text-[9px]">Syllabus</p>
+                <p className="text-white font-bold text-sm mt-0.5">{profile.syllabus || "—"}</p>
+              </div>
+              <div>
+                <p className="text-white/45 font-bold uppercase tracking-wider text-[9px]">Package</p>
+                <p className="text-white font-bold text-sm mt-0.5">{PACKAGE_LABELS[profile.package || ""] || profile.package || "—"}</p>
+              </div>
             </div>
-            <div>
-              <p className="text-white/45 font-bold uppercase tracking-wider text-[9px]">Class</p>
-              <p className="text-white font-bold text-sm mt-0.5">Grade {profile.class}</p>
-            </div>
-            <div>
-              <p className="text-white/45 font-bold uppercase tracking-wider text-[9px]">Syllabus</p>
-              <p className="text-white font-bold text-sm mt-0.5">{profile.syllabus || "—"}</p>
-            </div>
-            <div>
-              <p className="text-white/45 font-bold uppercase tracking-wider text-[9px]">Package</p>
-              <p className="text-white font-bold text-sm mt-0.5">{PACKAGE_LABELS[profile.package || ""] || profile.package || "—"}</p>
-            </div>
+            {profile.courseName && (
+              <div className="border-t border-white/10 mt-2.5 pt-2.5">
+                <p className="text-white/45 font-bold uppercase tracking-wider text-[9px]">Enrolled Course</p>
+                <p className="text-white font-bold text-sm mt-0.5 truncate">{profile.courseName}</p>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -293,23 +301,6 @@ export default function StudentProfile() {
             </Card>
           )}
 
-          {/* Course Card */}
-          {profile.courseName && (
-            <Card className="bg-white border-slate-150 shadow-sm overflow-hidden">
-              <CardContent className="p-6 space-y-3">
-                <div className="w-10 h-10 rounded-xl bg-[var(--brand-light-green)] border border-[var(--brand-green)]/20 flex items-center justify-center">
-                  <BookOpen className="w-5 h-5 text-[var(--brand-green)]" />
-                </div>
-                <div>
-                  <p className="text-[10px] text-slate-600 font-bold uppercase tracking-wider">Enrolled Course</p>
-                  <p className="text-sm font-bold text-slate-800 mt-0.5">{profile.courseName}</p>
-                  {profile.programName && (
-                    <p className="text-xs text-slate-600 mt-0.5">{profile.programName}</p>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          )}
         </div>
       </div>
     </div>

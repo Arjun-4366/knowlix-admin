@@ -264,7 +264,7 @@ export default function AddStudentForm({
     studentToEdit?.coordinator?.name || studentToEdit?.coordinatorName || "",
   );
   const [admissionStatus, setAdmissionStatus] = useState(
-    studentToEdit?.admissionStatus ?? "active",
+    studentToEdit?.admissionStatus ?? "pending",
   );
 
   const [assignedMentorId, setAssignedMentorId] = useState(

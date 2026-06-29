@@ -16,12 +16,12 @@ import {
 import { ButtonLoader } from "@/components/shared/Loader";
 import { useGetNotesFilters } from "@/querys/admin/notesQuery";
 import { useGetStandards, useGetSyllabuses, useGetSubjects } from "@/querys/admin/curriculumQuery";
-import { ICreateNotePayload, INote, NoteStatus } from "@/types/admin/notes";
+import { ICreateNotePayload, INote, IUpdateNotePayload, NoteStatus } from "@/types/admin/notes";
 
 interface NoteFormProps {
   noteToEdit?: INote;
   isSubmitting: boolean;
-  onSubmit: (data: ICreateNotePayload) => void;
+  onSubmit: (data: ICreateNotePayload | IUpdateNotePayload) => void;
   onClose: () => void;
 }
 
@@ -38,7 +38,8 @@ export default function NoteForm({ noteToEdit, isSubmitting, onSubmit, onClose }
   const [chapter, setChapter] = useState(noteToEdit?.chapter ?? "");
   const [chapterMode, setChapterMode] = useState<"select" | "manual">("select");
   const [status, setStatus] = useState<NoteStatus>(noteToEdit?.status ?? "published");
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const existingFileUrls = noteToEdit?.fileUrls ?? [];
   const [tags, setTags] = useState<string[]>(() => {
     const raw = noteToEdit?.tags;
     if (!raw) return [];
@@ -60,8 +61,6 @@ export default function NoteForm({ noteToEdit, isSubmitting, onSubmit, onClose }
   });
   const [tagInput, setTagInput] = useState("");
 
-  const existingFileUrl = noteToEdit?.fileUrl;
-
   const { data: standardsResponse, isLoading: loadingStandards } = useGetStandards();
   const { data: syllabusesResponse, isLoading: loadingSyllabuses } = useGetSyllabuses();
   const { data: subjectsResponse, isLoading: loadingSubjects } = useGetSubjects();
@@ -78,13 +77,13 @@ export default function NoteForm({ noteToEdit, isSubmitting, onSubmit, onClose }
   const availableChapters = chapterFiltersResponse?.data?.chapters ?? [];
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) setSelectedFile(file);
+    const files = Array.from(e.target.files ?? []);
+    if (files.length) setSelectedFiles((prev) => [...prev, ...files]);
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  const handleRemoveFile = () => {
-    setSelectedFile(null);
-    if (fileInputRef.current) fileInputRef.current.value = "";
+  const handleRemoveFile = (index: number) => {
+    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleSubjectChange = (value: string) => {
@@ -116,22 +115,9 @@ export default function NoteForm({ noteToEdit, isSubmitting, onSubmit, onClose }
 
   const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!isEdit && !selectedFile) return;
-    onSubmit({ title, description, content, standardId, syllabusId, subjectId, chapter, status, tags, file: selectedFile as File });
+    if (!isEdit && selectedFiles.length === 0) return;
+    onSubmit({ title, description, content, standardId, syllabusId, subjectId, chapter, status, tags, files: selectedFiles });
   };
-
-  const fileLabel = selectedFile
-    ? selectedFile.name
-    : existingFileUrl
-      ? (() => {
-          try {
-            const parts = decodeURIComponent(existingFileUrl).split("/");
-            return parts[parts.length - 1] || "Current file";
-          } catch {
-            return "Current file";
-          }
-        })()
-      : null;
 
   return (
     <div className="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-2xl">
@@ -356,40 +342,52 @@ export default function NoteForm({ noteToEdit, isSubmitting, onSubmit, onClose }
               {/* File Upload */}
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-slate-600">
-                  File {!isEdit && "*"}
-                  {isEdit && <span className="ml-1 font-normal text-slate-600">(upload to replace)</span>}
+                  Files {!isEdit && "*"}
                 </Label>
 
-                {isEdit && existingFileUrl && !selectedFile && (
-                  <div className="flex items-center justify-between rounded-xl border border-slate-150 bg-slate-50/60 px-3.5 py-2.5">
-                    <p className="truncate text-xs font-medium text-slate-600">{fileLabel}</p>
-                    <a
-                      href={existingFileUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="ml-3 flex-shrink-0 text-[var(--brand-green)] transition-opacity hover:opacity-70"
-                    >
-                      <ExternalLink className="h-3.5 w-3.5" />
-                    </a>
+                {isEdit && existingFileUrls.length > 0 && selectedFiles.length === 0 && (
+                  <div className="space-y-1.5">
+                    {existingFileUrls.map((url) => {
+                      const name = (() => { try { return decodeURIComponent(url).split("/").pop() || "File"; } catch { return "File"; } })();
+                      return (
+                        <div key={url} className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50/60 px-3.5 py-2.5">
+                          <p className="truncate text-xs font-medium text-slate-600">{name}</p>
+                          <a
+                            href={url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="ml-3 flex-shrink-0 text-[var(--brand-green)] transition-opacity hover:opacity-70"
+                          >
+                            <ExternalLink className="h-3.5 w-3.5" />
+                          </a>
+                        </div>
+                      );
+                    })}
+                    <p className="text-xs text-slate-400">Choose new files below to replace all</p>
                   </div>
                 )}
 
-                {selectedFile && (
-                  <div className="flex items-center justify-between rounded-xl border border-[var(--brand-light)]/30 bg-[var(--brand-light-green)] px-3.5 py-2.5">
-                    <p className="truncate text-xs font-semibold text-[var(--brand-mid)]">{selectedFile.name}</p>
-                    <button
-                      type="button"
-                      onClick={handleRemoveFile}
-                      className="ml-3 flex-shrink-0 text-slate-600 transition-colors hover:text-red-500"
-                    >
-                      <X className="h-3.5 w-3.5" />
-                    </button>
+                {selectedFiles.length > 0 && (
+                  <div className="space-y-1.5">
+                    {selectedFiles.map((file, i) => (
+                      <div key={i} className="flex items-center justify-between rounded-xl border border-[var(--brand-light)]/30 bg-[var(--brand-light-green)] px-3.5 py-2.5">
+                        <p className="truncate text-xs font-semibold text-[var(--brand-mid)]">{file.name}</p>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveFile(i)}
+                          className="ml-3 flex-shrink-0 text-slate-600 transition-colors hover:text-red-500"
+                        >
+                          <X className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    ))}
                   </div>
                 )}
 
                 <input
                   ref={fileInputRef}
                   type="file"
+                  multiple
                   accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.webp"
                   onChange={handleFileChange}
                   className="hidden"
@@ -400,7 +398,7 @@ export default function NoteForm({ noteToEdit, isSubmitting, onSubmit, onClose }
                   className="flex h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-slate-300 text-xs font-semibold text-slate-600 transition-colors hover:border-[var(--brand-green)] hover:text-[var(--brand-green)]"
                 >
                   <Upload className="h-3.5 w-3.5" />
-                  {selectedFile ? "Replace file" : "Choose file"}
+                  {isEdit ? "Replace all files" : "Choose files"}
                 </label>
               </div>
 
@@ -467,7 +465,7 @@ export default function NoteForm({ noteToEdit, isSubmitting, onSubmit, onClose }
           </Button>
           <Button
             type="submit"
-            disabled={isSubmitting || (!isEdit && !selectedFile)}
+            disabled={isSubmitting || (!isEdit && selectedFiles.length === 0)}
             className="h-9 bg-[var(--brand-green)] px-5 text-sm font-bold text-white shadow-md shadow-green-600/10 hover:bg-[var(--brand-mid)] disabled:opacity-50"
           >
             {isSubmitting ? <ButtonLoader /> : isEdit ? "Save Changes" : "Create Note"}

@@ -88,7 +88,7 @@ export default function TutorStudentDetails({
               </Badge>
             </div>
             <p className="text-sm text-slate-600 font-semibold mt-1">
-              {student.courseName || student.courseType} • Class {student.class}
+              {student.courseName || student.courseType} • {student.class}
             </p>
           </div>
         </div>
