@@ -17,10 +17,7 @@ export const getHRPerformanceHistory = async (params?: { tutorId?: string; month
   return res.data;
 };
 
-export const updateHRPerformance = async (id: string, data: IHRPerformancePayload) => {
-  const res = await apiClient.put<IApiResponse<null>>(ENDPOINTS.UPDATE_PERFORMANCE(id), data);
-  return res.data;
-};
+
 
 export const getHRGrowthLeaderboard = async () => {
   const res = await apiClient.get<IHRGrowthLeaderboardResponse>(ENDPOINTS.HR_GROWTH_LEADERBOARD);

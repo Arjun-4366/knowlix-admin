@@ -23,7 +23,7 @@ import {
   useGetNotesFilters,
   useUpdateNote,
 } from "@/querys/admin/notesQuery";
-import { ICreateNotePayload, INote, NoteStatus } from "@/types/admin/notes";
+import { ICreateNotePayload, INote, IUpdateNotePayload, NoteStatus } from "@/types/admin/notes";
 
 function NotesContent() {
   const { confirm } = useConfirmation();
@@ -75,12 +75,12 @@ function NotesContent() {
   const notes = notesResponse?.data ?? [];
   const total = notesResponse?.pagination?.total ?? notes.length;
 
-  const handleFormSubmit = async (payload: ICreateNotePayload) => {
+  const handleFormSubmit = async (payload: ICreateNotePayload | IUpdateNotePayload) => {
     try {
       if (noteToEdit) {
         await updateNote({ id: noteToEdit.id, data: payload });
       } else {
-        await createNote(payload);
+        await createNote(payload as ICreateNotePayload);
       }
       setIsModalOpen(false);
       setNoteToEdit(null);

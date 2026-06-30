@@ -6,7 +6,6 @@ import {
   Calendar,
   Award,
   CheckCircle2,
-  AlertCircle,
   X,
   Save,
   Users,
@@ -46,6 +45,7 @@ import { ITutorExam } from "@/types/tutor/exams";
 import { toast } from "react-hot-toast";
 import { useTutorStore } from "@/store/tutorStore";
 import TutorExamDetailModal from "./TutorExamDetailModal";
+import { useConfirmation } from "@/context/ConfirmationContext";
 
 const SUBJECT_OPTIONS = [
   "Mathematics",
@@ -66,6 +66,8 @@ export default function TutorExamManager() {
   const { mutate: createExam, isPending: isCreating } = useCreateTutorExam();
   const { mutate: updateStatus } = useUpdateTutorExamStatus();
   const { mutate: enterResults, isPending: isEnteringResults } = useEnterTutorExamResults();
+
+  const { confirm } = useConfirmation();
 
   const [showAddForm, setShowAddForm] = useState(false);
   const [resultsExam, setResultsExam] = useState<ITutorExam | null>(null);
@@ -429,16 +431,27 @@ export default function TutorExamManager() {
                       <div className="space-y-2">
                         <Select
                           value={exm.status}
-                          onValueChange={(
-                            val: "pending" | "conducted" | "cancelled",
-                          ) => handleStatusChange(exm.id, val)}
+                          disabled={exm.status !== "pending"}
+                          onValueChange={(val: "pending" | "conducted" | "cancelled") => {
+                            if (val === "pending" || exm.status !== "pending") return;
+                            const isCancelled = val === "cancelled";
+                            confirm({
+                              title: isCancelled ? "Cancel this Exam?" : "Mark as Conducted?",
+                              message: isCancelled
+                                ? `"${exm.title}" will be permanently cancelled. This cannot be undone — the exam cannot be reactivated after this.`
+                                : `"${exm.title}" will be marked as conducted. This cannot be undone — the status cannot be changed again.`,
+                              confirmText: isCancelled ? "Yes, Cancel Exam" : "Yes, Mark Conducted",
+                              variant: isCancelled ? "danger" : "info",
+                              onConfirm: () => handleStatusChange(exm.id, val),
+                            });
+                          }}
                         >
                           <SelectTrigger
                             className={`h-8 text-xs font-bold rounded-lg border-0 shadow-none ring-1 ring-inset ${
                               exm.status === "conducted"
-                                ? "bg-slate-50 text-slate-600 ring-slate-200"
+                                ? "bg-slate-50 text-slate-600 ring-slate-200 opacity-70 cursor-not-allowed"
                                 : exm.status === "cancelled"
-                                  ? "bg-red-50 text-red-600 ring-red-200"
+                                  ? "bg-red-50 text-red-600 ring-red-200 opacity-70 cursor-not-allowed"
                                   : "bg-[var(--brand-light-green)]/30 text-[var(--brand-mid)] ring-[var(--brand-light)]/40"
                             }`}
                           >
@@ -456,7 +469,7 @@ export default function TutorExamManager() {
                             </SelectItem>
                           </SelectContent>
                         </Select>
-                        
+
                       </div>
                     </TableCell>
                     <TableCell className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[15%]">
@@ -539,7 +552,10 @@ interface ExamResultsModalProps {
 }
 
 function ExamResultsModal({ exam, studentMap, isSubmitting, onClose, onSubmit }: ExamResultsModalProps) {
-  const [studentId, setStudentId] = useState(exam.studentIds[0] ?? "");
+  const evaluatedIds = new Set((exam.evaluations ?? []).map((e) => e.studentId));
+  const pendingStudentIds = exam.studentIds.filter((id) => !evaluatedIds.has(id));
+
+  const [studentId, setStudentId] = useState(pendingStudentIds[0] ?? "");
   const [marks, setMarks] = useState("");
   const [grade, setGrade] = useState("A");
   const [remarks, setRemarks] = useState("");
@@ -569,6 +585,16 @@ function ExamResultsModal({ exam, studentMap, isSubmitting, onClose, onSubmit }:
           </button>
         </div>
 
+        {pendingStudentIds.length === 0 ? (
+          <div className="p-6 flex flex-col items-center gap-3 text-center">
+            <CheckCircle2 className="w-10 h-10 text-[var(--brand-green)]" />
+            <p className="text-sm font-bold text-slate-800">All results entered</p>
+            <p className="text-xs text-slate-500">Every student assigned to this exam has already been evaluated.</p>
+            <Button variant="outline" onClick={onClose} className="mt-1 rounded-xl font-bold text-xs border-slate-200">
+              Close
+            </Button>
+          </div>
+        ) : (
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           {/* Exam info */}
           <div className="bg-slate-50 border border-slate-100 rounded-xl p-3">
@@ -583,7 +609,7 @@ function ExamResultsModal({ exam, studentMap, isSubmitting, onClose, onSubmit }:
                 <SelectValue placeholder="Select Student" />
               </SelectTrigger>
               <SelectContent className="z-[200]">
-                {exam.studentIds.map((id) => (
+                {pendingStudentIds.map((id) => (
                   <SelectItem key={id} value={id} className="text-xs font-medium">
                     {studentMap.get(id) ?? id}
                   </SelectItem>
@@ -657,6 +683,7 @@ function ExamResultsModal({ exam, studentMap, isSubmitting, onClose, onSubmit }:
             </Button>
           </div>
         </form>
+        )}
       </div>
     </div>
   );

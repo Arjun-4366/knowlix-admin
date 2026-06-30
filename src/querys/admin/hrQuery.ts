@@ -16,7 +16,6 @@ import {
 import {
   createHRPerformance,
   getHRPerformanceHistory,
-  updateHRPerformance,
   getHRGrowthLeaderboard,
 } from "@/services/hr/performance";
 
@@ -185,18 +184,7 @@ export const useCreateHRPerformance = () => {
   });
 };
 
-export const useUpdateHRPerformance = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: IHRPerformancePayload }) =>
-      updateHRPerformance(id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: HR_PERFORMANCE_KEY });
-      toast.success("Performance record updated successfully");
-    },
-    onError: () => toast.error("Failed to update performance record"),
-  });
-};
+
 
 // ── Notice Hooks ──────────────────────────────────────────────────────────────
 export const useGetHRNotices = (params?: IHRNoticeQueryParams) => {

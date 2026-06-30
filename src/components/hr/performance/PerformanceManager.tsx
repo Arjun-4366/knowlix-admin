@@ -3,7 +3,7 @@
 import { useState } from "react";
 import {
   Loader2, Plus, Trophy, History, X, Medal, Crown,
-  TrendingUp,
+  TrendingUp, Users, Star,
 } from "lucide-react";
 import { format } from "date-fns";
 import DashboardHeader from "@/components/dashboard/shared/DashboardHeader";
@@ -245,7 +245,7 @@ function AwardDialog({ open, onClose, onSubmit, saving, tutors }: AwardDialogPro
 
 // ── Main ──────────────────────────────────────────────────────────────────────
 
-export default function PerformanceManager() {
+export default function   PerformanceManager() {
   const [showAwardDialog, setShowAwardDialog] = useState(false);
 
   const [historyTutorId, setHistoryTutorId] = useState("");
@@ -258,19 +258,17 @@ export default function PerformanceManager() {
     ...(historyMonth ? { month: historyMonth } : {}),
     ...(historyYear ? { year: parseInt(historyYear) } : {}),
   });
-  const { data: tutorsRes } = useGetTutorsHR({ limit: 1000 });
+  const { data: tutorsRes } = useGetTutorsHR({ limit: 100 });
 
   const createMutation = useCreateHRPerformance();
 
   const leaderboard = leaderboardRes?.data ?? [];
+  const summary = leaderboardRes?.summary;
   const history = historyRes?.data ?? [];
   const tutors = (tutorsRes?.data as any[] ?? []).map((t: any) => ({
     id: t.id || t._id || "",
     name: t.name || "Unnamed",
   }));
-
-  const topTutor = leaderboard[0];
-  const totalPoints = leaderboard.reduce((s, t) => s + t.totalPoints, 0);
 
   const handleCreate = async (data: IHRPerformancePayload) => {
     await createMutation.mutateAsync(data);
@@ -293,7 +291,7 @@ export default function PerformanceManager() {
       />
 
       {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 xl:grid-cols-5 gap-4">
         <Card className="bg-white border-slate-150 shadow-sm">
           <CardContent className="p-5 flex items-center gap-4">
             <div className="w-10 h-10 rounded-xl bg-[var(--brand-light-green)] flex items-center justify-center">
@@ -301,7 +299,7 @@ export default function PerformanceManager() {
             </div>
             <div>
               <p className="text-[10px] uppercase font-bold text-slate-600">Total Tutors</p>
-              <p className="text-2xl font-bold text-slate-800">{leaderboard.length}</p>
+              <p className="text-2xl font-bold text-slate-800">{summary?.totalTutors ?? leaderboard.length}</p>
             </div>
           </CardContent>
         </Card>
@@ -313,11 +311,11 @@ export default function PerformanceManager() {
             <div>
               <p className="text-[10px] uppercase font-bold text-slate-600">Top Performer</p>
               <p className="text-sm font-bold text-slate-800 truncate max-w-[160px]">
-                {topTutor?.tutorName ?? "—"}
+                {summary?.topPerformerName ?? "—"}
               </p>
-              {topTutor && (
+              {summary?.topPerformerPoints != null && (
                 <p className="text-[10px] text-[var(--brand-green)] font-semibold">
-                  {topTutor.totalPoints} pts
+                  {summary.topPerformerPoints} pts
                 </p>
               )}
             </div>
@@ -330,7 +328,29 @@ export default function PerformanceManager() {
             </div>
             <div>
               <p className="text-[10px] uppercase font-bold text-slate-600">Total Points Awarded</p>
-              <p className="text-2xl font-bold text-slate-800">{totalPoints}</p>
+              <p className="text-2xl font-bold text-slate-800">{summary?.totalPointsAwarded ?? 0}</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="bg-white border-slate-150 shadow-sm">
+          <CardContent className="p-5 flex items-center gap-4">
+            <div className="w-10 h-10 rounded-xl bg-violet-50 flex items-center justify-center">
+              <Users className="w-5 h-5 text-violet-500" />
+            </div>
+            <div>
+              <p className="text-[10px] uppercase font-bold text-slate-600">Evaluated Tutors</p>
+              <p className="text-2xl font-bold text-slate-800">{summary?.evaluatedTutors ?? 0}</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="bg-white border-slate-150 shadow-sm">
+          <CardContent className="p-5 flex items-center gap-4">
+            <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center">
+              <Star className="w-5 h-5 text-amber-500" />
+            </div>
+            <div>
+              <p className="text-[10px] uppercase font-bold text-slate-600">Avg Points / Tutor</p>
+              <p className="text-2xl font-bold text-slate-800">{summary?.averagePoints ?? 0}</p>
             </div>
           </CardContent>
         </Card>

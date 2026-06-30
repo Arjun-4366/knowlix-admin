@@ -14,6 +14,7 @@ import {
   useDeleteHoliday,
   useGetHRTutorAttendance,
   useApproveAttendance,
+  useApproveBulkAttendance,
   useGetTutorsHR,
 } from "@/querys/admin/hrQuery";
 import { IHoliday, IHRAttendanceRecord } from "@/types/admin/hr";
@@ -54,11 +55,11 @@ function toAttendanceRecord(r: IHRAttendanceRecord): EnrichedAttendanceRecord {
   else if (r.status === "half_day")    mappedStatus = "On Leave";
   else if (r.status === "late")        mappedStatus = "Late";
 
-  const tutor = r.tutorId;
+  const tutor = r.tutor;
 
   return {
     id: r.id,
-    employeeId: tutor?.id || "",
+    employeeId: tutor?.id || r.tutorId,
     date: dateStr,
     shiftId: "SHIFT-GEN",
     checkIn: checkInVal,
@@ -104,14 +105,16 @@ export default function AttendanceManager() {
   const { data: holidaysRes, isLoading: holidaysLoading }     = useGetHolidays();
   const { data: tutorsRes }                                   = useGetTutorsHR({ limit: 200 });
 
-  const createHolidayMutation  = useCreateHoliday();
-  const deleteHolidayMutation  = useDeleteHoliday();
+  const createHolidayMutation     = useCreateHoliday();
+  const deleteHolidayMutation     = useDeleteHoliday();
   const approveAttendanceMutation = useApproveAttendance();
+  const { mutate: bulkApprove, isPending: isBulkSubmitting } = useApproveBulkAttendance();
 
   const records: EnrichedAttendanceRecord[] = (attendanceRes?.data ?? []).map(
     (r: any) => toAttendanceRecord(r as IHRAttendanceRecord)
   );
   const total   = attendanceRes?.total ?? 0;
+  const summary = attendanceRes?.summary;
   const tutors  = (tutorsRes?.data ?? []).map((t) => ({ id: t.id, name: t.name }));
 
   const holidays         = (holidaysRes?.data ?? []).map(toHolidayItem);
@@ -121,8 +124,8 @@ export default function AttendanceManager() {
     (h) => differenceInCalendarDays(parseISO(h.date), parseISO(todayStr)) >= 0
   );
 
-  const pendingCount  = records.filter((r) => r.status === "Pending").length;
-  const approvedCount = records.filter((r) => r.status === "Approved" || r.status === "Present").length;
+  const pendingCount  = summary?.pending_approval ?? 0;
+  const approvedCount = summary?.approved ?? 0;
 
   const handleApprove = (id: string) => {
     approveAttendanceMutation.mutate({ id, data: { status: "approved", remarks: "Approved by HR" } });
@@ -130,6 +133,10 @@ export default function AttendanceManager() {
 
   const handleReject = (id: string) => {
     approveAttendanceMutation.mutate({ id, data: { status: "rejected", remarks: "Rejected by HR" } });
+  };
+
+  const handleBulkApprove = (from: string, to: string, remarks: string) => {
+    bulkApprove({ tutorId, from: from || undefined, to: to || undefined, status: "approved", remarks: remarks || undefined });
   };
 
   if (attendanceLoading && records.length === 0) {
@@ -174,13 +181,15 @@ export default function AttendanceManager() {
           from={from}
           onFromChange={setFrom}
           to={to}
-          onToChange={setTo}
+          onToChange={setTo}  
           page={page}
           limit={PAGE_LIMIT}
           total={total}
           onPageChange={setPage}
           onApprove={handleApprove}
           onReject={handleReject}
+          onBulkApprove={handleBulkApprove}
+          isBulkSubmitting={isBulkSubmitting}
         />
         <HolidayCalendar
           holidays={upcomingHolidays}

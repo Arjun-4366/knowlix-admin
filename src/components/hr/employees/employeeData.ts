@@ -14,7 +14,7 @@ export const EMPLOYEE_DEPARTMENTS: Employee["department"][] = [
 
 export const EMPLOYEE_STATUSES: Employee["status"][] = [
   "Active",
-  "On Probation",
+  "Pending",
   "Terminated",
   "Resigned",
 ];
@@ -113,7 +113,7 @@ export const initialEmployees: Employee[] = [
     designation: "Operations Associate",
     department: "Operations",
     dateOfJoining: "2025-02-10",
-    status: "On Probation",
+    status: "Pending Approval",
     manager: "Priyanjali Sharma",
     salaryDetails: { base: 35000, allowance: 8000, pf: 4200, ctc: 566400 },
     documents: [

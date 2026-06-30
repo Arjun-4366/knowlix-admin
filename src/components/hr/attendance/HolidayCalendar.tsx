@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { differenceInCalendarDays, format, parseISO } from "date-fns";
 import { CalendarDays, Plus, Sparkles, Trash2 } from "lucide-react";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -129,11 +130,11 @@ export default function HolidayCalendar({
             onChange={(e) => setFormName(e.target.value)}
             className="w-full border border-slate-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-200"
           />
-          <input
-            type="date"
+          <DatePicker
             value={formDate}
-            onChange={(e) => setFormDate(e.target.value)}
-            className="w-full border border-slate-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-200"
+            onChange={setFormDate}
+            placeholder="Holiday date *"
+            className="w-full"
           />
           <input
             type="text"

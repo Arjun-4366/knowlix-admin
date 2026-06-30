@@ -92,17 +92,6 @@ export default function TutorStudentDetails({
             </p>
           </div>
         </div>
-
-        {/* Admission Status */}
-        <div className="flex flex-col sm:items-end gap-1 pt-4 border-t md:border-t-0 md:pt-0">
-          <span className="block text-[10px] uppercase font-bold text-slate-600">Admission Status</span>
-          <Badge variant="outline" className={cn(
-            "inline-flex px-3 py-1 rounded-full text-xs font-bold border mt-1 shadow-sm h-6",
-            getStatusBadgeClass(student.admissionStatus)
-          )}>
-            {formatStatus(student.admissionStatus)}
-          </Badge>
-        </div>
       </Card>
 
       {/* Main Details Section */}

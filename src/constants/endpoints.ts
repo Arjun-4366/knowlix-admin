@@ -179,7 +179,6 @@ export const ENDPOINTS = {
   UPDATE_EXAM_STATUS: (id: string) => `${API_BASE_URL}/tutor/exams/${id}/status`,
   ENTER_EXAM_RESULTS: (id: string) => `${API_BASE_URL}/tutor/exams/${id}/results`,
 
-  //HR
     // Tutor management (HR)
     CREATE_TUTOR: `${API_BASE_URL}/hr/tutors/create`,
     GET_TUTORS_HR: `${API_BASE_URL}/hr/tutors`,
@@ -198,12 +197,7 @@ export const ENDPOINTS = {
     CREATE_HOLIDAY: `${API_BASE_URL}/hr/holidays/create`,
     DELETE_HOLIDAY: (id: string) => `${API_BASE_URL}/hr/holidays/${id}`,
 
-    // Performance / evaluations (tutor-based)
-    CREATE_PERFORMANCE: `${API_BASE_URL}/hr/performance/create`,
-    GET_PERFORMANCE: `${API_BASE_URL}/hr/performance`,
-    UPDATE_PERFORMANCE: (id: string) => `${API_BASE_URL}/hr/performance/${id}`,
-    CREATE_TUTOR_PERFORMANCE: `${API_BASE_URL}/hr/tutors/performance/create`,
-    GET_TUTOR_PERFORMANCE_HR: `${API_BASE_URL}/hr/tutors/performance`,
+  
 
     // Notices & announcements
     CREATE_NOTICE: `${API_BASE_URL}/hr/notices/create`,

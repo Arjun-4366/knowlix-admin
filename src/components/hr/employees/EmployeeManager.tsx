@@ -50,14 +50,7 @@ export default function EmployeeManager() {
 
   const tutors = data?.data ?? [];
   const total = data?.total ?? 0;
-
-  // Derive stat counts from the main query — no extra API calls on mount.
-  // Each count is meaningful only when the matching filter is active.
-  const filteredTotal = data?.total ?? 0;
-  const statTotal      = status === "all"      ? filteredTotal : 0;
-  const statActive     = status === "approved" ? filteredTotal : 0;
-  const statProbation  = status === "pending"  ? filteredTotal : 0;
-  const statDeparted   = (status === "inactive" || status === "resigned") ? filteredTotal : 0;
+  const summary = data?.summary;
 
   const handleFormSubmit = async (payload: ICreateTutorPayload) => {
     try {
@@ -95,13 +88,7 @@ export default function EmployeeManager() {
         }
       />
 
-      <EmployeeStats
-        totalCount={statTotal}
-        activeCount={statActive}
-        probationCount={statProbation}
-        departedCount={statDeparted}
-        activeFilter={status}
-      />
+      <EmployeeStats summary={summary} />
 
       {isLoading ? (
         <div className="flex h-96 items-center justify-center bg-white rounded-2xl border border-slate-150 shadow-sm">

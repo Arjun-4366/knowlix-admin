@@ -75,7 +75,8 @@ export interface IHRAttendanceTutorRef {
 
 export interface IHRAttendanceRecord {
   id: string;
-  tutorId: IHRAttendanceTutorRef | null;
+  tutorId: string;
+  tutor: IHRAttendanceTutorRef | null;
   date: string;
   status: HRAttendanceStatus;
   checkIn?: string;
@@ -86,13 +87,23 @@ export interface IHRAttendanceRecord {
   createdAt: string;
 }
 
+export interface IHRAttendanceSummary {
+  approved: number;
+  pending_approval: number;
+  rejected: number;
+}
+
 export interface IApproveAttendancePayload {
   status: "approved" | "rejected";
   remarks?: string;
 }
 
 export type IHRAttendanceResponse = IApiResponse<IHRAttendanceRecord>;
-export type IHRAttendanceListResponse = IApiResponse<IHRAttendanceRecord[]> & { total: number };
+export type IHRAttendanceListResponse = IApiResponse<IHRAttendanceRecord[]> & {
+  total: number;
+  totalPages: number;
+  summary: IHRAttendanceSummary;
+};
 
 export interface IAttendanceSummaryItem {
   _id: string; // tutorId
@@ -132,7 +143,13 @@ export interface ICreateHRNoticePayload {
 }
 
 export type IHRNoticeResponse = IApiResponse<IHRNotice>;
-export type IHRNoticesResponse = IApiResponse<IHRNotice[]> & { total: number };
+export type IHRNoticesResponse = IApiResponse<IHRNotice[]> & {
+  total: number;
+  totalPages: number;
+  page: number;
+  limit: number;
+  summary: IHRNoticeSummary;
+};
 
 // ── Performance / Growth Points (Tutor HR) ───────────────────────────────────
 
@@ -176,7 +193,19 @@ export interface IHRGrowthLeaderboardItem {
 
 export type IHRPerformanceResponse = IApiResponse<IHRPerformanceRecord>;
 export type IHRPerformanceListResponse = IApiResponse<IHRPerformanceRecord[]> & { total: number };
-export type IHRGrowthLeaderboardResponse = IApiResponse<IHRGrowthLeaderboardItem[]> & { total?: number };
+export interface IHRGrowthLeaderboardSummary {
+  averagePoints: number;
+  evaluatedTutors: number;
+  topPerformerName: string;
+  topPerformerPoints: number;
+  totalPointsAwarded: number;
+  totalTutors: number;
+}
+
+export type IHRGrowthLeaderboardResponse = IApiResponse<IHRGrowthLeaderboardItem[]> & {
+  total?: number;
+  summary?: IHRGrowthLeaderboardSummary;
+};
 
 // keep legacy alias so existing imports don't break
 export type ICreateHRPerformancePayload = IHRPerformancePayload;
@@ -375,8 +404,17 @@ export interface IHRAttendanceQueryParams {
 }
 
 export interface IHRNoticeQueryParams {
+  search?: string;
   category?: HRNoticeCategory;
-  department?: string;
   audience?: string;
   priority?: HRNoticePriority;
+  page?: number;
+  limit?: number;
+}
+
+export interface IHRNoticeSummary {
+  category: Record<string, number>;
+  priority: Record<HRNoticePriority, number>;
+  published: number;
+  total: number;
 }
