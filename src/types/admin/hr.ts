@@ -22,6 +22,8 @@ export interface ICreateHrPayload {
   password?: string;
 }
 
+export type IUpdateHrPayload = Partial<ICreateHrPayload>;
+
 export type IHrResponse = IApiResponse<IHr>;
 export type IHrsResponse = IApiResponse<IHr[]> & { total: number };
 

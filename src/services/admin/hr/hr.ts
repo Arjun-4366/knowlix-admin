@@ -6,6 +6,7 @@ import {
   IHrsResponse,
   IHrResponse,
   ICreateHrPayload,
+  IUpdateHrPayload,
   IUpdateHrPasswordPayload,
 } from "@/types/admin/hr";
 
@@ -16,6 +17,11 @@ export const getHRs = async (params?: QueryParams) => {
 
 export const createHR = async (data: ICreateHrPayload) => {
   const res = await apiClient.post<IHrResponse>(ENDPOINTS.ADMIN_HR_CREATE, data);
+  return res.data;
+};
+
+export const updateHR = async (id: string, data: IUpdateHrPayload) => {
+  const res = await apiClient.put<IHrResponse>(ENDPOINTS.ADMIN_HR_UPDATE(id), data);
   return res.data;
 };
 

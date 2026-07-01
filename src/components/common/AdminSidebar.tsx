@@ -129,7 +129,9 @@ export default function AdminSidebar({ collapsed }: Props) {
           <p className="text-white font-bold text-sm leading-none font-heading">
             Knowlix
           </p>
-          <p className="text-white/45 text-xs mt-0.5">Admin Panel</p>
+          <p className="text-white/45 text-xs mt-0.5">
+            {isSuperAdmin ? "Super Admin" : "Admin Panel"}
+          </p>
         </div>
       </div>
 

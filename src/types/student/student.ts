@@ -165,6 +165,7 @@ export interface IAssignment {
   updatedAt: string;
   tutorName?: string;
   submission?: IStudentSubmission | null;
+  evaluation?: IAssignmentEvaluation | null;
 }
 
 export interface IAssignmentEvaluation {

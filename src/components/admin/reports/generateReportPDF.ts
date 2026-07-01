@@ -35,6 +35,7 @@ export interface ReportPDFOptions {
   studentData?: IStudentPerformanceReportItem[];
   attendanceData?: IAttendanceReportResponse;
   sessionData?: ISessionReportResponse;
+  isSuperAdmin?: boolean;
 }
 
 // ─── utilities ────────────────────────────────────────────────────────────────
@@ -173,15 +174,11 @@ function drawTutorSummary(doc: Doc, data: ITutorPerformanceReportItem[], y: numb
   return y2 + H;
 }
 
-function drawStudentSummary(doc: Doc, data: IStudentPerformanceReportItem[], y: number): number {
+function drawStudentSummary(doc: Doc, data: IStudentPerformanceReportItem[], y: number, isSuperAdmin = false): number {
   const total = data.length;
   const completed = data.filter((d) => d.admissionStatus === "course_completed").length;
   const admitted = data.filter((d) => d.admissionStatus === "admission_taken").length;
   const pending = data.filter((d) => d.admissionStatus === "pending").length;
-  const collected = data.reduce((s, d) => s + d.paidAmount, 0);
-  const balance = data.reduce((s, d) => s + d.balanceFee, 0);
-  const fmtFee = (n: number) =>
-    n >= 100000 ? `Rs.${(n / 100000).toFixed(1)}L` : n >= 1000 ? `Rs.${(n / 1000).toFixed(1)}K` : `Rs.${n}`;
   const H = 62;
   const gap = 8;
   // Row 1: 4 admission cards
@@ -190,7 +187,12 @@ function drawStudentSummary(doc: Doc, data: IStudentPerformanceReportItem[], y: 
   kpiBox(doc, MARGIN + (bw4 + gap) * 1, y, bw4, H, `${completed}`, "Completed", GREEN);
   kpiBox(doc, MARGIN + (bw4 + gap) * 2, y, bw4, H, `${admitted}`, "Admitted", PURPLE);
   kpiBox(doc, MARGIN + (bw4 + gap) * 3, y, bw4, H, `${pending}`, "Pending", AMBER);
-  // Row 2: 2 fee cards
+  if (!isSuperAdmin) return y + H;
+  // Row 2: fee cards (superadmin only)
+  const collected = data.reduce((s, d) => s + d.paidAmount, 0);
+  const balance = data.reduce((s, d) => s + d.balanceFee, 0);
+  const fmtFee = (n: number) =>
+    n >= 100000 ? `Rs.${(n / 100000).toFixed(1)}L` : n >= 1000 ? `Rs.${(n / 1000).toFixed(1)}K` : `Rs.${n}`;
   const y2 = y + H + 10;
   const bw2 = (CW - gap) / 2;
   kpiBox(doc, MARGIN, y2, bw2, H, fmtFee(collected), "Total Fee Collected", GREEN);
@@ -311,19 +313,30 @@ function drawTutorTable(doc: Doc, data: ITutorPerformanceReportItem[], startY: n
   return y;
 }
 
-function drawStudentTable(doc: Doc, data: IStudentPerformanceReportItem[], startY: number): number {
+function drawStudentTable(doc: Doc, data: IStudentPerformanceReportItem[], startY: number, isSuperAdmin = false): number {
   const ROW_H = 30;
   const HEAD_H = 28;
-  // 115 + 120 + 70 + 60 + 55 + 50 + 45 = 515
-  const cols = [
-    { label: "Student", width: 115, align: "left" as Align },
-    { label: "Course", width: 120, align: "left" as Align },
-    { label: "Mentor", width: 70, align: "left" as Align },
-    { label: "Status", width: 60, align: "center" as Align },
-    { label: "Sessions", width: 55, align: "center" as Align },
-    { label: "Attend.", width: 50, align: "center" as Align },
-    { label: "Fee", width: 45, align: "right" as Align },
-  ];
+
+  // With fee col:    115 + 120 + 70 + 60 + 55 + 50 + 45 = 515
+  // Without fee col: 122 + 127 + 76 + 65 + 62 + 63      = 515
+  const cols = isSuperAdmin
+    ? [
+        { label: "Student",  width: 115, align: "left"   as Align },
+        { label: "Course",   width: 120, align: "left"   as Align },
+        { label: "Mentor",   width: 70,  align: "left"   as Align },
+        { label: "Status",   width: 60,  align: "center" as Align },
+        { label: "Sessions", width: 55,  align: "center" as Align },
+        { label: "Attend.",  width: 50,  align: "center" as Align },
+        { label: "Fee",      width: 45,  align: "right"  as Align },
+      ]
+    : [
+        { label: "Student",  width: 122, align: "left"   as Align },
+        { label: "Course",   width: 127, align: "left"   as Align },
+        { label: "Mentor",   width: 76,  align: "left"   as Align },
+        { label: "Status",   width: 65,  align: "center" as Align },
+        { label: "Sessions", width: 62,  align: "center" as Align },
+        { label: "Attend.",  width: 63,  align: "center" as Align },
+      ];
 
   let y = ensureSpace(doc, startY, HEAD_H + ROW_H);
   drawTableHeader(doc, cols, y, HEAD_H);
@@ -353,31 +366,28 @@ function drawStudentTable(doc: Doc, data: IStudentPerformanceReportItem[], start
   data.forEach((s, i) => {
     y = ensureSpace(doc, y, ROW_H);
     const course = s.courseName || s.programName || "-";
-    drawTableRow(
-      doc,
-      [
-        { text: s.studentName, width: cols[0].width },
-        { text: course, width: cols[1].width, color: SLATE500 },
-        { text: s.mentorName || "-", width: cols[2].width, color: SLATE500 },
-        {
-          text: statusLabel[s.admissionStatus] ?? s.admissionStatus,
-          width: cols[3].width,
-          align: "center",
-          color: statusColor[s.admissionStatus] ?? SLATE700,
-        },
-        { text: `${s.conducted}/${s.totalSessions}`, width: cols[4].width, align: "center", color: BLUE },
-        {
-          text: `${s.attendanceRate.toFixed(0)}%`,
-          width: cols[5].width,
-          align: "center",
-          color: s.attendanceRate >= 75 ? GREEN : RED,
-        },
-        { text: fmtFee(s.paidAmount), width: cols[6].width, align: "right", color: GREEN },
-      ],
-      y,
-      ROW_H,
-      i % 2 === 0
-    );
+    const cells: Parameters<typeof drawTableRow>[1] = [
+      { text: s.studentName, width: cols[0].width },
+      { text: course, width: cols[1].width, color: SLATE500 },
+      { text: s.mentorName || "-", width: cols[2].width, color: SLATE500 },
+      {
+        text: statusLabel[s.admissionStatus] ?? s.admissionStatus,
+        width: cols[3].width,
+        align: "center",
+        color: statusColor[s.admissionStatus] ?? SLATE700,
+      },
+      { text: `${s.conducted}/${s.totalSessions}`, width: cols[4].width, align: "center", color: BLUE },
+      {
+        text: `${s.attendanceRate.toFixed(0)}%`,
+        width: cols[5].width,
+        align: "center",
+        color: s.attendanceRate >= 75 ? GREEN : RED,
+      },
+    ];
+    if (isSuperAdmin) {
+      cells.push({ text: fmtFee(s.paidAmount), width: cols[6].width, align: "right", color: GREEN });
+    }
+    drawTableRow(doc, cells, y, ROW_H, i % 2 === 0);
     y += ROW_H;
   });
   return y;
@@ -478,7 +488,8 @@ function drawSessionTable(doc: Doc, data: ISessionReportItem[], startY: number):
 }
 
 // ─── main ─────────────────────────────────────────────────────────────────────
-export async function generateReportPDF(options: ReportPDFOptions): Promise<void> {
+export async function generateReportPDF(options: ReportPDFOptions & { isSuperAdmin?: boolean }): Promise<void> {
+  const { isSuperAdmin = false } = options;
   const jspdfMod = await import("jspdf");
   const doc = new jspdfMod.jsPDF({ orientation: "portrait", unit: "pt", format: "a4" }) as Doc;
 
@@ -543,7 +554,7 @@ export async function generateReportPDF(options: ReportPDFOptions): Promise<void
   if (options.type === "tutor" && options.tutorData) {
     y = drawTutorSummary(doc, options.tutorData, y);
   } else if (options.type === "student_performance" && options.studentData) {
-    y = drawStudentSummary(doc, options.studentData, y);
+    y = drawStudentSummary(doc, options.studentData, y, isSuperAdmin);
   } else if (options.type === "attendance" && options.attendanceData) {
     y = drawAttendanceSummary(doc, options.attendanceData, y);
   } else if (options.type === "session" && options.sessionData) {
@@ -559,7 +570,7 @@ export async function generateReportPDF(options: ReportPDFOptions): Promise<void
   if (options.type === "tutor" && options.tutorData) {
     drawTutorTable(doc, options.tutorData, y);
   } else if (options.type === "student_performance" && options.studentData) {
-    drawStudentTable(doc, options.studentData, y);
+    drawStudentTable(doc, options.studentData, y, isSuperAdmin);
   } else if (options.type === "attendance" && options.attendanceData) {
     drawAttendanceTable(doc, options.attendanceData.data ?? [], y);
   } else if (options.type === "session" && options.sessionData) {

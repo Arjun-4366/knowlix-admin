@@ -98,6 +98,10 @@ export const ENDPOINTS = {
   HR_GROWTH_LEADERBOARD: `${API_BASE_URL}/hr/growth/leaderboard`,
   HR_GROWTH_HISTORY: `${API_BASE_URL}/hr/growth/history`,
   ASSIGN_STUDENTS_TO_TUTOR: (id: string) => `${API_BASE_URL}/tutors/${id}/assign-students`,
+  GET_ADMIN_TUTOR_SESSIONS: (id: string) => `${API_BASE_URL}/tutors/${id}/sessions`,
+  GET_ADMIN_TUTOR_ASSIGNMENTS: (id: string) => `${API_BASE_URL}/tutors/${id}/assignments`,
+  GET_ADMIN_TUTOR_EXAMS: (id: string) => `${API_BASE_URL}/tutors/${id}/exams`,
+  GET_ADMIN_TUTOR_ATTENDANCE: (id: string) => `${API_BASE_URL}/tutors/${id}/attendance`,
 
   //notes
   GET_NOTES: `${API_BASE_URL}/admin/notes/fetch`,
@@ -229,9 +233,13 @@ export const ENDPOINTS = {
     CREATE_PERFOMANCE: `${API_BASE_URL}/hr/performance/create`,
     UPDATE_PERFOMANCE: (id: string) => `${API_BASE_URL}/hr/performance/${id}`,
     
+    // HR self profile
+    HR_PROFILE: `${API_BASE_URL}/hr/profile`,
+
     // Admin HR management
     ADMIN_HR_FETCH: `${API_BASE_URL}/admin/hr`,
     ADMIN_HR_CREATE: `${API_BASE_URL}/admin/hr/create`,
+    ADMIN_HR_UPDATE: (id: string) => `${API_BASE_URL}/admin/hr/${id}`,
     ADMIN_HR_UPDATE_PASSWORD: (id: string) => `${API_BASE_URL}/admin/hr/${id}/set-password`,
     ADMIN_HR_DELETE: (id: string) => `${API_BASE_URL}/admin/hr/${id}`,
 

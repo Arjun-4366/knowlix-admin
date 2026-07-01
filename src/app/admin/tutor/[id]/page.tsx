@@ -18,6 +18,7 @@ import { TutorScheduleCard } from "@/components/admin/tutor/TutorScheduleCard";
 import { TutorRemarksCard } from "@/components/admin/tutor/TutorRemarksCard";
 import { TutorPerformanceCard } from "@/components/admin/tutor/TutorPerformanceCard";
 import { TutorGrowthHistory } from "@/components/admin/tutor/TutorGrowthHistory";
+import { TutorActivityTabs } from "@/components/admin/tutor/TutorActivityTabs";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -139,6 +140,8 @@ function TutorDetailContent({ params }: PageProps) {
       />
 
       <TutorGrowthHistory tutorId={id} />
+
+      <TutorActivityTabs tutorId={id} />
     </div>
   );
 }

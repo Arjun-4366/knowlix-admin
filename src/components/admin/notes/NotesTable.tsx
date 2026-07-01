@@ -21,10 +21,10 @@ import { INote, NoteStatus } from "@/types/admin/notes";
 
 function parseTags(raw: string[] | undefined): string[] {
   if (!raw || raw.length === 0) return [];
-  // Detect comma-split JSON: server split JSON.stringify(array) on ","
-  if (typeof raw[0] === "string" && raw[0].startsWith('["')) {
+  if (typeof raw[0] === "string" && raw[0].startsWith("[")) {
     try {
-      const parsed = JSON.parse(raw.join(","));
+      // single element like ["[]"] or comma-split like ['["tag1"', '"tag2"]']
+      const parsed = JSON.parse(raw.length === 1 ? raw[0] : raw.join(","));
       return Array.isArray(parsed) ? parsed : raw;
     } catch {
       return raw;
@@ -137,6 +137,9 @@ export default function NotesTable({
                 <TableCell className="px-6 py-4">
                   {(() => {
                     const cleanTags = parseTags(note.tags);
+                    if (cleanTags.length === 0) {
+                      return <span className="text-xs text-slate-400">—</span>;
+                    }
                     return (
                       <div className="flex flex-wrap gap-1">
                         {cleanTags.slice(0, 2).map((tag) => (

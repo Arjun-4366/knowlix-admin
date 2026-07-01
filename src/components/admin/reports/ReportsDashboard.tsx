@@ -51,6 +51,11 @@ export default function ReportsDashboard() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [hasGenerated, setHasGenerated] = useState(true);
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+
+  useEffect(() => {
+    setIsSuperAdmin(localStorage.getItem("role") === "superadmin");
+  }, []);
 
   const isTutor = activeFilters.type === "tutor";
   const isStudent = activeFilters.type === "student_performance";
@@ -174,6 +179,7 @@ export default function ReportsDashboard() {
         studentData: studentReportsResponse?.data ?? [],
         attendanceData: attendanceResponse ?? undefined,
         sessionData: sessionResponse ?? undefined,
+        isSuperAdmin,
       });
       toast.success("PDF downloaded successfully.");
     } catch {
@@ -252,7 +258,7 @@ export default function ReportsDashboard() {
               Visual Highlights & Summary
             </h3>
             {activeFilters.type === "tutor" && <RealTutorVisuals data={realReportsResponse?.data ?? []} />}
-            {activeFilters.type === "student_performance" && <StudentPerformanceVisuals data={studentReportsResponse?.data ?? []} />}
+            {activeFilters.type === "student_performance" && <StudentPerformanceVisuals data={studentReportsResponse?.data ?? []} isSuperAdmin={isSuperAdmin} />}
             {activeFilters.type === "attendance" && <AttendanceVisuals data={attendanceResponse} />}
             {activeFilters.type === "session" && <SessionVisuals response={sessionResponse} />}
           </div>
@@ -275,35 +281,6 @@ export default function ReportsDashboard() {
   );
 }
 
-interface RealTutorKPIProps {
-  data: ITutorPerformanceReportItem[];
-}
-
-function RealTutorKPI({ data }: RealTutorKPIProps) {
-  const avgGrowthPoints = data.length
-    ? (data.reduce((acc, t) => acc + t.growthPoints, 0) / data.length).toFixed(1)
-    : "0.0";
-  const totalConducted = data.reduce((acc, t) => acc + t.conductedSessions, 0);
-  const totalWorkHours = data.reduce((acc, t) => acc + t.totalWorkHours, 0);
-  const totalAssigned = data.reduce((acc, t) => acc + t.assignedStudentCount, 0);
-  const avgAttendance = data.length
-    ? Math.round(data.reduce((acc, t) => acc + t.attendanceRate, 0) / data.length)
-    : 0;
-  const avgPerfScore = data.length
-    ? (data.reduce((acc, t) => acc + t.performanceScore, 0) / data.length).toFixed(1)
-    : "0.0";
-
-  return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-      <KPICard label="Total Tutors" value={data.length} icon={<Users className="w-5 h-5 text-blue-500" />} />
-      <KPICard label="Avg Growth Points" value={`${avgGrowthPoints} pts`} icon={<Award className="w-5 h-5 text-[var(--brand-green)]" />} />
-      <KPICard label="Sessions Conducted" value={totalConducted} icon={<Calendar className="w-5 h-5 text-blue-500" />} />
-      <KPICard label="Total Work Hours" value={`${totalWorkHours}h`} icon={<Clock className="w-5 h-5 text-purple-500" />} />
-      <KPICard label="Students Assigned" value={totalAssigned} icon={<Star className="w-5 h-5 text-amber-500" />} />
-      <KPICard label="Avg Attendance" value={`${avgAttendance}%`} icon={<Percent className="w-5 h-5 text-emerald-500" />} />
-    </div>
-  );
-}
 
 function RealTutorVisuals({ data }: { data: ITutorPerformanceReportItem[] }) {
   if (data.length === 0) return <div className="text-xs text-slate-600 text-center py-6">No data to display.</div>;
@@ -438,7 +415,7 @@ function KPICard({ label, value, icon }: { label: string; value: string | number
   );
 }
 
-function StudentPerformanceVisuals({ data }: { data: IStudentPerformanceReportItem[] }) {
+function StudentPerformanceVisuals({ data, isSuperAdmin }: { data: IStudentPerformanceReportItem[]; isSuperAdmin: boolean }) {
   if (data.length === 0) return <div className="text-xs text-slate-600 text-center py-6">No data to display.</div>;
 
   const totalStudents = data.length;
@@ -454,13 +431,13 @@ function StudentPerformanceVisuals({ data }: { data: IStudentPerformanceReportIt
   return (
     <div className="space-y-4">
       <p className="text-xs font-semibold text-slate-600">Student admissions & fee overview:</p>
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+      <div className={`grid grid-cols-2 gap-4 ${isSuperAdmin ? "md:grid-cols-3 lg:grid-cols-6" : "md:grid-cols-4"}`}>
         <KPICard label="Total Students" value={totalStudents} icon={<Users className="w-5 h-5 text-blue-500" />} />
         <KPICard label="Completed" value={completed} icon={<CheckCircle className="w-5 h-5 text-emerald-500" />} />
         <KPICard label="Admitted" value={admitted} icon={<Star className="w-5 h-5 text-[var(--brand-green)]" />} />
         <KPICard label="Pending" value={pending} icon={<AlertCircle className="w-5 h-5 text-orange-500" />} />
-        <KPICard label="Fee Collected" value={fmt(totalCollected)} icon={<TrendingUp className="w-5 h-5 text-emerald-500" />} />
-        <KPICard label="Balance Due" value={fmt(totalBalance)} icon={<Clock className="w-5 h-5 text-red-500" />} />
+        {isSuperAdmin && <KPICard label="Fee Collected" value={fmt(totalCollected)} icon={<TrendingUp className="w-5 h-5 text-emerald-500" />} />}
+        {isSuperAdmin && <KPICard label="Balance Due" value={fmt(totalBalance)} icon={<Clock className="w-5 h-5 text-red-500" />} />}
       </div>
     </div>
   );

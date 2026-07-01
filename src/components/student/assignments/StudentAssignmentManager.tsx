@@ -46,6 +46,7 @@ export interface Submission {
 export default function StudentAssignmentManager() {
   const [user, setUser] = useState<any>(null);
   const [submitAsg, setSubmitAsg] = useState<IAssignment | null>(null);
+  const [viewAsg, setViewAsg] = useState<IAssignment | null>(null);
   const [viewSub, setViewSub] = useState<any | null>(null);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [remarks, setRemarks] = useState("");
@@ -130,11 +131,13 @@ export default function StudentAssignmentManager() {
         assignmentId: asg.id,
         assignmentTitle: asg.title,
         subject: asg.subject,
+        maxMarks: asg.maxMarks,
         submittedAt: new Date(sub.submittedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
         files: fileUrls.map((url) => ({ url, name: decodeURIComponent(url.split("/").pop() || "file") })),
         fileNames: fileUrls.map((url) => decodeURIComponent(url.split("/").pop() || "file")),
         status: displayStatus === "Graded" ? "Graded" : displayStatus === "Late" ? "Late" : "Submitted",
-        grade: undefined as string | undefined,
+        marksObtained: asg.evaluation?.marksObtained ?? null,
+        evaluationRemarks: asg.evaluation?.remarks ?? null,
         remarks: sub.remarks,
       };
     });
@@ -143,23 +146,23 @@ export default function StudentAssignmentManager() {
 
   const statusBadge = (status: "Pending" | "Submitted" | "Late" | "Graded") => {
     if (status === "Graded") return (
-      <Badge variant="outline" className="text-[9px] font-bold py-0.5 px-2 rounded-full bg-emerald-50 text-emerald-700 border-emerald-100 flex items-center gap-1 w-fit">
-        <Check className="w-3 h-3" /> Graded
+      <Badge variant="outline" className="text-xs font-bold py-1 px-2.5 rounded-full bg-emerald-50 text-emerald-700 border-emerald-100 flex items-center gap-1.5 w-fit">
+        <Check className="w-3.5 h-3.5" /> Graded
       </Badge>
     );
     if (status === "Submitted") return (
-      <Badge variant="outline" className="text-[9px] font-bold py-0.5 px-2 rounded-full bg-blue-50 text-blue-700 border-blue-100 flex items-center gap-1 w-fit">
-        <Clock className="w-3 h-3" /> Submitted
+      <Badge variant="outline" className="text-xs font-bold py-1 px-2.5 rounded-full bg-blue-50 text-blue-700 border-blue-100 flex items-center gap-1.5 w-fit">
+        <Clock className="w-3.5 h-3.5" /> Submitted
       </Badge>
     );
     if (status === "Late") return (
-      <Badge variant="outline" className="text-[9px] font-bold py-0.5 px-2 rounded-full bg-orange-50 text-orange-700 border-orange-100 flex items-center gap-1 w-fit">
-        <AlertCircle className="w-3 h-3" /> Late
+      <Badge variant="outline" className="text-xs font-bold py-1 px-2.5 rounded-full bg-orange-50 text-orange-700 border-orange-100 flex items-center gap-1.5 w-fit">
+        <AlertCircle className="w-3.5 h-3.5" /> Late
       </Badge>
     );
     return (
-      <Badge variant="outline" className="text-[9px] font-bold py-0.5 px-2 rounded-full bg-amber-50 text-amber-700 border-amber-100 flex items-center gap-1 w-fit">
-        <AlertCircle className="w-3 h-3" /> Pending
+      <Badge variant="outline" className="text-xs font-bold py-1 px-2.5 rounded-full bg-amber-50 text-amber-700 border-amber-100 flex items-center gap-1.5 w-fit">
+        <AlertCircle className="w-3.5 h-3.5" /> Pending
       </Badge>
     );
   };
@@ -192,12 +195,12 @@ export default function StudentAssignmentManager() {
               <Table className="table-fixed w-full">
                 <TableHeader className="bg-slate-50/30">
                   <TableRow>
-                    <TableHead className="px-6 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider w-[35%]">Assignment</TableHead>
-                    <TableHead className="px-6 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider w-[15%]">Subject</TableHead>
+                    <TableHead className="px-6 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider w-[30%]">Assignment</TableHead>
+                    <TableHead className="px-6 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider w-[14%]">Subject</TableHead>
                     <TableHead className="px-6 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider text-center w-[15%]">Due Date</TableHead>
-                    <TableHead className="px-6 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider text-center w-[12%]">Max Marks</TableHead>
-                    <TableHead className="px-6 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider text-center w-[13%]">Status</TableHead>
-                    <TableHead className="px-6 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider text-right w-[10%]">Action</TableHead>
+                    <TableHead className="px-6 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider text-center w-[11%]">Max Marks</TableHead>
+                    <TableHead className="px-6 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider text-center w-[14%]">Status</TableHead>
+                    <TableHead className="px-6 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider text-right w-[16%]">Action</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody className="divide-y divide-slate-50">
@@ -222,33 +225,43 @@ export default function StudentAssignmentManager() {
                       return (
                         <TableRow key={asg.id} className="hover:bg-slate-50/60 transition-colors">
                           <TableCell className="px-6 py-4">
-                            <p className="text-xs font-bold text-slate-800 truncate leading-none">{asg.title}</p>
+                            <p className="text-sm font-bold text-slate-800 truncate leading-none">{asg.title}</p>
                             {asg.description && (
-                              <p className="text-[10px] text-slate-600 mt-1 truncate">{asg.description}</p>
+                              <p className="text-xs text-slate-500 mt-1 truncate">{asg.description}</p>
                             )}
                           </TableCell>
-                          <TableCell className="px-6 py-4 text-xs font-medium text-slate-600">{asg.subject}</TableCell>
-                          <TableCell className="px-6 py-4 text-xs text-center font-medium text-slate-600">
+                          <TableCell className="px-6 py-4 text-sm font-medium text-slate-600">{asg.subject}</TableCell>
+                          <TableCell className="px-6 py-4 text-sm text-center font-medium text-slate-600">
                             {new Date(asg.dueDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                           </TableCell>
-                          <TableCell className="px-6 py-4 text-xs text-center font-bold text-slate-700">{asg.maxMarks}</TableCell>
+                          <TableCell className="px-6 py-4 text-sm text-center font-bold text-slate-700">{asg.maxMarks}</TableCell>
                           <TableCell className="px-6 py-4">
                             <div className="flex justify-center">{statusBadge(statusText)}</div>
                           </TableCell>
                           <TableCell className="px-6 py-4 text-right">
-                            {statusText === "Graded" ? (
-                              <span className="text-[10px] font-semibold text-slate-600">Evaluated</span>
-                            ) : statusText === "Submitted" || statusText === "Late" ? (
-                              <span className="text-[10px] font-semibold text-slate-600">Awaiting review</span>
-                            ) : (
-                              <Button
-                                onClick={() => setSubmitAsg(asg)}
-                                className="text-white text-[10px] font-bold px-3 py-1.5 h-auto rounded-lg cursor-pointer shadow-sm transition-all"
-                                style={{ background: "var(--brand-green)" }}
+                            <div className="flex items-center justify-end gap-2">
+                              <button
+                                type="button"
+                                onClick={() => setViewAsg(asg)}
+                                className="p-1.5 rounded-lg transition-colors cursor-pointer hover:bg-slate-100"
+                                title="View assignment details"
                               >
-                                Submit
-                              </Button>
-                            )}
+                                <Eye className="w-4 h-4 text-slate-500 hover:text-slate-700" />
+                              </button>
+                              {statusText === "Graded" ? (
+                                <span className="text-xs font-semibold text-slate-500">Evaluated</span>
+                              ) : statusText === "Submitted" || statusText === "Late" ? (
+                                <span className="text-xs font-semibold text-slate-500">Awaiting</span>
+                              ) : (
+                                <Button
+                                  onClick={() => setSubmitAsg(asg)}
+                                  className="text-white text-xs font-bold px-3 py-1.5 h-auto rounded-lg cursor-pointer shadow-sm transition-all"
+                                  style={{ background: "var(--brand-green)" }}
+                                >
+                                  Submit
+                                </Button>
+                              )}
+                            </div>
                           </TableCell>
                         </TableRow>
                       );
@@ -315,9 +328,8 @@ export default function StudentAssignmentManager() {
                     <TableHead className="px-6 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider w-[30%]">Assignment</TableHead>
                     <TableHead className="px-6 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider w-[13%]">Subject</TableHead>
                     <TableHead className="px-6 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider text-center w-[15%]">Submitted</TableHead>
-                    <TableHead className="px-6 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider text-center w-[12%]">Files</TableHead>
                     <TableHead className="px-6 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider text-center w-[13%]">Status</TableHead>
-                    <TableHead className="px-6 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider text-center w-[10%]">Grade</TableHead>
+                    <TableHead className="px-6 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider text-center w-[10%]">Marks</TableHead>
                     <TableHead className="px-6 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider text-right w-[7%]"></TableHead>
                   </TableRow>
                 </TableHeader>
@@ -332,24 +344,23 @@ export default function StudentAssignmentManager() {
                     submissionsHistory.map((sub) => (
                       <TableRow key={sub.id} className="hover:bg-slate-50/60 transition-colors">
                         <TableCell className="px-6 py-4">
-                          <p className="text-xs font-bold text-slate-800 truncate leading-none">{sub.assignmentTitle}</p>
+                          <p className="text-sm font-bold text-slate-800 truncate leading-none">{sub.assignmentTitle}</p>
                         </TableCell>
-                        <TableCell className="px-6 py-4 text-xs font-medium text-slate-600">{sub.subject}</TableCell>
-                        <TableCell className="px-6 py-4 text-[10px] text-center text-slate-600 font-medium">{sub.submittedAt}</TableCell>
-                        <TableCell className="px-6 py-4 text-center">
-                          <span className="text-xs font-bold text-slate-700">{(sub.fileNames as string[]).length}</span>
-                          <span className="text-[10px] text-slate-600 ml-1">file{(sub.fileNames as string[]).length !== 1 ? "s" : ""}</span>
-                        </TableCell>
+                        <TableCell className="px-6 py-4 text-sm font-medium text-slate-600">{sub.subject}</TableCell>
+                        <TableCell className="px-6 py-4 text-xs text-center text-slate-600 font-medium">{sub.submittedAt}</TableCell>
+                       
                         <TableCell className="px-6 py-4">
                           <div className="flex justify-center">
                             {statusBadge(sub.status as "Pending" | "Submitted" | "Late" | "Graded")}
                           </div>
                         </TableCell>
                         <TableCell className="px-6 py-4 text-center">
-                          {sub.grade ? (
-                            <span className="text-xs font-black" style={{ color: "var(--brand-green)" }}>{sub.grade}</span>
+                          {sub.marksObtained !== null ? (
+                            <span className="text-sm font-black" style={{ color: "var(--brand-green)" }}>
+                              {sub.marksObtained}<span className="text-xs font-semibold text-slate-400">/{sub.maxMarks}</span>
+                            </span>
                           ) : (
-                            <span className="text-[10px] text-slate-600">—</span>
+                            <span className="text-xs text-slate-500">—</span>
                           )}
                         </TableCell>
                         <TableCell className="px-6 py-4 text-right">
@@ -359,7 +370,7 @@ export default function StudentAssignmentManager() {
                             className="p-1.5 rounded-lg transition-colors cursor-pointer hover:bg-slate-100"
                             title="View details"
                           >
-                            <Eye className="w-3.5 h-3.5 text-slate-600 hover:text-slate-700" />
+                            <Eye className="w-4 h-4 text-slate-500 hover:text-slate-700" />
                           </button>
                         </TableCell>
                       </TableRow>
@@ -371,6 +382,114 @@ export default function StudentAssignmentManager() {
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* ── Assignment Detail Dialog ─────────────── */}
+      {viewAsg && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setViewAsg(null)} />
+          <div className="relative z-10 bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-200">
+
+            {/* Header */}
+            <div className="px-6 py-5 border-b border-slate-100 flex items-start justify-between" style={{ background: "var(--brand-bg)" }}>
+              <div className="flex-1 min-w-0 pr-4">
+                <p className="text-xs font-bold uppercase tracking-wider mb-1" style={{ color: "var(--brand-green)" }}>
+                  Assignment Details
+                </p>
+                <h3 className="text-base font-bold text-slate-800 leading-snug">{viewAsg.title}</h3>
+                <div className="flex items-center gap-2 mt-2 flex-wrap">
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-600">
+                    {viewAsg.subject}
+                  </span>
+                  {(() => {
+                    const st = getAsgStatus(viewAsg);
+                    return statusBadge(st);
+                  })()}
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setViewAsg(null)}
+                className="p-1.5 rounded-lg text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer mt-0.5 flex-shrink-0"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="p-6 space-y-5 max-h-[70vh] overflow-y-auto">
+
+              {/* Meta info grid */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-slate-50 border border-slate-100 rounded-xl p-3.5">
+                  <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Due Date</p>
+                  <p className="text-sm font-bold text-slate-800">
+                    {new Date(viewAsg.dueDate).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
+                  </p>
+                </div>
+                <div className="bg-slate-50 border border-slate-100 rounded-xl p-3.5">
+                  <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Max Marks</p>
+                  <p className="text-sm font-bold text-slate-800">{viewAsg.maxMarks} pts</p>
+                </div>
+              </div>
+
+              {/* Description */}
+              {viewAsg.description && (
+                <div className="space-y-2">
+                  <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Description</p>
+                  <div className="bg-slate-50 border border-slate-100 rounded-xl p-4">
+                    <p className="text-sm text-slate-700 leading-relaxed">{viewAsg.description}</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Submission info if already submitted */}
+              {viewAsg.submission && (
+                <div className="rounded-xl border border-slate-200 overflow-hidden">
+                  <div className="px-4 py-2.5 bg-slate-50 border-b border-slate-100">
+                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Your Submission</p>
+                  </div>
+                  <div className="p-4 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-slate-600 font-medium">Submitted on</span>
+                      <span className="text-xs font-bold text-slate-800">
+                        {new Date(viewAsg.submission.submittedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                      </span>
+                    </div>
+                    {viewAsg.submission.remarks && (
+                      <div className="flex items-start justify-between gap-4">
+                        <span className="text-xs text-slate-600 font-medium flex-shrink-0">Your remarks</span>
+                        <span className="text-xs font-medium text-slate-700 text-right italic">"{viewAsg.submission.remarks}"</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Actions */}
+              <div className="flex gap-3 pt-1">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setViewAsg(null)}
+                  className="flex-1 rounded-xl border-slate-200 text-slate-600 text-sm font-semibold cursor-pointer"
+                >
+                  Close
+                </Button>
+                {getAsgStatus(viewAsg) === "Pending" && (
+                  <Button
+                    type="button"
+                    onClick={() => { setViewAsg(null); setSubmitAsg(viewAsg); }}
+                    className="flex-1 text-white text-sm font-bold rounded-xl shadow-sm cursor-pointer flex items-center justify-center gap-1.5"
+                    style={{ background: "var(--brand-green)" }}
+                  >
+                    <Upload className="w-4 h-4" /> Submit Now
+                  </Button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Submit Dialog ────────────────────────── */}
       {submitAsg && (
@@ -551,7 +670,7 @@ export default function StudentAssignmentManager() {
 
               {/* Uploaded files */}
               <div className="space-y-2">
-                <p className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">
                   Uploaded Files ({(viewSub.files as { url: string; name: string }[]).length})
                 </p>
                 <div className="space-y-1.5">
@@ -561,17 +680,17 @@ export default function StudentAssignmentManager() {
                       href={file.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center justify-between gap-2.5 border rounded-xl px-3.5 py-2.5 group transition-all hover:shadow-sm"
+                      className="flex items-center justify-between gap-2.5 border rounded-xl px-3.5 py-3 group transition-all hover:shadow-sm"
                       style={{ background: "var(--brand-light-green)", borderColor: "var(--brand-light)" }}
                     >
                       <div className="flex items-center gap-2.5 min-w-0">
-                        <FileText className="w-3.5 h-3.5 flex-shrink-0" style={{ color: "var(--brand-green)" }} />
-                        <span className="text-[11px] font-semibold text-slate-700 truncate group-hover:underline">
+                        <FileText className="w-4 h-4 flex-shrink-0" style={{ color: "var(--brand-green)" }} />
+                        <span className="text-sm font-semibold text-slate-700 truncate group-hover:underline">
                           {file.name}
                         </span>
                       </div>
                       <span
-                        className="text-[9px] font-bold flex-shrink-0 px-2 py-0.5 rounded-md"
+                        className="text-xs font-bold flex-shrink-0 px-2.5 py-1 rounded-lg"
                         style={{ color: "var(--brand-dark)", background: "var(--brand-light-green)" }}
                       >
                         View ↗
@@ -583,9 +702,9 @@ export default function StudentAssignmentManager() {
 
               {/* Remarks (student) */}
               {viewSub.remarks && (
-                <div className="space-y-1.5">
-                  <p className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Your Remarks</p>
-                  <p className="text-xs text-slate-600 bg-slate-50 border border-slate-100 rounded-xl p-3 leading-relaxed italic">
+                <div className="space-y-2">
+                  <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Your Remarks</p>
+                  <p className="text-sm text-slate-600 bg-slate-50 border border-slate-100 rounded-xl p-3.5 leading-relaxed italic">
                     "{viewSub.remarks}"
                   </p>
                 </div>
@@ -594,21 +713,24 @@ export default function StudentAssignmentManager() {
               {/* Evaluation section */}
               {viewSub.status === "Graded" && (
                 <div className="rounded-xl border border-emerald-100 overflow-hidden">
-                  <div className="px-4 py-2.5 bg-emerald-50 border-b border-emerald-100">
-                    <p className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider flex items-center gap-1.5">
+                  <div className="px-4 py-3 bg-emerald-50 border-b border-emerald-100">
+                    <p className="text-xs font-bold text-emerald-700 uppercase tracking-wider flex items-center gap-1.5">
                       <CheckCircle2 className="w-3.5 h-3.5" /> Tutor Evaluation
                     </p>
                   </div>
                   <div className="p-4 space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-semibold text-slate-600">Score Obtained</span>
-                      <span className="text-sm font-black" style={{ color: "var(--brand-green)" }}>{viewSub.grade}</span>
+                      <span className="text-sm font-semibold text-slate-600">Marks Obtained</span>
+                      <span className="text-base font-black" style={{ color: "var(--brand-green)" }}>
+                        {viewSub.marksObtained}
+                        <span className="text-sm font-semibold text-slate-400"> / {viewSub.maxMarks}</span>
+                      </span>
                     </div>
-                    {viewSub.feedback && (
-                      <div className="space-y-1">
-                        <p className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Feedback</p>
-                        <p className="text-xs text-slate-600 bg-white border border-emerald-100 rounded-lg p-3 leading-relaxed italic">
-                          "{viewSub.feedback}"
+                    {viewSub.evaluationRemarks && (
+                      <div className="space-y-1.5">
+                        <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Feedback</p>
+                        <p className="text-sm text-slate-600 bg-white border border-emerald-100 rounded-lg p-3.5 leading-relaxed italic">
+                          "{viewSub.evaluationRemarks}"
                         </p>
                       </div>
                     )}
@@ -619,7 +741,7 @@ export default function StudentAssignmentManager() {
               <Button
                 type="button"
                 onClick={() => setViewSub(null)}
-                className="w-full text-xs font-bold rounded-xl cursor-pointer"
+                className="w-full text-sm font-bold rounded-xl cursor-pointer"
                 variant="outline"
               >
                 Close

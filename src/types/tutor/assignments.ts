@@ -64,6 +64,5 @@ export interface IEvaluateAssignmentPayload {
   studentId: string;
   marksObtained: number;
   remarks: string;
-  completed: boolean;
 }
 

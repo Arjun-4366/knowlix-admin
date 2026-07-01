@@ -19,6 +19,7 @@ import html2canvas from "html2canvas";
 import { GradeCardReport, SubjectMark, ReportStudent, calcGrade } from "./TutorReportStats";
 import GradeCardPreview from "./GradeCardPreview";
 import { useCreateProgressReport } from "@/querys/tutor/progressQuery";
+import { useGetSubjects } from "@/querys/admin/curriculumQuery";
 import { IProgressSubject } from "@/types/tutor/progress";
 
 interface TutorReportGeneratorProps {
@@ -52,6 +53,8 @@ export default function TutorReportGenerator({
 }: TutorReportGeneratorProps) {
   const previewRef = useRef<HTMLDivElement>(null);
   const createReport = useCreateProgressReport();
+  const { data: subjectsData } = useGetSubjects();
+  const curriculumSubjects = (subjectsData?.data ?? []).map((s) => s.name);
 
   const now = new Date();
   const [selectedStudentId, setSelectedStudentId] = useState(students[0]?.id ?? "");
@@ -412,12 +415,21 @@ export default function TutorReportGenerator({
                 return (
                   <tr key={i} className="hover:bg-slate-50/40 transition-colors">
                     <td className="px-5 py-2.5">
-                      <Input
+                      <Select
                         value={s.subject}
-                        onChange={(e) => updateSubject(i, "subject", e.target.value)}
-                        placeholder="e.g. English"
-                        className="h-8 border-slate-200 rounded-lg text-sm font-semibold bg-white"
-                      />
+                        onValueChange={(val) => updateSubject(i, "subject", val)}
+                      >
+                        <SelectTrigger className="h-8 border-slate-200 rounded-lg text-sm font-semibold bg-white">
+                          <SelectValue placeholder="Select subject" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {curriculumSubjects.map((sub) => (
+                            <SelectItem key={sub} value={sub} className="text-sm font-medium">
+                              {sub}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </td>
                     <td className="px-4 py-2.5">
                       <Input

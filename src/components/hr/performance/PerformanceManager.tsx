@@ -53,7 +53,7 @@ const GROWTH_LABELS: Record<string, string> = {
 
 const currentDate = new Date();
 const currentYear = currentDate.getFullYear();
-const YEARS = Array.from({ length: 5 }, (_, i) => (currentYear - i).toString());
+const YEARS = Array.from({ length: 3 }, (_, i) => (currentYear + i).toString());
 
 function rankIcon(rank: number) {
   if (rank === 1) return <Crown className="w-4 h-4 text-yellow-500" />;

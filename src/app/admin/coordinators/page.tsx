@@ -36,34 +36,15 @@ const LIMIT = 20;
 
 function CoordinatorsContent() {
   const { confirm } = useConfirmation();
-
-  const [searchQuery, setSearchQuery] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [departmentFilter, setDepartmentFilter] = useState("all");
   const [page, setPage] = useState(1);
-
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [coordinatorToEdit, setCoordinatorToEdit] = useState<ICoordinator | null>(null);
 
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedSearch(searchQuery);
-      setPage(1);
-    }, 500);
-    return () => clearTimeout(handler);
-  }, [searchQuery]);
 
-  useEffect(() => {
-    setPage(1);
-  }, [statusFilter, departmentFilter]);
 
   const { data: coordinatorsResponse, isLoading } = useGetCoordinators({
     page,
     limit: LIMIT,
-    search: debouncedSearch || undefined,
-    status: statusFilter !== "all" ? statusFilter : undefined,
-    department: departmentFilter !== "all" ? departmentFilter : undefined,
   });
 
   const { mutateAsync: createCoordinator, isPending: isCreating } = useCreateCoordinator();
@@ -74,11 +55,6 @@ function CoordinatorsContent() {
   const summary = coordinatorsResponse?.summary;
   const totalPages = coordinatorsResponse?.totalPages ?? 1;
 
-  const uniqueDepartments = useMemo(() => {
-    const depts = new Set<string>();
-    coordinatorsList.forEach((c) => { if (c.department) depts.add(c.department); });
-    return Array.from(depts);
-  }, [coordinatorsList]);
 
   const handleEditCoordinator = (coordinatorId: string) => {
     const coordinator = coordinatorsList.find((c) => c.id === coordinatorId);
@@ -195,44 +171,7 @@ function CoordinatorsContent() {
         )}
       </div>
 
-      {/* Filter Bar */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-50/50 p-4 rounded-2xl border border-slate-100 mb-6">
-        <div className="relative flex-1 max-w-xl">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600 z-10" />
-          <Input
-            type="text"
-            placeholder="Search coordinators by name, email, designation..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 h-10 bg-white border border-slate-200 focus:border-green-500 rounded-xl"
-          />
-        </div>
 
-        <div className="flex flex-wrap items-center gap-3">
-          <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
-            <SelectTrigger className="h-9 text-xs font-semibold bg-white border-slate-200 rounded-xl">
-              <SelectValue placeholder="All Departments" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Departments</SelectItem>
-              {uniqueDepartments.map((dept) => (
-                <SelectItem key={dept} value={dept}>{dept}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="h-9 text-xs font-semibold bg-white border-slate-200 rounded-xl">
-              <SelectValue placeholder="All Statuses" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Statuses</SelectItem>
-              <SelectItem value="active">Active</SelectItem>
-              <SelectItem value="inactive">Inactive</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
 
       {/* Table Section */}
       {isLoading ? (

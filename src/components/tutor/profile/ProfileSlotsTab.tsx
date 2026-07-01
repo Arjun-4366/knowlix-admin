@@ -12,7 +12,7 @@ import {
 import { ISlotEntry, IAttendanceLog } from "@/types/tutor/profile";
 
 const DAYS_OF_WEEK = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-const AVAILABILITY_PERIODS = ["Morning", "Afternoon", "Evening", "Night"];
+const AVAILABILITY_PERIODS = ["Morning", "Afternoon", "Evening"];
 
 interface Props {
   availability: string[];
@@ -84,9 +84,7 @@ export default function ProfileSlotsTab({
                 );
               })}
             </div>
-            <p className="text-[10px] text-slate-600 mt-2 leading-normal">
-              Displays on your public tutor profile so coordinators and parents know your general availability.
-            </p>
+         
           </div>
 
           {attendanceLogs.length > 0 && (

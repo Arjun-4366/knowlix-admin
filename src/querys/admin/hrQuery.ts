@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
-import { getHRs, createHR, updateHRPassword, deleteHR } from "@/services/admin/hr/hr";
+import { getHRs, createHR, updateHR, updateHRPassword, deleteHR } from "@/services/admin/hr/hr";
 
 import { QueryParams } from "@/types/queryParams";
 import {
@@ -51,6 +51,8 @@ import {
   IAddRemarkPayload,
 } from "@/services/hr/tutors";
 
+import { getHRProfile } from "@/services/hr/profile";
+
 import {
   ICreateHolidayPayload,
   IApproveAttendancePayload,
@@ -59,6 +61,7 @@ import {
   IHRNoticeQueryParams,
   IHRAttendanceQueryParams,
   ICreateHrPayload,
+  IUpdateHrPayload,
   IUpdateHrPasswordPayload,
   ICreateHRSalaryPayload,
   IUpdateHRSalaryPayload,
@@ -274,6 +277,7 @@ export const useCreateHRSalary = () => {
     mutationFn: (data: ICreateHRSalaryPayload) => createHRSalary(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: HR_SALARY_KEY });
+      queryClient.invalidateQueries({ queryKey: HR_REPORTS_KEY });
       toast.success("Salary record created successfully");
     },
     onError: () => toast.error("Failed to create salary record"),
@@ -287,6 +291,7 @@ export const useUpdateHRSalary = () => {
       updateHRSalary(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: HR_SALARY_KEY });
+      queryClient.invalidateQueries({ queryKey: HR_REPORTS_KEY });
       toast.success("Salary record updated successfully");
     },
     onError: () => toast.error("Failed to update salary record"),
@@ -299,6 +304,7 @@ export const useDeleteHRSalary = () => {
     mutationFn: (id: string) => deleteHRSalary(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: HR_SALARY_KEY });
+      queryClient.invalidateQueries({ queryKey: HR_REPORTS_KEY });
       toast.success("Salary record deleted successfully");
     },
     onError: () => toast.error("Failed to delete salary record"),
@@ -395,6 +401,21 @@ export const useCreateHR = () => {
   });
 };
 
+export const useUpdateHR = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: IUpdateHrPayload }) => updateHR(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ADMIN_HRS_KEY });
+      toast.success("HR member updated successfully");
+    },
+    onError: (err: any) => {
+      const errMsg = err?.response?.data?.message || err.message || "Failed to update HR member";
+      toast.error(errMsg);
+    },
+  });
+};
+
 export const useUpdateHRPassword = () => {
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: IUpdateHrPasswordPayload }) =>
@@ -421,5 +442,14 @@ export const useDeleteHR = () => {
       const errMsg = err?.response?.data?.message || err.message || "Failed to delete HR";
       toast.error(errMsg);
     },
+  });
+};
+
+const HR_PROFILE_KEY = ["hr-profile"] as const;
+
+export const useGetHRProfile = () => {
+  return useQuery({
+    queryKey: HR_PROFILE_KEY,
+    queryFn: getHRProfile,
   });
 };

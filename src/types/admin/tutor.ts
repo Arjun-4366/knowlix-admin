@@ -51,7 +51,7 @@ export interface ICreateTutorPayload {
   experience: string;
   availability: string[];
   role: string;
-  status: TutorStatus;
+  status?: TutorStatus;
   profileImage: string;
   permissions: ITutorPermissions;
   syllabus?: string[];

@@ -75,7 +75,7 @@ const PRIORITY_COLOR: Record<HRNoticePriority, string> = {
 
 const PRIORITIES: HRNoticePriority[] = ["high", "medium", "low"];
 const CATEGORIES: HRNoticeCategory[] = ["announcement", "notice"];
-const AUDIENCES = ["all", "tutors", "students", "hr", "staff"];
+const AUDIENCES = ["all", "tutors", "students"];
 const DEPARTMENTS = ["HR", "Academic", "Sales", "Operations", "Finance", "All"];
 
 // ── Stat Card ─────────────────────────────────────────────────────────────────

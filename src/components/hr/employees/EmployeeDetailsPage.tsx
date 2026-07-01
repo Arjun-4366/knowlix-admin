@@ -144,8 +144,9 @@ export default function EmployeeDetailsPage({
 
   const handleFormSubmit = async (payload: ICreateTutorPayload) => {
     try {
-      const { password: _p, ...rest } = payload;
-      await updateTutor({ id: employeeId, data: rest });
+      const { password: _p, status, ...rest } = payload;
+      const updateData = status === "approved" ? rest : { ...rest, status };
+      await updateTutor({ id: employeeId, data: updateData });
       setShowFormModal(false);
     } catch {
       // error toast handled inside the mutation
@@ -179,7 +180,7 @@ export default function EmployeeDetailsPage({
     <div className="space-y-6 pb-10">
       <DashboardHeader
         title="Employee Detail"
-        description={`${employee.name} | ${employee.id} | ${employee.department}`}
+        description={`${employee.name} | ${employee.department}`}
         onBack={() => router.push("/hr/employees")}
         backText="Back to Employee Directory"
         actions={

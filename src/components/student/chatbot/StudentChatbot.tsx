@@ -58,16 +58,16 @@ function TypingIndicator() {
 
 const TYPE_CONFIG: Record<string, { label: string; bg: string; btnBg: string; actionLabel: string }> = {
   pdf: {
-    label: "PDF",
+    label: "Document",
     bg: "bg-red-50 text-red-600 border-red-100",
-    btnBg: "bg-red-500 hover:bg-red-600",
-    actionLabel: "Open PDF",
+    btnBg: "bg-[var(--brand-green)] hover:bg-[var(--brand-mid)]",
+    actionLabel: "View Document",
   },
   image: {
-    label: "Image",
+    label: "Document",
     bg: "bg-purple-50 text-purple-600 border-purple-100",
-    btnBg: "bg-purple-500 hover:bg-purple-600",
-    actionLabel: "View Image",
+    btnBg: "bg-[var(--brand-green)] hover:bg-[var(--brand-mid)]",
+    actionLabel: "View Document",
   },
   document: {
     label: "Document",
@@ -111,16 +111,11 @@ function NoteCard({ note }: { note: IStudentNote }) {
           <FileText className="w-3.5 h-3.5 text-[var(--brand-green)] flex-shrink-0" />
           <p className="text-xs font-bold text-slate-800 truncate">{note.title}</p>
         </div>
-        <div className="flex items-center gap-1 flex-shrink-0 ml-2">
-          {attachmentTypes.map((type) => {
-            const cfg = TYPE_CONFIG[type] ?? TYPE_CONFIG.document;
-            return (
-              <span key={type} className={`text-[10px] font-bold px-2 py-0.5 rounded-full border uppercase ${cfg.bg}`}>
-                {cfg.label}
-              </span>
-            );
-          })}
-        </div>
+        {fileUrls.length > 0 && (
+          <span className="text-[10px] font-semibold text-slate-400 flex-shrink-0 ml-2">
+            {fileUrls.length} {fileUrls.length === 1 ? "file" : "files"}
+          </span>
+        )}
       </div>
 
       {/* Body */}
@@ -160,22 +155,29 @@ function NoteCard({ note }: { note: IStudentNote }) {
         {/* File links */}
         {fileUrls.length > 0 && (
           <div className="flex flex-wrap gap-1.5 pt-0.5">
-            {fileUrls.map((url, i) => {
-              const type = attachmentTypes[i] ?? "document";
-              const cfg = TYPE_CONFIG[type] ?? TYPE_CONFIG.document;
-              return (
-                <a
-                  key={url}
-                  href={url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`inline-flex items-center gap-1.5 h-7 px-3 rounded-lg text-[10px] font-bold text-white transition-colors ${cfg.btnBg}`}
-                >
-                  <ExternalLink className="w-3 h-3" />
-                  {cfg.actionLabel}
-                </a>
-              );
-            })}
+            {(() => {
+              const typeCount: Record<string, number> = {};
+              return fileUrls.map((url, i) => {
+                const type = attachmentTypes[i] ?? "document";
+                const cfg = TYPE_CONFIG[type] ?? TYPE_CONFIG.document;
+                typeCount[type] = (typeCount[type] ?? 0) + 1;
+                const idx = typeCount[type];
+                const totalOfType = fileUrls.filter((_, j) => (attachmentTypes[j] ?? "document") === type).length;
+                const label = totalOfType > 1 ? `View ${cfg.label} ${idx}` : `View ${cfg.label}`;
+                return (
+                  <a
+                    key={url}
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`inline-flex items-center gap-1.5 h-7 px-3 rounded-lg text-[10px] font-bold text-white transition-colors ${cfg.btnBg}`}
+                  >
+                    <ExternalLink className="w-3 h-3" />
+                    {label}
+                  </a>
+                );
+              });
+            })()}
           </div>
         )}
       </div>

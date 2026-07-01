@@ -115,7 +115,6 @@ export default function NoteForm({ noteToEdit, isSubmitting, onSubmit, onClose }
 
   const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!isEdit && selectedFiles.length === 0) return;
     onSubmit({ title, description, content, standardId, syllabusId, subjectId, chapter, status, tags, files: selectedFiles });
   };
 
@@ -341,9 +340,7 @@ export default function NoteForm({ noteToEdit, isSubmitting, onSubmit, onClose }
 
               {/* File Upload */}
               <div className="space-y-1.5">
-                <Label className="text-xs font-semibold text-slate-600">
-                  Files {!isEdit && "*"}
-                </Label>
+                <Label className="text-xs font-semibold text-slate-600">Files</Label>
 
                 {isEdit && existingFileUrls.length > 0 && selectedFiles.length === 0 && (
                   <div className="space-y-1.5">
@@ -465,7 +462,7 @@ export default function NoteForm({ noteToEdit, isSubmitting, onSubmit, onClose }
           </Button>
           <Button
             type="submit"
-            disabled={isSubmitting || (!isEdit && selectedFiles.length === 0)}
+            disabled={isSubmitting}
             className="h-9 bg-[var(--brand-green)] px-5 text-sm font-bold text-white shadow-md shadow-green-600/10 hover:bg-[var(--brand-mid)] disabled:opacity-50"
           >
             {isSubmitting ? <ButtonLoader /> : isEdit ? "Save Changes" : "Create Note"}

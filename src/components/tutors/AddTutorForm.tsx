@@ -164,7 +164,7 @@ export default function AddTutorForm({
       experience: experience.toLowerCase().includes("year") ? experience : `${experience} Years`,
       availability,
       role: tutorToEdit?.role || "subject_tutor",
-      status,
+      ...(tutorToEdit ? { status } : {}),
       profileImage: tutorToEdit?.profileImage || "",
       permissions: tutorToEdit?.permissions || {
         canUploadNotes: false,
@@ -381,27 +381,29 @@ export default function AddTutorForm({
           )}
         </div>
 
-        <div className="grid grid-cols-1 gap-4">
-          <div className="space-y-1.5">
-            <Label className="text-xs font-semibold text-slate-600">Status *</Label>
-            <Select
-              key={`status-${tutorToEdit?.id || "new"}`}
-              disabled={isSubmitting}
-              value={status}
-              onValueChange={(val) => setStatus(val as TutorStatus)}
-            >
-              <SelectTrigger className="w-full text-sm bg-slate-50 border border-slate-200 rounded-xl">
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="approved">Approved</SelectItem>
-                <SelectItem value="inactive">Inactive</SelectItem>
-                <SelectItem value="resigned">Resigned</SelectItem>
-              </SelectContent>
-            </Select>
+        {tutorToEdit && (
+          <div className="grid grid-cols-1 gap-4">
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold text-slate-600">Status *</Label>
+              <Select
+                key={`status-${tutorToEdit.id}`}
+                disabled={isSubmitting}
+                value={status}
+                onValueChange={(val) => setStatus(val as TutorStatus)}
+              >
+                <SelectTrigger className="w-full text-sm bg-slate-50 border border-slate-200 rounded-xl">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="approved" disabled={hrMode}>Approved</SelectItem>
+                  <SelectItem value="inactive">Inactive</SelectItem>
+                  <SelectItem value="resigned">Resigned</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
-        </div>
+        )}
 
         <div className="pt-4 flex justify-end gap-3 border-t border-slate-100">
           <Button

@@ -6,14 +6,15 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { AwardGrowthPointsDialog } from "./AwardGrowthPointsDialog";
+import { cn } from "@/lib/utils";
 
 const GROWTH_METRICS = [
-  { key: "G" as const, label: "Growth (G)", desc: "Performance & progress of assigned students" },
-  { key: "R" as const, label: "Responsibility (R)", desc: "Engagement and follow-ups" },
-  { key: "O" as const, label: "Ownership (O)", desc: "Accountability and task leadership" },
-  { key: "W" as const, label: "Work Ethics (W)", desc: "Punctuality, class preparation, and behavior" },
-  { key: "T" as const, label: "Teamwork (T)", desc: "Cooperation with administrative coordinators" },
-  { key: "H" as const, label: "Honesty (H)", desc: "Transparency and class logging accuracy" },
+  { key: "G" as const, label: "Growth", desc: "Performance & progress of assigned students", badge: "bg-emerald-100 text-emerald-700", pts: "text-emerald-700 bg-emerald-50 border-emerald-100" },
+  { key: "R" as const, label: "Responsibility", desc: "Engagement and follow-ups", badge: "bg-sky-100 text-sky-700", pts: "text-sky-700 bg-sky-50 border-sky-100" },
+  { key: "O" as const, label: "Ownership", desc: "Accountability and task leadership", badge: "bg-violet-100 text-violet-700", pts: "text-violet-700 bg-violet-50 border-violet-100" },
+  { key: "W" as const, label: "Work Ethics", desc: "Punctuality, class preparation, and behavior", badge: "bg-amber-100 text-amber-700", pts: "text-amber-700 bg-amber-50 border-amber-100" },
+  { key: "T" as const, label: "Teamwork", desc: "Cooperation with administrative coordinators", badge: "bg-rose-100 text-rose-700", pts: "text-rose-700 bg-rose-50 border-rose-100" },
+  { key: "H" as const, label: "Honesty", desc: "Transparency and class logging accuracy", badge: "bg-teal-100 text-teal-700", pts: "text-teal-700 bg-teal-50 border-teal-100" },
 ];
 
 interface TutorPerformanceCardProps {
@@ -61,35 +62,32 @@ export function TutorPerformanceCard({
               )}
             </div>
           </div>
-          <p className="text-xs text-slate-700 mt-1">
-            Cumulative G-R-O-W-T-H breakdown across all evaluations.
+          <p className="text-xs text-slate-500 mt-1">
+            Cumulative breakdown across all evaluations.
           </p>
         </CardHeader>
         <CardContent className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
             {GROWTH_METRICS.map((metric) => {
               const pts = performanceData?.growthBreakdown?.[metric.key] || 0;
-              const maxDisplay = 30;
-              const pct = Math.min(100, (pts / maxDisplay) * 100);
 
               return (
                 <div
                   key={metric.key}
-                  className="flex items-center gap-4 p-4 rounded-xl border border-slate-100 bg-slate-50/40"
+                  className="flex flex-col gap-3 p-4 rounded-xl border border-slate-100 bg-slate-50/40 hover:bg-slate-50 transition-colors"
                 >
-                  <div className="flex-1 min-w-0">
-                    <span className="block text-xs font-bold text-slate-900">{metric.label}</span>
-                    <span className="block text-[10px] text-slate-700 mt-0.5">{metric.desc}</span>
-                    <div className="mt-2 h-1.5 rounded-full bg-slate-200 overflow-hidden">
-                      <div
-                        className="h-full rounded-full bg-[var(--brand-green)] transition-all duration-500"
-                        style={{ width: `${pct}%` }}
-                      />
+                  <div className="flex items-center justify-between">
+                    <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 font-black text-base", metric.badge)}>
+                      {metric.key}
+                    </div>
+                    <div className={cn("px-3 py-1.5 rounded-xl border text-xl font-bold", metric.pts)}>
+                      {pts} <span className="text-xs font-semibold opacity-70">pts</span>
                     </div>
                   </div>
-                  <span className="text-lg font-bold text-slate-900 flex-shrink-0 w-10 text-right">
-                    {pts}
-                  </span>
+                  <div>
+                    <p className="text-sm font-bold text-slate-800">{metric.label}</p>
+                    <p className="text-xs text-slate-500 mt-0.5 leading-snug">{metric.desc}</p>
+                  </div>
                 </div>
               );
             })}
