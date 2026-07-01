@@ -141,7 +141,6 @@ export default function TutorEvaluationManager({
             studentId: selectedStudentId,
             marksObtained: obt,
             remarks: remarks.trim(),
-            completed: true,
           },
         },
         {
