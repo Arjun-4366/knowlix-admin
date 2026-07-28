@@ -23,7 +23,7 @@ interface StudentUser {
   mentorName?: string;
 }
 
-export default function StudentBilling() {
+export default function     () {
   const [studentUser, setStudentUser] = useState<StudentUser>({
     name: "Student",
     admissionNumber: "STU-101",

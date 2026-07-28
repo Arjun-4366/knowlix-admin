@@ -115,7 +115,7 @@ export interface IMeetSession {
   meetLink: string;
   scheduledAt: string;
   durationMinutes: number;
-  status: "scheduled" | "completed" | "cancelled";
+  status: "scheduled" | "completed" | "not_conducted";
   notes?: string;
   createdAt: string;
   updatedAt: string;

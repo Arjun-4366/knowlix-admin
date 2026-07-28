@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Trash2, Plus, Tag, PlayCircle, Video as VideoIcon } from "lucide-react";
+import { Trash2, Plus, Tag, Video as VideoIcon } from "lucide-react";
 import SectionCard from "@/components/shared/SectionCard";
 import FormActions from "@/components/shared/FormActions";
 import MediaUpload from "@/components/shared/MediaUpload";
@@ -105,12 +105,9 @@ export default function VideosManager({ initialData }: VideosManagerProps) {
                   Changed
                 </div>
               )}
-              <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                <PlayCircle className="w-10 h-10 text-white" />
-              </div>
               <button
                 onClick={() => handleDeleteExisting(item.id!)}
-                className="absolute top-3 right-3 p-2 bg-white/90 backdrop-blur-sm text-red-500 rounded-xl opacity-0 group-hover:opacity-100 transition-all shadow-sm hover:bg-red-50"
+                className="absolute bottom-3 right-3 p-2 bg-white/90 backdrop-blur-sm text-red-500 rounded-xl opacity-0 group-hover:opacity-100 transition-all shadow-sm hover:bg-red-50 z-10"
               >
                 <Trash2 className="w-4 h-4" />
               </button>

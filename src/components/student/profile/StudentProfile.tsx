@@ -26,8 +26,22 @@ const PACKAGE_LABELS: Record<string, string> = {
   "2_months": "2 Months",
   "3_months": "3 Months",
   "6_months": "6 Months",
-  "12_months": "12 Months",
+  "1_year": "1 Year",
+  custom: "Custom",
 };
+
+function formatPackage(pkg?: string | null) {
+  if (!pkg) return undefined;
+  if (PACKAGE_LABELS[pkg]) return PACKAGE_LABELS[pkg];
+  // Fallback for any unmapped value, e.g. "18_months" -> "18 Months"
+  const match = pkg.match(/^(\d+)_(month|months|year|years)$/i);
+  if (match) {
+    const [, count, unit] = match;
+    const noun = unit.toLowerCase().startsWith("month") ? "Month" : "Year";
+    return `${count} ${noun}${count === "1" ? "" : "s"}`;
+  }
+  return pkg.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+}
 
 
 function InfoRow({ label, value }: { label: string; value?: string | null }) {
@@ -118,7 +132,7 @@ export default function StudentProfile() {
               </div>
               <div>
                 <p className="text-white/45 font-bold uppercase tracking-wider text-[9px]">Package</p>
-                <p className="text-white font-bold text-sm mt-0.5">{PACKAGE_LABELS[profile.package || ""] || profile.package || "—"}</p>
+                <p className="text-white font-bold text-sm mt-0.5">{formatPackage(profile.package) || "—"}</p>
               </div>
             </div>
             {profile.courseName && (
@@ -204,7 +218,7 @@ export default function StudentProfile() {
                 <InfoRow label="Course" value={profile.courseName} />
                 <InfoRow label="Class / Grade" value={`Grade ${profile.class}`} />
                 <InfoRow label="Syllabus" value={profile.syllabus} />
-                <InfoRow label="Package" value={PACKAGE_LABELS[profile.package || ""] || profile.package} />
+                <InfoRow label="Package" value={formatPackage(profile.package)} />
                 <InfoRow label="Admission Number" value={profile.admissionNumber} />
               </div>
             </CardContent>

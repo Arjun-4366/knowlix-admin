@@ -327,7 +327,7 @@ function drawStudentTable(doc: Doc, data: IStudentPerformanceReportItem[], start
         { label: "Status",   width: 60,  align: "center" as Align },
         { label: "Sessions", width: 55,  align: "center" as Align },
         { label: "Attend.",  width: 50,  align: "center" as Align },
-        { label: "Fee",      width: 45,  align: "right"  as Align },
+        { label: "Fee Due",  width: 45,  align: "right"  as Align },
       ]
     : [
         { label: "Student",  width: 122, align: "left"   as Align },
@@ -385,7 +385,7 @@ function drawStudentTable(doc: Doc, data: IStudentPerformanceReportItem[], start
       },
     ];
     if (isSuperAdmin) {
-      cells.push({ text: fmtFee(s.paidAmount), width: cols[6].width, align: "right", color: GREEN });
+      cells.push({ text: fmtFee(s.balanceFee), width: cols[6].width, align: "right", color: s.balanceFee > 0 ? RED : GREEN });
     }
     drawTableRow(doc, cells, y, ROW_H, i % 2 === 0);
     y += ROW_H;

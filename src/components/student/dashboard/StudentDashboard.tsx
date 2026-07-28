@@ -164,6 +164,23 @@ export default function StudentDashboard() {
       const isToday =
         scheduledDate.toDateString() === new Date().toDateString();
 
+      const endDate = new Date(
+        scheduledDate.getTime() + (session.durationMinutes || 60) * 60000,
+      );
+      const now = new Date();
+      // "Active" is a derived UI state, not a stored status: only a
+      // still-"scheduled" session whose time window includes now is live.
+      const isLive =
+        session.status === "scheduled" && now >= scheduledDate && now <= endDate;
+      const statusLabel =
+        session.status === "completed"
+          ? "Completed"
+          : session.status === "not_conducted"
+          ? "Not Conducted"
+          : isLive
+          ? "Active"
+          : "Scheduled";
+
       const startHours = scheduledDate.getHours().toString().padStart(2, "0");
       const startMins = scheduledDate.getMinutes().toString().padStart(2, "0");
       const endHours = new Date(
@@ -188,7 +205,7 @@ export default function StudentDashboard() {
         topic: session.notes || session.title || "Core Concepts Review",
         tutor: session.tutorName || leadTutor,
         meetLink: session.meetLink,
-        status: isToday ? "Active" : "Scheduled",
+        status: statusLabel,
       };
     });
 

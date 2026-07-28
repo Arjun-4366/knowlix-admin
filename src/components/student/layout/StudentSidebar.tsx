@@ -11,9 +11,9 @@ import {
   Calendar,
   Award,
   CreditCard,
-  UserCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useGetStudentProfile } from "@/querys/student/studentQuery";
 import logo from "../../../assets/images/icon.png"
 
 type NavItem = {
@@ -38,6 +38,7 @@ interface Props {
 
 export default function StudentSidebar({ collapsed }: Props) {
   const pathname = usePathname();
+  const { data: profile } = useGetStudentProfile();
 
   return (
     <aside
@@ -135,44 +136,36 @@ export default function StudentSidebar({ collapsed }: Props) {
         </div>
       </nav>
 
-      {/* My Profile footer link */}
+      {/* User footer */}
       <Link
         href="/student/profile"
-        title={collapsed ? "My Profile" : undefined}
-        className="flex-shrink-0 flex items-center gap-3 transition-all"
+        className="border-t border-white/10 flex-shrink-0 hover:bg-white/5 transition-colors cursor-pointer"
         style={{
-          borderTop: "1px solid rgba(255,255,255,0.08)",
-          background: pathname === "/student/profile" ? "rgba(255,255,255,0.12)" : undefined,
-          padding: collapsed ? "16px 0" : "14px 16px",
+          padding: collapsed ? "16px 0" : "16px",
+          display: "flex",
           justifyContent: collapsed ? "center" : "flex-start",
-          transition: "padding 300ms ease, background 150ms ease",
-        }}
-        onMouseEnter={(e) => {
-          if (pathname !== "/student/profile")
-            (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.08)";
-        }}
-        onMouseLeave={(e) => {
-          if (pathname !== "/student/profile")
-            (e.currentTarget as HTMLElement).style.background = "";
+          transition: "padding 300ms ease",
         }}
       >
-        <div
-          className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0"
-          style={{ background: "rgba(255,255,255,0.18)", color: "#fff" }}
-        >
-          <UserCircle className="w-4 h-4" />
-        </div>
-        <div
-          className="overflow-hidden"
-          style={{
-            opacity: collapsed ? 0 : 1,
-            maxWidth: collapsed ? 0 : "150px",
-            transition: "opacity 200ms ease, max-width 300ms ease",
-            whiteSpace: "nowrap",
-          }}
-        >
-          <p className="text-xs font-semibold text-white">My Profile</p>
-          <p className="text-[10px]" style={{ color: "rgba(255,255,255,0.45)" }}>View account details</p>
+        <div className="flex items-center gap-3">
+          <div
+            className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0"
+            style={{ background: "var(--brand-green)" }}
+          >
+            {profile?.studentName ? profile.studentName.charAt(0).toUpperCase() : "S"}
+          </div>
+          <div
+            className="overflow-hidden"
+            style={{
+              opacity: collapsed ? 0 : 1,
+              maxWidth: collapsed ? 0 : "150px",
+              transition: "opacity 200ms ease, max-width 300ms ease",
+              whiteSpace: "nowrap",
+            }}
+          >
+            <p className="text-white text-xs font-semibold truncate">{profile?.studentName || "Student"}</p>
+            <p className="text-white/45 text-[10px] truncate">{profile?.email || "student@knowlix.in"}</p>
+          </div>
         </div>
       </Link>
     </aside>
