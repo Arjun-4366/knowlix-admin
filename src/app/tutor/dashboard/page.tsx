@@ -15,7 +15,9 @@ import {
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import TutorTimetableCard from "@/components/tutor/TutorTimetableCard";
 import { useGetTutorDashboard, useGetTutorSalary } from "@/querys/tutor/dashboardQuery";
+import { useTutorStore } from "@/store/tutorStore";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -46,6 +48,8 @@ export default function TutorDashboard() {
   const { data: sessionData, isLoading: isSessionLoading } = useGetTutorDashboard({ period: sessionPeriod });
   const { data: kpiData,     isLoading: isKpiLoading     } = useGetTutorDashboard({ period: kpiPeriod });
   const { data: salaryData } = useGetTutorSalary();
+  const timetable = useTutorStore((s) => s.profile?.timetable);
+
 
   if (isSessionLoading || isKpiLoading) {
     return (
@@ -391,6 +395,8 @@ export default function TutorDashboard() {
           </CardContent>
         </Card>
       </div>
+
+      <TutorTimetableCard timetable={timetable} />
 
     </div>
   );

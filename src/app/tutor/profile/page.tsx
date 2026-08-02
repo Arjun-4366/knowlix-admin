@@ -12,6 +12,7 @@ import ProfileOverviewTab from "@/components/tutor/profile/ProfileOverviewTab";
 import ProfileSubjectsTab from "@/components/tutor/profile/ProfileSubjectsTab";
 import ProfileSlotsTab from "@/components/tutor/profile/ProfileSlotsTab";
 import ProfileStudentsTab from "@/components/tutor/profile/ProfileStudentsTab";
+import TutorTimetableCard from "@/components/tutor/TutorTimetableCard";
 
 export default function TutorProfilePage() {
   const { data: profile, isLoading } = useGetTutorProfile();
@@ -125,6 +126,14 @@ export default function TutorProfilePage() {
                 </span>
               )}
             </TabsTrigger>
+            <TabsTrigger value="timetable" className="rounded-lg text-xs px-4 py-2 font-bold data-[state=active]:text-white">
+              Timetable
+              {(profile.timetable?.length ?? 0) > 0 && (
+                <span className="ml-1.5 bg-[var(--brand-green)] text-white text-[12px] font-black rounded-full px-1 py-0.5 leading-none">
+                  {profile.timetable?.length}
+                </span>
+              )}
+            </TabsTrigger>
           </TabsList>
 
           <button
@@ -178,6 +187,10 @@ export default function TutorProfilePage() {
             assignedStudents={assignedStudents}
             admissionStatusColor={admissionStatusColor}
           />
+        </TabsContent>
+
+        <TabsContent value="timetable" className="mt-0">
+          <TutorTimetableCard timetable={profile.timetable} />
         </TabsContent>
       </Tabs>
     </div>

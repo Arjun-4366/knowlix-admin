@@ -15,6 +15,7 @@ import { TutorProfileCard } from "@/components/admin/tutor/TutorProfileCard";
 import { TutorWorkloadCard } from "@/components/admin/tutor/TutorWorkloadCard";
 import { TutorClassStatsCard } from "@/components/admin/tutor/TutorClassStatsCard";
 import { TutorScheduleCard } from "@/components/admin/tutor/TutorScheduleCard";
+import { TutorTimetableCard } from "@/components/admin/tutor/TutorTimetableCard";
 import { TutorRemarksCard } from "@/components/admin/tutor/TutorRemarksCard";
 import { TutorPerformanceCard } from "@/components/admin/tutor/TutorPerformanceCard";
 import { TutorGrowthHistory } from "@/components/admin/tutor/TutorGrowthHistory";
@@ -131,6 +132,8 @@ function TutorDetailContent({ params }: PageProps) {
           negativeRemarks={tutor.negativeRemarks}
         />
       </div>
+
+      <TutorTimetableCard timetable={tutor.timetable} />
 
       <TutorPerformanceCard
         tutorId={id}

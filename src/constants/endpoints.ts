@@ -261,4 +261,10 @@ export const ENDPOINTS = {
     UPDATE_SUBJECT: (id: string) => `${API_BASE_URL}/admin/subjects/${id}`,
     DELETE_SUBJECT: (id: string) => `${API_BASE_URL}/admin/subjects/${id}`,
 
-} as const; 
+    // Timetable
+    GET_TIMETABLE: `${API_BASE_URL}/admin/timetable/fetch`,
+    CREATE_TIMETABLE: `${API_BASE_URL}/admin/timetable/create`,
+    UPDATE_TIMETABLE: (id: string) => `${API_BASE_URL}/admin/timetable/${id}`,
+    DELETE_TIMETABLE: (id: string) => `${API_BASE_URL}/admin/timetable/${id}`,
+
+} as const;

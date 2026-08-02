@@ -74,8 +74,6 @@ function StudentsContent() {
   );
 
 
-  console.log("students",studentsResponse)
-
   useEffect(() => {
     if (shouldOpenAddModal) {
       router.replace("/admin/students");

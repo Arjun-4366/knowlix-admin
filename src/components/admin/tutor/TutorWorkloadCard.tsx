@@ -32,8 +32,6 @@ export function TutorWorkloadCard({ tutorId, isApproved, assignedStudents }: Tut
 
   const { mutateAsync: assignStudents, isPending: isAssigning } = useAssignStudentsToTutor();
 
-  console.log("students", studentsResponse);
-
   const unassignedStudents = useMemo(() => {
     if (!studentsResponse?.data) return [];
     const assignedIds = new Set(assignedStudents.map((s) => s.id));

@@ -1,5 +1,6 @@
 import { IApiResponse } from "@/types/admin/api";
 import { IAssignedStudent } from "@/types/tutor/profile";
+import { ITimetableEntry } from "@/types/admin/timetable";
 
 
 export type TutorStatus = "pending" | "approved" | "inactive" | "resigned" | string;
@@ -34,6 +35,7 @@ export interface ITutor {
   rank?: number;
   syllabus?: string[];
   subjectEntries?: Array<{ name: string; syllabi: string[] }>;
+  timetable?: ITimetableEntry[];
 }
 
 export interface ITutorPermissions {
