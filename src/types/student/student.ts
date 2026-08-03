@@ -105,9 +105,14 @@ export interface IStudentNoticesResponse {
   pagination: INoticesPagination;
 }
 
+export interface IPopulatedTutorRef {
+  id: string;
+  name: string;
+}
+
 export interface IMeetSession {
   id: string;
-  tutorId: string;
+  tutorId: string | IPopulatedTutorRef;
   type: "group" | "individual";
   studentIds: string[];
   title: string;

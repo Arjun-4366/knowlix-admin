@@ -147,3 +147,15 @@ export interface IGrowthHistoryItem {
 export interface IGrowthHistoryResponse extends IApiResponse<IGrowthHistoryItem[]> {
   total?: number;
 }
+
+export interface ITutorSubject {
+  _id: string;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ITutorSubjectsResponse extends IApiResponse<ITutorSubject[]> {
+  total: number;
+  tutorName: string;
+}

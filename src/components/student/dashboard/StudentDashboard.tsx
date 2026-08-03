@@ -51,11 +51,11 @@ export default function StudentDashboard() {
     })),
   });
 
-  const studentName = user?.studentName || "Rahul Sharma";
-  const studentId = user?.admissionNumber || user?.id || "KNX-2026-001";
-  const leadTutor = user?.coordinatorName || "Dr. Ramesh Prasad";
-  const classGrade = user?.class || "Grade 10";
-  const courseType = user?.programName || "Online School";
+  const studentName = user?.studentName || "";
+  const studentId = user?.admissionNumber || user?.id || "";
+  const coordinatorName = user?.coordinatorName || "";
+  const classGrade = user?.class || "";
+  const courseType = user?.programName || "";
 
   // Loading Skeleton
   if (isLoadingDashboard) {
@@ -144,7 +144,6 @@ export default function StudentDashboard() {
     subject: sp.subject,
     progress: Math.round(sp.averageScore),
     grade: getLetterGrade(sp.averageScore),
-    tutor: leadTutor,
   }));
 
   // 6. Upcoming Classes mapping
@@ -197,13 +196,21 @@ export default function StudentDashboard() {
         .padStart(2, "0");
       const timeStr = `${startHours}:${startMins} - ${endHours}:${endMins}`;
 
+      const tutorRef =
+        session.tutorId && typeof session.tutorId === "object"
+          ? session.tutorId
+          : { id: typeof session.tutorId === "string" ? session.tutorId : "", name: session.tutorName || "" };
+
       return {
         id: session.id,
         date: isToday ? "Today" : dateStr,
         time: timeStr,
         subject: session.subject || "",
-        topic: session.notes || session.title || "Core Concepts Review",
-        tutor: session.tutorName || leadTutor,
+        topic: session.title || "",
+        notes: session.notes || "",
+        type: session.type,
+        durationMinutes: session.durationMinutes,
+        tutorId: tutorRef,
         meetLink: session.meetLink,
         status: statusLabel,
       };
@@ -272,7 +279,7 @@ export default function StudentDashboard() {
             <p className="text-white/70 text-sm mt-1.5 max-w-xl">
               You are currently enrolled in{" "}
               <span className="text-white font-semibold">{courseType}</span> for{" "}
-              <span className="text-white font-semibold">Grade {classGrade}</span>. Keep up the excellent work!
+              <span className="text-white font-semibold">{classGrade}</span>. Keep up the excellent work!
             </p>
           </div>
 
@@ -285,10 +292,10 @@ export default function StudentDashboard() {
             </div>
             <div>
               <p className="text-white/45 font-bold uppercase tracking-wider text-[9px]">
-                Lead Tutor
+                Coordinator
               </p>
               <p className="text-white font-bold text-sm mt-0.5 truncate">
-                {leadTutor}
+                {coordinatorName}
               </p>
             </div>
           </div>
@@ -305,7 +312,6 @@ export default function StudentDashboard() {
         pendingAssignments={pendingAssignments}
         totalAssignments={totalAssignments}
         averageScore={averageScore}
-        rankInClass={1}
         dueAmount={dueAmount}
       />
 

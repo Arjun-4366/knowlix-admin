@@ -16,6 +16,7 @@ import {
   getAdminTutorAssignments,
   getAdminTutorExams,
   getAdminTutorAttendance,
+  getTutorSubjects,
 } from "@/services/admin/tutor/tutor";
 import {
   ICreateTutorPayload,
@@ -188,6 +189,14 @@ export const useGetAdminTutorAttendance = (id: string, params?: { page?: number;
   return useQuery({
     queryKey: ["admin-tutor-attendance", id, params],
     queryFn: () => getAdminTutorAttendance(id, params),
+    enabled: !!id,
+  });
+};
+
+export const useGetTutorSubjects = (id: string) => {
+  return useQuery({
+    queryKey: ["tutor-subjects", id],
+    queryFn: () => getTutorSubjects(id),
     enabled: !!id,
   });
 };

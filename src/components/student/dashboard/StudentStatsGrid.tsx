@@ -12,7 +12,6 @@ interface StudentStatsGridProps {
   pendingAssignments: number;
   totalAssignments: number;
   averageScore: number;
-  rankInClass: number;
   dueAmount: number;
 }
 
@@ -25,7 +24,6 @@ export default function StudentStatsGrid({
   pendingAssignments,
   totalAssignments,
   averageScore,
-  rankInClass,
   dueAmount,
 }: StudentStatsGridProps) {
   const isPaid = dueAmount <= 0;
@@ -52,8 +50,8 @@ export default function StudentStatsGrid({
         label="Average Score"
         value={`${averageScore}%`}
         icon={<TrendingUp className="w-6 h-6 text-[var(--brand-green)]" />}
-        badgeText={`Rank #${rankInClass}`}
-        footerText="Top 5% in class level"
+        badgeText="Overall"
+        footerText="Across all evaluated exams"
       />
 
       <DashboardStatCard

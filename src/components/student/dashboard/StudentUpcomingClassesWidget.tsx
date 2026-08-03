@@ -2,13 +2,21 @@
 
 import { ExternalLink, Video, CalendarClock } from "lucide-react";
 
+interface Tutor {
+  name:string,
+  id:string
+}
+
 interface LiveClass {
   id: string;
   date: string;
   time: string;
   subject: string;
   topic: string;
-  tutor: string;
+  notes?: string;
+  type: "group" | "individual";
+  durationMinutes: number;
+  tutorId: Tutor;
   meetLink: string;
   status: string;
 }
@@ -59,6 +67,7 @@ export default function StudentUpcomingClassesWidget({
           classes.map((cls) => {
             const isActive = cls.status === "Active";
             const isDone = cls.status === "Completed" || cls.status === "Not Conducted";
+            const tutor = cls.tutorId;
             return (
               <div
                 key={cls.id}
@@ -80,6 +89,9 @@ export default function StudentUpcomingClassesWidget({
                         <span className="text-[9px] font-black text-slate-600 uppercase tracking-wider">
                           {cls.date} · {cls.time}
                         </span>
+                        <span className="text-[8px] font-black text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded-full uppercase tracking-wide">
+                          {cls.type} · {cls.durationMinutes}m
+                        </span>
                         {isActive && (
                           <span className="text-[8px] font-black text-[var(--brand-mid)] bg-[var(--brand-light-green)] px-1.5 py-0.5 rounded-full uppercase tracking-wide animate-pulse">
                             ● Active Now
@@ -98,11 +110,18 @@ export default function StudentUpcomingClassesWidget({
                         )}
                       </div>
                       <h4 className="text-sm font-bold text-slate-900 leading-tight">{cls.subject}</h4>
-                      <p className="text-[10px] text-slate-600 leading-normal truncate">
-                        {cls.topic}
-                      </p>
+                      {cls.topic && (
+                        <p className="text-[10px] text-slate-600 leading-normal truncate">
+                          {cls.topic}
+                        </p>
+                      )}
+                      {cls.notes && (
+                        <p className="text-[10px] text-slate-500 italic leading-normal truncate">
+                          Note: {cls.notes}
+                        </p>
+                      )}
                       <p className="text-[10px] text-slate-600 font-semibold">
-                        Tutor: {cls.tutor}
+                        Tutor: {tutor?.name}
                       </p>
                     </div>
 

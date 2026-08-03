@@ -13,6 +13,7 @@ import {
   ITutorDetailsResponse,
   IAssignStudentsPayload,
   IGrowthHistoryResponse,
+  ITutorSubjectsResponse,
 } from "@/types/admin/tutor";
 
 export const getTutors = async (params?: QueryParams) => {
@@ -91,5 +92,10 @@ export const getAdminTutorExams = async (id: string, params?: { page?: number; l
 
 export const getAdminTutorAttendance = async (id: string, params?: { page?: number; limit?: number }) => {
   const res = await apiClient.get<any>(ENDPOINTS.GET_ADMIN_TUTOR_ATTENDANCE(id), { params });
+  return res.data;
+};
+
+export const getTutorSubjects = async (id: string) => {
+  const res = await apiClient.get<ITutorSubjectsResponse>(ENDPOINTS.GET_TUTOR_SUBJECTS(id));
   return res.data;
 };

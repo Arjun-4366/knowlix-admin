@@ -102,6 +102,7 @@ export const ENDPOINTS = {
   GET_ADMIN_TUTOR_ASSIGNMENTS: (id: string) => `${API_BASE_URL}/tutors/${id}/assignments`,
   GET_ADMIN_TUTOR_EXAMS: (id: string) => `${API_BASE_URL}/tutors/${id}/exams`,
   GET_ADMIN_TUTOR_ATTENDANCE: (id: string) => `${API_BASE_URL}/tutors/${id}/attendance`,
+  GET_TUTOR_SUBJECTS: (id: string) => `${API_BASE_URL}/tutors/${id}/subjects`,
 
   //notes
   GET_NOTES: `${API_BASE_URL}/admin/notes/fetch`,
