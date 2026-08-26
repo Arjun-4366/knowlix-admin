@@ -59,6 +59,9 @@ export interface IStudent {
   courseName?: string | null;
   totalFee?: number;
   paidAmount?: number;
+  subjectIds?: string[];
+  subjectNames?: string[];
+  subjects?: Array<{ id: string; name: string }>;
   createdAt: string;
   updatedAt: string;
 }
@@ -86,6 +89,7 @@ export interface ICreateStudentPayload {
   courseId?: string;
   totalFee?: number;
   paidAmount?: number;
+  subjectIds?: string[];
 }
 
 export type IUpdateStudentPayload = Partial<ICreateStudentPayload>;

@@ -1,5 +1,5 @@
-﻿import { useState, useRef, useEffect, type FormEvent } from "react";
-import { CheckCircle, FileText, X, Upload, ExternalLink } from "lucide-react";
+import { useState, useRef, useEffect, type FormEvent } from "react";
+import { CheckCircle, FileText, X, Upload, ExternalLink, Search } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -20,7 +20,7 @@ import {
   IStudent,
 } from "@/types/admin/student";
 import { useGetPrograms, useGetCoursesByProgram } from "@/querys/admin/programQuery";
-import { useGetStandards, useGetSyllabuses } from "@/querys/admin/curriculumQuery";
+import { useGetStandards, useGetSyllabuses, useGetSubjects } from "@/querys/admin/curriculumQuery";
 import { useGetMentors } from "@/querys/admin/mentorQuery";
 import { useGetCoordinators } from "@/querys/admin/coordinatorQuery";
 
@@ -215,12 +215,14 @@ export default function AddStudentForm({
   const { data: programsResponse } = useGetPrograms();
   const { data: standardsResponse } = useGetStandards();
   const { data: syllabusesResponse } = useGetSyllabuses();
+  const { data: subjectsResponse } = useGetSubjects();
 
   const mentorsList = mentorsResponse?.data ?? [];
   const coordinatorsList = coordinatorsResponse?.data ?? [];
   const programsList = programsResponse?.programs ?? [];
   const standardsList = standardsResponse?.data ?? [];
   const syllabusesList = syllabusesResponse?.data ?? [];
+  const subjectsList = subjectsResponse?.data ?? [];
 
   const [studentName, setStudentName] = useState(
     studentToEdit?.studentName ?? "",
@@ -273,6 +275,17 @@ export default function AddStudentForm({
   const [assignedCoordinatorId, setAssignedCoordinatorId] = useState(
     studentToEdit?.coordinator?.id || studentToEdit?.assignedCoordinatorId || studentToEdit?.coordinatorId || "",
   );
+  const [selectedSubjectIds, setSelectedSubjectIds] = useState<string[]>(
+    studentToEdit?.subjectIds ?? [],
+  );
+
+  const [subjectSearch, setSubjectSearch] = useState("");
+
+  const toggleSubject = (id: string) => {
+    setSelectedSubjectIds((prev) =>
+      prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]
+    );
+  };
 
   const setDocumentValue = (
     key: keyof IStudentDocuments,
@@ -330,6 +343,7 @@ export default function AddStudentForm({
       paidAmount: paidAmount === "" ? 0 : Number(paidAmount),
       mentorId: assignedMentorId.trim(),
       coordinatorId: assignedCoordinatorId.trim(),
+      subjectIds: selectedSubjectIds,
     };
 
     if (password.trim()) {  
@@ -492,6 +506,89 @@ export default function AddStudentForm({
                   )}
                 </SelectContent>
               </Select>
+            </div>
+
+            {/* Subjects — searchable multi-select */}
+            <div className="space-y-1.5 md:col-span-2">
+              <Label className="text-xs font-semibold text-slate-600">
+                Subjects
+              </Label>
+
+              {/* Selected chips */}
+              {selectedSubjectIds.length > 0 && (
+                <div className="flex flex-wrap gap-1.5">
+                  {selectedSubjectIds.map((id) => {
+                    const subj = subjectsList.find((s) => s._id === id);
+                    if (!subj) return null;
+                    return (
+                      <span
+                        key={id}
+                        className="inline-flex items-center gap-1 rounded-full border border-[var(--brand-green)] bg-[var(--brand-light-green)] py-0.5 pl-2.5 pr-1.5 text-[11px] font-semibold text-[var(--brand-mid)]"
+                      >
+                        {subj.name}
+                        <button
+                          type="button"
+                          onClick={() => toggleSubject(id)}
+                          className="flex h-3.5 w-3.5 items-center justify-center rounded-full hover:bg-[var(--brand-green)]/20 transition-colors"
+                        >
+                          <X className="h-2.5 w-2.5" />
+                        </button>
+                      </span>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Search input */}
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
+                <input
+                  type="text"
+                  value={subjectSearch}
+                  onChange={(e) => setSubjectSearch(e.target.value)}
+                  placeholder="Search subjects…"
+                  className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 pl-8 pr-3 text-sm font-medium text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--brand-green)]"
+                />
+              </div>
+
+              {/* Filtered subject pills */}
+              {(() => {
+                const filtered = subjectsList.filter((s) =>
+                  s.name.toLowerCase().includes(subjectSearch.toLowerCase())
+                );
+                const visible = filtered.slice(0, 6);
+                return filtered.length === 0 ? (
+                  <p className="text-[11px] text-slate-400 pl-1">No subjects found</p>
+                ) : (
+                  <div className="space-y-1.5">
+                    <div className="flex flex-wrap gap-1.5">
+                      {visible.map((subject) => {
+                        const isSelected = selectedSubjectIds.includes(subject._id);
+                        return (
+                          <button
+                            key={subject._id}
+                            type="button"
+                            onClick={() => toggleSubject(subject._id)}
+                            className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[11px] font-semibold transition-all ${
+                              isSelected
+                                ? "border-[var(--brand-green)] bg-[var(--brand-light-green)] text-[var(--brand-mid)]"
+                                : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50"
+                            }`}
+                          >
+                            {isSelected && <CheckCircle className="h-2.5 w-2.5" />}
+                            {subject.name}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    {filtered.length > 6 && (
+                      <p className="text-[10px] text-slate-400 pl-0.5">
+                        {filtered.length - 6} more — type to narrow results
+                      </p>
+                    )}
+                  </div>
+                );
+              })()}
             </div>
 
             <div className="space-y-1.5">
@@ -736,6 +833,7 @@ export default function AddStudentForm({
             </div>
           </div>
         </div>
+
 
         <div className="flex justify-end gap-3 bg-white pt-5">
           <Button

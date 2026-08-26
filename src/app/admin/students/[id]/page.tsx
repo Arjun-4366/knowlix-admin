@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { Suspense, use, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -264,6 +264,36 @@ function StudentDetailsContent({ params }: PageProps) {
                   ? `${student.courseName} (${student.programName})`
                   : student.programName || student.courseType || "—"}
               </span>
+            </div>
+            <div>
+              <span className="block text-xs font-bold text-slate-700 mb-1.5">
+                Subjects
+              </span>
+              {(student.subjects && student.subjects.length > 0) ? (
+                <div className="flex flex-wrap gap-1.5">
+                  {student.subjects.map((subj) => (
+                    <span
+                      key={subj.id}
+                      className="inline-flex items-center rounded-full border border-[var(--brand-green)]/25 bg-[var(--brand-light-green)] px-2.5 py-0.5 text-[11px] font-semibold text-[var(--brand-mid)]"
+                    >
+                      {subj.name}
+                    </span>
+                  ))}
+                </div>
+              ) : (student.subjectNames && student.subjectNames.length > 0) ? (
+                <div className="flex flex-wrap gap-1.5">
+                  {student.subjectNames.map((name) => (
+                    <span
+                      key={name}
+                      className="inline-flex items-center rounded-full border border-[var(--brand-green)]/25 bg-[var(--brand-light-green)] px-2.5 py-0.5 text-[11px] font-semibold text-[var(--brand-mid)]"
+                    >
+                      {name}
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <span className="text-xs text-slate-400">No subjects assigned</span>
+              )}
             </div>
             <div>
               <span className="block text-xs font-bold text-slate-700">
