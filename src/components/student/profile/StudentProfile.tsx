@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import {
   User, Mail, Phone, MapPin, GraduationCap,
@@ -221,6 +221,33 @@ export default function StudentProfile() {
                 <InfoRow label="Package" value={formatPackage(profile.package)} />
                 <InfoRow label="Admission Number" value={profile.admissionNumber} />
               </div>
+
+              {/* Enrolled Subjects */}
+              {((profile.subjects && profile.subjects.length > 0) || (profile.subjectNames && profile.subjectNames.length > 0)) && (
+                <div className="mt-6 pt-5 border-t border-slate-100">
+                  <p className="text-[10px] text-slate-600 font-bold uppercase tracking-wider mb-2.5">Enrolled Subjects</p>
+                  <div className="flex flex-wrap gap-2">
+                    {(profile.subjects && profile.subjects.length > 0
+                      ? profile.subjects.map((subj) => (
+                          <span
+                            key={subj.id}
+                            className="inline-flex items-center rounded-full border border-[var(--brand-green)]/25 bg-[var(--brand-light-green)] px-3 py-1 text-xs font-semibold text-[var(--brand-mid)]"
+                          >
+                            {subj.name}
+                          </span>
+                        ))
+                      : (profile.subjectNames ?? []).map((name) => (
+                          <span
+                            key={name}
+                            className="inline-flex items-center rounded-full border border-[var(--brand-green)]/25 bg-[var(--brand-light-green)] px-3 py-1 text-xs font-semibold text-[var(--brand-mid)]"
+                          >
+                            {name}
+                          </span>
+                        ))
+                    )}
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
 
