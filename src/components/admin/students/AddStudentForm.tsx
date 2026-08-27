@@ -307,7 +307,6 @@ export default function AddStudentForm({
       !place.trim() ||
       !coordinatorName.trim() ||
       !programId.trim() ||
-      !courseId.trim() ||
       !assignedMentorId.trim() ||
       !assignedCoordinatorId.trim()
     ) {
@@ -624,7 +623,7 @@ export default function AddStudentForm({
 
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold text-slate-600">
-                Course *
+                Course
               </Label>
               <Select disabled={!programId} value={courseId} onValueChange={setCourseId}>
                 <SelectTrigger className="rounded-xl border-slate-200 bg-slate-50">
