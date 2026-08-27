@@ -56,18 +56,18 @@ function TypingIndicator() {
   );
 }
 
-const TYPE_CONFIG = {
+const TYPE_CONFIG: Record<string, { label: string; bg: string; btnBg: string; actionLabel: string }> = {
   pdf: {
-    label: "PDF",
+    label: "Document",
     bg: "bg-red-50 text-red-600 border-red-100",
-    btnBg: "bg-red-500 hover:bg-red-600",
-    actionLabel: "Open PDF",
+    btnBg: "bg-[var(--brand-green)] hover:bg-[var(--brand-mid)]",
+    actionLabel: "View Document",
   },
   image: {
-    label: "Image",
+    label: "Document",
     bg: "bg-purple-50 text-purple-600 border-purple-100",
-    btnBg: "bg-purple-500 hover:bg-purple-600",
-    actionLabel: "View Image",
+    btnBg: "bg-[var(--brand-green)] hover:bg-[var(--brand-mid)]",
+    actionLabel: "View Document",
   },
   document: {
     label: "Document",
@@ -75,11 +75,22 @@ const TYPE_CONFIG = {
     btnBg: "bg-[var(--brand-green)] hover:bg-[var(--brand-mid)]",
     actionLabel: "View Document",
   },
-} as const;
+};
+
+function parseTags(raw: string[] | undefined): string[] {
+  if (!raw || raw.length === 0) return [];
+  if (typeof raw[0] === "string" && raw[0].startsWith('["')) {
+    try {
+      const parsed = JSON.parse(raw.join(","));
+      return Array.isArray(parsed) ? parsed : raw;
+    } catch {
+      return raw;
+    }
+  }
+  return raw;
+}
 
 function NoteCard({ note }: { note: IStudentNote }) {
-  const cfg = TYPE_CONFIG[note.attachmentType] ?? TYPE_CONFIG.document;
-
   const formattedDate = note.createdAt
     ? new Date(note.createdAt).toLocaleDateString("en-IN", {
         day: "numeric",
@@ -87,6 +98,10 @@ function NoteCard({ note }: { note: IStudentNote }) {
         year: "numeric",
       })
     : null;
+
+  const cleanTags = parseTags(note.tags);
+  const fileUrls = note.fileUrls ?? [];
+  const attachmentTypes = note.attachmentTypes ?? [];
 
   return (
     <div className="rounded-xl border border-slate-150 bg-white overflow-hidden shadow-sm hover:shadow-md hover:border-[var(--brand-green)]/30 transition-all">
@@ -96,9 +111,11 @@ function NoteCard({ note }: { note: IStudentNote }) {
           <FileText className="w-3.5 h-3.5 text-[var(--brand-green)] flex-shrink-0" />
           <p className="text-xs font-bold text-slate-800 truncate">{note.title}</p>
         </div>
-        <span className={`flex-shrink-0 ml-2 text-[10px] font-bold px-2 py-0.5 rounded-full border uppercase ${cfg.bg}`}>
-          {cfg.label}
-        </span>
+        {fileUrls.length > 0 && (
+          <span className="text-[10px] font-semibold text-slate-400 flex-shrink-0 ml-2">
+            {fileUrls.length} {fileUrls.length === 1 ? "file" : "files"}
+          </span>
+        )}
       </div>
 
       {/* Body */}
@@ -111,7 +128,7 @@ function NoteCard({ note }: { note: IStudentNote }) {
         {/* Meta row: standard + syllabus + date */}
         <div className="flex items-center gap-2 flex-wrap">
           <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-slate-100 text-slate-600">
-            Class {note.standard}
+            {note.standard}
           </span>
           <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-slate-100 text-slate-600">
             {note.syllabus}
@@ -122,9 +139,9 @@ function NoteCard({ note }: { note: IStudentNote }) {
         </div>
 
         {/* Tags */}
-        {note.tags?.length > 0 && (
+        {cleanTags.length > 0 && (
           <div className="flex flex-wrap gap-1">
-            {note.tags.map((tag) => (
+            {cleanTags.map((tag) => (
               <span
                 key={tag}
                 className="text-[10px] px-2 py-0.5 rounded-full bg-[var(--brand-light-green)] text-[var(--brand-mid)] font-semibold"
@@ -135,17 +152,33 @@ function NoteCard({ note }: { note: IStudentNote }) {
           </div>
         )}
 
-        {/* File action */}
-        {note.fileUrl && (
-          <a
-            href={note.fileUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={`inline-flex items-center gap-1.5 h-7 px-3 rounded-lg text-[10px] font-bold text-white transition-colors ${cfg.btnBg}`}
-          >
-            <ExternalLink className="w-3 h-3" />
-            {cfg.actionLabel}
-          </a>
+        {/* File links */}
+        {fileUrls.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 pt-0.5">
+            {(() => {
+              const typeCount: Record<string, number> = {};
+              return fileUrls.map((url, i) => {
+                const type = attachmentTypes[i] ?? "document";
+                const cfg = TYPE_CONFIG[type] ?? TYPE_CONFIG.document;
+                typeCount[type] = (typeCount[type] ?? 0) + 1;
+                const idx = typeCount[type];
+                const totalOfType = fileUrls.filter((_, j) => (attachmentTypes[j] ?? "document") === type).length;
+                const label = totalOfType > 1 ? `View ${cfg.label} ${idx}` : `View ${cfg.label}`;
+                return (
+                  <a
+                    key={url}
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`inline-flex items-center gap-1.5 h-7 px-3 rounded-lg text-[10px] font-bold text-white transition-colors ${cfg.btnBg}`}
+                  >
+                    <ExternalLink className="w-3 h-3" />
+                    {label}
+                  </a>
+                );
+              });
+            })()}
+          </div>
         )}
       </div>
     </div>
@@ -154,7 +187,8 @@ function NoteCard({ note }: { note: IStudentNote }) {
 
 export default function StudentChatbot() {
   const [step, setStep] = useState<Step>("subject");
-  const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
+  const [selectedSubjectId, setSelectedSubjectId] = useState<string | null>(null);
+  const [selectedSubjectName, setSelectedSubjectName] = useState<string | null>(null);
   const [selectedChapter, setSelectedChapter] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -173,12 +207,12 @@ export default function StudentChatbot() {
   const subjects = subjectsData?.data ?? [];
 
   const { data: chaptersData, isLoading: chaptersLoading } = useGetStudentNoteChapters(
-    selectedSubject ?? ""
+    selectedSubjectId ?? ""
   );
   const chapters = chaptersData?.data ?? [];
 
   const { data: notesData, isLoading: notesLoading } = useGetStudentNotes(
-    selectedSubject ?? "",
+    selectedSubjectId ?? "",
     selectedChapter ?? ""
   );
 
@@ -199,7 +233,7 @@ export default function StudentChatbot() {
 
   // When chapters are ready after subject selection, add bot chapter prompt
   useEffect(() => {
-    if (!selectedSubject || chaptersLoading || step !== "chapter") return;
+    if (!selectedSubjectId || chaptersLoading || step !== "chapter") return;
 
     setIsTyping(false);
 
@@ -210,12 +244,13 @@ export default function StudentChatbot() {
           id: `bot-no-chapters-${Date.now()}`,
           kind: "text",
           sender: "bot",
-          text: `Hmm, no chapters found for ${selectedSubject} yet. Try a different subject.`,
+          text: `Hmm, no chapters found for ${selectedSubjectName} yet. Try a different subject.`,
           timestamp: new Date(),
         } as TextMessage,
       ]);
       setStep("subject");
-      setSelectedSubject(null);
+      setSelectedSubjectId(null);
+      setSelectedSubjectName(null);
       return;
     }
 
@@ -225,18 +260,18 @@ export default function StudentChatbot() {
         id: `bot-chapters-${Date.now()}`,
         kind: "text",
         sender: "bot",
-        text: `Great choice! Here are the chapters available for ${selectedSubject}. Which one would you like to explore?`,
+        text: `Great choice! Here are the chapters available for ${selectedSubjectName}. Which one would you like to explore?`,
         timestamp: new Date(),
       } as TextMessage,
     ]);
-  // selectedSubject ensures the effect re-runs when a new subject is picked,
+  // selectedSubjectId ensures the effect re-runs when a new subject is picked,
   // even when chapter data is already cached (chaptersLoading stays false).
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedSubject, chaptersLoading]);
+  }, [selectedSubjectId, chaptersLoading]);
 
   // When notes are ready after chapter selection, add bot notes message
   useEffect(() => {
-    if (!selectedSubject || !selectedChapter || notesLoading || step !== "results") return;
+    if (!selectedSubjectId || !selectedChapter || notesLoading || step !== "results") return;
 
     setIsTyping(false);
     const notes = notesData?.data ?? [];
@@ -248,7 +283,7 @@ export default function StudentChatbot() {
           id: `bot-no-notes-${Date.now()}`,
           kind: "text",
           sender: "bot",
-          text: `No notes found for ${selectedSubject} — ${selectedChapter} yet. Try another chapter or subject!`,
+          text: `No notes found for ${selectedSubjectName} — ${selectedChapter} yet. Try another chapter or subject!`,
           timestamp: new Date(),
         } as TextMessage,
       ]);
@@ -260,7 +295,7 @@ export default function StudentChatbot() {
           kind: "notes",
           sender: "bot",
           notes,
-          subject: selectedSubject,
+          subject: selectedSubjectName ?? "",
           chapter: selectedChapter,
           timestamp: new Date(),
         } as NotesMessage,
@@ -268,7 +303,7 @@ export default function StudentChatbot() {
           id: `bot-notes-footer-${Date.now()}`,
           kind: "text",
           sender: "bot",
-          text: `Found ${notes.length} note${notes.length !== 1 ? "s" : ""} for ${selectedSubject} — ${selectedChapter}. Would you like to explore another chapter or start over?`,
+          text: `Found ${notes.length} note${notes.length !== 1 ? "s" : ""} for ${selectedSubjectName} — ${selectedChapter}. Would you like to explore another chapter or start over?`,
           timestamp: new Date(),
         } as TextMessage,
       ]);
@@ -278,8 +313,9 @@ export default function StudentChatbot() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedChapter, notesLoading]);
 
-  const handleSelectSubject = (subject: string) => {
-    setSelectedSubject(subject);
+  const handleSelectSubject = (subjectId: string, subjectName: string) => {
+    setSelectedSubjectId(subjectId);
+    setSelectedSubjectName(subjectName);
     setSelectedChapter(null);
     setStep("chapter");
     setIsTyping(true);
@@ -289,7 +325,7 @@ export default function StudentChatbot() {
         id: `user-subject-${Date.now()}`,
         kind: "text",
         sender: "user",
-        text: subject,
+        text: subjectName,
         timestamp: new Date(),
       } as TextMessage,
     ]);
@@ -320,14 +356,15 @@ export default function StudentChatbot() {
         id: `bot-another-chapter-${Date.now()}`,
         kind: "text",
         sender: "bot",
-        text: `Sure! Which chapter in ${selectedSubject} would you like to explore next?`,
+        text: `Sure! Which chapter in ${selectedSubjectName} would you like to explore next?`,
         timestamp: new Date(),
       } as TextMessage,
     ]);
   };
 
   const handleReset = () => {
-    setSelectedSubject(null);
+    setSelectedSubjectId(null);
+    setSelectedSubjectName(null);
     setSelectedChapter(null);
     setStep("subject");
     setIsTyping(false);
@@ -366,7 +403,7 @@ export default function StudentChatbot() {
                   <div className="flex items-center gap-2">
                     <span className="text-[10px] font-semibold text-slate-600 w-14">Subject</span>
                     <span className="text-xs font-bold text-slate-700 flex-1 truncate">
-                      {selectedSubject ?? <span className="text-slate-600 font-normal">—</span>}
+                      {selectedSubjectName ?? <span className="text-slate-600 font-normal">—</span>}
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
@@ -387,7 +424,7 @@ export default function StudentChatbot() {
                   const labels = ["Choose Subject", "Choose Chapter", "View Notes"];
                   const isActive = step === s;
                   const isDone =
-                    (s === "subject" && selectedSubject !== null) ||
+                    (s === "subject" && selectedSubjectId !== null) ||
                     (s === "chapter" && selectedChapter !== null);
                   return (
                     <div
@@ -418,7 +455,7 @@ export default function StudentChatbot() {
               </div>
 
               {/* Reset button */}
-              {(selectedSubject || selectedChapter) && (
+              {(selectedSubjectId || selectedChapter) && (
                 <Button
                   variant="outline"
                   onClick={handleReset}
@@ -563,12 +600,12 @@ export default function StudentChatbot() {
                     <div className="flex flex-wrap gap-2">
                       {subjects.map((subject) => (
                         <button
-                          key={subject}
-                          onClick={() => handleSelectSubject(subject)}
+                          key={subject.id}
+                          onClick={() => handleSelectSubject(subject.id, subject.name)}
                           disabled={isChipDisabled}
                           className="inline-flex items-center gap-1.5 h-8 px-3.5 rounded-full border border-[var(--brand-green)]/40 bg-[var(--brand-light-green)] text-xs font-semibold text-[var(--brand-mid)] hover:bg-[var(--brand-green)] hover:text-white hover:border-[var(--brand-green)] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
                         >
-                          {subject}
+                          {subject.name}
                           <ChevronRight className="w-3 h-3" />
                         </button>
                       ))}
@@ -581,7 +618,7 @@ export default function StudentChatbot() {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <p className="text-[10px] font-bold uppercase tracking-wider text-slate-600">
-                      Select a chapter in {selectedSubject}
+                      Select a chapter in {selectedSubjectName}
                     </p>
                     <button
                       onClick={handleReset}
@@ -624,7 +661,7 @@ export default function StudentChatbot() {
                         onClick={handleAnotherChapter}
                         className="inline-flex items-center gap-1.5 h-8 px-3.5 rounded-full border border-slate-200 bg-white text-xs font-semibold text-slate-600 hover:bg-slate-50 hover:border-slate-300 transition-all"
                       >
-                        Another chapter in {selectedSubject}
+                        Another chapter in {selectedSubjectName}
                       </button>
                       <button
                         onClick={handleReset}

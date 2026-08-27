@@ -12,6 +12,11 @@ import {
   updateTutor,
   assignStudentsToTutor,
   getGrowthHistory,
+  getAdminTutorSessions,
+  getAdminTutorAssignments,
+  getAdminTutorExams,
+  getAdminTutorAttendance,
+  getTutorSubjects,
 } from "@/services/admin/tutor/tutor";
 import {
   ICreateTutorPayload,
@@ -153,5 +158,45 @@ export const useGetGrowthHistory = (params: { tutorId: string; month?: string; y
     queryKey: [...GROWTH_HISTORY_KEY, params],
     queryFn: () => getGrowthHistory(params),
     enabled: !!params.tutorId,
+  });
+};
+
+export const useGetAdminTutorSessions = (id: string, params?: { page?: number; limit?: number }) => {
+  return useQuery({
+    queryKey: ["admin-tutor-sessions", id, params],
+    queryFn: () => getAdminTutorSessions(id, params),
+    enabled: !!id,
+  });
+};
+
+export const useGetAdminTutorAssignments = (id: string, params?: { page?: number; limit?: number }) => {
+  return useQuery({
+    queryKey: ["admin-tutor-assignments", id, params],
+    queryFn: () => getAdminTutorAssignments(id, params),
+    enabled: !!id,
+  });
+};
+
+export const useGetAdminTutorExams = (id: string, params?: { page?: number; limit?: number }) => {
+  return useQuery({
+    queryKey: ["admin-tutor-exams", id, params],
+    queryFn: () => getAdminTutorExams(id, params),
+    enabled: !!id,
+  });
+};
+
+export const useGetAdminTutorAttendance = (id: string, params?: { page?: number; limit?: number }) => {
+  return useQuery({
+    queryKey: ["admin-tutor-attendance", id, params],
+    queryFn: () => getAdminTutorAttendance(id, params),
+    enabled: !!id,
+  });
+};
+
+export const useGetTutorSubjects = (id: string) => {
+  return useQuery({
+    queryKey: ["tutor-subjects", id],
+    queryFn: () => getTutorSubjects(id),
+    enabled: !!id,
   });
 };

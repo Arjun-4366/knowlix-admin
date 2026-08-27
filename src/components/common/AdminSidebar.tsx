@@ -17,6 +17,7 @@ import {
   UserCog,
   Library,
   TrendingUp,
+  CalendarClock,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import logo from "../../assets/images/icon.png";
@@ -36,6 +37,7 @@ const nav: NavItem[] = [
   { name: "Tutors", href: "/admin/tutor", icon: GraduationCap },
   { name: "Mentors", href: "/admin/mentors", icon: UserCheck },
   { name: "Coordinators", href: "/admin/coordinators", icon: Briefcase },
+  { name: "Timetable", href: "/admin/timetable", icon: CalendarClock },
   { name: "Notes", href: "/admin/notes", icon: BookOpen },
   { name: "Curriculum", href: "/admin/curriculum", icon: Library },
   { name: "Reports", href: "/admin/reports", icon: BarChart3 },
@@ -129,7 +131,9 @@ export default function AdminSidebar({ collapsed }: Props) {
           <p className="text-white font-bold text-sm leading-none font-heading">
             Knowlix
           </p>
-          <p className="text-white/45 text-xs mt-0.5">Admin Panel</p>
+          <p className="text-white/45 text-xs mt-0.5">
+            {isSuperAdmin ? "Super Admin" : "Admin Panel"}
+          </p>
         </div>
       </div>
 

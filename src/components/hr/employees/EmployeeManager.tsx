@@ -48,19 +48,13 @@ export default function EmployeeManager() {
   const { mutateAsync: createTutor, isPending: isCreating } = useCreateTutorByHR();
   const { mutateAsync: updateTutor, isPending: isUpdating } = useUpdateTutorByHR();
 
-  // Lightweight stat queries
-  const { data: statsTotal }    = useGetTutorsHR({ limit: 1 });
-  const { data: statsApproved } = useGetTutorsHR({ status: "approved", limit: 1 });
-  const { data: statsPending }  = useGetTutorsHR({ status: "pending",  limit: 1 });
-  const { data: statsInactive } = useGetTutorsHR({ status: "inactive", limit: 1 });
-  const { data: statsResigned } = useGetTutorsHR({ status: "resigned", limit: 1 });
-
   const tutors = data?.data ?? [];
   const total = data?.total ?? 0;
+  const summary = data?.summary;
 
   const handleFormSubmit = async (payload: ICreateTutorPayload) => {
     try {
-      await createTutor({ ...payload, status: "pending" });
+      await createTutor(payload);
       setIsAddModalOpen(false);
     } catch {
       // error toast handled inside the mutation
@@ -94,12 +88,7 @@ export default function EmployeeManager() {
         }
       />
 
-      <EmployeeStats
-        totalCount={statsTotal?.total ?? 0}
-        activeCount={statsApproved?.total ?? 0}
-        probationCount={statsPending?.total ?? 0}
-        departedCount={(statsInactive?.total ?? 0) + (statsResigned?.total ?? 0)}
-      />
+      <EmployeeStats summary={summary} />
 
       {isLoading ? (
         <div className="flex h-96 items-center justify-center bg-white rounded-2xl border border-slate-150 shadow-sm">

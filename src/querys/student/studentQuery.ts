@@ -150,10 +150,10 @@ export const useGetStudentNoteChapters = (subject: string) => {
   });
 };
 
-export const useGetStudentNotes = (subject: string, chapter: string) => {
+export const useGetStudentNotes = (subjectId: string, chapter: string) => {
   return useQuery({
-    queryKey: STUDENT_KEYS.notes(subject, chapter),
-    queryFn: () => getStudentNotes({ subject, chapter }),
-    enabled: !!subject && !!chapter,
+    queryKey: STUDENT_KEYS.notes(subjectId, chapter),
+    queryFn: () => getStudentNotes({ subjectId, chapter }),
+    enabled: !!subjectId && !!chapter,
   });
 };

@@ -21,6 +21,15 @@ const nunito = Nunito({
 export const metadata: Metadata = {
   title: "Knowlix Admin",
   description: "Admin panel for Knowlix Learning",
+  icons: {
+    icon: [
+      {
+        url: "/images/icon.png",
+        sizes: "16x16",
+        type: "image/png",
+      },
+    ],
+  },
 };
 
 export default function RootLayout({
@@ -29,8 +38,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${nunito.variable} h-full antialiased`}
-    >
+      className={`${inter.variable} ${nunito.variable} h-full antialiased`}>
       <QueryClientProvider>
         <ConfirmationProvider>
           <body className="min-h-full flex flex-col">

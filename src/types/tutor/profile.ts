@@ -55,6 +55,21 @@ export interface IAssignedStudent {
   updatedAt?: string;
 }
 
+export interface ITutorTimetableEntry {
+  id: string;
+  tutorId: string;
+  studentIds: string[];
+  students?: IAssignedStudent[];
+  subjectId: string;
+  subjectName?: string;
+  date: string;
+  day?: string;
+  startTime: string;
+  endTime: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 export interface IAttendanceLog {
   id: string;
   date: string;
@@ -87,6 +102,7 @@ export interface ITutorProfilePayload {
   slots: ISlotEntry[];
   assignedStudentIds?: IAssignedStudent[] | string[];
   attendance?: IAttendanceLog[];
+  timetable?: ITutorTimetableEntry[];
   createdAt: string;
   updatedAt: string;
 }

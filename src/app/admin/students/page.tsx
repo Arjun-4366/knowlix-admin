@@ -74,8 +74,6 @@ function StudentsContent() {
   );
 
 
-  console.log("students",studentsResponse)
-
   useEffect(() => {
     if (shouldOpenAddModal) {
       router.replace("/admin/students");
@@ -169,18 +167,18 @@ function StudentsContent() {
 
       {/* Filter UI */}
       <div className="flex flex-col sm:flex-row gap-4 mb-6">
-        <div className="relative flex-1 bg-white">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-600" />
+        <div className="relative flex-1">
+          <Search className="absolute left-3 bottom-3 -translate-y-1/2 h-4 w-4 text-slate-600" />
           <Input 
             placeholder="Search students by name, email..." 
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
-            className="pl-9 h-10 w-full"
+            className="pl-9 h-10 w-full bg-white"
           />
         </div>
         <div className="flex gap-3 flex-wrap sm:flex-nowrap w-full sm:w-auto">
           <Select value={filterAdmissionStatus} onValueChange={(v) => { setFilterAdmissionStatus(v); resetPage(); }}>
-            <SelectTrigger className="h-12 py-5 w-full sm:w-[160px] bg-white">
+            <SelectTrigger className="sm:w-[160px] bg-white">
               <SelectValue placeholder="Admission Status" />
             </SelectTrigger>
             <SelectContent>

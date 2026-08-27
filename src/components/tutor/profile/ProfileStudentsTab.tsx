@@ -37,7 +37,7 @@ export default function ProfileStudentsTab({ assignedStudents, admissionStatusCo
             <Table>
               <TableHeader className="bg-slate-50/80">
                 <TableRow>
-                  {["Student", "Admission No", "Program / Course", "Class", "Syllabus", "Package", "Status", "Fee"].map((h) => (
+                  {["Student", "Admission No", "Program / Course", "Class", "Syllabus", "Package"].map((h) => (
                     <TableHead key={h} className="px-5 py-3 text-[9px] font-bold text-slate-600 uppercase tracking-wider">
                       {h}
                     </TableHead>
@@ -66,7 +66,7 @@ export default function ProfileStudentsTab({ assignedStudents, admissionStatusCo
                     </TableCell>
                     <TableCell className="px-5 py-3.5">
                       <span className="text-xs font-semibold text-slate-700">
-                        {s.class ? `Class ${s.class}` : "—"}
+                        {s.class ? `${s.class}` : "—"}
                       </span>
                     </TableCell>
                     <TableCell className="px-5 py-3.5">
@@ -76,28 +76,6 @@ export default function ProfileStudentsTab({ assignedStudents, admissionStatusCo
                       <span className="text-[10px] font-semibold text-slate-700 capitalize">
                         {s.package?.replace(/_/g, " ") || "—"}
                       </span>
-                    </TableCell>
-                    <TableCell className="px-5 py-3.5">
-                      <Badge variant="outline" className={`text-[9px] font-bold capitalize ${admissionStatusColor(s.admissionStatus)}`}>
-                        {s.admissionStatus?.replace(/_/g, " ") || "—"}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="px-5 py-3.5">
-                      {s.totalFee != null ? (
-                        <div>
-                          <p className="text-[10px] font-bold text-slate-800">
-                            ₹{(s.paidAmount ?? 0).toLocaleString("en-IN")} / ₹{s.totalFee.toLocaleString("en-IN")}
-                          </p>
-                          <div className="w-16 h-1 bg-slate-200 rounded-full mt-1 overflow-hidden">
-                            <div
-                              className="h-full bg-[var(--brand-green)] rounded-full"
-                              style={{ width: `${Math.min(100, ((s.paidAmount ?? 0) / s.totalFee) * 100)}%` }}
-                            />
-                          </div>
-                        </div>
-                      ) : (
-                        <span className="text-[10px] text-slate-600">—</span>
-                      )}
                     </TableCell>
                   </TableRow>
                 ))}

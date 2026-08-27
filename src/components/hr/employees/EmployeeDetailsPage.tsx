@@ -9,13 +9,10 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import EmployeeDossier from "./EmployeeDossier";
-import EmployeeFormModal, { EmployeeFormData } from "./EmployeeFormModal";
-import {
-  EMPLOYEE_DEPARTMENTS,
-  EMPLOYEE_STATUSES,
-} from "./employeeData";
+import AddTutorForm from "@/components/tutors/AddTutorForm";
 import { Employee } from "./types";
-import { useGetTutorHR, useAddRemarkHR } from "@/querys/admin/hrQuery";
+import { useGetTutorHR, useUpdateTutorByHR, useAddRemarkHR } from "@/querys/admin/hrQuery";
+import { ICreateTutorPayload } from "@/types/admin/tutor";
 
 const mapTutorToEmployee = (tutor: any): Employee => {
   const tutorId = tutor.id || tutor._id || "";
@@ -74,6 +71,7 @@ export default function EmployeeDetailsPage({
   const [showRemarkDialog, setShowRemarkDialog] = useState(false);
 
   const { data: tutorRes, isLoading } = useGetTutorHR(employeeId);
+  const { mutateAsync: updateTutor, isPending: isUpdating } = useUpdateTutorByHR();
   const { mutateAsync: addRemark, isPending: isAddingRemark } = useAddRemarkHR();
   const employee = tutorRes?.data ? mapTutorToEmployee(tutorRes.data) : null;
   const positiveRemarks = ((tutorRes?.data as any)?.positiveRemarks ?? []) as { text: string; addedBy: string; addedAt: string }[];
@@ -144,9 +142,15 @@ export default function EmployeeDetailsPage({
     );
   }
 
-  const handleFormSubmit = (data: EmployeeFormData) => {
-    toast.error("Tutor editing is not supported on the backend yet.");
-    setShowFormModal(false);
+  const handleFormSubmit = async (payload: ICreateTutorPayload) => {
+    try {
+      const { password: _p, status, ...rest } = payload;
+      const updateData = status === "approved" ? rest : { ...rest, status };
+      await updateTutor({ id: employeeId, data: updateData });
+      setShowFormModal(false);
+    } catch {
+      // error toast handled inside the mutation
+    }
   };
 
   const handleStatusChange = (newStatus: Employee["status"]) => {
@@ -176,7 +180,7 @@ export default function EmployeeDetailsPage({
     <div className="space-y-6 pb-10">
       <DashboardHeader
         title="Employee Detail"
-        description={`${employee.name} | ${employee.id} | ${employee.department}`}
+        description={`${employee.name} | ${employee.department}`}
         onBack={() => router.push("/hr/employees")}
         backText="Back to Employee Directory"
         actions={
@@ -274,14 +278,17 @@ export default function EmployeeDetailsPage({
         </div>
       )}
 
-      <EmployeeFormModal
-        isOpen={showFormModal}
-        onClose={() => setShowFormModal(false)}
-        onSubmit={handleFormSubmit}
-        employee={employee}
-        departments={EMPLOYEE_DEPARTMENTS}
-        statuses={EMPLOYEE_STATUSES}
-      />
+      {showFormModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <AddTutorForm
+            hrMode
+            tutorToEdit={tutorRes?.data ?? undefined}
+            onClose={() => setShowFormModal(false)}
+            onSubmit={handleFormSubmit}
+            isSubmitting={isUpdating}
+          />
+        </div>
+      )}
 
       {showRemarkDialog && (
         <AddRemarkDialog

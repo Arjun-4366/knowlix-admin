@@ -146,7 +146,7 @@ export default function TutorStudentTable({
                   {/* Class */}
                   <TableCell className="px-6 py-4">
                     <span className="text-sm font-semibold text-slate-650 truncate block">
-                      {student.class ? `Class ${student.class}` : "—"}
+                      {student.class ? `${student.class}` : "—"}
                     </span>
                   </TableCell>
 

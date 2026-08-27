@@ -16,6 +16,7 @@ import AssignmentsList from "./AssignmentsList";
 import AssignmentStatsRow from "./AssignmentStatsRow";
 import CreateAssignmentForm from "./CreateAssignmentForm";
 import TutorEvaluateAssignmentModal from "./TutorEvaluateAssignmentModal";
+import TutorAssignmentDetailModal from "./TutorAssignmentDetailModal";
 
 interface TutorAssignmentCreatorProps {
   hideHeader?: boolean;
@@ -37,6 +38,9 @@ function TutorAssignmentCreatorContent({
   const [evaluatingAssignment, setEvaluatingAssignment] =
     useState<ITutorAssignment | null>(null);
   const [isEvalModalOpen, setIsEvalModalOpen] = useState(false);
+  const [viewingAssignment, setViewingAssignment] =
+    useState<ITutorAssignment | null>(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
   const isLoading = loadingAssignments || loadingStudents;
   const assignments = assignmentsResponse?.data || [];
@@ -65,6 +69,11 @@ function TutorAssignmentCreatorContent({
   const handleStartEvaluation = (asg: ITutorAssignment) => {
     setEvaluatingAssignment(asg);
     setIsEvalModalOpen(true);
+  };
+
+  const handleViewAssignment = (asg: ITutorAssignment) => {
+    setViewingAssignment(asg);
+    setIsDetailModalOpen(true);
   };
 
   if (isLoading) {
@@ -144,14 +153,16 @@ function TutorAssignmentCreatorContent({
             assignments={assignments}
             studentMap={studentMap}
             onEvaluate={handleStartEvaluation}
+            onView={handleViewAssignment}
           />
         </TabsContent>
-        
+
         <TabsContent value="evaluated" className="mt-0 outline-none">
           <AssignmentsList
             assignments={evaluated}
             studentMap={studentMap}
             onEvaluate={handleStartEvaluation}
+            onView={handleViewAssignment}
           />
         </TabsContent>
         <TabsContent value="expired" className="mt-0 outline-none">
@@ -159,6 +170,7 @@ function TutorAssignmentCreatorContent({
             assignments={expired}
             studentMap={studentMap}
             onEvaluate={handleStartEvaluation}
+            onView={handleViewAssignment}
           />
         </TabsContent>
       </Tabs>
@@ -171,6 +183,15 @@ function TutorAssignmentCreatorContent({
         }}
         assignment={evaluatingAssignment}
         studentMap={studentMap}
+      />
+
+      <TutorAssignmentDetailModal
+        isOpen={isDetailModalOpen}
+        onClose={() => {
+          setIsDetailModalOpen(false);
+          setViewingAssignment(null);
+        }}
+        assignment={viewingAssignment}
       />
     </div>
   );

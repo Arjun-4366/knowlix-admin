@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useRef } from "react";
 import { useDebounce } from "@/hooks/useDebounce";
@@ -416,7 +416,8 @@ export default function TutorReportHistory({
               <div className="w-7 h-7 border-4 border-[var(--brand-green)] border-t-transparent rounded-full animate-spin" />
             </div>
           ) : (
-            <Table className="table-fixed w-full">
+            <div className="overflow-x-auto">
+            <Table className="table-fixed w-full min-w-[720px]">
               <TableHeader className="bg-slate-50/50">
                 <TableRow>
                   <TableHead className="px-5 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[26%]">
@@ -520,6 +521,7 @@ export default function TutorReportHistory({
                 )}
               </TableBody>
             </Table>
+            </div>
           )}
         </div>
       </div>

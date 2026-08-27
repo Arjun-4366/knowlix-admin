@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { Save } from "lucide-react";
 import { useGetTutorProfile, useUpdateTutorProfile } from "@/querys/tutor/profileQuery";
-import { useGetSubjects, useGetSyllabuses } from "@/querys/admin/curriculumQuery";
 import { ISubjectEntry, ISlotEntry, IAssignedStudent } from "@/types/tutor/profile";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import toast from "react-hot-toast";
@@ -13,24 +12,17 @@ import ProfileOverviewTab from "@/components/tutor/profile/ProfileOverviewTab";
 import ProfileSubjectsTab from "@/components/tutor/profile/ProfileSubjectsTab";
 import ProfileSlotsTab from "@/components/tutor/profile/ProfileSlotsTab";
 import ProfileStudentsTab from "@/components/tutor/profile/ProfileStudentsTab";
+import TutorTimetableCard from "@/components/tutor/TutorTimetableCard";
 
 export default function TutorProfilePage() {
   const { data: profile, isLoading } = useGetTutorProfile();
   const updateProfile = useUpdateTutorProfile();
-  const { data: subjectsData } = useGetSubjects();
-  const { data: syllabusesData } = useGetSyllabuses();
-
-  const curriculumSubjects = (subjectsData?.data || []).map((s) => s.name);
-  const curriculumSyllabuses = (syllabusesData?.data || []).map((s) => s.name);
 
   const [activeTab, setActiveTab] = useState("overview");
   const [availability, setAvailability] = useState<string[]>([]);
   const [subjectEntries, setSubjectEntries] = useState<ISubjectEntry[]>([]);
   const [syllabus, setSyllabus] = useState<string[]>([]);
   const [slots, setSlots] = useState<ISlotEntry[]>([]);
-
-  const [newSubjectName, setNewSubjectName] = useState("");
-  const [newSubjectSyllabi, setNewSubjectSyllabi] = useState<string[]>([]);
 
   const [newSlotDay, setNewSlotDay] = useState("Monday");
   const [newSlotStart, setNewSlotStart] = useState("09:00");
@@ -98,25 +90,6 @@ export default function TutorProfilePage() {
     );
   };
 
-  const toggleSyllabus = (syl: string) =>
-    setSyllabus((prev) => (prev.includes(syl) ? prev.filter((i) => i !== syl) : [...prev, syl]));
-
-  const addSubjectEntry = () => {
-    if (!newSubjectName.trim()) { toast.error("Please enter a subject name."); return; }
-    if (subjectEntries.some((s) => s.name.toLowerCase() === newSubjectName.trim().toLowerCase())) {
-      toast.error("Subject already added."); return;
-    }
-    setSubjectEntries((prev) => [...prev, { name: newSubjectName.trim(), syllabi: newSubjectSyllabi }]);
-    setNewSubjectName("");
-    setNewSubjectSyllabi([]);
-  };
-
-  const removeSubjectEntry = (index: number) =>
-    setSubjectEntries((prev) => prev.filter((_, i) => i !== index));
-
-  const toggleSyllabusForNewSubject = (syl: string) =>
-    setNewSubjectSyllabi((prev) => (prev.includes(syl) ? prev.filter((i) => i !== syl) : [...prev, syl]));
-
   const addSlot = () => {
     if (!newSlotStart || !newSlotEnd) { toast.error("Please enter valid start and end times."); return; }
     setSlots((prev) => [...prev, { day: newSlotDay, startTime: newSlotStart, endTime: newSlotEnd, filled: false }]);
@@ -153,6 +126,14 @@ export default function TutorProfilePage() {
                 </span>
               )}
             </TabsTrigger>
+            <TabsTrigger value="timetable" className="rounded-lg text-xs px-4 py-2 font-bold data-[state=active]:text-white">
+              Timetable
+              {(profile.timetable?.length ?? 0) > 0 && (
+                <span className="ml-1.5 bg-[var(--brand-green)] text-white text-[12px] font-black rounded-full px-1 py-0.5 leading-none">
+                  {profile.timetable?.length}
+                </span>
+              )}
+            </TabsTrigger>
           </TabsList>
 
           <button
@@ -178,19 +159,7 @@ export default function TutorProfilePage() {
         </TabsContent>
 
         <TabsContent value="subjects" className="mt-0">
-          <ProfileSubjectsTab
-            syllabus={syllabus}
-            toggleSyllabus={toggleSyllabus}
-            subjectEntries={subjectEntries}
-            removeSubjectEntry={removeSubjectEntry}
-            newSubjectName={newSubjectName}
-            setNewSubjectName={setNewSubjectName}
-            newSubjectSyllabi={newSubjectSyllabi}
-            toggleSyllabusForNewSubject={toggleSyllabusForNewSubject}
-            addSubjectEntry={addSubjectEntry}
-            curriculumSubjects={curriculumSubjects}
-            curriculumSyllabuses={curriculumSyllabuses}
-          />
+          <ProfileSubjectsTab syllabus={syllabus} subjectEntries={subjectEntries} />
         </TabsContent>
 
         <TabsContent value="slots" className="mt-0">
@@ -218,6 +187,10 @@ export default function TutorProfilePage() {
             assignedStudents={assignedStudents}
             admissionStatusColor={admissionStatusColor}
           />
+        </TabsContent>
+
+        <TabsContent value="timetable" className="mt-0">
+          <TutorTimetableCard timetable={profile.timetable} />
         </TabsContent>
       </Tabs>
     </div>

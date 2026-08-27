@@ -1,5 +1,6 @@
 import { IApiResponse } from "@/types/admin/api";
 import { IAssignedStudent } from "@/types/tutor/profile";
+import { ITimetableEntry } from "@/types/admin/timetable";
 
 
 export type TutorStatus = "pending" | "approved" | "inactive" | "resigned" | string;
@@ -34,6 +35,7 @@ export interface ITutor {
   rank?: number;
   syllabus?: string[];
   subjectEntries?: Array<{ name: string; syllabi: string[] }>;
+  timetable?: ITimetableEntry[];
 }
 
 export interface ITutorPermissions {
@@ -51,7 +53,7 @@ export interface ICreateTutorPayload {
   experience: string;
   availability: string[];
   role: string;
-  status: TutorStatus;
+  status?: TutorStatus;
   profileImage: string;
   permissions: ITutorPermissions;
   syllabus?: string[];
@@ -144,4 +146,16 @@ export interface IGrowthHistoryItem {
 
 export interface IGrowthHistoryResponse extends IApiResponse<IGrowthHistoryItem[]> {
   total?: number;
+}
+
+export interface ITutorSubject {
+  _id: string;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ITutorSubjectsResponse extends IApiResponse<ITutorSubject[]> {
+  total: number;
+  tutorName: string;
 }

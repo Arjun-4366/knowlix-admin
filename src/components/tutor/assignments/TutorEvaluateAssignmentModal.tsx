@@ -36,7 +36,6 @@ export default function TutorEvaluateAssignmentModal({
   const [evalStudentId, setEvalStudentId] = useState("");
   const [evalMarks, setEvalMarks] = useState("");
   const [evalRemarks, setEvalRemarks] = useState("");
-  const [evalCompleted, setEvalCompleted] = useState(true);
 
   // Students who have actually submitted
   const submittedStudents: IAssignmentStudent[] = assignment?.students
@@ -48,15 +47,19 @@ export default function TutorEvaluateAssignmentModal({
         evaluation: null,
       })) ?? [];
 
+  const pendingStudents = submittedStudents.filter((s) => s.evaluation === null);
+  const evaluatedStudents = submittedStudents.filter((s) => s.evaluation !== null);
+
   const selectedStudent = submittedStudents.find((s) => s.studentId === evalStudentId) ?? null;
   const submission = selectedStudent?.submission ?? null;
+  const alreadyEvaluated = selectedStudent?.evaluation !== null && selectedStudent?.evaluation !== undefined;
 
   useEffect(() => {
-    if (assignment && submittedStudents.length > 0) {
-      setEvalStudentId(submittedStudents[0].studentId);
+    if (assignment) {
+      const firstPending = submittedStudents.find((s) => s.evaluation === null);
+      setEvalStudentId(firstPending?.studentId ?? "");
       setEvalMarks("");
       setEvalRemarks("");
-      setEvalCompleted(true);
     }
   }, [assignment, isOpen]);
 
@@ -66,6 +69,10 @@ export default function TutorEvaluateAssignmentModal({
     e.preventDefault();
     if (!evalStudentId) {
       toast.error("Please select a student.");
+      return;
+    }
+    if (alreadyEvaluated) {
+      toast.error("This student has already been evaluated.");
       return;
     }
 
@@ -79,7 +86,6 @@ export default function TutorEvaluateAssignmentModal({
       studentId: evalStudentId,
       marksObtained: marks,
       remarks: evalRemarks.trim(),
-      completed: evalCompleted,
     };
 
     evaluateAssignment(
@@ -129,26 +135,62 @@ export default function TutorEvaluateAssignmentModal({
             {/* Student Select */}
             <div className="space-y-2">
               <Label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
-                Select Student {submittedStudents.length === 0 && <span className="text-red-400 normal-case font-semibold">(no submissions yet)</span>}
+                Select Student{" "}
+                {submittedStudents.length === 0 && (
+                  <span className="text-red-400 normal-case font-semibold">(no submissions yet)</span>
+                )}
+                {submittedStudents.length > 0 && pendingStudents.length === 0 && (
+                  <span className="text-emerald-600 normal-case font-semibold">(all evaluated)</span>
+                )}
               </Label>
               <Select
                 value={evalStudentId}
                 onValueChange={setEvalStudentId}
-                disabled={submittedStudents.length === 0}
-                required
+                disabled={submittedStudents.length === 0 || pendingStudents.length === 0}
               >
                 <SelectTrigger className="bg-white border-slate-200 rounded-xl text-sm font-medium">
-                  <SelectValue placeholder="No submissions available" />
+                  <SelectValue placeholder={pendingStudents.length === 0 ? "All students evaluated" : "No submissions available"} />
                 </SelectTrigger>
                 <SelectContent className="z-[200]">
-                  {submittedStudents.map((s) => (
+                  {pendingStudents.length > 0 && evaluatedStudents.length > 0 && (
+                    <div className="px-2 pt-1.5 pb-1">
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Pending Evaluation</p>
+                    </div>
+                  )}
+                  {pendingStudents.map((s) => (
                     <SelectItem key={s.studentId} value={s.studentId} className="text-xs font-medium">
                       {s.studentName || studentMap.get(s.studentId) || s.studentId}
                     </SelectItem>
                   ))}
+                  {evaluatedStudents.length > 0 && (
+                    <>
+                      <div className="px-2 pt-2 pb-1 border-t border-slate-100 mt-1">
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Already Evaluated</p>
+                      </div>
+                      {evaluatedStudents.map((s) => (
+                        <SelectItem key={s.studentId} value={s.studentId} disabled className="text-xs font-medium">
+                          <span className="text-slate-400">{s.studentName || studentMap.get(s.studentId) || s.studentId}</span>
+                          <span className="ml-2 text-[10px] font-bold text-emerald-600">
+                            ✓ {s.evaluation?.marksObtained}/{assignment.maxMarks}
+                          </span>
+                        </SelectItem>
+                      ))}
+                    </>
+                  )}
                 </SelectContent>
               </Select>
             </div>
+
+            {/* All evaluated banner */}
+            {submittedStudents.length > 0 && pendingStudents.length === 0 && (
+              <div className="flex items-center gap-3 bg-emerald-50 border border-emerald-100 rounded-xl px-4 py-3">
+                <Award className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                <div>
+                  <p className="text-xs font-bold text-emerald-700">All submissions evaluated</p>
+                  <p className="text-[10px] text-emerald-600 mt-0.5">Every student who submitted has been graded.</p>
+                </div>
+              </div>
+            )}
 
             {/* Submitted Files */}
             {submission && (
@@ -221,55 +263,46 @@ export default function TutorEvaluateAssignmentModal({
               </div>
             )}
 
-            {/* Marks Obtained */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Marks Obtained</Label>
-                <Input
-                  type="number"
-                  min="0"
-                  max={assignment.maxMarks}
-                  step="any"
-                  value={evalMarks}
-                  onChange={(e) => setEvalMarks(e.target.value)}
-                  placeholder="e.g. 45"
-                  className="bg-white border border-slate-200 rounded-xl text-sm"
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Max Marks</Label>
-                <div className="h-10 flex items-center justify-between px-3 bg-slate-50 border border-slate-200 rounded-xl">
-                  <span className="text-sm font-bold text-slate-700">{assignment.maxMarks}</span>
-                  <Lock className="w-3.5 h-3.5 text-slate-600 flex-shrink-0" />
+            {/* Evaluation form — only for pending students */}
+            {pendingStudents.length > 0 && (
+              <>
+                {/* Marks Obtained */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Marks Obtained</Label>
+                    <Input
+                      type="number"
+                      min="0"
+                      max={assignment.maxMarks}
+                      step="any"
+                      value={evalMarks}
+                      onChange={(e) => setEvalMarks(e.target.value)}
+                      placeholder="e.g. 45"
+                      className="bg-white border border-slate-200 rounded-xl text-sm"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Max Marks</Label>
+                    <div className="h-10 flex items-center justify-between px-3 bg-slate-50 border border-slate-200 rounded-xl">
+                      <span className="text-sm font-bold text-slate-700">{assignment.maxMarks}</span>
+                      <Lock className="w-3.5 h-3.5 text-slate-600 flex-shrink-0" />
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
 
-            {/* Remarks */}
-            <div className="space-y-2">
-              <Label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Remarks / Feedback</Label>
-              <Textarea
-                value={evalRemarks}
-                onChange={(e) => setEvalRemarks(e.target.value)}
-                placeholder="e.g. Very good work. Minor mistakes in calculations."
-                className="min-h-[80px] max-h-32 bg-white border border-slate-200 rounded-xl text-sm"
-              />
-            </div>
-
-            {/* Completed Checkbox */}
-            <div className="flex items-center gap-2 pt-1">
-              <input
-                type="checkbox"
-                id="evalCompletedModal"
-                checked={evalCompleted}
-                onChange={(e) => setEvalCompleted(e.target.checked)}
-                className="w-4 h-4 rounded border-slate-300 text-[var(--brand-green)] focus:ring-[var(--brand-green)]/30 cursor-pointer"
-              />
-              <Label htmlFor="evalCompletedModal" className="text-xs font-bold text-slate-650 cursor-pointer select-none">
-                Mark as Completed / Graded
-              </Label>
-            </div>
+                {/* Remarks */}
+                <div className="space-y-2">
+                  <Label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Remarks / Feedback</Label>
+                  <Textarea
+                    value={evalRemarks}
+                    onChange={(e) => setEvalRemarks(e.target.value)}
+                    placeholder="e.g. Very good work. Minor mistakes in calculations."
+                    className="min-h-[80px] max-h-32 bg-white border border-slate-200 rounded-xl text-sm"
+                  />
+                </div>
+              </>
+            )}
 
             {/* Action Buttons */}
             <div className="flex gap-3 pt-2">
@@ -279,20 +312,22 @@ export default function TutorEvaluateAssignmentModal({
                 onClick={onClose}
                 className="flex-1 h-10 border-slate-200 rounded-xl font-bold text-xs"
               >
-                Cancel
+                {pendingStudents.length === 0 ? "Close" : "Cancel"}
               </Button>
-              <Button
-                type="submit"
-                disabled={isEvaluating || submittedStudents.length === 0}
-                className="flex-1 h-10 bg-[var(--brand-green)] hover:bg-[var(--brand-green)]/90 text-white font-bold rounded-xl text-xs shadow-sm cursor-pointer transition-all flex items-center justify-center gap-1.5 disabled:opacity-50"
-              >
-                {isEvaluating ? (
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                ) : (
-                  <Award className="w-4 h-4" />
-                )}
-                {isEvaluating ? "Saving..." : "Submit Evaluation"}
-              </Button>
+              {pendingStudents.length > 0 && (
+                <Button
+                  type="submit"
+                  disabled={isEvaluating || !evalStudentId}
+                  className="flex-1 h-10 bg-[var(--brand-green)] hover:bg-[var(--brand-green)]/90 text-white font-bold rounded-xl text-xs shadow-sm cursor-pointer transition-all flex items-center justify-center gap-1.5 disabled:opacity-50"
+                >
+                  {isEvaluating ? (
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <Award className="w-4 h-4" />
+                  )}
+                  {isEvaluating ? "Saving..." : "Submit Evaluation"}
+                </Button>
+              )}
             </div>
           </form>
         </div>

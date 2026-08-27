@@ -17,7 +17,7 @@ import {
 import { ITutor } from "@/types/admin/tutor";
 import { useGetSyllabuses } from "@/querys/admin/curriculumQuery";
 
-const STATUSES = ["approved", "pending", "inactive", "resigned"];
+const STATUSES = ["pending", "inactive", "resigned"];
 const AVAILABILITIES = ["Morning", "Afternoon", "Evening"];
 
 interface EmployeeTableProps {

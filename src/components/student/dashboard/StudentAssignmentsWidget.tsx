@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { Badge } from "@/components/ui/badge";
 import {
@@ -40,7 +40,7 @@ export default function StudentAssignmentsWidget({
         </Badge>
       </div>
       <div className="overflow-x-auto">
-        <Table className="table-fixed w-full">
+        <Table className="table-fixed w-full min-w-[420px]">
           <TableHeader className="bg-slate-50/20">
             <TableRow>
               <TableHead className="px-6 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider w-[40%]">Assignment</TableHead>

@@ -90,15 +90,22 @@ export default function MediaUpload({
                 unoptimized={preview.startsWith("blob:") || preview.startsWith("data:")}
               />
             )}
-            {/* Hover overlay */}
-            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 pointer-events-none group-hover:pointer-events-auto">
+            {/* Hover overlay — for videos, keep it to a top strip so it never covers the
+                native play button, which sits center/bottom of the <video> controls */}
+            <div
+              className={
+                isVideo
+                  ? "absolute top-0 inset-x-0 flex items-start justify-end gap-1.5 p-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none group-hover:pointer-events-auto"
+                  : "absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 pointer-events-none group-hover:pointer-events-auto"
+              }
+            >
               <button
                 type="button"
                 onClick={(e) => {
                   e.stopPropagation();
                   inputRef.current?.click();
                 }}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-white text-gray-800 text-xs font-semibold rounded-lg hover:bg-gray-100 transition-colors pointer-events-auto"
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-white text-gray-800 text-xs font-semibold rounded-lg hover:bg-gray-100 transition-colors pointer-events-auto shadow-sm"
               >
                 <Upload className="w-3.5 h-3.5" /> Change
               </button>
@@ -108,7 +115,7 @@ export default function MediaUpload({
                   e.stopPropagation();
                   clear();
                 }}
-                className="p-1.5 bg-white text-red-500 rounded-lg hover:bg-red-50 transition-colors pointer-events-auto"
+                className="p-1.5 bg-white text-red-500 rounded-lg hover:bg-red-50 transition-colors pointer-events-auto shadow-sm"
               >
                 <X className="w-3.5 h-3.5" />
               </button>

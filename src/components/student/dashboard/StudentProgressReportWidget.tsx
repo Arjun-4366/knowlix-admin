@@ -6,7 +6,6 @@ interface SubjectProgress {
   subject: string;
   progress: number;
   grade: string;
-  tutor: string;
 }
 
 interface StudentProgressReportWidgetProps {
@@ -21,7 +20,7 @@ export default function StudentProgressReportWidget({
       <div className="px-6 py-5 border-b border-slate-50 flex items-center justify-between bg-slate-50/20">
         <div>
           <h2 className="text-sm font-bold text-slate-805">Subject-wise Academic Progress</h2>
-          <p className="text-xs text-slate-600 mt-0.5">Average score and assigned tutor per curriculum block</p>
+          <p className="text-xs text-slate-600 mt-0.5">Average score per curriculum block</p>
         </div>
         <Badge className="bg-[var(--brand-light-green)] text-[var(--brand-mid)] border-[var(--brand-light)]/20 shadow-none text-[10px]">
           Grade Card
@@ -34,7 +33,6 @@ export default function StudentProgressReportWidget({
               <div className="flex justify-between items-baseline">
                 <div className="space-y-0.5">
                   <p className="text-xs font-bold text-slate-855">{subj.subject}</p>
-                  <p className="text-[10px] text-slate-600 font-semibold">Tutor: {subj.tutor}</p>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-bold text-slate-750">{subj.progress}%</span>

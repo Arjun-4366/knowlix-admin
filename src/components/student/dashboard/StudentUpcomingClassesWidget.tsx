@@ -2,13 +2,21 @@
 
 import { ExternalLink, Video, CalendarClock } from "lucide-react";
 
+interface Tutor {
+  name:string,
+  id:string
+}
+
 interface LiveClass {
   id: string;
   date: string;
   time: string;
   subject: string;
   topic: string;
-  tutor: string;
+  notes?: string;
+  type: "group" | "individual";
+  durationMinutes: number;
+  tutorId: Tutor;
   meetLink: string;
   status: string;
 }
@@ -58,6 +66,8 @@ export default function StudentUpcomingClassesWidget({
         ) : (
           classes.map((cls) => {
             const isActive = cls.status === "Active";
+            const isDone = cls.status === "Completed" || cls.status === "Not Conducted";
+            const tutor = cls.tutorId;
             return (
               <div
                 key={cls.id}
@@ -65,7 +75,7 @@ export default function StudentUpcomingClassesWidget({
                   isActive
                     ? "border-[var(--brand-dark)]/25 shadow-sm"
                     : "border-slate-200"
-                }`}
+                } ${isDone ? "opacity-60" : ""}`}
               >
                 {/* Active: colored top strip */}
                 {isActive && (
@@ -79,34 +89,61 @@ export default function StudentUpcomingClassesWidget({
                         <span className="text-[9px] font-black text-slate-600 uppercase tracking-wider">
                           {cls.date} · {cls.time}
                         </span>
+                        <span className="text-[8px] font-black text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded-full uppercase tracking-wide">
+                          {cls.type} · {cls.durationMinutes}m
+                        </span>
                         {isActive && (
                           <span className="text-[8px] font-black text-[var(--brand-mid)] bg-[var(--brand-light-green)] px-1.5 py-0.5 rounded-full uppercase tracking-wide animate-pulse">
                             ● Active Now
                           </span>
                         )}
+                        {isDone && (
+                          <span
+                            className={`text-[8px] font-black px-1.5 py-0.5 rounded-full uppercase tracking-wide ${
+                              cls.status === "Completed"
+                                ? "text-emerald-700 bg-emerald-100"
+                                : "text-red-700 bg-red-100"
+                            }`}
+                          >
+                            {cls.status}
+                          </span>
+                        )}
                       </div>
                       <h4 className="text-sm font-bold text-slate-900 leading-tight">{cls.subject}</h4>
-                      <p className="text-[10px] text-slate-600 leading-normal truncate">
-                        {cls.topic}
-                      </p>
+                      {cls.topic && (
+                        <p className="text-[10px] text-slate-600 leading-normal truncate">
+                          {cls.topic}
+                        </p>
+                      )}
+                      {cls.notes && (
+                        <p className="text-[10px] text-slate-500 italic leading-normal truncate">
+                          Note: {cls.notes}
+                        </p>
+                      )}
                       <p className="text-[10px] text-slate-600 font-semibold">
-                        Tutor: {cls.tutor}
+                        Tutor: {tutor?.name}
                       </p>
                     </div>
 
-                    <a
-                      href={cls.meetLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-2 text-[10px] font-bold rounded-lg transition-all ${
-                        isActive
-                          ? "bg-[var(--brand-dark)] hover:bg-[var(--brand-mid)] text-white shadow-sm"
-                          : "bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200"
-                      }`}
-                    >
-                      Join Room
-                      <ExternalLink className="w-3 h-3" />
-                    </a>
+                    {isDone ? (
+                      <span className="flex-shrink-0 px-3 py-2 text-[10px] font-bold rounded-lg bg-slate-50 text-slate-400 border border-slate-200 cursor-not-allowed">
+                        Room Closed
+                      </span>
+                    ) : (
+                      <a
+                        href={cls.meetLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-2 text-[10px] font-bold rounded-lg transition-all ${
+                          isActive
+                            ? "bg-[var(--brand-dark)] hover:bg-[var(--brand-mid)] text-white shadow-sm"
+                            : "bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200"
+                        }`}
+                      >
+                        Join Room
+                        <ExternalLink className="w-3 h-3" />
+                      </a>
+                    )}
                   </div>
                 </div>
               </div>

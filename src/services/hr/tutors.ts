@@ -1,7 +1,7 @@
 import { apiClient } from "@/constants/apiClient";
 import { ENDPOINTS } from "@/constants/endpoints";
 import { IApiResponse } from "@/types/admin/api";
-import { ICreateTutorPayload, ITutor, IUpdateTutorPayload } from "@/types/admin/tutor";
+import { ICreateTutorPayload, ITutor, ITutorSummary, IUpdateTutorPayload } from "@/types/admin/tutor";
 
 // Password and status are excluded from HR tutor updates
 export type IUpdateTutorHRPayload = Omit<IUpdateTutorPayload, "password" | "status">;
@@ -19,6 +19,7 @@ export interface ITutorsHRResponse {
   data: ITutor[];
   total: number;
   status: string;
+  summary?: ITutorSummary;
 }
 
 export const getTutorsHR = async (params?: ITutorHRQueryParams): Promise<ITutorsHRResponse> => {

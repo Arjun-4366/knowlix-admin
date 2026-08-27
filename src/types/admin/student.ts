@@ -32,6 +32,9 @@ export interface IStudent {
   studentName: string;
   parentName: string;
   class: string;
+  standardId?: string;
+  syllabus?: string;
+  syllabusId?: string;
   email?: string;
   phone?: string;
   place: string;
@@ -54,9 +57,11 @@ export interface IStudent {
   programName?: string | null;
   courseId?: string | null;
   courseName?: string | null;
-  syllabus?: string;
   totalFee?: number;
   paidAmount?: number;
+  subjectIds?: string[];
+  subjectNames?: string[];
+  subjects?: Array<{ id: string; name: string }>;
   createdAt: string;
   updatedAt: string;
 }
@@ -65,7 +70,8 @@ export interface ICreateStudentPayload {
   studentName: string;
   admissionNumber?: string;
   parentName: string;
-  class: string;
+  standardId: string;
+  syllabusId?: string;
   email: string;
   phone: string;
   password: string;
@@ -81,9 +87,9 @@ export interface ICreateStudentPayload {
   coordinatorName?: string;
   programId?: string;
   courseId?: string;
-  syllabus?: string;
   totalFee?: number;
   paidAmount?: number;
+  subjectIds?: string[];
 }
 
 export type IUpdateStudentPayload = Partial<ICreateStudentPayload>;

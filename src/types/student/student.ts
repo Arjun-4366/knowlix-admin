@@ -11,6 +11,9 @@ export interface IStudentUser {
   courseName?: string;
   coordinatorName?: string;
   mentorName?: string;
+  subjectIds?: string[];
+  subjectNames?: string[];
+  subjects?: { id: string; name: string }[];
   admissionStatus: string;
   createdAt: string;
   updatedAt: string;
@@ -105,9 +108,14 @@ export interface IStudentNoticesResponse {
   pagination: INoticesPagination;
 }
 
+export interface IPopulatedTutorRef {
+  id: string;
+  name: string;
+}
+
 export interface IMeetSession {
   id: string;
-  tutorId: string;
+  tutorId: string | IPopulatedTutorRef;
   type: "group" | "individual";
   studentIds: string[];
   title: string;
@@ -115,7 +123,7 @@ export interface IMeetSession {
   meetLink: string;
   scheduledAt: string;
   durationMinutes: number;
-  status: "scheduled" | "completed" | "cancelled";
+  status: "scheduled" | "completed" | "not_conducted";
   notes?: string;
   createdAt: string;
   updatedAt: string;
@@ -165,6 +173,7 @@ export interface IAssignment {
   updatedAt: string;
   tutorName?: string;
   submission?: IStudentSubmission | null;
+  evaluation?: IAssignmentEvaluation | null;
 }
 
 export interface IAssignmentEvaluation {
@@ -267,11 +276,15 @@ export interface IStudentProfile {
   courseId?: string;
   courseName?: string;
   syllabus?: string;
+  syllabusId?: string;
   package?: string;
   documents?: IStudentDocuments;
   admissionStatus: string;
   totalFee?: number;
   paidAmount?: number;
+  subjectIds?: string[];
+  subjectNames?: string[];
+  subjects?: Array<{ id: string; name: string }>;
   assignedMentorId?: string;
   mentorName?: string;
   assignedCoordinatorId?: string;

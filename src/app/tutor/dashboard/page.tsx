@@ -29,10 +29,9 @@ import {
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import {
-  useGetTutorDashboard,
-  useGetTutorSalary,
-} from "@/querys/tutor/dashboardQuery";
+import TutorTimetableCard from "@/components/tutor/TutorTimetableCard";
+import { useGetTutorDashboard, useGetTutorSalary } from "@/querys/tutor/dashboardQuery";
+import { useTutorStore } from "@/store/tutorStore";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -75,6 +74,8 @@ export default function TutorDashboard() {
     period: kpiPeriod,
   });
   const { data: salaryData } = useGetTutorSalary();
+  const timetable = useTutorStore((s) => s.profile?.timetable);
+
 
   if (isSessionLoading || isKpiLoading) {
     return (
@@ -385,16 +386,12 @@ export default function TutorDashboard() {
             </Tabs>
           </div>
         </CardHeader>
-        <CardContent className="p-4 sm:p-6">
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-4">
-            <div className="p-3 sm:p-4 rounded-xl border border-slate-100 bg-slate-50/40 text-center">
-              <Star className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-[var(--brand-green)] text-[var(--brand-green)] mx-auto mb-0.5 sm:mb-1" />
-              <p className="text-xl sm:text-2xl font-bold text-slate-800">
-                {kpiData?.kpiPerformance?.growthPoints || 0}
-              </p>
-              <p className="text-[9px] sm:text-[10px] font-semibold text-slate-600 uppercase tracking-wider mt-0.5">
-                Growth Points
-              </p>
+        <CardContent className="p-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div className="p-4 rounded-xl border border-slate-100 bg-slate-50/40 text-center">
+              <Star className="w-4 h-4 fill-[var(--brand-green)] text-[var(--brand-green)] mx-auto mb-1" />
+              <p className="text-2xl font-bold text-slate-800">{kpiData?.kpiPerformance?.growthPoints || 0}</p>
+              <p className="text-[10px] font-semibold text-slate-600 uppercase tracking-wider mt-0.5">Growth Points</p>
             </div>
             <div className="p-3 sm:p-4 rounded-xl border border-slate-100 bg-slate-50/40 text-center">
               <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[var(--brand-green)] mx-auto mb-0.5 sm:mb-1" />
@@ -423,52 +420,10 @@ export default function TutorDashboard() {
                 Exams Pending
               </p>
             </div>
-            <div className="p-3 sm:p-4 rounded-xl border border-slate-100 bg-slate-50/40 text-center">
-              <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[var(--brand-green)] mx-auto mb-0.5 sm:mb-1" />
-              <p className="text-xl sm:text-2xl font-bold text-slate-800">
-                {totalSlots > 0
-                  ? Math.round((filledSlots / totalSlots) * 100)
-                  : 0}
-                %
-              </p>
-              <p className="text-[9px] sm:text-[10px] font-semibold text-slate-600 uppercase tracking-wider mt-0.5">
-                Slot Fill Rate
-              </p>
-            </div>
+
           </div>
 
-          <div className="mt-4 sm:mt-6 space-y-2.5 sm:space-y-3">
-            {[
-              {
-                label: "Attendance Rate",
-                value: Math.round(kpiData?.kpiPerformance?.attendanceRate || 0),
-              },
-              {
-                label: "Slot Fill Rate",
-                value:
-                  totalSlots > 0
-                    ? Math.round((filledSlots / totalSlots) * 100)
-                    : 0,
-              },
-            ].map((bar) => (
-              <div key={bar.label}>
-                <div className="flex justify-between items-center mb-1">
-                  <span className="text-[10px] sm:text-xs font-semibold text-slate-600">
-                    {bar.label}
-                  </span>
-                  <span className="text-[10px] sm:text-xs font-bold text-[var(--brand-green)]">
-                    {bar.value}%
-                  </span>
-                </div>
-                <div className="h-1.5 sm:h-2 bg-slate-100 rounded-full overflow-hidden">
-                  <div
-                    className="h-full rounded-full bg-[var(--brand-green)] transition-all duration-700"
-                    style={{ width: `${bar.value}%` }}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
+      
 
           <div className="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-slate-100">
             <p className="text-[10px] sm:text-xs font-bold text-slate-600 uppercase tracking-wider mb-2.5 sm:mb-3">
@@ -642,6 +597,9 @@ export default function TutorDashboard() {
           </CardContent>
         </Card>
       </div>
+
+      <TutorTimetableCard timetable={timetable} />
+
     </div>
   );
 }

@@ -16,12 +16,12 @@ import {
 import { ButtonLoader } from "@/components/shared/Loader";
 import { useGetNotesFilters } from "@/querys/admin/notesQuery";
 import { useGetStandards, useGetSyllabuses, useGetSubjects } from "@/querys/admin/curriculumQuery";
-import { ICreateNotePayload, INote, NoteStatus } from "@/types/admin/notes";
+import { ICreateNotePayload, INote, IUpdateNotePayload, NoteStatus } from "@/types/admin/notes";
 
 interface NoteFormProps {
   noteToEdit?: INote;
   isSubmitting: boolean;
-  onSubmit: (data: ICreateNotePayload) => void;
+  onSubmit: (data: ICreateNotePayload | IUpdateNotePayload) => void;
   onClose: () => void;
 }
 
@@ -32,17 +32,28 @@ export default function NoteForm({ noteToEdit, isSubmitting, onSubmit, onClose }
   const [title, setTitle] = useState(noteToEdit?.title ?? "");
   const [description, setDescription] = useState(noteToEdit?.description ?? "");
   const [content, setContent] = useState(noteToEdit?.content ?? "");
-  const [standard, setStandard] = useState(noteToEdit?.standard ?? "");
-  const [syllabus, setSyllabus] = useState(noteToEdit?.syllabus ?? "");
-  const [subject, setSubject] = useState(noteToEdit?.subject ?? "");
+  const [standardId, setStandardId] = useState(noteToEdit?.standardId ?? "");
+  const [syllabusId, setSyllabusId] = useState(noteToEdit?.syllabusId ?? "");
+  const [subjectId, setSubjectId] = useState(noteToEdit?.subjectId ?? "");
   const [chapter, setChapter] = useState(noteToEdit?.chapter ?? "");
   const [chapterMode, setChapterMode] = useState<"select" | "manual">("select");
   const [status, setStatus] = useState<NoteStatus>(noteToEdit?.status ?? "published");
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const existingFileUrls = noteToEdit?.fileUrls ?? [];
   const [tags, setTags] = useState<string[]>(() => {
     const raw = noteToEdit?.tags;
     if (!raw) return [];
-    if (Array.isArray(raw)) return raw;
+    if (Array.isArray(raw)) {
+      // Detect comma-split JSON: server stored JSON.stringify(array) then split by ","
+      // First element would start with '["' in that case
+      if (raw.length > 0 && typeof raw[0] === "string" && raw[0].startsWith('["')) {
+        try {
+          const parsed = JSON.parse(raw.join(","));
+          return Array.isArray(parsed) ? parsed : raw;
+        } catch { return raw; }
+      }
+      return raw;
+    }
     if (typeof raw === "string") {
       try { const p = JSON.parse(raw); return Array.isArray(p) ? p : []; } catch { return []; }
     }
@@ -50,35 +61,33 @@ export default function NoteForm({ noteToEdit, isSubmitting, onSubmit, onClose }
   });
   const [tagInput, setTagInput] = useState("");
 
-  const existingFileUrl = noteToEdit?.fileUrl;
-
   const { data: standardsResponse, isLoading: loadingStandards } = useGetStandards();
   const { data: syllabusesResponse, isLoading: loadingSyllabuses } = useGetSyllabuses();
   const { data: subjectsResponse, isLoading: loadingSubjects } = useGetSubjects();
 
-  const standardOptions = (standardsResponse?.data ?? []).map((s) => s.name);
-  const syllabusOptions = (syllabusesResponse?.data ?? []).map((s) => s.name);
-  const subjectOptions = (subjectsResponse?.data ?? []).map((s) => s.name);
+  const standardOptions = standardsResponse?.data ?? [];
+  const syllabusOptions = syllabusesResponse?.data ?? [];
+  const subjectOptions = subjectsResponse?.data ?? [];
 
   const isCurriculumLoading = loadingStandards || loadingSyllabuses || loadingSubjects;
 
   const { data: chapterFiltersResponse, isLoading: loadingChapters } = useGetNotesFilters(
-    subject ? { subject } : undefined,
+    subjectId ? { subjectId } : undefined,
   );
   const availableChapters = chapterFiltersResponse?.data?.chapters ?? [];
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) setSelectedFile(file);
-  };
-
-  const handleRemoveFile = () => {
-    setSelectedFile(null);
+    const files = Array.from(e.target.files ?? []);
+    if (files.length) setSelectedFiles((prev) => [...prev, ...files]);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
+  const handleRemoveFile = (index: number) => {
+    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
   const handleSubjectChange = (value: string) => {
-    setSubject(value);
+    setSubjectId(value);
     setChapter("");
   };
 
@@ -106,22 +115,8 @@ export default function NoteForm({ noteToEdit, isSubmitting, onSubmit, onClose }
 
   const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!isEdit && !selectedFile) return;
-    onSubmit({ title, description, content, standard, syllabus, subject, chapter, status, tags, file: selectedFile as File });
+    onSubmit({ title, description, content, standardId, syllabusId, subjectId, chapter, status, tags, files: selectedFiles });
   };
-
-  const fileLabel = selectedFile
-    ? selectedFile.name
-    : existingFileUrl
-      ? (() => {
-          try {
-            const parts = decodeURIComponent(existingFileUrl).split("/");
-            return parts[parts.length - 1] || "Current file";
-          } catch {
-            return "Current file";
-          }
-        })()
-      : null;
 
   return (
     <div className="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-2xl">
@@ -192,14 +187,14 @@ export default function NoteForm({ noteToEdit, isSubmitting, onSubmit, onClose }
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <Label className="text-xs font-semibold text-slate-600">Standard *</Label>
-                  <Select required value={standard} onValueChange={setStandard}>
+                  <Select required value={standardId} onValueChange={setStandardId}>
                     <SelectTrigger className="h-10 w-full">
                       <SelectValue placeholder="Select class" />
                     </SelectTrigger>
                     <SelectContent>
                       {standardOptions.length > 0 ? (
                         standardOptions.map((s) => (
-                          <SelectItem key={s} value={s}>{s}</SelectItem>
+                          <SelectItem key={s._id} value={s._id}>{s.name}</SelectItem>
                         ))
                       ) : (
                         <div className="px-3 py-4 text-center text-xs text-slate-600">No standards found</div>
@@ -209,14 +204,14 @@ export default function NoteForm({ noteToEdit, isSubmitting, onSubmit, onClose }
                 </div>
                 <div className="space-y-1.5">
                   <Label className="text-xs font-semibold text-slate-600">Syllabus *</Label>
-                  <Select required value={syllabus} onValueChange={setSyllabus}>
+                  <Select required value={syllabusId} onValueChange={setSyllabusId}>
                     <SelectTrigger className="h-10 w-full">
                       <SelectValue placeholder="Select syllabus" />
                     </SelectTrigger>
                     <SelectContent>
                       {syllabusOptions.length > 0 ? (
                         syllabusOptions.map((s) => (
-                          <SelectItem key={s} value={s}>{s}</SelectItem>
+                          <SelectItem key={s._id} value={s._id}>{s.name}</SelectItem>
                         ))
                       ) : (
                         <div className="px-3 py-4 text-center text-xs text-slate-600">No syllabuses found</div>
@@ -229,14 +224,14 @@ export default function NoteForm({ noteToEdit, isSubmitting, onSubmit, onClose }
               {/* Subject */}
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-slate-600">Subject *</Label>
-                <Select required value={subject} onValueChange={handleSubjectChange}>
+                <Select required value={subjectId} onValueChange={handleSubjectChange}>
                   <SelectTrigger className="h-10 w-full">
                     <SelectValue placeholder="Select subject" />
                   </SelectTrigger>
                   <SelectContent>
                     {subjectOptions.length > 0 ? (
                       subjectOptions.map((s) => (
-                        <SelectItem key={s} value={s}>{s}</SelectItem>
+                        <SelectItem key={s._id} value={s._id}>{s.name}</SelectItem>
                       ))
                     ) : (
                       <div className="px-3 py-4 text-center text-xs text-slate-600">No subjects found</div>
@@ -279,7 +274,7 @@ export default function NoteForm({ noteToEdit, isSubmitting, onSubmit, onClose }
 
                 {chapterMode === "select" ? (
                   <>
-                    {loadingChapters && subject ? (
+                    {loadingChapters && subjectId ? (
                       <div className="flex h-10 items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3.5">
                         <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-slate-300 border-t-[var(--brand-green)]" />
                         <span className="text-xs text-slate-600">Loading chapters...</span>
@@ -289,12 +284,12 @@ export default function NoteForm({ noteToEdit, isSubmitting, onSubmit, onClose }
                         <Select
                           value={chapter}
                           onValueChange={setChapter}
-                          disabled={!subject || availableChapters.length === 0}
+                          disabled={!subjectId || availableChapters.length === 0}
                         >
                           <SelectTrigger className="h-10 w-full">
                             <SelectValue
                               placeholder={
-                                !subject
+                                !subjectId
                                   ? "Select a subject first"
                                   : availableChapters.length === 0
                                     ? "No chapters available"
@@ -310,7 +305,7 @@ export default function NoteForm({ noteToEdit, isSubmitting, onSubmit, onClose }
                             </SelectContent>
                           )}
                         </Select>
-                        {subject && !loadingChapters && availableChapters.length === 0 && (
+                        {subjectId && !loadingChapters && availableChapters.length === 0 && (
                           <p className="text-xs text-amber-500 font-medium">
                             No chapters found for this subject. Switch to &quot;Add new&quot; to create one.
                           </p>
@@ -345,41 +340,51 @@ export default function NoteForm({ noteToEdit, isSubmitting, onSubmit, onClose }
 
               {/* File Upload */}
               <div className="space-y-1.5">
-                <Label className="text-xs font-semibold text-slate-600">
-                  File {!isEdit && "*"}
-                  {isEdit && <span className="ml-1 font-normal text-slate-600">(upload to replace)</span>}
-                </Label>
+                <Label className="text-xs font-semibold text-slate-600">Files</Label>
 
-                {isEdit && existingFileUrl && !selectedFile && (
-                  <div className="flex items-center justify-between rounded-xl border border-slate-150 bg-slate-50/60 px-3.5 py-2.5">
-                    <p className="truncate text-xs font-medium text-slate-600">{fileLabel}</p>
-                    <a
-                      href={existingFileUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="ml-3 flex-shrink-0 text-[var(--brand-green)] transition-opacity hover:opacity-70"
-                    >
-                      <ExternalLink className="h-3.5 w-3.5" />
-                    </a>
+                {isEdit && existingFileUrls.length > 0 && selectedFiles.length === 0 && (
+                  <div className="space-y-1.5">
+                    {existingFileUrls.map((url) => {
+                      const name = (() => { try { return decodeURIComponent(url).split("/").pop() || "File"; } catch { return "File"; } })();
+                      return (
+                        <div key={url} className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50/60 px-3.5 py-2.5">
+                          <p className="truncate text-xs font-medium text-slate-600">{name}</p>
+                          <a
+                            href={url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="ml-3 flex-shrink-0 text-[var(--brand-green)] transition-opacity hover:opacity-70"
+                          >
+                            <ExternalLink className="h-3.5 w-3.5" />
+                          </a>
+                        </div>
+                      );
+                    })}
+                    <p className="text-xs text-slate-400">Choose new files below to replace all</p>
                   </div>
                 )}
 
-                {selectedFile && (
-                  <div className="flex items-center justify-between rounded-xl border border-[var(--brand-light)]/30 bg-[var(--brand-light-green)] px-3.5 py-2.5">
-                    <p className="truncate text-xs font-semibold text-[var(--brand-mid)]">{selectedFile.name}</p>
-                    <button
-                      type="button"
-                      onClick={handleRemoveFile}
-                      className="ml-3 flex-shrink-0 text-slate-600 transition-colors hover:text-red-500"
-                    >
-                      <X className="h-3.5 w-3.5" />
-                    </button>
+                {selectedFiles.length > 0 && (
+                  <div className="space-y-1.5">
+                    {selectedFiles.map((file, i) => (
+                      <div key={i} className="flex items-center justify-between rounded-xl border border-[var(--brand-light)]/30 bg-[var(--brand-light-green)] px-3.5 py-2.5">
+                        <p className="truncate text-xs font-semibold text-[var(--brand-mid)]">{file.name}</p>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveFile(i)}
+                          className="ml-3 flex-shrink-0 text-slate-600 transition-colors hover:text-red-500"
+                        >
+                          <X className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    ))}
                   </div>
                 )}
 
                 <input
                   ref={fileInputRef}
                   type="file"
+                  multiple
                   accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.webp"
                   onChange={handleFileChange}
                   className="hidden"
@@ -390,7 +395,7 @@ export default function NoteForm({ noteToEdit, isSubmitting, onSubmit, onClose }
                   className="flex h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-slate-300 text-xs font-semibold text-slate-600 transition-colors hover:border-[var(--brand-green)] hover:text-[var(--brand-green)]"
                 >
                   <Upload className="h-3.5 w-3.5" />
-                  {selectedFile ? "Replace file" : "Choose file"}
+                  {isEdit ? "Replace all files" : "Choose files"}
                 </label>
               </div>
 
@@ -457,7 +462,7 @@ export default function NoteForm({ noteToEdit, isSubmitting, onSubmit, onClose }
           </Button>
           <Button
             type="submit"
-            disabled={isSubmitting || (!isEdit && !selectedFile)}
+            disabled={isSubmitting}
             className="h-9 bg-[var(--brand-green)] px-5 text-sm font-bold text-white shadow-md shadow-green-600/10 hover:bg-[var(--brand-mid)] disabled:opacity-50"
           >
             {isSubmitting ? <ButtonLoader /> : isEdit ? "Save Changes" : "Create Note"}

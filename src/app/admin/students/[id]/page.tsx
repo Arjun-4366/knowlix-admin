@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { Suspense, use, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -172,6 +172,7 @@ function StudentDetailsContent({ params }: PageProps) {
   const submittedDocuments = getSubmittedDocumentLabels(documents);
   const docsProgress = submittedDocuments.length;
   const displayStatus = formatAdmissionStatus(student.admissionStatus);
+  const isOnlineTution = student?.programName === "Online Tuition";
 
   return (
     <div className="relative max-w-8xl space-y-6 pb-12">
@@ -247,11 +248,17 @@ function StudentDetailsContent({ params }: PageProps) {
           </CardHeader>
           <CardContent className="space-y-4 p-6 pt-4">
             <div>
-              <span className="block text-xs font-bold text-slate-700">Class / Grade</span>
-              <span className="text-sm font-semibold text-slate-900">Grade {student.class}</span>
+              <span className="block text-xs font-bold text-slate-700">
+                Class / Grade
+              </span>
+              <span className="text-sm font-semibold text-slate-900">
+                Grade {student.class}
+              </span>
             </div>
             <div>
-              <span className="block text-xs font-bold text-slate-700">Course / Program</span>
+              <span className="block text-xs font-bold text-slate-700">
+                Course / Program
+              </span>
               <span className="text-sm font-semibold text-slate-900">
                 {student.courseName
                   ? `${student.courseName} (${student.programName})`
@@ -259,18 +266,54 @@ function StudentDetailsContent({ params }: PageProps) {
               </span>
             </div>
             <div>
-              <span className="block text-xs font-bold text-slate-700">Package Selected</span>
+              <span className="block text-xs font-bold text-slate-700 mb-1.5">
+                Subjects
+              </span>
+              {(student.subjects && student.subjects.length > 0) ? (
+                <div className="flex flex-wrap gap-1.5">
+                  {student.subjects.map((subj) => (
+                    <span
+                      key={subj.id}
+                      className="inline-flex items-center rounded-full border border-[var(--brand-green)]/25 bg-[var(--brand-light-green)] px-2.5 py-0.5 text-[11px] font-semibold text-[var(--brand-mid)]"
+                    >
+                      {subj.name}
+                    </span>
+                  ))}
+                </div>
+              ) : (student.subjectNames && student.subjectNames.length > 0) ? (
+                <div className="flex flex-wrap gap-1.5">
+                  {student.subjectNames.map((name) => (
+                    <span
+                      key={name}
+                      className="inline-flex items-center rounded-full border border-[var(--brand-green)]/25 bg-[var(--brand-light-green)] px-2.5 py-0.5 text-[11px] font-semibold text-[var(--brand-mid)]"
+                    >
+                      {name}
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <span className="text-xs text-slate-400">No subjects assigned</span>
+              )}
+            </div>
+            <div>
+              <span className="block text-xs font-bold text-slate-700">
+                Package Selected
+              </span>
               <span className="text-sm font-semibold text-slate-900">
                 {formatPackage(student.package, student.customPackageDetails)}
               </span>
             </div>
             {student.totalFee !== undefined && (
               <div>
-                <span className="block text-xs font-bold text-slate-700">Fee Status</span>
+                <span className="block text-xs font-bold text-slate-700">
+                  Fee Status
+                </span>
                 <span className="text-sm font-semibold text-slate-900">
                   Paid: ₹{student.paidAmount || 0} / Total: ₹{student.totalFee}
                   {student.totalFee > (student.paidAmount || 0) && (
-                    <span className="ml-2 font-bold" style={{ color: "var(--brand-green)" }}>
+                    <span
+                      className="ml-2 font-bold"
+                      style={{ color: "var(--brand-green)" }}>
                       (₹{student.totalFee - (student.paidAmount || 0)} Pending)
                     </span>
                   )}
@@ -291,19 +334,33 @@ function StudentDetailsContent({ params }: PageProps) {
           </CardHeader>
           <CardContent className="space-y-4 p-6 pt-4">
             <div>
-              <span className="block text-xs font-bold text-slate-700">Parent / Guardian</span>
-              <span className="text-sm font-semibold text-slate-900">{student.parentName || "—"}</span>
+              <span className="block text-xs font-bold text-slate-700">
+                Parent / Guardian
+              </span>
+              <span className="text-sm font-semibold text-slate-900">
+                {student.parentName || "—"}
+              </span>
             </div>
             <div>
-              <span className="block text-xs font-bold text-slate-700">Email</span>
-              <span className="text-sm font-semibold text-slate-900">{student.email || "Not provided"}</span>
+              <span className="block text-xs font-bold text-slate-700">
+                Email
+              </span>
+              <span className="text-sm font-semibold text-slate-900">
+                {student.email || "Not provided"}
+              </span>
             </div>
             <div>
-              <span className="block text-xs font-bold text-slate-700">Phone</span>
-              <span className="text-sm font-semibold text-slate-900">{student.phone || "Not provided"}</span>
+              <span className="block text-xs font-bold text-slate-700">
+                Phone
+              </span>
+              <span className="text-sm font-semibold text-slate-900">
+                {student.phone || "Not provided"}
+              </span>
             </div>
             <div>
-              <span className="block text-xs font-bold text-slate-700">Location</span>
+              <span className="block text-xs font-bold text-slate-700">
+                Location
+              </span>
               <span className="flex items-center gap-1 text-sm font-semibold text-slate-900">
                 <MapPin className="h-3.5 w-3.5 text-slate-600" />
                 {student.place || "—"}
@@ -418,105 +475,106 @@ function StudentDetailsContent({ params }: PageProps) {
         </Card>
       </div>
 
-      <Card className="space-y-5 border-slate-150 bg-white p-6 shadow-sm">
-        <div className="flex flex-col justify-between gap-4 border-b border-slate-100 pb-4 sm:flex-row sm:items-center">
-          <div className="flex items-center gap-2">
-            <FileText className="h-5 w-5 text-[var(--brand-green)]" />
-            <div>
-              <CardTitle className="text-sm font-bold uppercase tracking-wider text-slate-800">
-                Required Document Submission
-              </CardTitle>
-              <p className="mt-0.5 text-xs text-slate-600">
-                Document data is loaded from the student documents endpoint when
-                available.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3 self-start sm:self-center">
-            <div className="text-right">
-              <span className="text-xs font-bold text-slate-700">
-                {docsProgress} / 4 Submitted
-              </span>
-            </div>
-            <div className="h-2 w-24 overflow-hidden rounded-full bg-slate-100">
-              <div
-                className="h-full rounded-full bg-[var(--brand-green)] transition-all duration-500"
-                style={{ width: `${(docsProgress / 4) * 100}%` }}
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          {documentCards.map((document) => {
-            const documentUrl = documents?.[document.key];
-            const isSubmitted = Boolean(documentUrl);
-
-            return (
-              <div
-                key={document.key}
-                className={cn(
-                  "flex items-center justify-between rounded-xl border p-4 transition-all",
-                  isSubmitted
-                    ? "border-[var(--brand-green)]/35 bg-[var(--brand-light-green)]/15"
-                    : "border-slate-200 bg-slate-50/50",
-                )}>
-                <div className="flex min-w-0 items-center gap-3">
-                  <div
-                    className={cn(
-                      "flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg border",
-                      isSubmitted
-                        ? "border-[var(--brand-light)]/20 bg-[var(--brand-light-green)] text-[var(--brand-green)]"
-                        : "border-slate-200 bg-white text-slate-600",
-                    )}>
-                    <FileText className="h-4.5 w-4.5" />
-                  </div>
-                  <div className="min-w-0">
-                    <h4 className="text-sm font-bold text-slate-700">
-                      {document.label}
-                    </h4>
-                    <p className="mt-0.5 truncate text-[10px] text-slate-600">
-                      {isSubmitted ? (
-                        typeof documentUrl === "string" ? (
-                          <a
-                            href={documentUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="hover:underline hover:text-[var(--brand-green)] font-semibold transition-colors">
-                            {documentUrl}
-                          </a>
-                        ) : (
-                          (documentUrl as File).name
-                        )
-                      ) : (
-                        "Pending parent upload"
-                      )}
-                    </p>
-                  </div>
-                </div>
-
-                {isSubmitted ? (
-                  <Badge
-                    variant="outline"
-                    className="inline-flex h-7 items-center gap-1 rounded-lg border border-[var(--brand-light)]/20 bg-[var(--brand-light-green)] px-2.5 py-1 text-xs font-bold text-[var(--brand-green)] shadow-sm">
-                    <CheckCircle className="h-3.5 w-3.5" />
-                    Verified
-                  </Badge>
-                ) : (
-                  <Badge
-                    variant="outline"
-                    className="inline-flex h-7 items-center gap-1 rounded-lg border border-slate-200 bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600 shadow-sm">
-                    <ShieldAlert className="h-3.5 w-3.5" />
-                    Pending
-                  </Badge>
-                )}
+      {!isOnlineTution && (
+        <Card className="space-y-5 border-slate-150 bg-white p-6 shadow-sm">
+          <div className="flex flex-col justify-between gap-4 border-b border-slate-100 pb-4 sm:flex-row sm:items-center">
+            <div className="flex items-center gap-2">
+              <FileText className="h-5 w-5 text-[var(--brand-green)]" />
+              <div>
+                <CardTitle className="text-sm font-bold uppercase tracking-wider text-slate-800">
+                  Required Document Submission
+                </CardTitle>
+                <p className="mt-0.5 text-xs text-slate-600">
+                  Document data is loaded from the student documents endpoint
+                  when available.
+                </p>
               </div>
-            );
-          })}
-        </div>
-      </Card>
+            </div>
 
+            <div className="flex items-center gap-3 self-start sm:self-center">
+              <div className="text-right">
+                <span className="text-xs font-bold text-slate-700">
+                  {docsProgress} / 4 Submitted
+                </span>
+              </div>
+              <div className="h-2 w-24 overflow-hidden rounded-full bg-slate-100">
+                <div
+                  className="h-full rounded-full bg-[var(--brand-green)] transition-all duration-500"
+                  style={{ width: `${(docsProgress / 4) * 100}%` }}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            {documentCards.map((document) => {
+              const documentUrl = documents?.[document.key];
+              const isSubmitted = Boolean(documentUrl);
+
+              return (
+                <div
+                  key={document.key}
+                  className={cn(
+                    "flex items-center justify-between rounded-xl border p-4 transition-all",
+                    isSubmitted
+                      ? "border-[var(--brand-green)]/35 bg-[var(--brand-light-green)]/15"
+                      : "border-slate-200 bg-slate-50/50",
+                  )}>
+                  <div className="flex min-w-0 items-center gap-3">
+                    <div
+                      className={cn(
+                        "flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg border",
+                        isSubmitted
+                          ? "border-[var(--brand-light)]/20 bg-[var(--brand-light-green)] text-[var(--brand-green)]"
+                          : "border-slate-200 bg-white text-slate-600",
+                      )}>
+                      <FileText className="h-4.5 w-4.5" />
+                    </div>
+                    <div className="min-w-0">
+                      <h4 className="text-sm font-bold text-slate-700">
+                        {document.label}
+                      </h4>
+                      <p className="mt-0.5 truncate text-[10px] text-slate-600">
+                        {isSubmitted ? (
+                          typeof documentUrl === "string" ? (
+                            <a
+                              href={documentUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="hover:underline hover:text-[var(--brand-green)] font-semibold transition-colors">
+                              {documentUrl}
+                            </a>
+                          ) : (
+                            (documentUrl as File).name
+                          )
+                        ) : (
+                          "Pending parent upload"
+                        )}
+                      </p>
+                    </div>
+                  </div>
+
+                  {isSubmitted ? (
+                    <Badge
+                      variant="outline"
+                      className="inline-flex h-7 items-center gap-1 rounded-lg border border-[var(--brand-light)]/20 bg-[var(--brand-light-green)] px-2.5 py-1 text-xs font-bold text-[var(--brand-green)] shadow-sm">
+                      <CheckCircle className="h-3.5 w-3.5" />
+                      Verified
+                    </Badge>
+                  ) : (
+                    <Badge
+                      variant="outline"
+                      className="inline-flex h-7 items-center gap-1 rounded-lg border border-slate-200 bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600 shadow-sm">
+                      <ShieldAlert className="h-3.5 w-3.5" />
+                      Pending
+                    </Badge>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </Card>
+      )}
       <StudentSessions studentId={id} />
       <StudentExams studentId={id} />
       <StudentAssignments studentId={id} />

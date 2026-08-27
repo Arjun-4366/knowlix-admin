@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect } from "react";
 import { Award, Search, Trash2, Check, Sparkles, X, Lock } from "lucide-react";
@@ -141,7 +141,6 @@ export default function TutorEvaluationManager({
             studentId: selectedStudentId,
             marksObtained: obt,
             remarks: remarks.trim(),
-            completed: true,
           },
         },
         {
@@ -430,7 +429,8 @@ export default function TutorEvaluationManager({
 
         {/* List of past evaluations */}
         <div className="bg-white border border-slate-150 rounded-2xl shadow-sm overflow-hidden max-h-[520px] overflow-y-auto">
-          <Table className="table-fixed w-full">
+          <div className="overflow-x-auto">
+          <Table className="table-fixed w-full min-w-[640px]">
             <TableHeader className="bg-slate-50/50">
               <TableRow>
                 <TableHead className="px-5 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[35%]">
@@ -519,6 +519,7 @@ export default function TutorEvaluationManager({
               )}
             </TableBody>
           </Table>
+          </div>
         </div>
       </div>
     </div>

@@ -29,7 +29,8 @@ export const createStudent = async (data: ICreateStudentPayload) => {
     const formData = new FormData();
     formData.append("studentName", data.studentName);
     formData.append("parentName", data.parentName);
-    formData.append("class", data.class);
+    if (data.standardId) formData.append("standardId", data.standardId);
+    if (data.syllabusId) formData.append("syllabusId", data.syllabusId);
     if (data.email) formData.append("email", data.email);
     if (data.phone) formData.append("phone", data.phone);
     if (data.password) formData.append("password", data.password);
@@ -38,12 +39,14 @@ export const createStudent = async (data: ICreateStudentPayload) => {
     formData.append("package", data.package);
     if (data.customPackageDetails) formData.append("customPackageDetails", data.customPackageDetails);
     formData.append("admissionStatus", data.admissionStatus);
-    
+
     if (data.mentorId) formData.append("mentorId", data.mentorId);
     if (data.coordinatorId) formData.append("coordinatorId", data.coordinatorId);
     if (data.programId) formData.append("programId", data.programId);
     if (data.courseId) formData.append("courseId", data.courseId);
-    if (data.syllabus) formData.append("syllabus", data.syllabus);
+    if (data.subjectIds && data.subjectIds.length > 0) {
+        formData.append("subjectIds", JSON.stringify(data.subjectIds));
+    }
     
     if (data.totalFee !== undefined) formData.append("totalFee", data.totalFee.toString());
     if (data.paidAmount !== undefined) formData.append("paidAmount", data.paidAmount.toString());
@@ -75,7 +78,8 @@ export const updateStudent = async (id: string, data: IUpdateStudentPayload) => 
     const formData = new FormData();
     if (data.studentName) formData.append("studentName", data.studentName);
     if (data.parentName) formData.append("parentName", data.parentName);
-    if (data.class) formData.append("class", data.class);
+    if (data.standardId) formData.append("standardId", data.standardId);
+    if (data.syllabusId) formData.append("syllabusId", data.syllabusId);
     if (data.email) formData.append("email", data.email);
     if (data.phone) formData.append("phone", data.phone);
     if (data.password) formData.append("password", data.password);
@@ -88,7 +92,6 @@ export const updateStudent = async (id: string, data: IUpdateStudentPayload) => 
     if (data.coordinatorId) formData.append("coordinatorId", data.coordinatorId);
     if (data.programId) formData.append("programId", data.programId);
     if (data.courseId) formData.append("courseId", data.courseId);
-    if (data.syllabus) formData.append("syllabus", data.syllabus);
     
     if (data.totalFee !== undefined) formData.append("totalFee", data.totalFee.toString());
     if (data.paidAmount !== undefined) formData.append("paidAmount", data.paidAmount.toString());

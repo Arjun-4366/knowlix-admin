@@ -144,16 +144,16 @@ export default function StudentSchedule() {
             const endDate = new Date(scheduledDate.getTime() + (session.durationMinutes || 60) * 60000);
             const active = isSessionActive(session.scheduledAt, session.durationMinutes || 60);
             const isCompleted = session.status === "completed";
-            const isCancelled = session.status === "cancelled";
+            const isNotConducted = session.status === "not_conducted";
 
             let statusLabel = active ? "Live Now" : "Scheduled";
             if (isCompleted) statusLabel = "Completed";
-            if (isCancelled) statusLabel = "Cancelled";
+            if (isNotConducted) statusLabel = "Not Conducted";
 
             let statusCls = "bg-amber-50 text-amber-700 border-amber-100";
             if (active) statusCls = "bg-emerald-50 text-emerald-700 border-emerald-100 border-2 animate-pulse";
             if (isCompleted) statusCls = "bg-slate-100 text-slate-600 border-slate-200";
-            if (isCancelled) statusCls = "bg-rose-50 text-rose-700 border-rose-100";
+            if (isNotConducted) statusCls = "bg-rose-50 text-rose-700 border-rose-100";
 
             return (
               <Card
@@ -208,11 +208,11 @@ export default function StudentSchedule() {
                     <span>{session.durationMinutes || 60} min</span>
                   </div>
 
-                  {isCompleted || isCancelled ? (
+                  {isCompleted || isNotConducted ? (
                     <Badge className={`text-[10px] font-bold px-2 py-0.5 rounded-full shadow-none border ${
                       isCompleted ? "bg-slate-100 text-slate-600 border-slate-200" : "bg-rose-50 text-rose-400 border-rose-100"
                     }`}>
-                      {isCompleted ? "Session Ended" : "Cancelled"}
+                      {isCompleted ? "Session Ended" : "Not Conducted"}
                     </Badge>
                   ) : (
                     <a

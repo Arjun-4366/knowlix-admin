@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import StudentSidebar from "./StudentSidebar";
 import StudentNavbar from "./StudentNavbar";
 
@@ -10,17 +10,32 @@ export default function StudentShell({
   children: React.ReactNode;
 }) {
   const [collapsed, setCollapsed] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
     <div id="student-shell" className="flex h-screen overflow-hidden">
-      <StudentSidebar collapsed={collapsed} />
+      {/* Mobile backdrop */}
+      {mobileOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/50 md:hidden"
+          onClick={() => setMobileOpen(false)}
+        />
+      )}
+
+      <StudentSidebar
+        collapsed={collapsed}
+        mobileOpen={mobileOpen}
+        onMobileClose={() => setMobileOpen(false)}
+      />
+
       <div className="flex flex-col flex-1 overflow-hidden min-w-0">
         <StudentNavbar
           collapsed={collapsed}
           onToggle={() => setCollapsed((v) => !v)}
+          onMobileToggle={() => setMobileOpen((v) => !v)}
         />
         <main
-          className="flex-1 overflow-y-auto p-6 animate-in fade-in slide-in-from-bottom-4 duration-500"
+          className="flex-1 overflow-y-auto p-4 md:p-6 animate-in fade-in slide-in-from-bottom-4 duration-500"
           style={{ background: "var(--brand-bg)" }}
         >
           {children}

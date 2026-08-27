@@ -2,48 +2,41 @@
 
 import { Users, UserCheck, Shield, FileMinus } from "lucide-react";
 import DashboardStatCard from "@/components/dashboard/shared/DashboardStatCard";
+import { ITutorSummary } from "@/types/admin/tutor";
 
 interface EmployeeStatsProps {
-  totalCount: number;
-  activeCount: number;
-  probationCount: number;
-  departedCount: number;
+  summary?: ITutorSummary;
 }
 
-export default function EmployeeStats({
-  totalCount,
-  activeCount,
-  probationCount,
-  departedCount,
-}: EmployeeStatsProps) {
+export default function EmployeeStats({ summary }: EmployeeStatsProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
       <DashboardStatCard
         label="Total Strength"
-        value={totalCount}
+        value={summary?.total ?? 0}
         icon={<Users className="w-6 h-6 text-[var(--brand-green)]" />}
         footerText="Registered in directory"
       />
 
       <DashboardStatCard
         label="Active Staff"
-        value={activeCount}
+        value={summary?.approved ?? 0}
         icon={<UserCheck className="w-6 h-6 text-[var(--brand-green)]" />}
-        badgeText="Perm"
+        badgeText="Approved"
         footerText="Regular operations"
       />
 
       <DashboardStatCard
-        label="On Probation"
-        value={probationCount}
+        label="Pending Approval"
+        value={summary?.pending ?? 0}
         icon={<Shield className="w-6 h-6 text-[var(--brand-green)]" />}
-        badgeText="Review"
-        footerText="Performance tracking"
+        badgeText="Pending"
+        footerText="Awaiting approval"
       />
 
       <DashboardStatCard
         label="Exit Records"
-        value={departedCount}
+        value={(summary?.inactive ?? 0) + (summary?.resigned ?? 0)}
         icon={<FileMinus className="w-6 h-6 text-[var(--brand-green)]" />}
         badgeText="Inactive"
         footerText="Resigned & Terminated"
@@ -51,4 +44,3 @@ export default function EmployeeStats({
     </div>
   );
 }
-

@@ -15,9 +15,11 @@ import { TutorProfileCard } from "@/components/admin/tutor/TutorProfileCard";
 import { TutorWorkloadCard } from "@/components/admin/tutor/TutorWorkloadCard";
 import { TutorClassStatsCard } from "@/components/admin/tutor/TutorClassStatsCard";
 import { TutorScheduleCard } from "@/components/admin/tutor/TutorScheduleCard";
+import { TutorTimetableCard } from "@/components/admin/tutor/TutorTimetableCard";
 import { TutorRemarksCard } from "@/components/admin/tutor/TutorRemarksCard";
 import { TutorPerformanceCard } from "@/components/admin/tutor/TutorPerformanceCard";
 import { TutorGrowthHistory } from "@/components/admin/tutor/TutorGrowthHistory";
+import { TutorActivityTabs } from "@/components/admin/tutor/TutorActivityTabs";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -131,6 +133,8 @@ function TutorDetailContent({ params }: PageProps) {
         />
       </div>
 
+      <TutorTimetableCard timetable={tutor.timetable} />
+
       <TutorPerformanceCard
         tutorId={id}
         isApproved={isApproved}
@@ -139,6 +143,8 @@ function TutorDetailContent({ params }: PageProps) {
       />
 
       <TutorGrowthHistory tutorId={id} />
+
+      <TutorActivityTabs tutorId={id} />
     </div>
   );
 }

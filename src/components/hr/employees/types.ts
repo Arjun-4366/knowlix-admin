@@ -9,7 +9,7 @@ export interface Employee {
   role?: string;
   department: "HR" | "Tutor" | "Sales" | "Operations" | "Academics" | "Finance" | string;
   designation: string;
-  status: "Active" | "On Probation" | "Terminated" | "Resigned" | "Pending" | "Approved" | string;
+  status: "Active" | "Pending" | "Terminated" | "Resigned" | "Pending" | "Approved" | string;
   dateOfJoining: string;
   profileImage?: string;
   address: string;

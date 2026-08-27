@@ -57,7 +57,7 @@ export default function EmployeeDossier({
                 {employee.name}
               </CardTitle>
               <p className="text-[10px] font-semibold text-slate-600 mt-1">
-                {employee.id} &bull; {employee.designation}
+                {employee.designation}
               </p>
             </div>
           </div>

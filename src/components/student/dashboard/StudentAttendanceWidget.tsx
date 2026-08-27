@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { Calendar } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -80,7 +80,7 @@ export default function StudentAttendanceWidget({
 
         {/* History table */}
         <div className="overflow-x-auto">
-          <Table className="table-fixed w-full">
+          <Table className="table-fixed w-full min-w-[360px]">
             <TableHeader className="bg-slate-50/20">
               <TableRow>
                 <TableHead className="px-5 py-2.5 text-xs font-bold text-slate-600 uppercase tracking-wider w-[40%]">Date</TableHead>

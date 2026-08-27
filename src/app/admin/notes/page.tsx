@@ -23,7 +23,7 @@ import {
   useGetNotesFilters,
   useUpdateNote,
 } from "@/querys/admin/notesQuery";
-import { ICreateNotePayload, INote, NoteStatus } from "@/types/admin/notes";
+import { ICreateNotePayload, INote, IUpdateNotePayload, NoteStatus } from "@/types/admin/notes";
 
 function NotesContent() {
   const { confirm } = useConfirmation();
@@ -35,7 +35,6 @@ function NotesContent() {
   const [filterSubject, setFilterSubject] = useState("all");
   const [filterChapter, setFilterChapter] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
-  const [filterAttachmentType, setFilterAttachmentType] = useState("all");
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [noteToEdit, setNoteToEdit] = useState<INote | null>(null);
@@ -48,13 +47,11 @@ function NotesContent() {
   const queryParams = useMemo(() => {
     const params: Record<string, string> = {};
     if (debouncedSearch) params.search = debouncedSearch;
-    if (filterStandard !== "all") params.standard = filterStandard;
-    if (filterSyllabus !== "all") params.syllabus = filterSyllabus;
-    if (filterSubject !== "all") params.subject = filterSubject;
+    if (filterStandard !== "all") params.standardId = filterStandard;
+    if (filterSyllabus !== "all") params.syllabusId = filterSyllabus;
+    if (filterSubject !== "all") params.subjectId = filterSubject;
     if (filterChapter !== "all") params.chapter = filterChapter;
     if (filterStatus !== "all") params.status = filterStatus;
-    if (filterAttachmentType !== "all")
-      params.attachmentType = filterAttachmentType;
     return params;
   }, [
     debouncedSearch,
@@ -63,12 +60,11 @@ function NotesContent() {
     filterSubject,
     filterChapter,
     filterStatus,
-    filterAttachmentType,
   ]);
 
   const { data: filtersResponse } = useGetNotesFilters();
   const { data: chapterFiltersResponse } = useGetNotesFilters(
-    filterSubject !== "all" ? { subject: filterSubject } : undefined,
+    filterSubject !== "all" ? { subjectId: filterSubject } : undefined,
   );
   const { data: notesResponse, isLoading } = useGetNotes(queryParams);
   const { mutateAsync: createNote, isPending: isCreating } = useCreateNote();
@@ -79,12 +75,12 @@ function NotesContent() {
   const notes = notesResponse?.data ?? [];
   const total = notesResponse?.pagination?.total ?? notes.length;
 
-  const handleFormSubmit = async (payload: ICreateNotePayload) => {
+  const handleFormSubmit = async (payload: ICreateNotePayload | IUpdateNotePayload) => {
     try {
       if (noteToEdit) {
         await updateNote({ id: noteToEdit.id, data: payload });
       } else {
-        await createNote(payload);
+        await createNote(payload as ICreateNotePayload);
       }
       setIsModalOpen(false);
       setNoteToEdit(null);
@@ -141,7 +137,6 @@ function NotesContent() {
     setFilterSubject("all");
     setFilterChapter("all");
     setFilterStatus("all");
-    setFilterAttachmentType("all");
   };
 
   const actions = (
@@ -162,120 +157,92 @@ function NotesContent() {
       />
 
       {/* Filters */}
-      <div className="flex flex-col gap-4">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-600" />
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="relative flex-1 min-w-[220px]">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
           <Input
             placeholder="Search by title, subject, chapter..."
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
-            className="h-10 pl-9"
+            className="h-10 pl-9 bg-white"
           />
         </div>
-        <div className="flex flex-wrap gap-3">
-          <Select value={filterStandard} onValueChange={setFilterStandard}>
-            <SelectTrigger className="h-10 w-[140px] bg-white">
-              <SelectValue placeholder="Class" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Classes</SelectItem>
-              {filters?.standards.map((s) => (
-                <SelectItem key={s} value={s}>
-                  Class {s}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
 
-          <Select value={filterSyllabus} onValueChange={setFilterSyllabus}>
-            <SelectTrigger className="h-10 w-[150px] bg-white">
-              <SelectValue placeholder="Syllabus" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Syllabi</SelectItem>
-              {filters?.syllabuses.map((s) => (
-                <SelectItem key={s} value={s}>
-                  {s}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        <Select value={filterStandard} onValueChange={setFilterStandard}>
+          <SelectTrigger className="h-10 w-[140px] bg-white">
+            <SelectValue placeholder="Class" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Classes</SelectItem>
+            {filters?.standards.map((s) => (
+              <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
-          <Select value={filterSubject} onValueChange={handleSubjectChange}>
-            <SelectTrigger className="h-10 w-[150px] bg-white">
-              <SelectValue placeholder="Subject" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Subjects</SelectItem>
-              {filters?.subjects.map((s) => (
-                <SelectItem key={s} value={s}>
-                  {s}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        <Select value={filterSyllabus} onValueChange={setFilterSyllabus}>
+          <SelectTrigger className="h-10 w-[150px] bg-white">
+            <SelectValue placeholder="Syllabus" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Syllabi</SelectItem>
+            {filters?.syllabuses.map((s) => (
+              <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
-          <Select value={filterChapter} onValueChange={setFilterChapter}>
-            <SelectTrigger className="h-10 w-[170px] bg-white">
-              <SelectValue placeholder="Chapter" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Chapters</SelectItem>
-              {(
-                chapterFiltersResponse?.data?.chapters ??
-                filters?.chapters ??
-                []
-              ).map((c) => (
-                <SelectItem key={c} value={c}>
-                  {c}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        <Select value={filterSubject} onValueChange={handleSubjectChange}>
+          <SelectTrigger className="h-10 w-[150px] bg-white">
+            <SelectValue placeholder="Subject" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Subjects</SelectItem>
+            {filters?.subjects.map((s) => (
+              <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
-          <Select
-            value={filterAttachmentType}
-            onValueChange={setFilterAttachmentType}>
-            <SelectTrigger className="h-10 w-[130px] bg-white">
-              <SelectValue placeholder="Type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Types</SelectItem>
-              <SelectItem value="pdf">PDF</SelectItem>
-              <SelectItem value="document">Document</SelectItem>
-              <SelectItem value="image">Image</SelectItem>
-            </SelectContent>
-          </Select>
+        <Select value={filterChapter} onValueChange={setFilterChapter}>
+          <SelectTrigger className="h-10 w-[160px] bg-white">
+            <SelectValue placeholder="Chapter" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Chapters</SelectItem>
+            {(chapterFiltersResponse?.data?.chapters ?? filters?.chapters ?? []).map((c) => (
+              <SelectItem key={c} value={c}>{c}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
-          <Select value={filterStatus} onValueChange={setFilterStatus}>
-            <SelectTrigger className="h-10 w-[130px] bg-white">
-              <SelectValue placeholder="Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Statuses</SelectItem>
-              <SelectItem value="published">Published</SelectItem>
-              <SelectItem value="draft">Draft</SelectItem>
-            </SelectContent>
-          </Select>
+        <Select value={filterStatus} onValueChange={setFilterStatus}>
+          <SelectTrigger className="h-10 w-[130px] bg-white">
+            <SelectValue placeholder="Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Statuses</SelectItem>
+            <SelectItem value="published">Published</SelectItem>
+            <SelectItem value="draft">Draft</SelectItem>
+          </SelectContent>
+        </Select>
 
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleResetFilters}
-            disabled={
-              searchInput === "" &&
-              filterStandard === "all" &&
-              filterSyllabus === "all" &&
-              filterSubject === "all" &&
-              filterChapter === "all" &&
-              filterStatus === "all" &&
-              filterAttachmentType === "all"
-            }
-            className="h-8 px-3 bg-white border-slate-200 text-slate-600 hover:text-slate-800 rounded-xl disabled:opacity-40"
-            title="Reset filters">
-            <RotateCcw className="w-3.5 h-3.5" />
-          </Button>
-        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleResetFilters}
+          disabled={
+            searchInput === "" &&
+            filterStandard === "all" &&
+            filterSyllabus === "all" &&
+            filterSubject === "all" &&
+            filterChapter === "all" &&
+            filterStatus === "all"
+          }
+          className="h-10 px-3 cursor-pointer bg-white border-slate-200 text-slate-600 hover:text-slate-800 rounded-xl disabled:opacity-40"
+          title="Reset filters">
+          <RotateCcw className="w-3.5 h-3.5" />
+        </Button>
       </div>
 
       {isLoading ? (
@@ -292,6 +259,7 @@ function NotesContent() {
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-sm animate-in fade-in duration-200">
           <NoteForm
+            key={noteToEdit?.id ?? "new"}
             noteToEdit={noteToEdit ?? undefined}
             isSubmitting={isCreating || isUpdating}
             onSubmit={handleFormSubmit}

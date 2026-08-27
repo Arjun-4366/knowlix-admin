@@ -1,7 +1,7 @@
-﻿"use client";
+"use client";
 
 import { useState, useMemo, Suspense } from "react";
-import { Plus, Search, Trash2, ShieldAlert, KeyRound, Briefcase, Mail, Phone, Users } from "lucide-react";
+import { Plus, Search, Trash2, Pencil, Briefcase, Mail, Phone, Users } from "lucide-react";
 import DashboardHeader from "@/components/dashboard/shared/DashboardHeader";
 import { Input } from "@/components/ui/input";
 import {
@@ -25,30 +25,27 @@ import { useConfirmation } from "@/context/ConfirmationContext";
 import {
   useGetHRs,
   useCreateHR,
-  useUpdateHRPassword,
+  useUpdateHR,
   useDeleteHR,
 } from "@/querys/admin/hrQuery";
-import { ICreateHrPayload, IHr } from "@/types/admin/hr";
+import { ICreateHrPayload, IHr, IUpdateHrPayload } from "@/types/admin/hr";
 import { Skeleton } from "@/components/ui/skeleton";
 import AddHrForm from "@/components/hr/AddHrForm";
-import SetPasswordForm from "@/components/hr/SetPasswordForm";
 
 function HrContent() {
   const { confirm } = useConfirmation();
   const { data: hrResponse, isLoading } = useGetHRs();
   const { mutateAsync: createHR, isPending: isCreating } = useCreateHR();
-  const { mutateAsync: updatePassword, isPending: isUpdating } = useUpdateHRPassword();
+  const { mutateAsync: updateHR, isPending: isUpdating } = useUpdateHR();
   const { mutateAsync: deleteHR } = useDeleteHR();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState("All");
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [passwordModalHrId, setPasswordModalHrId] = useState<string | null>(null);
+  const [hrToEdit, setHrToEdit] = useState<IHr | null>(null);
 
-  const hrList = useMemo(() => {
-    return hrResponse?.data ?? [];
-  }, [hrResponse]);
+  const hrList = useMemo(() => hrResponse?.data ?? [], [hrResponse]);
 
   const handleDeleteHr = (hrId: string) => {
     const hrName = hrList.find((h) => h.id === hrId)?.name || "this user";
@@ -67,20 +64,20 @@ function HrContent() {
     });
   };
 
-  const handleCreateSubmit = async (payload: ICreateHrPayload) => {
+  const handleCreateSubmit = async (payload: ICreateHrPayload | IUpdateHrPayload) => {
     try {
-      await createHR(payload);
+      await createHR(payload as ICreateHrPayload);
       setIsAddModalOpen(false);
     } catch (error) {
       console.error(error);
     }
   };
 
-  const handlePasswordSubmit = async (password: string) => {
-    if (!passwordModalHrId) return;
+  const handleEditSubmit = async (payload: ICreateHrPayload | IUpdateHrPayload) => {
+    if (!hrToEdit) return;
     try {
-      await updatePassword({ id: passwordModalHrId, data: { password } });
-      setPasswordModalHrId(null);
+      await updateHR({ id: hrToEdit.id, data: payload as IUpdateHrPayload });
+      setHrToEdit(null);
     } catch (error) {
       console.error(error);
     }
@@ -112,12 +109,8 @@ function HrContent() {
     }
   };
 
-  const formatRole = (role: string) => {
-    return role
-      .split("_")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(" ");
-  };
+  const formatRole = (role: string) =>
+    role.split("_").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
 
   return (
     <div className="space-y-8 w-full relative pb-10">
@@ -160,7 +153,7 @@ function HrContent() {
         </div>
       </div>
 
-      {/* Table Section */}
+      {/* Table */}
       <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
         <div className="overflow-x-auto">
           <Table>
@@ -189,7 +182,7 @@ function HrContent() {
                 ))
               ) : filteredHRs.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="h-[400px] text-center">
+                  <TableCell colSpan={7} className="h-[400px] text-center">
                     <div className="flex flex-col items-center justify-center text-slate-600 space-y-3">
                       <div className="w-16 h-16 rounded-full bg-slate-50 flex items-center justify-center">
                         <Users className="w-8 h-8 text-slate-600" />
@@ -198,10 +191,7 @@ function HrContent() {
                       {(searchQuery || roleFilter !== "All") && (
                         <Button
                           variant="link"
-                          onClick={() => {
-                            setSearchQuery("");
-                            setRoleFilter("All");
-                          }}
+                          onClick={() => { setSearchQuery(""); setRoleFilter("All"); }}
                           className="text-[var(--brand-green)] h-auto p-0"
                         >
                           Clear filters
@@ -211,13 +201,13 @@ function HrContent() {
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredHRs.map((hr,index) => (
+                filteredHRs.map((hr, index) => (
                   <TableRow
                     key={hr.id}
                     className="group border-b-slate-50 hover:bg-slate-50/50 transition-colors"
                   >
                     <TableCell className="py-4">
-                      <span className="text-sm text-slate-650">{index+1}</span>
+                      <span className="text-sm text-slate-650">{index + 1}</span>
                     </TableCell>
                     <TableCell className="py-4">
                       <div className="flex items-center gap-3">
@@ -226,7 +216,7 @@ function HrContent() {
                         </div>
                         <div>
                           <div className="font-semibold text-slate-800">{hr.name}</div>
-                          <div className="text-xs text-slate-600 mt-0.5 flex items-center gap-1">
+                          <div className="text-xs text-slate-600 mt-0.5">
                             Added {new Date(hr.createdAt).toLocaleDateString()}
                           </div>
                         </div>
@@ -256,45 +246,36 @@ function HrContent() {
                     </TableCell>
 
                     <TableCell className="text-center">
-                      <span
-                        className={cn(
-                          "inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold border",
-                          getRoleBadgeClass(hr.role)
-                        )}
-                      >
+                      <span className={cn("inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold border", getRoleBadgeClass(hr.role))}>
                         {formatRole(hr.role)}
                       </span>
                     </TableCell>
 
                     <TableCell className="text-center">
-                      <span
-                        className={cn(
-                          "inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider",
-                          hr.status === "active"
-                            ? "bg-green-50 text-green-700"
-                            : "bg-amber-50 text-amber-700"
-                        )}
-                      >
+                      <span className={cn(
+                        "inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider",
+                        hr.status === "active" ? "bg-green-50 text-green-700" : "bg-amber-50 text-amber-700"
+                      )}>
                         {hr.status}
                       </span>
                     </TableCell>
 
                     <TableCell className="text-right pr-6">
-                      <div className="flex items-center justify-end gap-2   transition-opacity">
+                      <div className="flex items-center justify-end gap-2">
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => setPasswordModalHrId(hr.id)}
+                          onClick={() => setHrToEdit(hr)}
                           className="h-8 w-8 cursor-pointer p-0 text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg"
-                          title="Set Password"
+                          title="Edit HR Member"
                         >
-                          <KeyRound className="w-4 h-4" />
+                          <Pencil className="w-4 h-4" />
                         </Button>
                         <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => handleDeleteHr(hr.id)}
-                          className="h-8 cursor-pointer w-8 p-0 text-slate-600 hover:text-red-600 hover:bg-red-50 rounded-lg"
+                          className="h-8 w-8 cursor-pointer p-0 text-slate-600 hover:text-red-600 hover:bg-red-50 rounded-lg"
                           title="Delete HR"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -320,12 +301,14 @@ function HrContent() {
         </div>
       )}
 
-      {/* Password Modal */}
-      {passwordModalHrId && (
+      {/* Edit Modal */}
+      {hrToEdit && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-          <SetPasswordForm
-            onClose={() => setPasswordModalHrId(null)}
-            onSubmit={handlePasswordSubmit}
+          <AddHrForm
+            key={hrToEdit.id}
+            hrToEdit={hrToEdit}
+            onClose={() => setHrToEdit(null)}
+            onSubmit={handleEditSubmit}
             isSubmitting={isUpdating}
           />
         </div>

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import { Award, BookOpen, TrendingUp, BarChart2, X, CalendarDays, User, FileText, Percent, Star } from "lucide-react";
@@ -340,7 +340,7 @@ export default function StudentResults() {
         </CardHeader>
         <CardContent className="p-0">
           <div className="overflow-x-auto">
-            <Table className="table-fixed w-full">
+            <Table className="table-fixed w-full min-w-[600px]">
               <TableHeader className="bg-slate-50/20">
                 <TableRow>
                   <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[28%]">Exam Title</TableHead>
@@ -387,16 +387,16 @@ export default function StudentResults() {
                       </TableCell>
                     </TableRow>
                   ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={6} className="px-6 py-12 text-center text-slate-600 text-xs font-medium">
-                      No results published yet.
-                    </TableCell>
-                  </TableRow>
-                )}
+                ) : null}
               </TableBody>
             </Table>
           </div>
+          {/* Empty state outside scroll area — centers on any screen width */}
+          {results.length === 0 && (
+            <div className="py-12 text-center text-xs text-slate-600 font-medium">
+              No results published yet.
+            </div>
+          )}
         </CardContent>
       </Card>
 

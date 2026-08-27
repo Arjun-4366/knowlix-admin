@@ -47,7 +47,6 @@ const roleMap: Record<string, string> = {
       { email, password },
       {
         onSuccess: (data) => {
-          console.log("data",data)
           localStorage.setItem("token", data.token);
           const targetRole = data.role || data.user?.role;
           localStorage.setItem("role", targetRole || "admin");

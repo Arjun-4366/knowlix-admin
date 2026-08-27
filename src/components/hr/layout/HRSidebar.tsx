@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -34,13 +35,21 @@ interface Props {
 
 export default function HRSidebar({ collapsed }: Props) {
   const pathname = usePathname();
+  const [hrUser, setHrUser] = useState<{ name?: string; email?: string } | null>(null);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("user");
+      if (stored) setHrUser(JSON.parse(stored));
+    } catch { /* ignore */ }
+  }, []);
 
   return (
     <aside
       className="flex-shrink-0 flex flex-col h-full overflow-hidden"
       style={{
         background: "var(--brand-dark)",
-        width: collapsed ? "64px" : "240px",
+        width: collapsed ? "64px" : "260px",
         transition: "width 300ms cubic-bezier(0.4, 0, 0.2, 1)",
       }}
     >
@@ -117,13 +126,15 @@ export default function HRSidebar({ collapsed }: Props) {
       </nav>
 
       {/* User footer */}
-      <div
-        className="border-t border-white/10 flex-shrink-0"
+      <Link
+        href="/hr/profile"
+        title={collapsed ? (hrUser?.name || "My Profile") : undefined}
+        className="border-t border-white/10 flex-shrink-0 hover:bg-white/8 transition-colors"
         style={{
           padding: collapsed ? "16px 0" : "16px",
           display: "flex",
           justifyContent: collapsed ? "center" : "flex-start",
-          transition: "padding 300ms ease",
+          transition: "padding 300ms ease, background 150ms ease",
         }}
       >
         <div className="flex items-center gap-3">
@@ -131,22 +142,22 @@ export default function HRSidebar({ collapsed }: Props) {
             className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0"
             style={{ background: "var(--brand-green)" }}
           >
-            H
+            {hrUser?.name ? hrUser.name.charAt(0).toUpperCase() : "H"}
           </div>
           <div
             className="overflow-hidden"
             style={{
               opacity: collapsed ? 0 : 1,
-              maxWidth: collapsed ? 0 : "150px",
+              maxWidth: collapsed ? 0 : "170px",
               transition: "opacity 200ms ease, max-width 300ms ease",
               whiteSpace: "nowrap",
             }}
           >
-            <p className="text-white text-xs font-semibold">HR Manager</p>
-            <p className="text-white/45 text-xs">hr@knowlix.in</p>
+            <p className="text-white text-xs font-semibold truncate">{hrUser?.name || "HR Manager"}</p>
+            <p className="text-white/45 text-xs truncate">{hrUser?.email || ""}</p>
           </div>
         </div>
-      </div>
+      </Link>
     </aside>
   );
 }

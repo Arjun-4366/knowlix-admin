@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import {
   Table,
   TableBody,
@@ -12,71 +12,25 @@ import { useState } from "react";
 import {
   BarChart3,
   Users,
-  Wallet,
   Clock,
   Loader2,
   RefreshCcw,
   UserCheck,
   UserX,
-  Plus,
-  Pencil,
-  Trash2,
-  X,
 } from "lucide-react";
 import { format } from "date-fns";
-import { toast } from "react-hot-toast";
 import DashboardHeader from "@/components/dashboard/shared/DashboardHeader";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import {
-  useGetAttendanceReport,
+  useGetHRTutorAttendance,
   useGetTurnoverAnalytics,
-  useGetHRSalaryList,
-  useCreateHRSalary,
-  useUpdateHRSalary,
-  useDeleteHRSalary,
-  useGetTutorsHR,
 } from "@/querys/admin/hrQuery";
 import {
-  IAttendanceSummaryEntry,
+  IHRAttendanceRecord,
   ITurnoverMonthEntry,
-  IHRSalaryRecord,
-  ICreateHRSalaryPayload,
-  IUpdateHRSalaryPayload,
 } from "@/types/admin/hr";
-import { useConfirmation } from "@/context/ConfirmationContext";
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
-function formatCurrency(n: number) {
-  return new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 0,
-  }).format(n);
-}
-
-const MONTHS = [
-  "January","February","March","April","May","June",
-  "July","August","September","October","November","December",
-];
-
-const STATUS_COLOR: Record<string, string> = {
-  paid: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  partial: "bg-amber-50 text-amber-700 border-amber-200",
-  unpaid: "bg-red-50 text-red-700 border-red-200",
-};
 
 // ── Small UI pieces ───────────────────────────────────────────────────────────
 
@@ -120,447 +74,44 @@ function SectionHeader({ title, description }: { title: string; description: str
   );
 }
 
-// ── Salary Create Modal ───────────────────────────────────────────────────────
+// ── Status badge helper ───────────────────────────────────────────────────────
 
-function SalaryCreateModal({
-  onClose,
-  onSubmit,
-  saving,
-}: {
-  onClose: () => void;
-  onSubmit: (data: ICreateHRSalaryPayload) => void;
-  saving: boolean;
-}) {
-  const { data: tutorsRes } = useGetTutorsHR();
-  const tutors = (tutorsRes?.data ?? []) as { id: string; name: string }[];
+const STATUS_CLASS: Record<string, string> = {
+  approved:        "bg-emerald-50 text-emerald-700 border-emerald-200",
+  present:         "bg-emerald-50 text-emerald-700 border-emerald-200",
+  pending_approval:"bg-amber-50 text-amber-700 border-amber-200",
+  rejected:        "bg-red-50 text-red-700 border-red-200",
+  absent:          "bg-red-50 text-red-700 border-red-200",
+  late:            "bg-orange-50 text-orange-700 border-orange-200",
+  half_day:        "bg-violet-50 text-violet-700 border-violet-200",
+  on_leave:        "bg-slate-50 text-slate-600 border-slate-200",
+};
 
-  const currentYear = new Date().getFullYear();
-  const [tutorId, setTutorId] = useState("");
-  const [month, setMonth] = useState(MONTHS[new Date().getMonth()]);
-  const [year, setYear] = useState(currentYear);
-  const [totalAmount, setTotalAmount] = useState("");
-  const [paidAmount, setPaidAmount] = useState("");
-  const [remarks, setRemarks] = useState("");
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!tutorId) { toast.error("Select a tutor"); return; }
-    if (!totalAmount || Number(totalAmount) <= 0) { toast.error("Enter total amount"); return; }
-    onSubmit({
-      tutorId,
-      month,
-      year,
-      totalAmount: Number(totalAmount),
-      paidAmount: Number(paidAmount) || 0,
-      remarks: remarks || undefined,
-    });
-  };
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-white rounded-2xl shadow-2xl border border-slate-150 w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-200">
-        {/* Header */}
-        <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-[var(--brand-light-green)] flex items-center justify-center">
-              <Wallet className="w-4 h-4 text-[var(--brand-green)]" />
-            </div>
-            <div>
-              <h3 className="font-bold text-slate-800 text-base">Add Salary Record</h3>
-              <p className="text-[10px] text-slate-600 font-semibold mt-0.5">Fill in the salary details</p>
-            </div>
-          </div>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-600 hover:text-slate-600 transition-colors">
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          {/* Tutor */}
-          <div className="space-y-1.5">
-            <Label className="text-[10px] uppercase font-bold text-slate-600">Tutor</Label>
-            <Select value={tutorId} onValueChange={setTutorId}>
-              <SelectTrigger className="h-9 text-sm font-semibold bg-slate-50 border-slate-200">
-                <SelectValue placeholder="Select tutor" />
-              </SelectTrigger>
-              <SelectContent>
-                {tutors.map((t) => (
-                  <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Month + Year */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <Label className="text-[10px] uppercase font-bold text-slate-600">Month</Label>
-              <Select value={month} onValueChange={setMonth}>
-                <SelectTrigger className="h-9 text-sm font-semibold bg-slate-50 border-slate-200">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {MONTHS.map((m) => (
-                    <SelectItem key={m} value={m}>{m}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-[10px] uppercase font-bold text-slate-600">Year</Label>
-              <Input
-                type="number"
-                value={year}
-                onChange={(e) => setYear(Number(e.target.value))}
-                className="h-9 text-sm font-semibold bg-slate-50 border-slate-200"
-                min={2020}
-                max={2100}
-              />
-            </div>
-          </div>
-
-          {/* Total + Paid */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <Label className="text-[10px] uppercase font-bold text-slate-600">Total Amount (₹)</Label>
-              <Input
-                type="number"
-                value={totalAmount}
-                onChange={(e) => setTotalAmount(e.target.value)}
-                placeholder="40000"
-                className="h-9 text-sm font-semibold bg-slate-50 border-slate-200"
-                min={0}
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-[10px] uppercase font-bold text-slate-600">Paid Amount (₹)</Label>
-              <Input
-                type="number"
-                value={paidAmount}
-                onChange={(e) => setPaidAmount(e.target.value)}
-                placeholder="0"
-                className="h-9 text-sm font-semibold bg-slate-50 border-slate-200"
-                min={0}
-              />
-            </div>
-          </div>
-
-          {/* Remarks */}
-          <div className="space-y-1.5">
-            <Label className="text-[10px] uppercase font-bold text-slate-600">Remarks</Label>
-            <Input
-              value={remarks}
-              onChange={(e) => setRemarks(e.target.value)}
-              placeholder="e.g. First payment done"
-              className="h-9 text-sm bg-slate-50 border-slate-200"
-            />
-          </div>
-
-          <div className="flex gap-3 pt-2">
-            <Button type="button" variant="outline" onClick={onClose} className="flex-1 h-9 text-xs font-semibold">
-              Cancel
-            </Button>
-            <Button type="submit" disabled={saving} className="flex-1 h-9 text-xs font-semibold bg-[var(--brand-green)] hover:bg-[var(--brand-green)]/90 text-white">
-              {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : "Add Record"}
-            </Button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-}
-
-// ── Salary Update Modal ───────────────────────────────────────────────────────
-
-function SalaryUpdateModal({
-  record,
-  onClose,
-  onSubmit,
-  saving,
-}: {
-  record: IHRSalaryRecord;
-  onClose: () => void;
-  onSubmit: (data: IUpdateHRSalaryPayload) => void;
-  saving: boolean;
-}) {
-  const [month, setMonth] = useState(record.month);
-  const [year, setYear] = useState(record.year);
-  const [paidAmount, setPaidAmount] = useState(String(record.paidAmount));
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    onSubmit({ month, year, paidAmount: Number(paidAmount) });
-  };
-
-  const tutorName = record.tutorId?.name ?? `ID …${record.id.slice(-6)}`;
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-white rounded-2xl shadow-2xl border border-slate-150 w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
-        <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-[var(--brand-light-green)] flex items-center justify-center">
-              <Pencil className="w-4 h-4 text-[var(--brand-green)]" />
-            </div>
-            <div>
-              <h3 className="font-bold text-slate-800 text-base">Update Salary</h3>
-              <p className="text-[10px] text-slate-600 font-semibold mt-0.5">{tutorName}</p>
-            </div>
-          </div>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-600 hover:text-slate-600 transition-colors">
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <Label className="text-[10px] uppercase font-bold text-slate-600">Month</Label>
-              <Select value={month} onValueChange={setMonth}>
-                <SelectTrigger className="h-9 text-sm font-semibold bg-slate-50 border-slate-200">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {MONTHS.map((m) => (
-                    <SelectItem key={m} value={m}>{m}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-[10px] uppercase font-bold text-slate-600">Year</Label>
-              <Input
-                type="number"
-                value={year}
-                onChange={(e) => setYear(Number(e.target.value))}
-                className="h-9 text-sm font-semibold bg-slate-50 border-slate-200"
-                min={2020}
-                max={2100}
-              />
-            </div>
-          </div>
-
-          <div className="space-y-1.5">
-            <Label className="text-[10px] uppercase font-bold text-slate-600">Paid Amount (₹)</Label>
-            <Input
-              type="number"
-              value={paidAmount}
-              onChange={(e) => setPaidAmount(e.target.value)}
-              className="h-9 text-sm font-semibold bg-slate-50 border-slate-200"
-              min={0}
-            />
-          </div>
-
-          <div className="flex gap-3 pt-2">
-            <Button type="button" variant="outline" onClick={onClose} className="flex-1 h-9 text-xs font-semibold">
-              Cancel
-            </Button>
-            <Button type="submit" disabled={saving} className="flex-1 h-9 text-xs font-semibold bg-[var(--brand-green)] hover:bg-[var(--brand-green)]/90 text-white">
-              {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : "Save Changes"}
-            </Button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-}
-
-// ── Salary Management Panel ───────────────────────────────────────────────────
-
-function SalaryManagementPanel() {
-  const { data: salaryRes, isLoading } = useGetHRSalaryList();
-  const createMutation = useCreateHRSalary();
-  const updateMutation = useUpdateHRSalary();
-  const deleteMutation = useDeleteHRSalary();
-  const { confirm } = useConfirmation();
-
-  const [showCreate, setShowCreate] = useState(false);
-  const [editRecord, setEditRecord] = useState<IHRSalaryRecord | null>(null);
-
-  const records: IHRSalaryRecord[] = salaryRes?.data ?? [];
-
-  const totalAmount = records.reduce((s, r) => s + r.totalAmount, 0);
-  const totalPaid = records.reduce((s, r) => s + r.paidAmount, 0);
-  const totalPending = records.reduce((s, r) => s + r.pendingAmount, 0);
-
-  const handleCreate = (data: ICreateHRSalaryPayload) => {
-    createMutation.mutate(data, { onSuccess: () => setShowCreate(false) });
-  };
-
-  const handleUpdate = (data: IUpdateHRSalaryPayload) => {
-    if (!editRecord) return;
-    updateMutation.mutate({ id: editRecord.id, data }, { onSuccess: () => setEditRecord(null) });
-  };
-
-  const handleDelete = (record: IHRSalaryRecord) => {
-    const tutorName = record.tutorId?.name ?? "this record";
-    confirm({
-      title: "Delete Salary Record",
-      message: `Remove ${record.month} ${record.year} salary for ${tutorName}? This cannot be undone.`,
-      confirmText: "Delete",
-      variant: "danger",
-      onConfirm: () => deleteMutation.mutate(record.id),
-    });
-  };
-
-  return (
-    <>
-      {showCreate && (
-        <SalaryCreateModal
-          onClose={() => setShowCreate(false)}
-          onSubmit={handleCreate}
-          saving={createMutation.isPending}
-        />
-      )}
-      {editRecord && (
-        <SalaryUpdateModal
-          record={editRecord}
-          onClose={() => setEditRecord(null)}
-          onSubmit={handleUpdate}
-          saving={updateMutation.isPending}
-        />
-      )}
-
-      <Card className="bg-white border border-slate-150 rounded-2xl shadow-sm overflow-hidden">
-        <div className="p-5 border-b border-slate-100">
-          <div className="flex items-start justify-between mb-3">
-            <SectionHeader
-              title="Salary Management"
-              description="Create, update, and manage salary records for tutors."
-            />
-            <Button
-              onClick={() => setShowCreate(true)}
-              className="h-8 px-3 text-xs font-semibold bg-[var(--brand-green)] hover:bg-[var(--brand-green)]/90 text-white flex items-center gap-1.5 flex-shrink-0">
-              <Plus className="w-3.5 h-3.5" />
-              Add Record
-            </Button>
-          </div>
-
-          {records.length > 0 && (
-            <div className="flex items-center gap-4 mt-3">
-              <div className="text-center">
-                <p className="text-base font-bold text-slate-800">{formatCurrency(totalAmount)}</p>
-                <p className="text-[10px] text-slate-600">Total</p>
-              </div>
-              <div className="w-px h-8 bg-slate-100" />
-              <div className="text-center">
-                <p className="text-base font-bold text-emerald-700">{formatCurrency(totalPaid)}</p>
-                <p className="text-[10px] text-slate-600">Paid</p>
-              </div>
-              <div className="w-px h-8 bg-slate-100" />
-              <div className="text-center">
-                <p className="text-base font-bold text-rose-600">{formatCurrency(totalPending)}</p>
-                <p className="text-[10px] text-slate-600">Pending</p>
-              </div>
-              <p className="ml-auto text-[11px] text-slate-600">
-                {records.length} record{records.length !== 1 ? "s" : ""}
-              </p>
-            </div>
-          )}
-        </div>
-
-        <div className="p-5">
-          {isLoading ? (
-            <div className="flex items-center justify-center py-10">
-              <Loader2 className="w-6 h-6 animate-spin text-slate-600" />
-            </div>
-          ) : records.length === 0 ? (
-            <div className="py-10 text-center text-sm text-slate-600">
-              No salary records yet. Click &ldquo;Add Record&rdquo; to create one.
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <Table className="w-full text-xs">
-                <TableHeader>
-                  <TableRow className="border-b border-slate-100">
-                    {["Tutor", "Period", "Total", "Paid", "Pending", "Status", ""].map((h) => (
-                      <TableHead
-                        key={h}
-                        className="text-left py-2 px-3 font-semibold text-slate-600 uppercase tracking-wider text-[10px]">
-                        {h}
-                      </TableHead>
-                    ))}
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {records.map((r, i) => (
-                    <TableRow
-                      key={r.id}
-                      className={cn("border-b border-slate-50", i % 2 !== 0 && "bg-slate-50/50")}>
-                      <TableCell className="py-2.5 px-3 font-semibold text-slate-800">
-                        {r.tutorId?.name ?? (
-                          <span className="font-mono text-slate-600 text-[10px]">
-                            …{r.id.slice(-8)}
-                          </span>
-                        )}
-                      </TableCell>
-                      <TableCell className="py-2.5 px-3 text-slate-600">
-                        {r.month} {r.year}
-                      </TableCell>
-                      <TableCell className="py-2.5 px-3 font-semibold text-slate-800">
-                        {formatCurrency(r.totalAmount)}
-                      </TableCell>
-                      <TableCell className="py-2.5 px-3 text-emerald-700 font-semibold">
-                        {formatCurrency(r.paidAmount)}
-                      </TableCell>
-                      <TableCell className="py-2.5 px-3 text-rose-600 font-semibold">
-                        {formatCurrency(r.pendingAmount)}
-                      </TableCell>
-                      <TableCell className="py-2.5 px-3">
-                        <Badge
-                          variant="outline"
-                          className={cn(
-                            "text-[10px] font-semibold capitalize",
-                            STATUS_COLOR[r.status] ?? "bg-slate-50 text-slate-600 border-slate-200",
-                          )}>
-                          {r.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="py-2.5 px-3">
-                        <div className="flex items-center gap-1.5">
-                          <button
-                            onClick={() => setEditRecord(r)}
-                            className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-600 hover:text-slate-600 transition-colors">
-                            <Pencil className="w-3.5 h-3.5" />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(r)}
-                            disabled={deleteMutation.isPending}
-                            className="p-1.5 rounded-lg hover:bg-red-50 text-slate-600 hover:text-red-600 transition-colors">
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          )}
-        </div>
-      </Card>
-    </>
-  );
+function statusLabel(s: string) {
+  return s.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 // ── Attendance Report Panel ───────────────────────────────────────────────────
 
 function AttendanceReportPanel({ dateFrom, dateTo }: { dateFrom: string; dateTo: string }) {
-  const { data: reportRes, isLoading } = useGetAttendanceReport({ from: dateFrom, to: dateTo });
-  const data = reportRes?.data;
-  const summary: IAttendanceSummaryEntry[] = data?.summary ?? [];
+  const { data: attendanceRes, isLoading } = useGetHRTutorAttendance({
+    from: dateFrom || undefined,
+    to: dateTo || undefined,
+    limit: 100,
+  });
+
+  const records: IHRAttendanceRecord[] = (attendanceRes?.data ?? []) as IHRAttendanceRecord[];
+  const total = attendanceRes?.total ?? 0;
 
   return (
     <Card className="bg-white border border-slate-150 rounded-2xl shadow-sm overflow-hidden">
       <div className="p-5 border-b border-slate-100 flex items-start justify-between">
         <SectionHeader
           title="Attendance Report"
-          description="Per-tutor attendance summary for the selected date range."
+          description="Tutor attendance records for the selected date range."
         />
-        {data && (
-          <p className="text-[11px] text-slate-600 font-medium mt-0.5">{data.total} records</p>
+        {total > 0 && (
+          <p className="text-[11px] text-slate-600 font-medium mt-0.5">{total} records</p>
         )}
       </div>
       <div className="p-5">
@@ -568,7 +119,7 @@ function AttendanceReportPanel({ dateFrom, dateTo }: { dateFrom: string; dateTo:
           <div className="flex items-center justify-center py-10">
             <Loader2 className="w-6 h-6 animate-spin text-slate-600" />
           </div>
-        ) : summary.length === 0 ? (
+        ) : records.length === 0 ? (
           <div className="py-10 text-center text-sm text-slate-600">
             No attendance records found for the selected range.
           </div>
@@ -577,7 +128,7 @@ function AttendanceReportPanel({ dateFrom, dateTo }: { dateFrom: string; dateTo:
             <Table className="w-full text-xs">
               <TableHeader>
                 <TableRow className="border-b border-slate-100">
-                  {["Tutor", "Present", "Absent", "Late", "Total Records"].map((h) => (
+                  {["Tutor", "Date", "Status", "Work Hours", "Remarks"].map((h) => (
                     <TableHead
                       key={h}
                       className="text-left py-2 px-3 font-semibold text-slate-600 uppercase tracking-wider text-[10px]">
@@ -587,19 +138,39 @@ function AttendanceReportPanel({ dateFrom, dateTo }: { dateFrom: string; dateTo:
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {summary.map((row, i) => (
+                {records.map((r, i) => (
                   <TableRow
-                    key={row.tutorId}
+                    key={r.id}
                     className={cn("border-b border-slate-50", i % 2 !== 0 && "bg-slate-50/50")}>
-                    <TableCell className="py-2.5 px-3 font-semibold text-slate-800">
-                      {row.tutorName || (
-                        <span className="font-mono text-slate-600 text-[10px]">{row.tutorId.slice(-8)}</span>
+                    <TableCell className="py-2.5 px-3">
+                      <p className="font-semibold text-slate-800">
+                        {r.tutor?.name || (
+                          <span className="font-mono text-slate-500 text-[10px]">…{r.tutorId.slice(-8)}</span>
+                        )}
+                      </p>
+                      {r.tutor?.email && (
+                        <p className="text-[10px] text-slate-500 mt-0.5">{r.tutor.email}</p>
                       )}
                     </TableCell>
-                    <TableCell className="py-2.5 px-3 text-emerald-700 font-semibold">{row.present}</TableCell>
-                    <TableCell className="py-2.5 px-3 text-red-600 font-semibold">{row.absent}</TableCell>
-                    <TableCell className="py-2.5 px-3 text-amber-600 font-semibold">{row.late}</TableCell>
-                    <TableCell className="py-2.5 px-3 text-slate-600">{row.totalRecords}</TableCell>
+                    <TableCell className="py-2.5 px-3 text-slate-600">
+                      {r.date ? format(new Date(r.date), "dd MMM yyyy") : "—"}
+                    </TableCell>
+                    <TableCell className="py-2.5 px-3">
+                      <Badge
+                        variant="outline"
+                        className={cn(
+                          "text-[10px] font-semibold capitalize",
+                          STATUS_CLASS[r.status] ?? "bg-slate-50 text-slate-600 border-slate-200",
+                        )}>
+                        {statusLabel(r.status)}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="py-2.5 px-3 text-slate-600">
+                      {r.workHours != null ? `${r.workHours}h` : "—"}
+                    </TableCell>
+                    <TableCell className="py-2.5 px-3 text-slate-600 max-w-[180px] truncate" title={r.remarks}>
+                      {r.remarks || "—"}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -744,23 +315,16 @@ export default function HRReportsManager() {
     <div className="space-y-6 w-full pb-10">
       <DashboardHeader
         title="HR Analytics & Reports"
-        description="Centralized view of attendance summaries, salary records, and workforce turnover metrics."
+        description="Centralized view of attendance summaries and workforce turnover metrics."
       />
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <KpiCard
           label="Attendance Report"
-          value="By Tutor"
-          sub="Summary + date filter"
+          value="By Date Range"
+          sub="Records with date filter"
           icon={BarChart3}
           accent="bg-slate-100 text-slate-600"
-        />
-        <KpiCard
-          label="Salary Management"
-          value="Payroll"
-          sub="Create, update & track payments"
-          icon={Wallet}
-          accent="bg-emerald-100 text-emerald-600"
         />
         <KpiCard
           label="Turnover Analytics"
@@ -809,7 +373,6 @@ export default function HRReportsManager() {
 
       <div key={refreshKey} className="space-y-6">
         <AttendanceReportPanel dateFrom={dateFrom} dateTo={dateTo} />
-        <SalaryManagementPanel />
         <TurnoverPanel />
       </div>
     </div>

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect } from "react";
 import { Plus, Calendar, Video, Clock, Users, CheckCircle2, AlertCircle, X, Save, ExternalLink, Edit2, Trash2 } from "lucide-react";
@@ -26,6 +26,7 @@ import { TutorSessionType, ITutorSession } from "@/types/tutor/attendance";
 import { useConfirmation } from "@/context/ConfirmationContext";
 import { useTutorStore } from "@/store/tutorStore";
 import { toast } from "react-hot-toast";
+import { Label } from "../ui/label";
 
 
 // Helper to convert ISO UTC timestamp to local format for datetime-local input
@@ -70,7 +71,7 @@ export default function TutorSessionManager() {
   // Form States
   const [title, setTitle] = useState("");
   const [subject, setSubject] = useState("");
-  const [sessionType, setSessionType] = useState<TutorSessionType>("group");
+  const [sessionType, setSessionType] = useState<TutorSessionType>("individual");
   const [meetLink, setMeetLink] = useState("");
   const [scheduledAt, setScheduledAt] = useState("");
   const [durationMinutes, setDurationMinutes] = useState("60");
@@ -288,10 +289,10 @@ export default function TutorSessionManager() {
             <form onSubmit={handleSubmit} className="space-y-5">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* Title */}
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
+                <div className="space-y-2.5">
+                  <Label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
                     Session Title
-                  </label>
+                  </Label>
                   <Input
                     type="text"
                     value={title}
@@ -303,10 +304,10 @@ export default function TutorSessionManager() {
                 </div>
 
                 {/* Subject */}
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
+                <div className="space-y-2.5">
+                  <Label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
                     Subject
-                  </label>
+                  </Label>
                   <Select value={subject} onValueChange={setSubject} disabled={storeSubjects.length === 0}>
                     <SelectTrigger className="h-10 bg-white border-slate-200 rounded-xl text-sm font-medium">
                       <SelectValue placeholder={storeSubjects.length === 0 ? "Loading subjects..." : "Select Subject"} />
@@ -322,10 +323,10 @@ export default function TutorSessionManager() {
                 </div>
 
                 {/* Session Type */}
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
+                <div className="space-y-2.5">
+                  <Label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
                     Session Type
-                  </label>
+                  </Label>
                   <Select
                     value={sessionType}
                     onValueChange={(v) => {
@@ -349,10 +350,10 @@ export default function TutorSessionManager() {
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* Scheduled At */}
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
+                <div className="space-y-2.5">
+                  <Label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
                     Date & Time
-                  </label>
+                  </Label>
                   <div className="relative">
                     <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600 z-10" />
                     <Input
@@ -366,10 +367,10 @@ export default function TutorSessionManager() {
                 </div>
 
                 {/* Duration */}
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
+                <div className="space-y-2.5">
+                  <Label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
                     Duration (Minutes)
-                  </label>
+                  </Label>
                   <Input
                     type="number"
                     min="1"
@@ -381,10 +382,10 @@ export default function TutorSessionManager() {
                 </div>
 
                 {/* Meet Link */}
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
+                <div className="space-y-2.5">
+                  <Label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
                     Google Meet Link
-                  </label>
+                  </Label>
                   <div className="relative">
                     <Video className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600 z-10" />
                     <Input
@@ -400,10 +401,10 @@ export default function TutorSessionManager() {
               </div>
 
               {/* Notes */}
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
+              <div className="space-y-2.5">
+                <Label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
                   Session Notes / Agenda
-                </label>
+                </Label>
                 <Textarea
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
@@ -413,11 +414,11 @@ export default function TutorSessionManager() {
               </div>
 
               {/* Student checkboxes */}
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
+              <div className="space-y-2.5">
+                <Label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
                   Assign Students ({selectedStudentIds.length} selected
                   {sessionType === "individual" ? " · max 1" : ""})
-                </label>
+                </Label>
                 {activeStudents.length === 0 ? (
                   <p className="text-xs text-slate-600 font-semibold p-2 border border-dashed border-slate-200 rounded-xl bg-slate-50/50">
                     You have no active students in your roster.
@@ -498,7 +499,8 @@ export default function TutorSessionManager() {
 
       {/* ── Table of Scheduled Sessions ── */}
       <div className="bg-white border border-slate-150 rounded-2xl shadow-sm overflow-hidden">
-        <Table className="table-fixed w-full">
+        <div className="overflow-x-auto">
+        <Table className="table-fixed w-full min-w-[760px]">
           <TableHeader className="bg-slate-50/50">
             <TableRow>
               <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[20%]">
@@ -618,10 +620,17 @@ export default function TutorSessionManager() {
                           <SelectItem value="not_conducted" className="text-xs font-semibold">
                             Not Conducted
                           </SelectItem>
-                          {isSessionEnded(session) && (
+                          {isSessionEnded(session) ? (
                             <SelectItem value="completed" className="text-xs font-semibold">
                               Completed
                             </SelectItem>
+                          ) : (
+                            <div
+                              title="Available only after the session's scheduled end time has passed"
+                              className="relative flex w-full cursor-not-allowed select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-xs font-semibold text-slate-400 opacity-50"
+                            >
+                              Completed
+                            </div>
                           )}
                         </SelectContent>
                       </Select>
@@ -665,6 +674,7 @@ export default function TutorSessionManager() {
             )}
           </TableBody>
         </Table>
+        </div>
       </div>
     </div>
   );

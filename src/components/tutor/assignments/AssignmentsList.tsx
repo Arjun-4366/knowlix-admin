@@ -1,6 +1,6 @@
-﻿"use client";
+"use client";
 
-import { FileText, Calendar, BookOpen, Users, Paperclip } from "lucide-react";
+import { FileText, Calendar, BookOpen, Users, Paperclip, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -17,12 +17,14 @@ interface AssignmentsListProps {
   assignments: ITutorAssignment[];
   studentMap: Map<string, string>;
   onEvaluate?: (assignment: ITutorAssignment) => void;
+  onView?: (assignment: ITutorAssignment) => void;
 }
 
 export default function AssignmentsList({
   assignments,
   studentMap,
   onEvaluate,
+  onView,
 }: AssignmentsListProps) {
   if (assignments.length === 0) {
     return (
@@ -39,7 +41,8 @@ export default function AssignmentsList({
 
   return (
     <div className="bg-white border border-slate-150 rounded-2xl shadow-sm overflow-hidden">
-      <Table className="table-fixed w-full">
+      <div className="overflow-x-auto">
+      <Table className="table-fixed w-full min-w-[700px]">
         <TableHeader className="bg-slate-50/50">
           <TableRow>
             <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[34%]">
@@ -147,30 +150,43 @@ export default function AssignmentsList({
                 </TableCell>
 
                 <TableCell className="px-6 py-4 text-right">
-                  {(() => {
-                    const hasSubmission = asg.students
-                      ? asg.students.some((s) => s.submission !== null)
-                      : (asg.submittedCount ?? 0) > 0;
-                    const notFullyEvaluated = asg.status !== "evaluated";
-                    if (onEvaluate && hasSubmission && notFullyEvaluated) {
-                      return (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => onEvaluate(asg)}
-                          className="text-xs font-bold text-[var(--brand-mid)] hover:bg-[var(--brand-light-green)]/35 hover:text-[var(--brand-mid)] px-2.5 py-1.5 rounded-lg border border-[var(--brand-green)]/20 cursor-pointer transition-all">
-                          Evaluate
-                        </Button>
-                      );
-                    }
-                    return null;
-                  })()}
+                  <div className="flex items-center justify-end gap-2">
+                    {onView && (
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        onClick={() => onView(asg)}
+                        title="View details"
+                        className="rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-800">
+                        <Eye className="w-4 h-4" />
+                      </Button>
+                    )}
+                    {(() => {
+                      const hasSubmission = asg.students
+                        ? asg.students.some((s) => s.submission !== null)
+                        : (asg.submittedCount ?? 0) > 0;
+                      const notFullyEvaluated = asg.status !== "evaluated";
+                      if (onEvaluate && hasSubmission && notFullyEvaluated) {
+                        return (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => onEvaluate(asg)}
+                            className="text-xs font-bold text-[var(--brand-mid)] hover:bg-[var(--brand-light-green)]/35 hover:text-[var(--brand-mid)] px-2.5 py-1.5 rounded-lg border border-[var(--brand-green)]/20 cursor-pointer transition-all">
+                            Evaluate
+                          </Button>
+                        );
+                      }
+                      return null;
+                    })()}
+                  </div>
                 </TableCell>
               </TableRow>
             );
           })}
         </TableBody>
       </Table>
+      </div>
     </div>
   );
 }

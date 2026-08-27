@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import {
@@ -6,12 +6,12 @@ import {
   Calendar,
   Award,
   CheckCircle2,
-  AlertCircle,
   X,
   Save,
   Users,
   BookOpen,
   Lock,
+  Eye,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -44,6 +44,8 @@ import { useGetTutorStudents } from "@/querys/tutor/studentQuery";
 import { ITutorExam } from "@/types/tutor/exams";
 import { toast } from "react-hot-toast";
 import { useTutorStore } from "@/store/tutorStore";
+import TutorExamDetailModal from "./TutorExamDetailModal";
+import { useConfirmation } from "@/context/ConfirmationContext";
 
 const SUBJECT_OPTIONS = [
   "Mathematics",
@@ -65,8 +67,11 @@ export default function TutorExamManager() {
   const { mutate: updateStatus } = useUpdateTutorExamStatus();
   const { mutate: enterResults, isPending: isEnteringResults } = useEnterTutorExamResults();
 
+  const { confirm } = useConfirmation();
+
   const [showAddForm, setShowAddForm] = useState(false);
   const [resultsExam, setResultsExam] = useState<ITutorExam | null>(null);
+  const [detailExam, setDetailExam] = useState<ITutorExam | null>(null);
   const [newTitle, setNewTitle] = useState("");
   const [newSubject, setNewSubject] = useState(subjects[0] ?? "");
   const [newDate, setNewDate] = useState("");
@@ -328,7 +333,8 @@ export default function TutorExamManager() {
 
       {/* ── Table of Exams ── */}
       <div className="bg-white border border-slate-150 rounded-2xl shadow-sm overflow-hidden">
-        <Table className="table-fixed w-full">
+        <div className="overflow-x-auto">
+        <Table className="table-fixed w-full min-w-[680px]">
           <TableHeader className="bg-slate-50/50">
             <TableRow>
               <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[33%]">
@@ -426,16 +432,27 @@ export default function TutorExamManager() {
                       <div className="space-y-2">
                         <Select
                           value={exm.status}
-                          onValueChange={(
-                            val: "pending" | "conducted" | "cancelled",
-                          ) => handleStatusChange(exm.id, val)}
+                          disabled={exm.status !== "pending"}
+                          onValueChange={(val: "pending" | "conducted" | "cancelled") => {
+                            if (val === "pending" || exm.status !== "pending") return;
+                            const isCancelled = val === "cancelled";
+                            confirm({
+                              title: isCancelled ? "Cancel this Exam?" : "Mark as Conducted?",
+                              message: isCancelled
+                                ? `"${exm.title}" will be permanently cancelled. This cannot be undone — the exam cannot be reactivated after this.`
+                                : `"${exm.title}" will be marked as conducted. This cannot be undone — the status cannot be changed again.`,
+                              confirmText: isCancelled ? "Yes, Cancel Exam" : "Yes, Mark Conducted",
+                              variant: isCancelled ? "danger" : "info",
+                              onConfirm: () => handleStatusChange(exm.id, val),
+                            });
+                          }}
                         >
                           <SelectTrigger
                             className={`h-8 text-xs font-bold rounded-lg border-0 shadow-none ring-1 ring-inset ${
                               exm.status === "conducted"
-                                ? "bg-slate-50 text-slate-600 ring-slate-200"
+                                ? "bg-slate-50 text-slate-600 ring-slate-200 opacity-70 cursor-not-allowed"
                                 : exm.status === "cancelled"
-                                  ? "bg-red-50 text-red-600 ring-red-200"
+                                  ? "bg-red-50 text-red-600 ring-red-200 opacity-70 cursor-not-allowed"
                                   : "bg-[var(--brand-light-green)]/30 text-[var(--brand-mid)] ring-[var(--brand-light)]/40"
                             }`}
                           >
@@ -453,20 +470,31 @@ export default function TutorExamManager() {
                             </SelectItem>
                           </SelectContent>
                         </Select>
-                        
+
                       </div>
                     </TableCell>
                     <TableCell className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[15%]">
-                       {exm.status === "conducted" && (
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          onClick={() => setDetailExam(exm)}
+                          title="View details"
+                          className="rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-800"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </Button>
+                        {exm.status === "conducted" && (
                           <Button
                             variant="ghost"
                             size="lg"
                             onClick={() => setResultsExam(exm)}
-                            className="w-full text-[10px] font-bold text-[var(--brand-mid)] hover:bg-[var(--brand-light-green)]/35 px-2  rounded-lg border border-[var(--brand-green)]/20 cursor-pointer"
+                            className="text-[10px] font-bold text-[var(--brand-mid)] hover:bg-[var(--brand-light-green)]/35 px-2 rounded-lg border border-[var(--brand-green)]/20 cursor-pointer"
                           >
                             <Award className="w-3 h-3 mr-1" /> Enter Results
                           </Button>
                         )}
+                      </div>
                     </TableCell>
                   </TableRow>
                 );
@@ -483,7 +511,15 @@ export default function TutorExamManager() {
             )}
           </TableBody>
         </Table>
+        </div>
       </div>
+
+      <TutorExamDetailModal
+        isOpen={!!detailExam}
+        onClose={() => setDetailExam(null)}
+        exam={detailExam}
+        studentMap={studentMap}
+      />
 
       {resultsExam && (
         <ExamResultsModal
@@ -518,7 +554,10 @@ interface ExamResultsModalProps {
 }
 
 function ExamResultsModal({ exam, studentMap, isSubmitting, onClose, onSubmit }: ExamResultsModalProps) {
-  const [studentId, setStudentId] = useState(exam.studentIds[0] ?? "");
+  const evaluatedIds = new Set((exam.evaluations ?? []).map((e) => e.studentId));
+  const pendingStudentIds = exam.studentIds.filter((id) => !evaluatedIds.has(id));
+
+  const [studentId, setStudentId] = useState(pendingStudentIds[0] ?? "");
   const [marks, setMarks] = useState("");
   const [grade, setGrade] = useState("A");
   const [remarks, setRemarks] = useState("");
@@ -548,6 +587,16 @@ function ExamResultsModal({ exam, studentMap, isSubmitting, onClose, onSubmit }:
           </button>
         </div>
 
+        {pendingStudentIds.length === 0 ? (
+          <div className="p-6 flex flex-col items-center gap-3 text-center">
+            <CheckCircle2 className="w-10 h-10 text-[var(--brand-green)]" />
+            <p className="text-sm font-bold text-slate-800">All results entered</p>
+            <p className="text-xs text-slate-500">Every student assigned to this exam has already been evaluated.</p>
+            <Button variant="outline" onClick={onClose} className="mt-1 rounded-xl font-bold text-xs border-slate-200">
+              Close
+            </Button>
+          </div>
+        ) : (
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           {/* Exam info */}
           <div className="bg-slate-50 border border-slate-100 rounded-xl p-3">
@@ -562,7 +611,7 @@ function ExamResultsModal({ exam, studentMap, isSubmitting, onClose, onSubmit }:
                 <SelectValue placeholder="Select Student" />
               </SelectTrigger>
               <SelectContent className="z-[200]">
-                {exam.studentIds.map((id) => (
+                {pendingStudentIds.map((id) => (
                   <SelectItem key={id} value={id} className="text-xs font-medium">
                     {studentMap.get(id) ?? id}
                   </SelectItem>
@@ -636,6 +685,7 @@ function ExamResultsModal({ exam, studentMap, isSubmitting, onClose, onSubmit }:
             </Button>
           </div>
         </form>
+        )}
       </div>
     </div>
   );

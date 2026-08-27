@@ -13,6 +13,7 @@ import {
   ITutorDetailsResponse,
   IAssignStudentsPayload,
   IGrowthHistoryResponse,
+  ITutorSubjectsResponse,
 } from "@/types/admin/tutor";
 
 export const getTutors = async (params?: QueryParams) => {
@@ -71,5 +72,30 @@ export const assignStudentsToTutor = async (id: string, payload: IAssignStudents
 
 export const getGrowthHistory = async (params: { tutorId: string; month?: string; year?: number }) => {
   const res = await apiClient.get<IGrowthHistoryResponse>(ENDPOINTS.GET_GROWTH_HISTORY, { params });
+  return res.data;
+};
+
+export const getAdminTutorSessions = async (id: string, params?: { page?: number; limit?: number }) => {
+  const res = await apiClient.get<any>(ENDPOINTS.GET_ADMIN_TUTOR_SESSIONS(id), { params });
+  return res.data;
+};
+
+export const getAdminTutorAssignments = async (id: string, params?: { page?: number; limit?: number }) => {
+  const res = await apiClient.get<any>(ENDPOINTS.GET_ADMIN_TUTOR_ASSIGNMENTS(id), { params });
+  return res.data;
+};
+
+export const getAdminTutorExams = async (id: string, params?: { page?: number; limit?: number }) => {
+  const res = await apiClient.get<any>(ENDPOINTS.GET_ADMIN_TUTOR_EXAMS(id), { params });
+  return res.data;
+};
+
+export const getAdminTutorAttendance = async (id: string, params?: { page?: number; limit?: number }) => {
+  const res = await apiClient.get<any>(ENDPOINTS.GET_ADMIN_TUTOR_ATTENDANCE(id), { params });
+  return res.data;
+};
+
+export const getTutorSubjects = async (id: string) => {
+  const res = await apiClient.get<ITutorSubjectsResponse>(ENDPOINTS.GET_TUTOR_SUBJECTS(id));
   return res.data;
 };
