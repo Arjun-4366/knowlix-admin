@@ -31,7 +31,7 @@ export const useCreateCoordinator = () => {
       queryClient.invalidateQueries({ queryKey: COORDINATORS_KEY });
       toast.success("Coordinator registered successfully");
     },
-    onError: () => toast.error("Failed to register coordinator"),
+    onError: (err: any) => toast.error(err?.response?.data?.message || err?.message || "Failed to register coordinator"),
   });
 };
 
@@ -46,7 +46,7 @@ export const useUpdateCoordinator = () => {
       queryClient.invalidateQueries({ queryKey: [...COORDINATOR_KEY, variables.id] });
       toast.success("Coordinator updated successfully");
     },
-    onError: () => toast.error("Failed to update coordinator"),
+    onError: (err: any) => toast.error(err?.response?.data?.message || err?.message || "Failed to update coordinator"),
   });
 };
 
@@ -59,6 +59,6 @@ export const useDeleteCoordinator = () => {
       queryClient.invalidateQueries({ queryKey: COORDINATORS_KEY });
       toast.success("Coordinator deleted successfully");
     },
-    onError: () => toast.error("Failed to delete coordinator"),
+    onError: (err: any) => toast.error(err?.response?.data?.message || err?.message || "Failed to delete coordinator"),
   });
 };

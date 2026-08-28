@@ -38,8 +38,8 @@ export const useDeleteTeamMember = () => {
       queryClient.invalidateQueries({ queryKey: ["team"] });
       toast.success("Member removed from team");
     },
-    onError: () => {
-      toast.error("Failed to remove team member");
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.message || err?.message || "Failed to remove team member");
     },
   });
 };

@@ -72,7 +72,7 @@ export const useCreateTutor = () => {
       queryClient.invalidateQueries({ queryKey: TUTORS_KEY });
       toast.success("Tutor registered successfully");
     },
-    onError: () => toast.error("Failed to register tutor"),
+    onError: (err: any) => toast.error(err?.response?.data?.message || err?.message || "Failed to register tutor"),
   });
 };
 
@@ -87,7 +87,7 @@ export const useUpdateTutor = () => {
       queryClient.invalidateQueries({ queryKey: [...TUTOR_KEY, variables.id] });
       toast.success("Tutor updated successfully");
     },
-    onError: () => toast.error("Failed to update tutor"),
+    onError: (err: any) => toast.error(err?.response?.data?.message || err?.message || "Failed to update tutor"),
   });
 };
 
@@ -100,7 +100,7 @@ export const useDeleteTutor = () => {
       queryClient.invalidateQueries({ queryKey: TUTORS_KEY });
       toast.success("Tutor deleted successfully");
     },
-    onError: () => toast.error("Failed to delete tutor"),
+    onError: (err: any) => toast.error(err?.response?.data?.message || err?.message || "Failed to delete tutor"),
   });
 };
 
@@ -116,7 +116,7 @@ export const useApproveTutor = () => {
       queryClient.invalidateQueries({ queryKey: [...TUTOR_PERFORMANCE_KEY, variables.id] });
       toast.success(`Tutor status updated successfully`);
     },
-    onError: () => toast.error("Failed to update tutor status"),
+    onError: (err: any) => toast.error(err?.response?.data?.message || err?.message || "Failed to update tutor status"),
   });
 };
 
@@ -133,7 +133,7 @@ export const useAwardGrowthPoints = () => {
       queryClient.invalidateQueries({ queryKey: GROWTH_HISTORY_KEY });
       toast.success("Growth points awarded successfully");
     },
-    onError: () => toast.error("Failed to award growth points"),
+    onError: (err: any) => toast.error(err?.response?.data?.message || err?.message || "Failed to award growth points"),
   });
 };
 
@@ -149,7 +149,7 @@ export const useAssignStudentsToTutor = () => {
       queryClient.invalidateQueries({ queryKey: ["students"] });
       toast.success("Students assigned successfully");
     },
-    onError: () => toast.error("Failed to assign students"),
+    onError: (err: any) => toast.error(err?.response?.data?.message || err?.message || "Failed to assign students"),
   });
 };
 

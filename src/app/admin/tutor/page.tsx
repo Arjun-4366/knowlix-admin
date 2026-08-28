@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useMemo, Suspense, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -62,6 +62,9 @@ function TutorsContent() {
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [subjectFilter, setSubjectFilter] = useState("all");
   const [expFilter, setExpFilter] = useState("all");
+  const [dayFilter, setDayFilter] = useState("all");
+  const [startTimeFilter, setStartTimeFilter] = useState("");
+  const [endTimeFilter, setEndTimeFilter] = useState("");
   const [page, setPage] = useState(1);
   const limit = 20;
 
@@ -77,7 +80,9 @@ function TutorsContent() {
   // Reset page when filters change
   useEffect(() => {
     setPage(1);
-  }, [subjectFilter, expFilter, activeTab]);
+  }, [subjectFilter, expFilter, activeTab, dayFilter, startTimeFilter, endTimeFilter]);
+
+  const hasBothTimes = startTimeFilter && endTimeFilter;
 
   const { data: tutorsResponse, isLoading } = useGetTutors({
     limit,
@@ -86,6 +91,9 @@ function TutorsContent() {
     subject: subjectFilter !== "all" ? subjectFilter : undefined,
     experience: expFilter !== "all" ? expFilter : undefined,
     status: activeTab !== "leaderboard" ? activeTab : undefined,
+    day: dayFilter !== "all" ? dayFilter : undefined,
+    startTime: hasBothTimes ? startTimeFilter : undefined,
+    endTime: hasBothTimes ? endTimeFilter : undefined,
   });
 
   // Modal State
@@ -248,7 +256,7 @@ function TutorsContent() {
 
             <div className="flex flex-wrap items-center gap-3">
               <Select value={subjectFilter} onValueChange={setSubjectFilter}>
-                <SelectTrigger className="w-full sm:w-48 h-11 py-5 text-xs font-semibold bg-white border-slate-200 rounded-xl">
+                <SelectTrigger className="w-full sm:w-48 h-[42px] text-xs font-semibold bg-white border-slate-200 rounded-xl">
                   <SelectValue placeholder="All Subject Expertise" />
                 </SelectTrigger>
                 <SelectContent>
@@ -262,7 +270,7 @@ function TutorsContent() {
               </Select>
 
               <Select value={expFilter} onValueChange={setExpFilter}>
-                <SelectTrigger className="w-full sm:w-48 h-9 py-5 text-xs font-semibold bg-white border-slate-200 rounded-xl">
+                <SelectTrigger className="w-full sm:w-48 h-[42px] text-xs font-semibold bg-white border-slate-200 rounded-xl">
                   <SelectValue placeholder="All Experiences" />
                 </SelectTrigger>
                 <SelectContent>
@@ -275,12 +283,44 @@ function TutorsContent() {
                 </SelectContent>
               </Select>
 
+              <Select value={dayFilter} onValueChange={setDayFilter}>
+                <SelectTrigger className="w-full sm:w-32 h-[42px] text-xs font-semibold bg-white border-slate-200 rounded-xl">
+                  <SelectValue placeholder="All Days" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Days</SelectItem>
+                  {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map(day => (
+                    <SelectItem key={day} value={day}>{day}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              
+              <div className="flex items-center gap-1.5 bg-white border border-slate-200 rounded-xl px-2 h-[42px]">
+                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">From</span>
+                <input
+                  type="time"
+                  value={startTimeFilter}
+                  onChange={(e) => setStartTimeFilter(e.target.value)}
+                  className="bg-transparent border-none outline-none text-xs font-semibold text-slate-700 w-[70px] cursor-pointer"
+                />
+              </div>
+
+              <div className="flex items-center gap-1.5 bg-white border border-slate-200 rounded-xl px-2 h-[42px]">
+                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">To</span>
+                <input
+                  type="time"
+                  value={endTimeFilter}
+                  onChange={(e) => setEndTimeFilter(e.target.value)}
+                  className="bg-transparent border-none outline-none text-xs font-semibold text-slate-700 w-[70px] cursor-pointer"
+                />
+              </div>
+
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => { setSearchQuery(""); setSubjectFilter("all"); setExpFilter("all"); }}
-                disabled={searchQuery === "" && subjectFilter === "all" && expFilter === "all"}
-                className="h-9 px-3 bg-white border-slate-200 text-slate-600 hover:text-slate-800 rounded-xl disabled:opacity-40"
+                onClick={() => { setSearchQuery(""); setSubjectFilter("all"); setExpFilter("all"); setDayFilter("all"); setStartTimeFilter(""); setEndTimeFilter(""); }}
+                disabled={searchQuery === "" && subjectFilter === "all" && expFilter === "all" && dayFilter === "all" && startTimeFilter === "" && endTimeFilter === ""}
+                className="h-[42px] px-3 bg-white border-slate-200 text-slate-600 hover:text-slate-800 rounded-xl disabled:opacity-40"
                 title="Reset filters"
               >
                 <RotateCcw className="w-3.5 h-3.5" />

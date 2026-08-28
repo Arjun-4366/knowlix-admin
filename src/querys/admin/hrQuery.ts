@@ -96,7 +96,7 @@ export const useCreateHoliday = () => {
       queryClient.invalidateQueries({ queryKey: HR_HOLIDAYS_KEY });
       toast.success("Holiday created successfully");
     },
-    onError: () => toast.error("Failed to create holiday"),
+    onError: (err: any) => toast.error(err?.response?.data?.message || err?.message || "Failed to create holiday"),
   });
 };
 
@@ -108,7 +108,7 @@ export const useDeleteHoliday = () => {
       queryClient.invalidateQueries({ queryKey: HR_HOLIDAYS_KEY });
       toast.success("Holiday deleted successfully");
     },
-    onError: () => toast.error("Failed to delete holiday"),
+    onError: (err: any) => toast.error(err?.response?.data?.message || err?.message || "Failed to delete holiday"),
   });
 };
 
@@ -137,7 +137,7 @@ export const useApproveAttendance = () => {
       queryClient.invalidateQueries({ queryKey: HR_ATTENDANCE_SUMMARY_KEY });
       toast.success("Attendance status updated successfully");
     },
-    onError: () => toast.error("Failed to update attendance status"),
+    onError: (err: any) => toast.error(err?.response?.data?.message || err?.message || "Failed to update attendance status"),
   });
 };
 
@@ -156,7 +156,7 @@ export const useApproveBulkAttendance = () => {
       queryClient.invalidateQueries({ queryKey: HR_ATTENDANCE_SUMMARY_KEY });
       toast.success("Bulk attendance approved successfully");
     },
-    onError: () => toast.error("Failed to approve bulk attendance"),
+    onError: (err: any) => toast.error(err?.response?.data?.message || err?.message || "Failed to approve bulk attendance"),
   });
 };
 
@@ -183,7 +183,7 @@ export const useCreateHRPerformance = () => {
       queryClient.invalidateQueries({ queryKey: HR_PERFORMANCE_KEY });
       toast.success("Performance record created successfully");
     },
-    onError: () => toast.error("Failed to create performance record"),
+    onError: (err: any) => toast.error(err?.response?.data?.message || err?.message || "Failed to create performance record"),
   });
 };
 
@@ -205,7 +205,7 @@ export const useCreateHRNotice = () => {
       queryClient.invalidateQueries({ queryKey: HR_NOTICES_KEY });
       toast.success("Notice published successfully");
     },
-    onError: () => toast.error("Failed to publish notice"),
+    onError: (err: any) => toast.error(err?.response?.data?.message || err?.message || "Failed to publish notice"),
   });
 };
 
@@ -218,7 +218,7 @@ export const useUpdateHRNotice = () => {
       queryClient.invalidateQueries({ queryKey: HR_NOTICES_KEY });
       toast.success("Notice updated successfully");
     },
-    onError: () => toast.error("Failed to update notice"),
+    onError: (err: any) => toast.error(err?.response?.data?.message || err?.message || "Failed to update notice"),
   });
 };
 
@@ -230,7 +230,7 @@ export const useDeleteHRNotice = () => {
       queryClient.invalidateQueries({ queryKey: HR_NOTICES_KEY });
       toast.success("Notice deleted successfully");
     },
-    onError: () => toast.error("Failed to delete notice"),
+    onError: (err: any) => toast.error(err?.response?.data?.message || err?.message || "Failed to delete notice"),
   });
 };
 
@@ -280,7 +280,7 @@ export const useCreateHRSalary = () => {
       queryClient.invalidateQueries({ queryKey: HR_REPORTS_KEY });
       toast.success("Salary record created successfully");
     },
-    onError: () => toast.error("Failed to create salary record"),
+    onError: (err: any) => toast.error(err?.response?.data?.message || err?.message || "Failed to create salary record"),
   });
 };
 
@@ -294,7 +294,7 @@ export const useUpdateHRSalary = () => {
       queryClient.invalidateQueries({ queryKey: HR_REPORTS_KEY });
       toast.success("Salary record updated successfully");
     },
-    onError: () => toast.error("Failed to update salary record"),
+    onError: (err: any) => toast.error(err?.response?.data?.message || err?.message || "Failed to update salary record"),
   });
 };
 
@@ -307,7 +307,7 @@ export const useDeleteHRSalary = () => {
       queryClient.invalidateQueries({ queryKey: HR_REPORTS_KEY });
       toast.success("Salary record deleted successfully");
     },
-    onError: () => toast.error("Failed to delete salary record"),
+    onError: (err: any) => toast.error(err?.response?.data?.message || err?.message || "Failed to delete salary record"),
   });
 };
 

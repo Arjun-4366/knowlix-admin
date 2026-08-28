@@ -28,8 +28,8 @@ export const useDeleteReview = () => {
       queryClient.invalidateQueries({ queryKey: ["reviews"] });
       toast.success("Review deleted successfully");
     },
-    onError: () => {
-      toast.error("Failed to delete review");
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.message || err?.message || "Failed to delete review");
     },
   });
 };

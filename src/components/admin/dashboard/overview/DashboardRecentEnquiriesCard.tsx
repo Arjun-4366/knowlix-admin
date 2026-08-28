@@ -1,10 +1,23 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import { ArrowRight, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { recentEnquiries } from "./dashboardOverviewData";
+import { useGetEnquiries } from "@/querys/admin/enquiryQuery";
+import Loader from "@/components/shared/Loader";
 
 export default function DashboardRecentEnquiriesCard() {
+  const { data: response, isLoading } = useGetEnquiries();
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col justify-between overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm p-6 items-center min-h-[300px]">
+        <Loader text="Loading Enquiries..." />
+      </div>
+    );
+  }
+
+  const recentEnquiries = response?.enquiries?.slice(0, 6) || [];
+
   return (
     <div className="flex flex-col justify-between overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm">
       <div>
@@ -26,12 +39,12 @@ export default function DashboardRecentEnquiriesCard() {
         <div className="divide-y divide-slate-100">
           {recentEnquiries.map((enquiry) => (
             <div
-              key={`${enquiry.name}-${enquiry.time}`}
+              key={enquiry.id}
               className="flex items-center justify-between px-6 py-4 transition-colors hover:bg-slate-55/30"
             >
               <div>
                 <p className="text-sm font-semibold text-slate-850">{enquiry.name}</p>
-                <p className="mt-0.5 text-xs text-slate-600">{enquiry.grade}</p>
+                <p className="mt-0.5 text-xs text-slate-600">{enquiry.childGrade}</p>
               </div>
 
               <div className="text-right">
@@ -39,7 +52,7 @@ export default function DashboardRecentEnquiriesCard() {
                   variant="secondary"
                   className={cn(
                     "rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase",
-                    enquiry.status === "new"
+                    enquiry.status === "New"
                       ? "border-slate-200 bg-slate-100 text-slate-700"
                       : "border-[var(--brand-light)]/20 bg-[var(--brand-light-green)] text-[var(--brand-mid)]"
                   )}
@@ -48,7 +61,7 @@ export default function DashboardRecentEnquiriesCard() {
                 </Badge>
                 <p className="mt-1.5 flex items-center justify-end gap-1 text-[10px] text-slate-600">
                   <Clock className="h-3 w-3 text-slate-600" />
-                  {enquiry.time}
+                  {enquiry.createdAt ? new Date(enquiry.createdAt).toLocaleDateString() : ""}
                 </p>
               </div>
             </div>

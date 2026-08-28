@@ -39,7 +39,13 @@ export default function AddHrForm({
     e.preventDefault();
 
     if (isEdit) {
-      const payload: IUpdateHrPayload = { name, email, phone, department, role };
+      const payload: IUpdateHrPayload = {
+        name,
+        email,
+        phone,
+        department,
+        role,
+      };
       if (password) payload.password = password;
       onSubmit(payload);
     } else {
@@ -68,16 +74,19 @@ export default function AddHrForm({
         <button
           onClick={onClose}
           disabled={isSubmitting}
-          className="p-1.5 rounded-lg text-slate-600 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer disabled:opacity-50"
-        >
+          className="p-1.5 rounded-lg text-slate-600 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer disabled:opacity-50">
           <X className="w-5 h-5" />
         </button>
       </div>
 
       {/* Form */}
-      <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
+      <form
+        onSubmit={handleSubmit}
+        className="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
         <div className="space-y-1.5">
-          <Label className="text-xs font-semibold text-slate-600">Full Name *</Label>
+          <Label className="text-xs font-semibold text-slate-600">
+            Full Name *
+          </Label>
           <Input
             type="text"
             required
@@ -91,7 +100,9 @@ export default function AddHrForm({
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-1.5">
-            <Label className="text-xs font-semibold text-slate-600">Email Address *</Label>
+            <Label className="text-xs font-semibold text-slate-600">
+              Email Address *
+            </Label>
             <Input
               type="email"
               required
@@ -103,7 +114,9 @@ export default function AddHrForm({
             />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs font-semibold text-slate-600">Phone Number *</Label>
+            <Label className="text-xs font-semibold text-slate-600">
+              Phone Number *
+            </Label>
             <Input
               type="tel"
               required
@@ -118,7 +131,9 @@ export default function AddHrForm({
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-1.5">
-            <Label className="text-xs font-semibold text-slate-600">Department *</Label>
+            <Label className="text-xs font-semibold text-slate-600">
+              Department *
+            </Label>
             <Input
               type="text"
               required
@@ -130,8 +145,13 @@ export default function AddHrForm({
             />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs font-semibold text-slate-600">Role *</Label>
-            <Select disabled={isSubmitting} value={role} onValueChange={setRole}>
+            <Label className="text-xs font-semibold text-slate-600">
+              Role *
+            </Label>
+            <Select
+              disabled={isSubmitting}
+              value={role}
+              onValueChange={setRole}>
               <SelectTrigger className="w-full text-sm bg-slate-50 border border-slate-200 rounded-xl">
                 <SelectValue placeholder="Role" />
               </SelectTrigger>
@@ -147,14 +167,18 @@ export default function AddHrForm({
           <Label className="text-xs font-semibold text-slate-600">
             {isEdit ? "New Password" : "Initial Password *"}
             {isEdit && (
-              <span className="ml-1.5 font-normal text-slate-400">(leave blank to keep current)</span>
+              <span className="ml-1.5 font-normal text-slate-400">
+                (leave blank to keep current)
+              </span>
             )}
           </Label>
           <Input
             type="password"
             required={!isEdit}
             disabled={isSubmitting}
-            placeholder={isEdit ? "Enter new password (optional)" : "Secure password"}
+            placeholder={
+              isEdit ? "Enter new password (optional)" : "Secure password"
+            }
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="w-full bg-slate-50 focus:bg-white border-slate-200 rounded-xl"
@@ -167,15 +191,13 @@ export default function AddHrForm({
             variant="outline"
             disabled={isSubmitting}
             onClick={onClose}
-            className="px-4 py-2 border border-slate-200 rounded-xl text-slate-600 hover:bg-slate-50"
-          >
+            className="px-4 py-2 border border-slate-200 rounded-xl text-slate-600 hover:bg-slate-50">
             Cancel
           </Button>
           <Button
             type="submit"
             disabled={isSubmitting}
-            className="px-4 py-2 text-white bg-[var(--brand-green)] hover:bg-[var(--brand-mid)] rounded-xl shadow-md shadow-green-600/10 flex items-center gap-1.5"
-          >
+            className="px-4 py-2 text-white bg-[var(--brand-green)] hover:bg-[var(--brand-mid)] rounded-xl shadow-md shadow-green-600/10 flex items-center gap-1.5">
             {isSubmitting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
             {isEdit ? "Save Changes" : "Register HR"}
           </Button>

@@ -31,7 +31,7 @@ export const useCreateMentor = () => {
       queryClient.invalidateQueries({ queryKey: MENTORS_KEY });
       toast.success("Mentor registered successfully");
     },
-    onError: () => toast.error("Failed to register mentor"),
+    onError: (err: any) => toast.error(err?.response?.data?.message || err?.message || "Failed to register mentor"),
   });
 };
 
@@ -46,7 +46,7 @@ export const useUpdateMentor = () => {
       queryClient.invalidateQueries({ queryKey: [...MENTOR_KEY, variables.id] });
       toast.success("Mentor updated successfully");
     },
-    onError: () => toast.error("Failed to update mentor"),
+    onError: (err: any) => toast.error(err?.response?.data?.message || err?.message || "Failed to update mentor"),
   });
 };
 
@@ -59,6 +59,6 @@ export const useDeleteMentor = () => {
       queryClient.invalidateQueries({ queryKey: MENTORS_KEY });
       toast.success("Mentor deleted successfully");
     },
-    onError: () => toast.error("Failed to delete mentor"),
+    onError: (err: any) => toast.error(err?.response?.data?.message || err?.message || "Failed to delete mentor"),
   });
 };

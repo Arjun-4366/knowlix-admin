@@ -58,7 +58,7 @@ export const useCreateStudent = () => {
       queryClient.invalidateQueries({ queryKey: STUDENTS_KEY });
       toast.success("Student created successfully");
     },
-    onError: () => toast.error("Failed to create student"),
+    onError: (err: any) => toast.error(err?.response?.data?.message || err?.message || "Failed to create student"),
   });
 };
 
@@ -73,7 +73,7 @@ export const useUpdateStudent = () => {
       queryClient.invalidateQueries({ queryKey: [...STUDENT_KEY, variables.id] });
       toast.success("Student updated successfully");
     },
-    onError: () => toast.error("Failed to update student"),
+    onError: (err: any) => toast.error(err?.response?.data?.message || err?.message || "Failed to update student"),
   });
 };
 
@@ -86,7 +86,7 @@ export const useDeleteStudent = () => {
       queryClient.invalidateQueries({ queryKey: STUDENTS_KEY });
       toast.success("Student deleted successfully");
     },
-    onError: () => toast.error("Failed to delete student"),
+    onError: (err: any) => toast.error(err?.response?.data?.message || err?.message || "Failed to delete student"),
   });
 };
 
@@ -124,6 +124,6 @@ export const useAssignTutor = () => {
       queryClient.invalidateQueries({ queryKey: [...STUDENT_KEY, variables.studentId] });
       toast.success("Tutor assigned successfully");
     },
-    onError: () => toast.error("Failed to assign tutor"),
+    onError: (err: any) => toast.error(err?.response?.data?.message || err?.message || "Failed to assign tutor"),
   });
 };

@@ -1,5 +1,5 @@
-﻿import { useEffect, useMemo, useState } from "react";
-import { X, Loader2 } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { X, Loader2, Eye, EyeOff } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -46,6 +46,7 @@ export default function AddTutorForm({
   const [email, setEmail] = useState(() => tutorToEdit?.email || "");
   const [phone, setPhone] = useState(() => tutorToEdit?.phone || "");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const [experience, setExperience] = useState(() => {
     const expStr = tutorToEdit?.experience || "";
@@ -278,15 +279,24 @@ export default function AddTutorForm({
                 ? <span className="font-normal text-slate-600 ml-1">(leave blank to keep current)</span>
                 : "*"}
             </Label>
-            <Input
-              type="password"
-              required={!tutorToEdit}
-              disabled={isSubmitting}
-              placeholder={tutorToEdit ? "New password (optional)" : "e.g. StrongPassword@123"}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-slate-50 focus:bg-white border-slate-200 rounded-xl"
-            />
+            <div className="relative">
+              <Input
+                type={showPassword ? "text" : "password"}
+                required={!tutorToEdit}
+                disabled={isSubmitting}
+                placeholder={tutorToEdit ? "New password (optional)" : "e.g. StrongPassword@123"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full bg-slate-50 focus:bg-white border-slate-200 rounded-xl pr-10"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+              >
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
           </div>
         )}
 

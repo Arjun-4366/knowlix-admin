@@ -29,7 +29,7 @@ export const useCreateTimetable = () => {
       queryClient.invalidateQueries({ queryKey: TIMETABLE_KEY });
       toast.success("Timetable slot created successfully");
     },
-    onError: () => toast.error("Failed to create timetable slot"),
+    onError: (err: any) => toast.error(err?.response?.data?.message || err?.message || "Failed to create timetable slot"),
   });
 };
 
@@ -42,7 +42,7 @@ export const useUpdateTimetable = () => {
       queryClient.invalidateQueries({ queryKey: TIMETABLE_KEY });
       toast.success("Timetable slot updated successfully");
     },
-    onError: () => toast.error("Failed to update timetable slot"),
+    onError: (err: any) => toast.error(err?.response?.data?.message || err?.message || "Failed to update timetable slot"),
   });
 };
 
@@ -54,6 +54,6 @@ export const useDeleteTimetable = () => {
       queryClient.invalidateQueries({ queryKey: TIMETABLE_KEY });
       toast.success("Timetable slot deleted successfully");
     },
-    onError: () => toast.error("Failed to delete timetable slot"),
+    onError: (err: any) => toast.error(err?.response?.data?.message || err?.message || "Failed to delete timetable slot"),
   });
 };

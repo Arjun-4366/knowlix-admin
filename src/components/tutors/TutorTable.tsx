@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useRouter } from "next/navigation";
 import {
@@ -57,8 +57,8 @@ export default function TutorTable({
             <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[10%]">
               Experience
             </TableHead>
-            <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[10%]">
-              Availability
+            <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[15%]">
+              Availability & Slots
             </TableHead>
             <TableHead className="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-[8%] text-center">
               Students
@@ -80,36 +80,72 @@ export default function TutorTable({
                 <TableRow
                   key={tutor.id}
                   className="hover:bg-slate-100 transition-colors cursor-pointer"
-                  onClick={() => router.push(`/admin/tutor/${tutor.id}`)}
-                >
+                  onClick={() => router.push(`/admin/tutor/${tutor.id}`)}>
                   <TableCell className="px-6 py-4 text-sm font-semibold text-slate-600">
                     {index + 1}
                   </TableCell>
                   <TableCell className="px-6 py-4">
                     <div>
-                      <p className="text-sm font-semibold text-slate-800">{tutor.name}</p>
+                      <p className="text-sm font-semibold text-slate-800">
+                        {tutor.name}
+                      </p>
                       <p className="text-xs text-slate-600">{tutor.email}</p>
-                      {tutor.phone && <p className="text-[10px] text-slate-600 mt-0.5">{tutor.phone}</p>}
+                      {tutor.phone && (
+                        <p className="text-[10px] text-slate-600 mt-0.5">
+                          {tutor.phone}
+                        </p>
+                      )}
                     </div>
                   </TableCell>
-                  <TableCell className="px-6 py-4 text-sm text-slate-700 font-semibold max-w-[200px]">
+                  <TableCell className="px-6 py-4 text-sm text-slate-700 font-semibold max-w-[150px] lg:max-w-[200px] xl:max-w-[250px] 2xl:max-w-[350px]">
                     <div className="flex flex-wrap gap-1">
                       {tutor.subjectEntries && tutor.subjectEntries.length > 0
                         ? tutor.subjectEntries.map((e, idx) => (
-                            <Badge key={idx} variant="outline" className="text-[10px] bg-slate-50 border-slate-200">
-                              {e.name} {e.syllabi.length > 0 ? `(${e.syllabi.join(", ")})` : ""}
+                            <Badge
+                              key={idx}
+                              variant="outline"
+                              className="text-[10px] bg-slate-50 border-slate-200 max-w-full truncate block"
+                              title={`${e.name} ${e.syllabi.length > 0 ? `(${e.syllabi.join(", ")})` : ""}`}>
+                              {e.name}{" "}
+                              {e.syllabi.length > 0
+                                ? `(${e.syllabi.join(", ")})`
+                                : ""}
                             </Badge>
                           ))
                         : tutor.subjects && tutor.subjects.length > 0
-                        ? tutor.subjects.join(", ")
-                        : "General"}
+                          ? <span className="truncate max-w-full block" title={tutor.subjects.join(", ")}>{tutor.subjects.join(", ")}</span>
+                          : "General"}
                     </div>
                   </TableCell>
                   <TableCell className="px-6 py-4 text-sm text-slate-650">
                     {tutor.experience}
                   </TableCell>
-                  <TableCell className="px-6 py-4 text-sm text-slate-655">
-                    {Array.isArray(tutor.availability) ? tutor.availability.join(", ") : tutor.availability}
+                  <TableCell className="px-6 py-4">
+                    <div className="flex flex-col gap-1.5">
+                      <span className="text-sm text-slate-655 font-medium">
+                        {Array.isArray(tutor.availability)
+                          ? tutor.availability.join(", ")
+                          : tutor.availability}
+                      </span>
+                      {tutor.slots && tutor.slots.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {tutor.slots.map((slot, sIdx) => (
+                            <Badge
+                              key={sIdx}
+                              variant="outline"
+                              className={`text-[9px] py-0 px-1.5 font-semibold tracking-tight leading-4 ${
+                                slot.filled
+                                  ? "bg-slate-100 text-slate-500 border-slate-200"
+                                  : "bg-green-50 text-green-700 border-green-200"
+                              }`}
+                              title={slot.filled ? "Filled Slot" : "Available Slot"}
+                            >
+                              {slot.day?.substring(0, 3)} {slot.startTime}-{slot.endTime}
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </TableCell>
                   <TableCell className="px-6 py-4 text-center">
                     <div className="flex items-center justify-center gap-1.5">
@@ -123,7 +159,9 @@ export default function TutorTable({
                     {hasPerformance ? (
                       <div className="flex items-center gap-1.5">
                         <Star className="w-3.5 h-3.5 text-[var(--brand-green)] fill-[var(--brand-green)]" />
-                        <span className="text-sm font-bold text-slate-750">{tutor.performanceScore?.toFixed(1) || "0.0"}</span>
+                        <span className="text-sm font-bold text-slate-750">
+                          {tutor.performanceScore?.toFixed(1) || "0.0"}
+                        </span>
                         <span className="text-[10px] text-slate-600">
                           ({tutor.growthPoints || 0} pts)
                         </span>
@@ -131,13 +169,16 @@ export default function TutorTable({
                     ) : (
                       <Badge
                         variant="outline"
-                        className={`text-xs font-semibold px-2 py-0.5 rounded-full ${getStatusBadgeClass(tutor.status)}`}
-                      >
-                        {tutor.status === "pending" ? "Awaiting HR" : tutor.status}
+                        className={`text-xs font-semibold px-2 py-0.5 rounded-full ${getStatusBadgeClass(tutor.status)}`}>
+                        {tutor.status === "pending"
+                          ? "Awaiting HR"
+                          : tutor.status}
                       </Badge>
                     )}
                   </TableCell>
-                  <TableCell className="px-6 py-4 text-sm text-right" onClick={(e) => e.stopPropagation()}>
+                  <TableCell
+                    className="px-6 py-4 text-sm text-right"
+                    onClick={(e) => e.stopPropagation()}>
                     <div className="flex justify-end items-center gap-1.5">
                       {tutor.status === "pending" && onApproveTutor && (
                         <Button
@@ -146,8 +187,7 @@ export default function TutorTable({
                           type="button"
                           onClick={() => onApproveTutor(tutor.id)}
                           title="Admit Tutor (HR Approval)"
-                          className="rounded-lg text-slate-600 hover:text-[var(--brand-green)] hover:bg-[var(--brand-light-green)]"
-                        >
+                          className="rounded-lg text-slate-600 hover:text-[var(--brand-green)] hover:bg-[var(--brand-light-green)]">
                           <CheckCircle2 className="w-4 h-4" />
                         </Button>
                       )}
@@ -155,10 +195,12 @@ export default function TutorTable({
                         variant="ghost"
                         size="icon-sm"
                         type="button"
-                        onClick={(e) => { e.stopPropagation(); router.push(`/admin/tutor/${tutor.id}`); }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          router.push(`/admin/tutor/${tutor.id}`);
+                        }}
                         title="View Tutor Details"
-                        className="rounded-lg text-slate-600 hover:text-[var(--brand-green)] hover:bg-slate-50"
-                      >
+                        className="rounded-lg text-slate-600 hover:text-[var(--brand-green)] hover:bg-slate-50">
                         <Eye className="w-4 h-4" />
                       </Button>
                       {onEditTutor && (
@@ -168,8 +210,7 @@ export default function TutorTable({
                           type="button"
                           onClick={() => onEditTutor(tutor.id)}
                           title="Edit Tutor"
-                          className="rounded-lg text-slate-600 hover:text-[var(--brand-green)] hover:bg-slate-50"
-                        >
+                          className="rounded-lg text-slate-600 hover:text-[var(--brand-green)] hover:bg-slate-50">
                           <Pencil className="w-4 h-4" />
                         </Button>
                       )}
@@ -180,8 +221,7 @@ export default function TutorTable({
                           type="button"
                           onClick={() => onDeleteTutor(tutor.id)}
                           title="Delete Tutor"
-                          className="rounded-lg text-slate-600 hover:text-red-600 hover:bg-red-50"
-                        >
+                          className="rounded-lg text-slate-600 hover:text-red-600 hover:bg-red-50">
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       )}
@@ -194,8 +234,7 @@ export default function TutorTable({
             <TableRow>
               <TableCell
                 colSpan={8}
-                className="px-6 py-12 text-center text-slate-600 text-sm"
-              >
+                className="px-6 py-12 text-center text-slate-600 text-sm">
                 No tutors matching the current filters.
               </TableCell>
             </TableRow>

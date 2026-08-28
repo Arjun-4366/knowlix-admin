@@ -29,8 +29,8 @@ export const useDeleteFaq = () => {
       queryClient.invalidateQueries({ queryKey: ["faqs"] });
       toast.success("FAQ deleted successfully");
     },
-    onError: () => {
-      toast.error("Failed to delete FAQ");
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.message || err?.message || "Failed to delete FAQ");
     },
   });
 };

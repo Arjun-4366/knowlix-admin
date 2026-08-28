@@ -29,7 +29,7 @@ export const useCreateNote = () => {
       queryClient.invalidateQueries({ queryKey: NOTES_KEY });
       toast.success("Note created successfully");
     },
-    onError: () => toast.error("Failed to create note"),
+    onError: (err: any) => toast.error(err?.response?.data?.message || err?.message || "Failed to create note"),
   });
 };
 
@@ -42,7 +42,7 @@ export const useUpdateNote = () => {
       queryClient.invalidateQueries({ queryKey: NOTES_KEY });
       toast.success("Note updated successfully");
     },
-    onError: () => toast.error("Failed to update note"),
+    onError: (err: any) => toast.error(err?.response?.data?.message || err?.message || "Failed to update note"),
   });
 };
 
@@ -54,6 +54,6 @@ export const useDeleteNote = () => {
       queryClient.invalidateQueries({ queryKey: NOTES_KEY });
       toast.success("Note deleted successfully");
     },
-    onError: () => toast.error("Failed to delete note"),
+    onError: (err: any) => toast.error(err?.response?.data?.message || err?.message || "Failed to delete note"),
   });
 };

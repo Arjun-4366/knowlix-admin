@@ -9,7 +9,6 @@ import DashboardOverviewModals, {
   DashboardOverviewModalType,
 } from "@/components/admin/dashboard/overview/DashboardOverviewModals";
 import DashboardOverviewStats from "@/components/admin/dashboard/overview/DashboardOverviewStats";
-import DashboardQuickActionsCard from "@/components/admin/dashboard/overview/DashboardQuickActionsCard";
 import DashboardRecentEnquiriesCard from "@/components/admin/dashboard/overview/DashboardRecentEnquiriesCard";
 import DashboardTopTutorsCard from "@/components/admin/dashboard/overview/DashboardTopTutorsCard";
 import Loader from "@/components/shared/Loader";
@@ -64,12 +63,16 @@ export default function AdminDashboardOverview({
       <DashboardOverviewHeader />
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
         {/* Left column */}
-        <div className="lg:col-span-3 space-y-6">
+        <div className="lg:col-span-4 space-y-6">
           <DashboardOverviewStats
             dashboardData={dashboardData}
             onViewChange={onViewChange}
           />
-          <DashboardContentLinksCard />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+            <DashboardContentLinksCard />
+            <DashboardRecentEnquiriesCard />
+          </div>
+
           <DashboardTopTutorsCard
             tutors={dashboardData?.top5Tutors ?? []}
             onTutorSelect={openTutorReport}
@@ -77,14 +80,6 @@ export default function AdminDashboardOverview({
         </div>
 
         {/* Right column — continuous, no gap between cards */}
-        <div className="lg:col-span-1 space-y-6 self-start">
-          <DashboardQuickActionsCard
-            onAddStudent={() => router.push("/admin/students?add=true")}
-            onAddTutor={() => setActiveModal("add-tutor")}
-            onAssignTutor={() => setActiveModal("assign-tutor")}
-          />
-          <DashboardRecentEnquiriesCard />
-        </div>
       </div>
 
       <DashboardOverviewModals

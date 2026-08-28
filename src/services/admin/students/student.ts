@@ -92,6 +92,9 @@ export const updateStudent = async (id: string, data: IUpdateStudentPayload) => 
     if (data.coordinatorId) formData.append("coordinatorId", data.coordinatorId);
     if (data.programId) formData.append("programId", data.programId);
     if (data.courseId) formData.append("courseId", data.courseId);
+    if (data.subjectIds && data.subjectIds.length > 0) {
+        formData.append("subjectIds", JSON.stringify(data.subjectIds));
+    }
     
     if (data.totalFee !== undefined) formData.append("totalFee", data.totalFee.toString());
     if (data.paidAmount !== undefined) formData.append("paidAmount", data.paidAmount.toString());

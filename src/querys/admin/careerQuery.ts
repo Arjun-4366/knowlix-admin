@@ -22,7 +22,7 @@ export const useCreateCareer = () => {
       queryClient.invalidateQueries({ queryKey: ["careers-admin"] });
       toast.success("Job posting created successfully");
     },
-    onError: () => toast.error("Failed to create job posting"),
+    onError: (err: any) => toast.error(err?.response?.data?.message || err?.message || "Failed to create job posting"),
   });
 };
 
@@ -34,7 +34,7 @@ export const useUpdateCareer = () => {
       queryClient.invalidateQueries({ queryKey: ["careers-admin"] });
       toast.success("Job posting updated");
     },
-    onError: () => toast.error("Failed to update job posting"),
+    onError: (err: any) => toast.error(err?.response?.data?.message || err?.message || "Failed to update job posting"),
   });
 };
 
@@ -46,7 +46,7 @@ export const useDeleteCareer = () => {
       queryClient.invalidateQueries({ queryKey: ["careers-admin"] });
       toast.success("Job posting removed");
     },
-    onError: () => toast.error("Failed to delete job posting"),
+    onError: (err: any) => toast.error(err?.response?.data?.message || err?.message || "Failed to delete job posting"),
   });
 };
 
@@ -66,7 +66,7 @@ export const useUpdateApplicationStatus = () => {
       queryClient.invalidateQueries({ queryKey: ["applications"] });
       toast.success("Application status updated");
     },
-    onError: () => toast.error("Failed to update application status"),
+    onError: (err: any) => toast.error(err?.response?.data?.message || err?.message || "Failed to update application status"),
   });
 };
 
@@ -78,6 +78,6 @@ export const useDeleteApplication = () => {
       queryClient.invalidateQueries({ queryKey: ["applications"] });
       toast.success("Application removed");
     },
-    onError: () => toast.error("Failed to delete application"),
+    onError: (err: any) => toast.error(err?.response?.data?.message || err?.message || "Failed to delete application"),
   });
 };

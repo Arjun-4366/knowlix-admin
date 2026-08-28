@@ -18,8 +18,8 @@ export const useUpdateEnquiryStatus = () => {
       queryClient.invalidateQueries({ queryKey: ["enquiries"] });
       toast.success("Enquiry status updated");
     },
-    onError: () => {
-      toast.error("Failed to update enquiry status");
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.message || err?.message || "Failed to update enquiry status");
     },
   });
 };
@@ -32,8 +32,8 @@ export const useDeleteEnquiry = () => {
       queryClient.invalidateQueries({ queryKey: ["enquiries"] });
       toast.success("Enquiry deleted successfully");
     },
-    onError: () => {
-      toast.error("Failed to delete enquiry");
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.message || err?.message || "Failed to delete enquiry");
     },
   });
 };

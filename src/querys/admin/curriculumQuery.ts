@@ -20,7 +20,7 @@ export const useCreateStandard = () => {
   return useMutation({
     mutationFn: (data: ICreateCurriculumPayload) => createStandard(data),
     onSuccess: () => { qc.invalidateQueries({ queryKey: STANDARDS_KEY }); toast.success("Standard added"); },
-    onError: () => toast.error("Failed to add standard"),
+    onError: (err: any) => toast.error(err?.response?.data?.message || err?.message || "Failed to add standard"),
   });
 };
 
@@ -29,7 +29,7 @@ export const useUpdateStandard = () => {
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: IUpdateCurriculumPayload }) => updateStandard(id, data),
     onSuccess: () => { qc.invalidateQueries({ queryKey: STANDARDS_KEY }); toast.success("Standard updated"); },
-    onError: () => toast.error("Failed to update standard"),
+    onError: (err: any) => toast.error(err?.response?.data?.message || err?.message || "Failed to update standard"),
   });
 };
 
@@ -38,7 +38,7 @@ export const useDeleteStandard = () => {
   return useMutation({
     mutationFn: (id: string) => deleteStandard(id),
     onSuccess: () => { qc.invalidateQueries({ queryKey: STANDARDS_KEY }); toast.success("Standard deleted"); },
-    onError: () => toast.error("Failed to delete standard"),
+    onError: (err: any) => toast.error(err?.response?.data?.message || err?.message || "Failed to delete standard"),
   });
 };
 
@@ -51,7 +51,7 @@ export const useCreateSyllabus = () => {
   return useMutation({
     mutationFn: (data: ICreateCurriculumPayload) => createSyllabus(data),
     onSuccess: () => { qc.invalidateQueries({ queryKey: SYLLABUSES_KEY }); toast.success("Syllabus added"); },
-    onError: () => toast.error("Failed to add syllabus"),
+    onError: (err: any) => toast.error(err?.response?.data?.message || err?.message || "Failed to add syllabus"),
   });
 };
 
@@ -60,7 +60,7 @@ export const useUpdateSyllabus = () => {
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: IUpdateCurriculumPayload }) => updateSyllabus(id, data),
     onSuccess: () => { qc.invalidateQueries({ queryKey: SYLLABUSES_KEY }); toast.success("Syllabus updated"); },
-    onError: () => toast.error("Failed to update syllabus"),
+    onError: (err: any) => toast.error(err?.response?.data?.message || err?.message || "Failed to update syllabus"),
   });
 };
 
@@ -69,7 +69,7 @@ export const useDeleteSyllabus = () => {
   return useMutation({
     mutationFn: (id: string) => deleteSyllabus(id),
     onSuccess: () => { qc.invalidateQueries({ queryKey: SYLLABUSES_KEY }); toast.success("Syllabus deleted"); },
-    onError: () => toast.error("Failed to delete syllabus"),
+    onError: (err: any) => toast.error(err?.response?.data?.message || err?.message || "Failed to delete syllabus"),
   });
 };
 
@@ -82,7 +82,7 @@ export const useCreateSubject = () => {
   return useMutation({
     mutationFn: (data: ICreateCurriculumPayload) => createSubject(data),
     onSuccess: () => { qc.invalidateQueries({ queryKey: SUBJECTS_KEY }); toast.success("Subject added"); },
-    onError: () => toast.error("Failed to add subject"),
+    onError: (err: any) => toast.error(err?.response?.data?.message || err?.message || "Failed to add subject"),
   });
 };
 
@@ -91,7 +91,7 @@ export const useUpdateSubject = () => {
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: IUpdateCurriculumPayload }) => updateSubject(id, data),
     onSuccess: () => { qc.invalidateQueries({ queryKey: SUBJECTS_KEY }); toast.success("Subject updated"); },
-    onError: () => toast.error("Failed to update subject"),
+    onError: (err: any) => toast.error(err?.response?.data?.message || err?.message || "Failed to update subject"),
   });
 };
 
@@ -100,6 +100,6 @@ export const useDeleteSubject = () => {
   return useMutation({
     mutationFn: (id: string) => deleteSubject(id),
     onSuccess: () => { qc.invalidateQueries({ queryKey: SUBJECTS_KEY }); toast.success("Subject deleted"); },
-    onError: () => toast.error("Failed to delete subject"),
+    onError: (err: any) => toast.error(err?.response?.data?.message || err?.message || "Failed to delete subject"),
   });
 };

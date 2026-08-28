@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, type FormEvent } from "react";
-import { CheckCircle, FileText, X, Upload, ExternalLink, Search } from "lucide-react";
+import { CheckCircle, FileText, X, Upload, ExternalLink, Search, Eye, EyeOff } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -233,6 +233,7 @@ export default function AddStudentForm({
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [place, setPlace] = useState(studentToEdit?.place ?? "");
   const [programId, setProgramId] = useState(studentToEdit?.programId ?? "");
   const [courseId, setCourseId] = useState(studentToEdit?.courseId ?? "");
@@ -453,14 +454,23 @@ export default function AddStudentForm({
                   ? <span className="font-normal text-slate-600 ml-1">(leave blank to keep current)</span>
                   : "*"}
               </Label>
-              <Input
-                required={!studentToEdit}
-                type="password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                placeholder={studentToEdit ? "New password (optional)" : "password123"}
-                className="rounded-xl border-slate-200 bg-slate-50 focus:bg-white"
-              />
+              <div className="relative">
+                <Input
+                  required={!studentToEdit}
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  placeholder={studentToEdit ? "New password (optional)" : "password123"}
+                  className="rounded-xl border-slate-200 bg-slate-50 focus:bg-white pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
             </div>
 
             <div className="space-y-1.5">

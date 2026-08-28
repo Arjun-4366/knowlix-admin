@@ -38,8 +38,8 @@ export const useDeleteBlog = () => {
       queryClient.invalidateQueries({ queryKey: ["blogs"] });
       toast.success("Blog post deleted successfully");
     },
-    onError: () => {
-      toast.error("Failed to delete blog post");
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.message || err?.message || "Failed to delete blog post");
     },
   });
 };

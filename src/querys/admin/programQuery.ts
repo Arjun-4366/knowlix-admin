@@ -21,7 +21,7 @@ export const useCreateProgram = () => {
       queryClient.invalidateQueries({ queryKey: PROGRAM_KEY });
       toast.success("Program created successfully");
     },
-    onError: () => toast.error("Failed to create program"),
+    onError: (err: any) => toast.error(err?.response?.data?.message || err?.message || "Failed to create program"),
   });
 };
 
@@ -33,7 +33,7 @@ export const useUpdateProgram = () => {
       queryClient.invalidateQueries({ queryKey: PROGRAM_KEY });
       toast.success("Program updated successfully");
     },
-    onError: () => toast.error("Failed to update program"),
+    onError: (err: any) => toast.error(err?.response?.data?.message || err?.message || "Failed to update program"),
   });
 };
 
@@ -45,7 +45,7 @@ export const useDeleteProgram = () => {
       queryClient.invalidateQueries({ queryKey: PROGRAM_KEY });
       toast.success("Program deleted");
     },
-    onError: () => toast.error("Failed to delete program"),
+    onError: (err: any) => toast.error(err?.response?.data?.message || err?.message || "Failed to delete program"),
   });
 };
 
@@ -67,7 +67,7 @@ export const useAddCourse = () => {
       queryClient.invalidateQueries({ queryKey: PROGRAM_KEY });
       toast.success("Course added successfully");
     },
-    onError: () => toast.error("Failed to add course"),
+    onError: (err: any) => toast.error(err?.response?.data?.message || err?.message || "Failed to add course"),
   });
 };
 
@@ -79,7 +79,7 @@ export const useUpdateCourse = () => {
       queryClient.invalidateQueries({ queryKey: ["courses-by-program"] });
       toast.success("Course updated successfully");
     },
-    onError: () => toast.error("Failed to update course"),
+    onError: (err: any) => toast.error(err?.response?.data?.message || err?.message || "Failed to update course"),
   });
 };
 
@@ -92,6 +92,6 @@ export const useDeleteCourse = () => {
       queryClient.invalidateQueries({ queryKey: PROGRAM_KEY });
       toast.success("Course deleted");
     },
-    onError: () => toast.error("Failed to delete course"),
+    onError: (err: any) => toast.error(err?.response?.data?.message || err?.message || "Failed to delete course"),
   });
 };
